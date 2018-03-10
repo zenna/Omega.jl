@@ -8,6 +8,18 @@ struct RandVar{T}
   ωids::Set{Int}
 end
 
+"Random Variable `name::Ω -> T` where `name(ω) = body`"
+struct RandVar{T}
+  name::Symbol
+  body::Expr
+  ωids::Set{Int}
+  function name()
+    @pre true
+  end
+end
+
+Base.Expr(x::RandVar) = :($name(ω::Omega) = $body)
+
 "Sample Space"
 struct Omega
   d::Dict{Int, Float64}
@@ -40,12 +52,6 @@ function Base.merge(ω1::Omega, ω2::Omega)
   ω1
 end
 
-
-function filter(ω::Omega, keys::Set{Int})
-  dict = Dict(i => ω.d[i] for i in keys)
-  Omega(dict)
-end
-
 ## Compilation
 ## ===========
 "Compile `r` to julia function"
@@ -75,6 +81,13 @@ ok(x::RandVar) = :($(x.expr)(ω))
 ## =======================
 "`uniform(a, b)`"
 function uniform(a, b, ωid=ωnew())
+  allωids = union(Set(ωid), ωids(a), ωids(b))
+  e = :(ω -> ω[$ωid] * ($b - $a) + $a)
+  RandVar{Real}(e, allωids)
+end
+
+function uniform(a, b, ωid=ωnew())
+  ω[i]
   allωids = union(Set(ωid), ωids(a), ωids(b))
   e = :(ω -> ω[$ωid] * ($b - $a) + $a)
   RandVar{Real}(e, allωids)
