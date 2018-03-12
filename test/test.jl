@@ -31,3 +31,6 @@ println("Conditional sample from θ given that expectation of y ∈ [0.4, -.6]",
 z = normal(θ, 1)
 println("Conditional sample from z with θ_",
         rand(z))
+
+r = [rand(z) for i = 1:1000]
+println("A thousand samples", r)
