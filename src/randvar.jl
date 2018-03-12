@@ -17,7 +17,7 @@ RandVar{T}(f::Function, i::Int) where T = RandVar{T}(f, Set(i))
 ωids(x) = Set{Int}() # Non RandVars defaut to emptyset (convenience)
 
 apl(x::Real, ω::Omega) = x
-apl(x::RandVar, ω::Omega) = x(ω)
+apl(x::AbstractRandVar, ω::Omega) = x(ω)
 
 ## Primitive Distributions
 "`uniform(a, b)`"
