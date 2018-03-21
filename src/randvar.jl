@@ -62,6 +62,12 @@ function Base.rand(x::RandVar, y::RandVar{Bool})
   end
 end
 
+"Sample from `x | y == true` with rejection sampling"
+function Base.rand(x::RandVar, y::RandVar{SoftBool})
+  ω = Omega()
+  (ω, x(ω), y(ω).epsilon)
+end
+
 ## Functions of Random Variables
 ## =============================
 "Expectation of `x`"
@@ -85,3 +91,8 @@ function curry(y::RandVar{T}, x::RandVar) where T
                             end,
                       ωids(x))
 end
+
+softeq(x::RandVar{Real}, y::Real) = RandVar{SoftBool}(ω -> SoftBool(1 - f1((x(ω) - y)^2)), ωids(x))
+Base.:&(x::RandVar{SoftBool}, y::RandVar{SoftBool}) =
+  RandVar{SoftBool}(ω -> SoftBool(min(x(ω).epsilon, y(ω).epsilon)),
+                   union(ωids(x), ωids(y)))

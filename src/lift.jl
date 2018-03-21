@@ -6,6 +6,24 @@
 ## Look up the corresponding types e.g. Float64 + Float64
 ## And create the corresponding randvar
 
+uniform(a, b, ωid=ωnew()) =
+  RandVar{Real}(ω -> uniform(apl(a, ω), apl(b, ω), ω, ωid), ωid)
+
+uniform(a, b, ωid=ωnew()) =
+  RandVar{Real}(ω -> uniform(apl(a, ω), apl(b, ω), ω, ωid), ωid)
+  
+uniform(a, b, ωid=ωnew()) =
+  RandVar{Real}(ω -> uniform(apl(a, ω), apl(b, ω), ω, ωid), ωid)
+
+Base.:-(a::RandVar{T}, b::T) where T = 
+  RandVar{Real}(ω -> uniform(apl(a, ω), apl(b, ω), ω, ωid), ωid)
+
+Base.:-(a::T, b::RandVar{T}) where T = 
+  RandVar{Real}(ω -> uniform(apl(a, ω), apl(b, ω), ω, ωid), ωid)
+
+Base.:-(a::RandVar{T}, b::RandVar{T}) where T =
+  RandVar{Real}(ω -> uniform(apl(a, ω), apl(b, ω), ω, ωid), ωid)
+
 function Base.:+(x::Union{RandVar, Any}, y::Union{RandVar, Any})
   ωids = union((Expect.ωids(arg) for arg in [x, y])...)
   RandVar{Real}(ω -> +(apl(x, ω), apl(y, ω)), ωids)
@@ -38,3 +56,33 @@ function lift(f::Function, domain::Vector{DataType}, range::Type)
 end
 
 lift(Base.:+, [Any, Any], Bool)
+
+f = g ∘ h
+
+x_h -> (g ∘ h)(x_h)
+
+f(x) = g(h(x))
+
+ff(x) = x_ -> g(h(merge(x, x_)))
+---[f]--->[g]---->
+
+----------->
+function gf(x)
+  x_ -> g(h(x), x_)
+end
+
+function f(x, y)
+  g(h(x), y)
+end
+
+function f(x)
+  function _(y)
+    g(h(x), y)
+  end
+end
+
+function f(y)
+  function _(x)
+    g(h(x), y)
+  end
+end
