@@ -25,7 +25,7 @@ Base.:-(a::RandVar{T}, b::RandVar{T}) where T =
   RandVar{Real}(ω -> uniform(apl(a, ω), apl(b, ω), ω, ωid), ωid)
 
 function Base.:+(x::Union{RandVar, Any}, y::Union{RandVar, Any})
-  ωids = union((Expect.ωids(arg) for arg in [x, y])...)
+  ωids = union((Mu.ωids(arg) for arg in [x, y])...)
   RandVar{Real}(ω -> +(apl(x, ω), apl(y, ω)), ωids)
 end
 
@@ -33,7 +33,7 @@ function lift(f::Function, domain::Vector{DataType}, range::Type):
   "Code Generation to lift `f` to act on `RandVar`s"
   @generated function lifted(args...)
     quote
-      ωids = union((Expect.ωids(arg) for arg in [x, y])...)
+      ωids = union((Mu.ωids(arg) for arg in [x, y])...)
       RandVar{Real}(ω -> +(apl(x, ω), apl(y, ω)), ωids)
     end
   end
@@ -49,7 +49,7 @@ function lift(f::Function, domain::Vector{DataType}, range::Type)
 
   quote
     function $f(x::Union{RandVar, Any}, y::Union{RandVar, Any})
-      ωids = union((Expect.ωids(arg) for arg in [x, y])...)
+      ωids = union((Mu.ωids(arg) for arg in [x, y])...)
       RandVar{Real}(ω -> +(apl(x, ω), apl(y, ω)), ωids)
     end
   end

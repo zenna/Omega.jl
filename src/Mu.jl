@@ -1,5 +1,5 @@
 "Minimal Probabilistic Programming Langauge"
-module Expect
+module Mu
 
 using Distributions
 

@@ -1,4 +1,4 @@
-using Expect
+using Mu
 
 function test()
   θ = uniform(0, 1)
