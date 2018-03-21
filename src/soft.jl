@@ -1,9 +1,11 @@
-f1(x; a=0.001) = x / (x + a)
 
+"Real+ -> [0, 1]"
+f1(x; a=0.1) = x / (x + a)
+
+"Real+ -> [0, 1]"
 f2(x; a=1.0) = 1 - exp(-a * x)
 
-δ(x, y) = 1 - (x - y)
-
+"Soft Boolean"
 struct SoftBool{ET <: Real}
   epsilon::ET
 end

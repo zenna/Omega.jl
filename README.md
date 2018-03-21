@@ -16,7 +16,7 @@ Open a repl (by calling `julia` from bash) and type:
 Pkg.add("Distributions") # If not already installed
 Pkg.clone("https://github.com/zenna/Mu.jl.git")
 
-using Expect
+using Mu
 
 θ = uniform(0, 1)
 println("Expectation of θ is ", expectation(θ))

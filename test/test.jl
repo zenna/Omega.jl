@@ -46,6 +46,7 @@ test2()
 function soft_test()
   θ = uniform(0, 1)
   x1 = normal(θ, 1)
-  y = softeq(x1, -1.5)
+  y1 = softeq(x1, 0.5)
+  y1 = softeq(x1, -1.5)
   xy = cond(θ, y)
 end
