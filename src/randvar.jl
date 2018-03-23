@@ -17,7 +17,7 @@ RandVar{T}(f::Function, i::Int) where T = RandVar{T}(f, Set(i))
 ωids(x) = Set{Int}() # Non RandVars defaut to emptyset (convenience)
 
 apl(x::Real, ω::Omega) = x
-apl(x::RandVar, ω::Omega) = x(ω)
+apl(x::AbstractRandVar, ω::Omega) = x(ω)
 
 ## Primitive Distributions
 "`uniform(a, b)`"
@@ -35,8 +35,6 @@ function normal(μ, σ, ωid::Int=ωnew())
                 union(Set(ωid), ωids(μ), ωids(σ)))
 end
 
-# normal(μ, σ, ω::Omega, ωid::Int) = lift(normal, μ, σ, ω, ωid)
-
 ## Functions
 ## =========
 struct Interval
@@ -47,7 +45,8 @@ end
 Base.in(x, ab::Interval) = x >= ab.a && x <= ab.b
 Base.in(x::RandVar, ab::Interval) = RandVar{Bool}(ω -> x(ω) ∈ ab, ωids(x))
 
-"Project `y` onto the randomness of `x` *the magic*
+"
+Project `y` onto the randomness of `x`*
 
 ```jldoctest
 p = uniform(0.1, 0.9)
@@ -57,9 +56,9 @@ y = normal(x, 1)
 [rand(expectation(curry(y, p))) for _ = 1:10]
 ```
 "
-function curry(y::RandVar{T}, x::RandVar) where T
-  RandVar{RandVar{T}}(ω1 -> let ω_ = project(ω1, ωids(x))
-                              RandVar{T}(ω2 -> y(merge(ω2, ω_)), ωids(y))
+function curry(x::RandVar{T}, y::RandVar) where T
+  RandVar{RandVar{T}}(ω1 -> let ω_ = project(ω1, ωids(y))
+                              RandVar{T}(ω2 -> x(merge(ω2, ω_)), ωids(x))
                             end,
                       ωids(x))
 end

@@ -1,3 +1,5 @@
+# Lift functions of type T to RandVar{T}
+
 # Base.in(x, ab::Interval) = x >= ab.a && x <= ab.b
 # Base.in(x::Union{RandVar, Any}, ab::Union{RandVar{Interval}, Interval) = RandVar{Bool}(ω -> apl(x, ω) ∈ apl(x, ab), ωids(x))
 

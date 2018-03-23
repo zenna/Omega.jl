@@ -1,11 +1,17 @@
 # Mu.jl
 
+<<<<<<< HEAD
 [![Build Status](https://travis-ci.org/zenna/Mu.jl.svg?branch=master)](https://travis-ci.org/zenna/Mu.jl)
 
 [![codecov.io](http://codecov.io/github/zenna/Mu.jl/coverage.svg?branch=master)](http://codecov.io/github/zenna/Mu.jl?branch=master)
 
 Minimal but flexible probabilistic programming language
 
+=======
+Minimal but flexible probabilistic programming language
+
+
+>>>>>>> a9a83184390127ef9309719e8619b4b03a549342
 # To try
 
 Install Julia 0.6.2
@@ -14,9 +20,15 @@ Open a repl (by calling `julia` from bash) and type:
 
 ```julia
 Pkg.add("Distributions") # If not already installed
+<<<<<<< HEAD
 Pkg.clone("https://github.com/zenna/Mu.jl.git")
 
 using Mu
+=======
+Pkg.clone("https://github.com/zenna/expect.git")
+
+using Expect
+>>>>>>> a9a83184390127ef9309719e8619b4b03a549342
 
 θ = uniform(0, 1)
 println("Expectation of θ is ", expectation(θ))
