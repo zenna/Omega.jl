@@ -1,2 +1,2 @@
 using Mu
-include("test")
+include("test.jl")

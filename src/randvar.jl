@@ -47,13 +47,6 @@ end
 Base.in(x, ab::Interval) = x >= ab.a && x <= ab.b
 Base.in(x::RandVar, ab::Interval) = RandVar{Bool}(ω -> x(ω) ∈ ab, ωids(x))
 
-## Functions of Random Variables
-## =============================
-"Expectation of `x`"
-expectation(x::RandVar{Real}, n=1000) = sum((rand(x) for i = 1:n)) / n
-expectation(x::RandVar{RandVar{Real}}, n=1000) =
-  RandVar{Real}(ω -> expectation(x(ω), n), ωids(x))
-
 "Project `y` onto the randomness of `x` *the magic*
 
 ```jldoctest
@@ -72,6 +65,11 @@ function curry(y::RandVar{T}, x::RandVar) where T
 end
 
 softeq(x::RandVar{Real}, y::Real) = RandVar{SoftBool}(ω -> SoftBool(1 - f1((x(ω) - y)^2)), ωids(x))
+softgt(x::RandVar{Real}, y::Real) = RandVar{SoftBool}(ω -> SoftBool(softgt(x(ω), y)),  ωids(x))
+
 Base.:&(x::RandVar{SoftBool}, y::RandVar{SoftBool}) =
   RandVar{SoftBool}(ω -> SoftBool(min(x(ω).epsilon, y(ω).epsilon)),
                    union(ωids(x), ωids(y)))
+
+Base.:|(x::RandVar{SoftBool}, y::RandVar{SoftBool}) =
+  RandVar{SoftBool}(ω -> x(ω) | y(ω), union(ωids(x), ωids(y)))
