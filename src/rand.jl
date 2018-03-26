@@ -14,9 +14,23 @@ function Base.rand(x::RandVar, y::RandVar{Bool}, alg::Type{RejectionSample})
 end
 
 "Sample from `x | y == true` with rejection sampling"
-function Base.rand(x::RandVar, y::RandVar{SoftBool})
+function Base.rand(x::RandVar{T}, y::RandVar{SoftBool};
+                   n::Integer = 1000, alg::Type{MH} = MH) where T
   ω = Omega()
-  (ω, x(ω), y(ω).epsilon)
+  plast = y(ω).epsilon
+  qlast = 1.0
+  samples = T[]
+  for i = 1:n
+    ω_ = Omega()
+    p_ = y(ω_).epsilon
+    ratio = p_ / plast
+    if rand() < ratio
+      ω = ω_
+      plast = p_
+    end
+    push!(samples, x(ω))
+  end
+  samples
 end
 
 "Default rand (rejection sample)"

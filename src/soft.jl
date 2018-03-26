@@ -1,9 +1,9 @@
 
 "Real+ -> [0, 1]"
-f1(x; a=0.001) = x / (x + a)
+f1(x; a=0.00001) = x / (x + a)
 
 "Real+ -> [0, 1]"
-f2(x; a=1.0) = 1 - exp(-a * x)
+f2(x; a=1000.0) = 1 - exp(-a * x)
 
 "Soft Boolean"
 struct SoftBool{ET <: Real}
@@ -25,3 +25,5 @@ softeq(x::Real, y::Real) = SoftBool(1 - f1((x - y)^2))
 softgt(x::Real, y::Real) = SoftBool(1 - f1(bound_loss(x, y, Inf)))
 Base.:&(x::SoftBool, y::SoftBool) = SoftBool(min(x.epsilon, y.epsilon))
 Base.:|(x::SoftBool, y::SoftBool) = SoftBool(max(x.epsilon, y.epsilon))
+⪆ = softgt
+≊ = softeq

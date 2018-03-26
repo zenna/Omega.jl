@@ -3,6 +3,11 @@ module Mu
 
 using Distributions
 
+# TODO
+# Design intergration with
+# Integrate with Distributions.jl
+# Setup training on openmind
+#
 include("algorithm.jl")  # Algorithm
 include("soft.jl")    # Soft logic
 include("omega.jl")   # Sample Space
@@ -19,5 +24,12 @@ export mean,
        uniform,
        Interval,
        curry,
-       softeq
+       softeq,
+       ≊,
+       ⪆,
+
+
+       # Algorithms
+       MH,
+       RejectionSample
 end
