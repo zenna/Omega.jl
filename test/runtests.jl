@@ -1,4 +1,4 @@
 using Mu
 using Spec
 
-walktests(Mu, exclude=exclude)
+walktests(Mu)
