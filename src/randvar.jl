@@ -1,20 +1,24 @@
 abstract type AbstractRandVar{T} end
 
-"Random Variable `Ω -> T`"
-mutable struct RandVar{T} <: AbstractRandVar{T}
+# "Random Variable `Ω -> T`"
+# mutable struct RandVar{T} <: AbstractRandVar{T}
+#   f::Function
+#   ωids::Set{Int}
+# end
+
+struct RandVar{T} <: AbstractRandVar{T}
   f::Function
-  ωids::Set{Int}
+  args::Tuple
+end
+
+function (rv::RandVar)(ω::Omega)
+  args = (apl(a, ω) for a in rv.args)
+  (rv.f)(args..., ω)
 end
 
 function Base.copy(x::RandVar{T}) where T
   RandVar{T}(x.f, x.ωids)
 end
-
-"Random Variable `Ω_i -> T`"
-RandVar{T}(f::Function, i::Int) where T = RandVar{T}(f, Set(i))
-
-"`x(ω)`"
-(x::RandVar)(ω::Omega) = x.f(ω)
 
 "All dimensions of `ω` that `x` draws from"
 ωids(x::RandVar) = x.ωids

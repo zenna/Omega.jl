@@ -1,5 +1,3 @@
-using Distributions
-
 Id = Int
 
 apl(x, ω::Omega) = x
@@ -29,46 +27,18 @@ inversegamma(α, θ, ωi) = quantile(InverseGamma(α, θ), ωi)
 inversegamma(α, θ, ωid::Id = ωnew()) =
   RandVar{Real}(ω -> inversegamma(apl(α, ω), apl(θ, ω), ω[ωid]), ωid)
 
+"Beta"
+beta(α, β, ωid::Id, ω::Omega) = quantile(Beta(α, β), ω[ωid])
+beta(α::T, β::T, ωid::Id=ωnew()) where T = RandVar{T}(Mu.beta, (α, β, ωid))
+
+"Bernoulli"
+bernoulli(p, ωid::Id, ω::Omega) = quantile(Bernoulli(p), ω[ωid])
+bernoulli(p::T, ωid::Id = ωnew()) where T <: Real = RandVar{T}(bernoulli, (p, ωid))
+bernoulli(p::RandVar{T}, ωid::Id = ωnew()) where T = RandVar{T}(bernoulli, (p, ωid))
+
 "`uniform(a, b)`"
-uniform(a::T, b::T, ωi) where T = ωi * (b - a) + a
-uniform(a::T, b::T, ωid::Id=ωnew()) where T =
-  RandVar{T}(ω -> uniform(apl(a, ω), apl(b, ω), ω[ωid]), ωid)
-
-## Lifting
-## =======
-# First issue.
-# Should `T` denote an Array, Real, Float
-# Or be agnostic
-# We can define parametric functions, why cant we define parametric random variables
-
-# uniform(Float64, )
-
-Base.:+(x::RandVar{T}, y::RandVar{T}) where T <: Real =
-  RandVar{T}(ω -> apl(x, ω) + apl(y, ω), ωids(x) ∪ ωids(y))
-
-Base.:/(x, y::RandVar{T}) where T <: Real =
-  RandVar{T}(ω -> apl(x, ω) / apl(y, ω), ωids(x) ∪ ωids(y))
-
-Base.:/(x::RandVar{T}, y) where T <: Real =
-  RandVar{T}(ω -> apl(x, ω) / apl(y, ω), ωids(x) ∪ ωids(y))
-
-Base.:/(x::RandVar{T}, y::RandVar{T}) where T <: Real =
-  RandVar{T}(ω -> apl(x, ω) / apl(y, ω), ωids(x) ∪ ωids(y))
-
-Base.:*(x::RandVar{T}, y::RandVar{T}) where T <: Real =
-  RandVar{T}(ω -> apl(x, ω) * apl(y, ω), ωids(x) ∪ ωids(y))
-
-## Equality
-## ========
-
-function Base.:(==)(x::AbstractRandVar, y)
-  RandVar{Bool}(ω -> x(ω) ≊ apl(y, ω), 3)
-end
-
-function Base.rand(x::Vector{<:RandVar})
-  rand()
-end
-
-function randvec(x::Vector{<:RandVar{T}}) where T
-  RandVar{Vector{T}}(ω -> [xi(ω) for xi in x], 3)
-end
+uniform(a::T, b::T, ωid, ω::Omega) where T = ω[ωid] * (b - a) + a
+uniform(a::T, b::T, ωid::Id=ωnew()) where T = RandVar{T}(uniform, (a, b, ωid))
+uniform(a::RandVar{T}, b::T, ωid::Id=ωnew()) where T = RandVar{T}(uniform, (a, b, ωid))
+uniform(a::T, b::RandVar{T}, ωid::Id=ωnew()) where T = RandVar{T}(uniform, (a, b, ωid))
+uniform(a::RandVar{T}, b::RandVar{T}, ωid::Id=ωnew()) where T = RandVar{T}(uniform, (a, b, ωid))
