@@ -4,30 +4,36 @@ module Mu
 using Distributions
 
 # TODO
-# Design intergration with
-# Integrate with Distributions.jl
-# Setup training on openmind
-#
+
 include("algorithm.jl")  # Algorithm
-include("soft.jl")    # Soft logic
 include("omega.jl")   # Sample Space
 include("randvar.jl") # Random Variables
+include("soft.jl")    # Soft logic
 include("cond.jl")    # Conditional Random Variables
 include("rand.jl")    # Sampling
-
+include("distributions.jl")    # Sampling
 include("moments.jl") # Mean, etc
-
+include("interval.jl")    # Sampling
+include("do.jl")    # Sampling
 # include("lift.jl")
 
 export mean,
-       normal,
-       uniform,
        Interval,
        curry,
        softeq,
        ≊,
        ⪆,
 
+       # Distributions
+       gammarv,
+       Γ,
+       normal,
+       uniform,
+       inversegamma,
+       dirichlet,
+
+       # Do
+       intervene,
 
        # Algorithms
        MH,
