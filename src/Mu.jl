@@ -4,6 +4,9 @@ module Mu
 
 using Distributions
 
+# Util
+include("util/misc.jl")
+
 # Core
 include("omega.jl")     # Sample Space
 include("randvar.jl")   # Random Variables

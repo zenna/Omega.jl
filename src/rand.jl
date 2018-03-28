@@ -3,6 +3,12 @@
 "Unconditional Sample from `x`"
 Base.rand(x::RandVar) = x(Omega())
 
+"Unconditional Sample from `x`"
+function Base.rand(x::NTuple{N, RandVar}) where N
+  ω = Omega()
+  applymany(x, ω)
+end
+
 "Sample from `x | y == true` with rejection sampling"
 function Base.rand(x::RandVar, y::RandVar{Bool}, alg::Type{RejectionSample})
   while true
