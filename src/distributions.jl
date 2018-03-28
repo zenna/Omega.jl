@@ -29,16 +29,16 @@ inversegamma(α, θ, ωid::Id = ωnew()) =
 
 "Beta"
 beta(α, β, ωid::Id, ω::Omega) = quantile(Beta(α, β), ω[ωid])
-beta(α::T, β::T, ωid::Id=ωnew()) where T = RandVar{T}(Mu.beta, (α, β, ωid))
+beta(α::T, β::T, ωid::Id=ωnew()) where T = RandVar{T, true}(Mu.beta, (α, β, ωid))
 
 "Bernoulli"
 bernoulli(p, ωid::Id, ω::Omega) = quantile(Bernoulli(p), ω[ωid])
-bernoulli(p::T, ωid::Id = ωnew()) where T <: Real = RandVar{T}(bernoulli, (p, ωid))
-bernoulli(p::RandVar{T}, ωid::Id = ωnew()) where T = RandVar{T}(bernoulli, (p, ωid))
+bernoulli(p::T, ωid::Id = ωnew()) where T <: Real = RandVar{T, true}(bernoulli, (p, ωid))
+bernoulli(p::RandVar{T}, ωid::Id = ωnew()) where T = RandVar{T, true}(bernoulli, (p, ωid))
 
 "`uniform(a, b)`"
-uniform(a::T, b::T, ωid, ω::Omega) where T = ω[ωid] * (b - a) + a
-uniform(a::T, b::T, ωid::Id=ωnew()) where T = RandVar{T}(uniform, (a, b, ωid))
-uniform(a::RandVar{T}, b::T, ωid::Id=ωnew()) where T = RandVar{T}(uniform, (a, b, ωid))
-uniform(a::T, b::RandVar{T}, ωid::Id=ωnew()) where T = RandVar{T}(uniform, (a, b, ωid))
-uniform(a::RandVar{T}, b::RandVar{T}, ωid::Id=ωnew()) where T = RandVar{T}(uniform, (a, b, ωid))
+uniform(a::T, b::T, ωid::Id, ω::Omega) where T = ω[ωid] * (b - a) + a
+uniform(a::T, b::T, ωid::Id=ωnew()) where T = RandVar{T, true}(uniform, (a, b, ωid))
+uniform(a::AbstractRandVar{T}, b::T, ωid::Id=ωnew()) where T = RandVar{T, true}(uniform, (a, b, ωid))
+uniform(a::T, b::AbstractRandVar{T}, ωid::Id=ωnew()) where T = RandVar{T, true}(uniform, (a, b, ωid))
+uniform(a::AbstractRandVar{T}, b::AbstractRandVar{T}, ωid::Id=ωnew()) where T = RandVar{T, true}(uniform, (a, b, ωid))

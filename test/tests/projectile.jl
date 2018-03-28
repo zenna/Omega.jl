@@ -1,12 +1,13 @@
 using Mu
+using Base.Test
 
-\theta  = uniform(0, 2\pi)
-v = normal(30)
+θ  = uniform(0.0, 2π)
+v = normal(30.0, 1)
 m = 0.145
 g = -9.81
 
 # time to reach ground
-t_d = 2*v_0*sin(\theta)/g
+t_d = 2 * v *sin(θ)/g
 
 # distance travelled
-d = v^2sin(2\theta)/g
+d = v^2 * sin(2θ)/g

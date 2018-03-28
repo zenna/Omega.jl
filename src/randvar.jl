@@ -1,19 +1,22 @@
 abstract type AbstractRandVar{T} end
 
-# "Random Variable `Ω -> T`"
-# mutable struct RandVar{T} <: AbstractRandVar{T}
-#   f::Function
-#   ωids::Set{Int}
-# end
-
-struct RandVar{T} <: AbstractRandVar{T}
+struct RandVar{T, Prim} <: AbstractRandVar{T}
   f::Function
   args::Tuple
 end
 
-function (rv::RandVar)(ω::Omega)
+apl(x, ω::Omega) = x
+apl(x::AbstractRandVar, ω::Omega) = x(ω)
+
+## FIXME: Type instability
+function (rv::RandVar{T, true})(ω::Omega) where T
   args = (apl(a, ω) for a in rv.args)
   (rv.f)(args..., ω)
+end
+
+function (rv::RandVar{T, false})(ω::Omega) where T
+  args = (apl(a, ω) for a in rv.args)
+  (rv.f)(args...)
 end
 
 function Base.copy(x::RandVar{T}) where T
@@ -23,6 +26,9 @@ end
 "All dimensions of `ω` that `x` draws from"
 ωids(x::RandVar) = x.ωids
 ωids(x) = Set{Int}() # Non RandVars defaut to emptyset (convenience)
+
+"Constant randvar \omega -> x"
+constant(x::T) where T = RandVar{T}(identity, (x,))
 
 ## Functions
 ## =========

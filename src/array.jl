@@ -1,13 +1,6 @@
-function Base.rand(x::Vector{<:RandVar})
-  rand()
-end
-
-function whonwos(x)
-  ω -> [xi(ω) for xi in x]
-end
+applymany(x, ω::Omega) = map(xi->xi(ω), x)
 
 "RandVar{Vector} from Vector{<:RandVar}"
-function randvec(x::Vector{<:RandVar{T}}) where T
-  RandVar{Vector{T}}(ω -> [xi(ω) for xi in x], 3)
-  RandVar{Vector{T}}(whoknows, x)
+function randarray(x::Array{<:RandVar{T}, N}) where {T, N}
+  RandVar{Array{T, N}, true}(applymany, (x,))
 end

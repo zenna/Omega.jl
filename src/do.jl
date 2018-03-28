@@ -18,7 +18,7 @@ o = intervene(y, uniform(-10.0, -9.0))
 """
 function intervene(x1::RandVar{T}, x2::Union{RandVar{T}, T}) where T
   dointervene(y, _) = y
-  function dointervene(y::RandVar{T}, seen::ObjectIdDict = ObjectIdDict()) where T
+  function dointervene(y::RandVar{T2, P}, seen::ObjectIdDict = ObjectIdDict()) where {T2, P}
     if y ∈ keys(seen)
       return seen[y]
     end
@@ -32,8 +32,7 @@ function intervene(x1::RandVar{T}, x2::Union{RandVar{T}, T}) where T
     answer = if all(args .=== y.args)
       y
     else
-      @show args
-      RandVar{T}(y.f, args)
+      RandVar{T2, P}(y.f, args)
     end
     seen[y] = answer
   end
