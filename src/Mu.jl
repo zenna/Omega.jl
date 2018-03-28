@@ -3,6 +3,7 @@ __precompile__()
 module Mu
 
 using Distributions
+using ProgressMeter
 
 # Util
 include("util/misc.jl")
@@ -33,6 +34,7 @@ export mean,
        softeq,
        ≊,
        ⪆,
+       randarray,
 
        # Distributions
        gammarv,

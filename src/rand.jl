@@ -26,7 +26,7 @@ function Base.rand(x::RandVar{T}, y::RandVar{<:MaybeSoftBool};
   plast = y(ω).epsilon
   qlast = 1.0
   samples = T[]
-  for i = 1:n
+  @showprogress 1 "Running Chain" for i = 1:n
     ω_ = Omega()
     p_ = y(ω_).epsilon
     ratio = p_ / plast

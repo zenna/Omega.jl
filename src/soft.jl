@@ -2,14 +2,14 @@
 ## =================
 
 "Real+ -> [0, 1]"
-f1(x; a=0.001) = x / (x + a)
+f1(x; a=0.0001) = x / (x + a)
 
 "Real+ -> [0, 1]"
 f2(x; a=1000.0) = 1 - exp(-a * x)
 
 function bound_loss(x, a, b)
   # @pre b >= a
-  if x < a 
+  if x < a
     a - x
   elseif x > b
     x - b
