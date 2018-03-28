@@ -3,6 +3,7 @@ __precompile__()
 module Mu
 
 using Distributions
+using ProgressMeter
 
 include("algorithm.jl") # Algorithm
 include("omega.jl")     # Sample Space
@@ -23,6 +24,7 @@ export mean,
        softeq,
        ≊,
        ⪆,
+       randarray,
 
        # Distributions
        gammarv,

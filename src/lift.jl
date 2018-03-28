@@ -19,9 +19,9 @@ function lift(fnm::Union{Symbol, Expr}, n)
   args = [Symbol(:x, i) for i = 1:n]
   quote
   function $fnm($(args...), x::Mu.RandVar, xs...)
-    mkrv($fnm, ($(args...), x, xs...))
+    Mu.mkrv($fnm, ($(args...), x, xs...))
   end
-  end 
+  end
 end
 
 fs = [:(Base.:-),
