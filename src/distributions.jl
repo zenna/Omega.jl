@@ -1,23 +1,26 @@
 Id = Int
 
-apl(x, ω::Omega) = x
-apl(x::AbstractRandVar, ω::Omega) = x(ω)
-
 normal(μ, σ, ωi) = quantile(Normal(μ, σ), ωi)
-function normal(μ, σ, ωid::Int=ωnew())
-  RandVar{Real}(ω -> normal(apl(μ, ω), apl(σ, ω), ω[ωid]),
-                Set(ωid) ∪ ωids(μ) ∪ ωids(σ))
-end
+normal(μ, σ, ωid::Int=ωnew()) = RandVar{Real}()
+
 
 "Gamma distribution"
 gammarv(α, θ, ωi) = quantile(Gamma(α, θ), ωi)
-gammarv(α, θ, ωid::Id = ωnew()) =
-  RandVar{Real}(ω -> gammarv(apl(α, ω), apl(θ, ω), ω[ωid]), ωid)
+gammarv(α::T, θ::T, ωid::Id = ωnew()) where T <: Real =
+  RandVar{T, true}(gammarv, (α, θ, ωid))
 Γ = gammarv
 
 "Dirichlet distribution"
 function dirichlet(α)
   gammas = [gammarv(αi, 1) for αi in α]
+  Σ = sum(gammas)
+  [gamma/Σ for gamma in gammas]
+end
+
+## Problem here is that 
+"Dirichlet distribution"
+function dirichlet(α, ω)
+  gammas = [gammarv(αi, 1, ω) for αi in α]
   Σ = sum(gammas)
   [gamma/Σ for gamma in gammas]
 end

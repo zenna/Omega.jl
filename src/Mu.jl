@@ -14,8 +14,7 @@ include("distributions.jl")    # Sampling
 include("lift.jl")      # Lifting functions to RandVar domain
 include("array.jl")     # Lifting functions to RandVar domain
 
-include("moments.jl")   # Mean, etc
-include("interval.jl")  # Sampling
+include("statistics.jl")   # Mean, etc
 include("do.jl")        # Causal Reasoning
 
 export mean,

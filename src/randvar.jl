@@ -27,7 +27,7 @@ end
 ωids(x::RandVar) = x.ωids
 ωids(x) = Set{Int}() # Non RandVars defaut to emptyset (convenience)
 
-"Constant randvar \omega -> x"
+"Constant randvar `ω -> x`"
 constant(x::T) where T = RandVar{T}(identity, (x,))
 
 ## Functions

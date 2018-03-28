@@ -7,7 +7,7 @@ k = 3
 nobs = 10
 
 # Data
-y_obs = vcat((randn(nobs/2) + 50)-10, (randn(nobs/2)))
+y_obs = vcat((randn(div(nobs, 2)) + 50)-10, (randn(div(nobs,2))))
 
 # Priors depend on data? What is this madness?!
 μ_data = mean(y_obs)
