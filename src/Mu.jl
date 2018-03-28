@@ -4,18 +4,25 @@ module Mu
 
 using Distributions
 
-include("algorithm.jl") # Algorithm
+# Core
 include("omega.jl")     # Sample Space
 include("randvar.jl")   # Random Variables
+include("curry.jl")   # Random Variables
+include("array.jl")     # Lifting functions to RandVar domain
+include("lift.jl")      # Lifting functions to RandVar domain
+
+# Inference
+include("algorithm.jl") # Algorithm
 include("soft.jl")      # Soft logic
 include("cond.jl")      # Conditional Random Variables
 include("rand.jl")      # Sampling
-include("distributions.jl")    # Sampling
-include("lift.jl")      # Lifting functions to RandVar domain
-include("array.jl")     # Lifting functions to RandVar domain
 
-include("statistics.jl")   # Mean, etc
+# Causal Inference
 include("do.jl")        # Causal Reasoning
+
+# Library
+include("distributions.jl")    # Sampling
+include("statistics.jl")   # Mean, etc
 
 export mean,
        Interval,
