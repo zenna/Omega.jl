@@ -1,8 +1,9 @@
 Id = Int
 
-normal(μ, σ, ωi) = quantile(Normal(μ, σ), ωi)
-normal(μ, σ, ωid::Int=ωnew()) = RandVar{Real}()
-
+normal(μ, σ, ωid::Id, ω::Omega) = quantile(Normal(μ, σ), ω[ωid])
+normal(μ::T, σ::T, ωid::Int=ωnew()) where T = RandVar{T}(normal, (μ, σ, ωid))
+normal(μ::AbstractRandVar{T}, σ::T, ωid::Int=ωnew()) where T = RandVar{T, true}(normal, (μ, σ, ωid))
+normal(μ::T, σ::AbstractRandVar{T}, ωid::Int=ωnew()) where T = RandVar{T, true}(normal, (μ, σ, ωid))
 
 "Gamma distribution"
 gammarv(α, θ, ωi, ω::Omega) = quantile(Gamma(α, θ), ω[ωi])
