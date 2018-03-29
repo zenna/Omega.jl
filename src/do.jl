@@ -38,7 +38,9 @@ function intervene(x1::RandVar{T}, x2::Union{RandVar{T}, T}) where T
   end
 end
 
-function intervene(x1, x2, model...)
+intervene(x1, x2, y::RandVar) = intervene(x1, x2)(y)
+
+function intervene(x1, x2, model::RandVar...)
   o = intervene(x1, x2)
   map(o, model)
 end
