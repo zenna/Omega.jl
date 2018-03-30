@@ -1,8 +1,12 @@
 abstract type AbstractRandVar{T} end
 
-struct RandVar{T, Prim} <: AbstractRandVar{T}
-  f::Function
-  args::Tuple
+struct RandVar{T, Prim, F<:Function, TPL} <: AbstractRandVar{T}
+  f::F
+  args::TPL
+end
+
+function RandVar{T, Prim}(f::F, args::TPL) where {T, Prim, F, TPL}
+  RandVar{T, Prim, F, TPL}(f, args)
 end
 
 apl(x, ω::Omega) = x
@@ -10,12 +14,12 @@ apl(x::AbstractRandVar, ω::Omega) = x(ω)
 
 ## FIXME: Type instability
 function (rv::RandVar{T, true})(ω::Omega) where T
-  args = (apl(a, ω) for a in rv.args)
+  args = map(a->apl(a, ω), rv.args)
   (rv.f)(args..., ω)
 end
 
 function (rv::RandVar{T, false})(ω::Omega) where T
-  args = (apl(a, ω) for a in rv.args)
+  args = map(a->apl(a, ω), rv.args)
   (rv.f)(args...)
 end
 

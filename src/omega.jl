@@ -32,6 +32,8 @@ function update(ω::Omega, i::Integer, val::Real)
   ω2
 end
 
+Id = Int
+
 global ωcounter = 1
 "Unique dimension id"
 function ωnew()

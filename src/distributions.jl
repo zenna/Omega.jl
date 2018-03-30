@@ -1,5 +1,3 @@
-Id = Int
-
 normal(μ, σ, ωid::Id, ω::Omega) = quantile(Normal(μ, σ), ω[ωid])
 normal(μ::T, σ::T, ωid::Int=ωnew()) where T = RandVar{T}(normal, (μ, σ, ωid))
 normal(μ::AbstractRandVar{T}, σ::T, ωid::Int=ωnew()) where T = RandVar{T, true}(normal, (μ, σ, ωid))
@@ -48,7 +46,7 @@ categorical(p::RandVar{Array{T, 1}, true}, ωid::Id = ωnew()) where T =
 
 "`uniform(a, b)`"
 uniform(a::T, b::T, ωid::Id, ω::Omega) where T = ω[ωid] * (b - a) + a
-uniform(a::T, b::T, ωid::Id=ωnew()) where T = RandVar{T, true}(uniform, (a, b, ωid))
+uniform(a::T, b::T, ωid::Id=ωnew()) where T = RandVar{T, true, typeof(uniform), Tuple{T, T, Id}}(uniform, (a, b, ωid))
 uniform(a::AbstractRandVar{T}, b::T, ωid::Id=ωnew()) where T = RandVar{T, true}(uniform, (a, b, ωid))
 uniform(a::T, b::AbstractRandVar{T}, ωid::Id=ωnew()) where T = RandVar{T, true}(uniform, (a, b, ωid))
 uniform(a::AbstractRandVar{T}, b::AbstractRandVar{T}, ωid::Id=ωnew()) where T = RandVar{T, true}(uniform, (a, b, ωid))
