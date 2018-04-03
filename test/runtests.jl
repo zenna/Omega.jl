@@ -1,2 +1,4 @@
 using Mu
-include("test.jl")
+using Spec
+
+walktests(Mu)

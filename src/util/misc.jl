@@ -1,0 +1,1 @@
+applymany(fs, x) = map(xi->xi(x), fs)

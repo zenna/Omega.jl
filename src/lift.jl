@@ -1,90 +1,77 @@
-# Lift functions of type T to RandVar{T}
+## Lifting
+## =======
 
-# Base.in(x, ab::Interval) = x >= ab.a && x <= ab.b
-# Base.in(x::Union{RandVar, Any}, ab::Union{RandVar{Interval}, Interval) = RandVar{Bool}(ω -> apl(x, ω) ∈ apl(x, ab), ωids(x))
+elemtype(x::T) where T = T
+elemtype(::AbstractRandVar{T}) where T = T
 
-## One idea is for any operaton on random variables
-## e.g. x + y where  x or y are rand vars
-## Look up the corresponding types e.g. Float64 + Float64
-## And create the corresponding randvar
-
-uniform(a, b, ωid=ωnew()) =
-  RandVar{Real}(ω -> uniform(apl(a, ω), apl(b, ω), ω, ωid), ωid)
-
-uniform(a, b, ωid=ωnew()) =
-  RandVar{Real}(ω -> uniform(apl(a, ω), apl(b, ω), ω, ωid), ωid)
-  
-uniform(a, b, ωid=ωnew()) =
-  RandVar{Real}(ω -> uniform(apl(a, ω), apl(b, ω), ω, ωid), ωid)
-
-Base.:-(a::RandVar{T}, b::T) where T = 
-  RandVar{Real}(ω -> uniform(apl(a, ω), apl(b, ω), ω, ωid), ωid)
-
-Base.:-(a::T, b::RandVar{T}) where T = 
-  RandVar{Real}(ω -> uniform(apl(a, ω), apl(b, ω), ω, ωid), ωid)
-
-Base.:-(a::RandVar{T}, b::RandVar{T}) where T =
-  RandVar{Real}(ω -> uniform(apl(a, ω), apl(b, ω), ω, ωid), ωid)
-
-function Base.:+(x::Union{RandVar, Any}, y::Union{RandVar, Any})
-  ωids = union((Mu.ωids(arg) for arg in [x, y])...)
-  RandVar{Real}(ω -> +(apl(x, ω), apl(y, ω)), ωids)
+"Make a random variable"
+function mkrv(f, args::Tuple)
+  elemtypes = map(elemtype, args)
+  ms = methods(f, elemtypes)
+  length(ms) =! 1 && throw(MethodError(f, elemtypes))
+  RT = first(Base.return_types(f, elemtypes))
+  RandVar{RT, false}(f, args)
 end
 
-function lift(f::Function, domain::Vector{DataType}, range::Type):
-  "Code Generation to lift `f` to act on `RandVar`s"
-  @generated function lifted(args...)
-    quote
-      ωids = union((Mu.ωids(arg) for arg in [x, y])...)
-      RandVar{Real}(ω -> +(apl(x, ω), apl(y, ω)), ωids)
-    end
-  end
-end
+# No Exists{T} yet https://github.com/JuliaLang/julia/issues/21026#issuecomment-306624369"
 
-"Code Generation to lift `f` to act on `RandVar`s"
-function lift(f::Function, domain::Vector{DataType}, range::Type)
-  argnames = [Symbol(:x, i) for i = 1:length(domain)]
-  @show signature = map(argnames, domain) do nm, dom
-    :($nm::Union{RandVar{$dom}, $dom})
-  end
-  return signature
-
+function liftnoesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
+  args = [isrv ?  :($(Symbol(:x, i))::AbstractRandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
   quote
-    function $f(x::Union{RandVar, Any}, y::Union{RandVar, Any})
-      ωids = union((Mu.ωids(arg) for arg in [x, y])...)
-      RandVar{Real}(ω -> +(apl(x, ω), apl(y, ω)), ωids)
-    end
+  function $fnm($(args...))
+    Mu.mkrv($fnm, ($(args...),))
+  end
   end
 end
 
-lift(Base.:+, [Any, Any], Bool)
-
-f = g ∘ h
-
-x_h -> (g ∘ h)(x_h)
-
-f(x) = g(h(x))
-
-ff(x) = x_ -> g(h(merge(x, x_)))
----[f]--->[g]---->
-
------------>
-function gf(x)
-  x_ -> g(h(x), x_)
-end
-
-function f(x, y)
-  g(h(x), y)
-end
-
-function f(x)
-  function _(y)
-    g(h(x), y)
+function liftesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
+  args = [isrv ?  :($(Symbol(:x, i))::AbstractRandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
+  quote
+  function $(esc(fnm))($(args...))
+    Mu.mkrv($(esc(fnm)), ($(args...),))
+  end
   end
 end
 
-function f(y)
-  function _(x)
-    g(h(x), y)
+function lift(fnm, n::Integer)
+  combs = rvcombinations(n)
+  for comb in combs
+    eval(liftnoesc(fnm, comb))
   end
+end
+
+## Pre Lifted
+## ==========
+
+fnms = [:(Base.:-),
+      :(Base.:+),
+      :(Base.:*),
+      :(Base.:/),
+      :(Base.:^),
+      :(Base.:sin),
+      :(Base.:cos),
+      :(Base.:tan)]
+
+macro lift(fnm::Union{Symbol, Expr}, n::Integer)
+  combinations = Iterators.product(((true,false) for i = 1:n)...)
+  combinations = Iterators.filter(any, combinations)
+  Expr(:block, map(comb -> liftmacro(fnm, comb), combinations)...)
+end
+
+"Combinations of RV or Not RV"
+function rvcombinations(n)
+  combinations = Iterators.product(((true,false) for i = 1:n)...)
+  Iterators.filter(any, combinations)
+end
+
+const MAXN = 4
+for fnm in fnms, i = 1:MAXN
+  lift(fnm, i)
+end
+
+## Custom Lifts
+## ============
+
+function Base.:(==)(x::AbstractRandVar, y)
+  RandVar{Bool, false}(≊, (x, y))
 end
