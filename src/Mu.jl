@@ -54,5 +54,6 @@ export mean,
 
        # Algorithms
        MH,
+       SSMH,
        RejectionSample
 end

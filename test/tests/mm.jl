@@ -38,5 +38,9 @@ y = [mm(π, μ, s) for _ in y_obs]
 y_ = Mu.randarray(y)
 
 # Inference goal: conditional distribution of means given data
-samples = rand(Mu.randarray(μ), y_ == y_obs, alg=MH, n=10000)
+samples = rand(Mu.randarray(μ), y_ == y_obs, MH, n=10000)
 @show [median(map(x->x[i], samples)) for i=1:k]
+
+
+samples_π = rand(Mu.randarray(π), y_ == y_obs, SSMH, n=10000)
+@show [median(map(x->x[i], samples_π)) for i=1:k]

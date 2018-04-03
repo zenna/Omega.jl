@@ -3,7 +3,7 @@ struct Omega{T<:Real}
   d::Dict{Int, T}
 end
 Omega() = Omega(Dict{Int, Float64}())
-ωids(ω::Omega) = Set(keys(ω))
+ωids(ω::Omega) = Set(keys(ω.d))
 
 "`ω[i]` memoized sample of `ith` dimension of `ω`
 
@@ -32,6 +32,10 @@ function update(ω::Omega, i::Integer, val::Real)
   ω2
 end
 
+function Base.isempty(ω::Omega{T}) where T
+  ω |> ωids |> isempty
+end
+
 Id = Int
 
 global ωcounter = 1
@@ -39,6 +43,11 @@ global ωcounter = 1
 function ωnew()
   global ωcounter = ωcounter + 1
   ωcounter - 1
+end
+
+function update_random(ω::Omega{T}) where T
+  id = ω |> ωids |> collect |> sample
+  update(ω, id, rand(T))
 end
 
 "`ω[is[i]] = vals[i]` forall i"
