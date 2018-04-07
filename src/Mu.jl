@@ -1,5 +1,5 @@
-"Minimal Probabilistic Programming Langauge"
 __precompile__()
+"Minimal Probabilistic Programming Langauge"
 module Mu
 
 using Distributions
@@ -11,11 +11,10 @@ include("util/misc.jl")
 # Core
 include("omega.jl")     # Sample Space
 include("randvar.jl")   # Random Variables
-include("curry.jl")   # Random Variables
+include("curry.jl")     # Random Variables
 include("array.jl")     # Lifting functions to RandVar domain
 include("lift.jl")      # Lifting functions to RandVar domain
-include("lazyid.jl")      # Lifting functions to RandVar domain
-
+include("lazyid.jl")    # Lifting functions to RandVar domain
 
 # Inference
 include("algorithm.jl") # Algorithm
@@ -31,7 +30,6 @@ include("distributions.jl")    # Sampling
 include("statistics.jl")   # Mean, etc
 
 export mean,
-       Interval,
        curry,
        softeq,
        ≊,

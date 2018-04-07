@@ -1,11 +1,11 @@
 abstract type AbstractRandVar{T} end
 
-struct RandVar{T, Prim, F<:Function, TPL} <: AbstractRandVar{T}
+struct RandVar{T, Prim, F, TPL} <: AbstractRandVar{T}
   f::F
   args::TPL
 end
 
-function RandVar{T, Prim}(f::F, args::TPL) where {T, Prim, F, TPL}
+function RandVar{T, Prim}(f::F, args::TPL) where {T, Prim,  F, TPL}
   RandVar{T, Prim, F, TPL}(f, args)
 end
 
@@ -33,3 +33,8 @@ end
 
 "Constant randvar `ω -> x`"
 constant(x::T) where T = RandVar{T}(identity, (x,))
+
+name(x) = x
+name(rv::RandVar) = string(rv.f)
+Base.show(io::IO, rv::RandVar{T}) where T=
+  print(io, "$(name(rv))($(join(map(name, rv.args), ", ")))::$T")

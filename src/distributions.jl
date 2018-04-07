@@ -57,3 +57,8 @@ uniform(a::T, b::T, ωid::Id=ωnew()) where T = RandVar{T, true, typeof(uniform)
 uniform(a::AbstractRandVar{T}, b::T, ωid::Id=ωnew()) where T = RandVar{T, true}(uniform, (a, b, ωid))
 uniform(a::T, b::AbstractRandVar{T}, ωid::Id=ωnew()) where T = RandVar{T, true}(uniform, (a, b, ωid))
 uniform(a::AbstractRandVar{T}, b::AbstractRandVar{T}, ωid::Id=ωnew()) where T = RandVar{T, true}(uniform, (a, b, ωid))
+
+"Poisson"
+poisson(λ, ωid::Id, ω::Omega) = quantile(Poisson(λ), ω[ωid])
+poisson(λ::T, ωid::Id = ωnew()) where T <: Real = RandVar{T, true}(poisson, (λ, ωid))
+poisson(λ::RandVar{T}, ωid::Id = ωnew()) where T = RandVar{T, true}(poisson, (λ, ωid))

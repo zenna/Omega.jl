@@ -67,7 +67,7 @@ function Base.rand(x::RandVar{T}, y::RandVar{<:MaybeSoftBool},
     end
     push!(samples, x(ω))
   end
-  print_with_color(:light_blue,  "acceptance ratio: $(accepted/float(n))\n")
+  print_with_color(:light_blue, "acceptance ratio: $(accepted/float(n))\n")
   @show ω.d
   samples
 end
