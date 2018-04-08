@@ -1,10 +1,19 @@
-abstract type AbstractRandVar{T} end
+"Random Variable"
+abstract type AbstractRandVar{T} end  # FIXME : Rename to RandVar
 
-struct RandVar{T, Prim, F, TPL, I} <: AbstractRandVar{T}
-  f::F
+struct RandVar{T, Prim, F, TPL, I} <: AbstractRandVar{T} # Rename to PrimRandVar or PrimRv
+  f::F      # Function (generally Callable)
   args::TPL
   id::I
 end
+
+"Transformation of a random variable"
+struct TransformedRandVar{T, F, ARGS} <: AbstractRandVar{T}
+  f::F
+  args::ARGS
+end
+
+# TODO: Add TransformedRv
 
 function RandVar{T, Prim}(f::F, args::TPL, id::I) where {T, Prim, F, TPL, I}
   RandVar{T, Prim, F, TPL, I}(f, args, id)

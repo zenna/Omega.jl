@@ -1,3 +1,4 @@
+"Index of Probability Space"
 Id = Int
 
 "Lazy List of Ids"
@@ -20,19 +21,19 @@ DictOmega() = DictOmega(Dict{Int, Any}(), 1)
 increment!(ω::DictOmega) = ω.counter += 1
 resetcount(ω::DictOmega{T}) where T = DictOmega{T}(ω.d, 1)
 parent(ω::DictOmega) = resetcount(ω)
-parent(sω::SubOmega) = resetcount(sω.ω)
 
-"Projection of Omega onto `id`"
+"Projection of `Omega` onto indices `id`"
 struct SubOmega{T<:Omega, I} <: Omega
   ω::T
   id::I
 end
-
-RV = Union{Integer, Base.Random.FloatInterval}
+parent(sω::SubOmega) = resetcount(sω.ω)
 
 function Base.getindex(ω::T, i::I) where {T <: Omega, I}
   SubOmega{T, I}(ω, i)
 end
+
+RV = Union{Integer, Base.Random.FloatInterval}
 
 function Base.rand(sω::SubOmega{I, Int}, ::Type{T}) where {I, T <: RV}
   get!(()->rand(Base.Random.GLOBAL_RNG, T), sω.ω.d, sω.id)

@@ -1,3 +1,10 @@
+
+"""
+randdist turns a random variable into a distribution over random variables
+
+But it's not some arbitrary distribution over randdist
+"""
+
 function ok2(ω1, ω2, x::RandVar)
 end
 
