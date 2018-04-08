@@ -53,7 +53,10 @@ fnms = [:(Base.:-),
         :(Base.:^),
         :(Base.:sin),
         :(Base.:cos),
-        :(Base.:tan)]
+        :(Base.:tan),
+        :(Base.sum),
+        :(Base.mean),
+        :(Base.var)]
 
 macro lift(fnm::Union{Symbol, Expr}, n::Integer)
   combinations = Iterators.product(((true,false) for i = 1:n)...)

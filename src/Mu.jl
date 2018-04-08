@@ -7,14 +7,14 @@ using ProgressMeter
 
 # Util
 include("util/misc.jl")
+# include("lazyid.jl")    # Infinite Sequence of Ids
 
 # Core
-include("omega.jl")     # Sample Space
+include("probspace.jl") # Sample Space
 include("randvar.jl")   # Random Variables
 include("curry.jl")     # Random Variables
 include("array.jl")     # Lifting functions to RandVar domain
 include("lift.jl")      # Lifting functions to RandVar domain
-include("lazyid.jl")    # Lifting functions to RandVar domain
 
 # Inference
 include("algorithm.jl") # Algorithm

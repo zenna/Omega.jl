@@ -1,12 +1,21 @@
 abstract type AbstractRandVar{T} end
 
-struct RandVar{T, Prim, F, TPL} <: AbstractRandVar{T}
+struct RandVar{T, Prim, F, TPL, I} <: AbstractRandVar{T}
   f::F
   args::TPL
+  id::I
 end
 
-function RandVar{T, Prim}(f::F, args::TPL) where {T, Prim,  F, TPL}
-  RandVar{T, Prim, F, TPL}(f, args)
+function RandVar{T, Prim}(f::F, args::TPL, id::I) where {T, Prim, F, TPL, I}
+  RandVar{T, Prim, F, TPL, I}(f, args, id)
+end
+
+function RandVar{T, Prim}(f::F, args::TPL) where {T, Prim, F, TPL}
+  RandVar{T, Prim, F, TPL, Int}(f, args, 0) # FIXME: HACK
+end
+
+function RandVar{T}(f::F) where {T, F}
+  RandVar{T, true, F, Tuple{}, LazyId}(f, (), LazyId()) # FIXME: HACK
 end
 
 apl(x, ω::Omega) = x
@@ -14,13 +23,19 @@ apl(x::AbstractRandVar, ω::Omega) = x(ω)
 
 ## FIXME: Type instability
 function (rv::RandVar{T, true})(ω::Omega) where T
+  ω = parent(ω)
   args = map(a->apl(a, ω), rv.args)
-  (rv.f)(args..., ω)
+  (rv.f)(ω[rv.id], args...)
 end
 
 function (rv::RandVar{T, false})(ω::Omega) where T
+  ω = parent(ω)
   args = map(a->apl(a, ω), rv.args)
   (rv.f)(args...)
+end
+
+function (rv::NTuple{N, RandVar})(ω::Omega) where N
+  applymany(rv, ω)
 end
 
 function Base.copy(x::RandVar{T}) where T

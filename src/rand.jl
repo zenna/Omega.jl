@@ -1,13 +1,7 @@
 ## Sampling and Inference
 ## ======================
 "Unconditional Sample from `x`"
-Base.rand(x::RandVar) = x(Omega())
-
-"Unconditional Sample from `x`"
-function Base.rand(x::NTuple{N, RandVar}) where N
-  ω = Omega()
-  applymany(x, ω)
-end
+Base.rand(x::RandVar) = x(DictOmega())
 
 "Sample from `x | y == true` with rejection sampling"
 function Base.rand(x::RandVar, y::RandVar{Bool}, alg::Type{RejectionSample})
@@ -20,16 +14,16 @@ function Base.rand(x::RandVar, y::RandVar{Bool}, alg::Type{RejectionSample})
 end
 
 "Sample from `x | y == true` with Metropolis Hasting"
-function Base.rand(x::RandVar{T}, y::RandVar{<:MaybeSoftBool},
+function Base.rand(x::RandVar{T}, y::RandVar{Bool},
                    alg::Type{MH};
                    n::Integer = 1000) where T
-  ω = Omega()
+  ω = DictOmega()
   plast = y(ω).epsilon
   qlast = 1.0
   samples = T[]
   accepted = 0.0
   @showprogress 1 "Running Chain" for i = 1:n
-    ω_ = Omega()
+    ω_ = DictOmega()
     p_ = y(ω_).epsilon
     ratio = p_ / plast
     if rand() < ratio
@@ -73,4 +67,4 @@ function Base.rand(x::RandVar{T}, y::RandVar{<:MaybeSoftBool},
 end
 
 "Default rand (rejection sample)"
-Base.rand(x, y) = rand(x, y, RejectionSample)
+Base.rand(x::RandVar, y::RandVar; kwargs...) = rand(x, y, MH; kwargs...)
