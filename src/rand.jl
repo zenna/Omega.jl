@@ -1,7 +1,11 @@
 ## Sampling and Inference
 ## ======================
+
+"NTuple of where N unspecified"
+UTuple{T} = Tuple{Vararg{T, N}} where N
+
 "Unconditional Sample from `x`"
-Base.rand(x::RandVar) = x(DictOmega())
+Base.rand(x::UTuple{RandVar}) = x(DictOmega())
 
 "Sample from `x | y == true` with rejection sampling"
 function Base.rand(x::RandVar, y::RandVar{Bool}, alg::Type{RejectionSample})
@@ -22,14 +26,23 @@ function Base.rand(x::RandVar{T}, y::RandVar{Bool},
   qlast = 1.0
   samples = T[]
   accepted = 0.0
+  best = -Inf
   @showprogress 1 "Running Chain" for i = 1:n
     ω_ = DictOmega()
     p_ = y(ω_).epsilon
     ratio = p_ / plast
+    if p_ > best
+      best = p_
+      @show p_, ratio, x(ω_)
+    end
     if rand() < ratio
+      if y(ω).epsilon == best
+        @show "Down!" best, p_, ratio, x(ω), x(ω_)
+      end
       ω = ω_
       plast = p_
       accepted += 1.0
+      # Going down from the best
     end
     push!(samples, x(ω))
   end

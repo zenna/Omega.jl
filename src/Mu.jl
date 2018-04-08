@@ -44,7 +44,7 @@ export mean,
        uniform,
        inversegamma,
        dirichlet,
-       beta,
+       betarv,
        bernoulli,
 
        # Do

@@ -10,8 +10,3 @@ end
 
 c = RandVar{Vector{Float64}}(components) #FIXME: Infer type
 rand((k, components), sum(components) == 1.0)
-
-randrandvar
-randdist
-rdist
-

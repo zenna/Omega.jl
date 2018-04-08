@@ -6,7 +6,7 @@ gammarv(α::MaybeRV{T}, θ::MaybeRV{T}, ωid::Id = ωnew()) where T <: Real =
   RandVar{T, true}(gammarv, (α, θ), ωid)
 Γ = gammarv
 
-"Inverse Gamma"
+"Inverse Gamma distribution"
 inversegamma(ω::Omega, α, θ, ωi) = quantile(InverseGamma(α, θ), rand(ω))
 inversegamma(α::MaybeRV{T}, θ::MaybeRV{T}, ωid::Id = ωnew()) where T <: Real =
   RandVar{T, true}(inversegamma, (α, θ), ωid)
@@ -17,13 +17,14 @@ function dirichlet(ω::Omega, α)
   Σ = sum(gammas)
   [gamma/Σ for gamma in gammas]
 end
+# FIXME: Type 
 dirichlet(α::MaybeRV{T}, ωid::LazyId = LazyId()) where T = RandVar{T, true}(dirichlet, (α,), ωid)
 
 "Beta distribution"
-beta(ω::Omega, α::AbstractFloat, β::AbstractFloat) = quantile(Beta(α, β), rand(ω))
-beta(α::MaybeRV{T}, β::MaybeRV{T}, ωid::Id=ωnew()) where T <: AbstractFloat = RandVar{T, true}(Mu.beta, (α, β), ωid)
+betarv(ω::Omega, α::AbstractFloat, β::AbstractFloat) = quantile(Beta(α, β), rand(ω))
+betarv(α::MaybeRV{T}, β::MaybeRV{T}, ωid::Id=ωnew()) where T <: AbstractFloat = RandVar{T, true}(Mu.beta, (α, β), ωid)
 
-"Bernoulli"
+"Bernoulli with weight `p`"
 bernoulli(ω::Omega, p::AbstractFloat) = quantile(Bernoulli(p), rand(ω))
 bernoulli(p::MaybeRV{T}, ωid::Id = ωnew()) where T <: AbstractFloat = RandVar{Int, true}(bernoulli, (p,))
 
@@ -31,7 +32,7 @@ bernoulli(p::MaybeRV{T}, ωid::Id = ωnew()) where T <: AbstractFloat = RandVar{
 categorical(ω::Omega, p::Vector) = quantile(Categorical(p), rand(ω))
 categorical(p::MaybeRV{Vector{T}}, ωid::Id = ωnew()) where T <: Real = RandVar{Int, true}(categorical, (p,))
 
-"Uniform distribution `uniform(a, b)`"
+"Uniform distribution with lower bound `a` and upper bound `b`"
 uniform(ω::Omega, a::T, b::T, ωid::Id) where T = ω[ωid] * (b - a) + a
 uniform(a::MaybeRV{T}, b::MaybeRV{T}, ωid::Id=ωnew()) where T = RandVar{T, true, typeof(uniform), Tuple{T, T, Id}}(uniform, (a, b, ωid))
 
@@ -39,7 +40,7 @@ uniform(a::MaybeRV{T}, b::MaybeRV{T}, ωid::Id=ωnew()) where T = RandVar{T, tru
 poisson(ω::Omega, λ::Real) = quantile(Poisson(λ), rand(ω)) # FIXME Wish rand wasn't here, should be pure
 poisson(λ::MaybeRV{T}, ωid::Id = ωnew()) where T <: Real = RandVar{Int, true}(poisson, (λ,))
 
-"Discrete Uniform distribution with unit range `range`"
+"Discrete uniform distribution with range `range`"
 uniform(range::UnitRange{T}, ωid=ωnew()) where T =
   RandVar{T, true}(rand, (range,), ωid)
 
