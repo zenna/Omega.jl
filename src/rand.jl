@@ -7,6 +7,9 @@ UTuple{T} = Tuple{Vararg{T, N}} where N
 "Unconditional Sample from `x`"
 Base.rand(x::UTuple{RandVar}) = x(DictOmega())
 
+"Unconditional Sample from `x`"
+Base.rand(x::RandVar) = x(DictOmega())
+
 "Sample from `x | y == true` with rejection sampling"
 function Base.rand(x::RandVar, y::RandVar{Bool}, alg::Type{RejectionSample})
   while true

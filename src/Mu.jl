@@ -12,12 +12,12 @@ include("util/misc.jl")
 # Core
 include("probspace.jl") # Sample Space
 include("randvar.jl")   # Random Variables
-include("curry.jl")     # Random Variables
-include("array.jl")     # Lifting functions to RandVar domain
+include("randdist.jl")  # Random Variables
+include("array.jl")     # Array primitives
 include("lift.jl")      # Lifting functions to RandVar domain
 
 # Inference
-include("algorithm.jl") # Algorithm
+include("algorithm.jl") # Algorithm abstract type
 include("soft.jl")      # Soft logic
 include("cond.jl")      # Conditional Random Variables
 include("rand.jl")      # Sampling
@@ -26,11 +26,11 @@ include("rand.jl")      # Sampling
 include("do.jl")        # Causal Reasoning
 
 # Library
-include("distributions.jl")    # Sampling
-include("statistics.jl")   # Mean, etc
+include("distributions.jl")  # Sampling
+include("statistics.jl")     # Mean, etc
 
 export mean,
-       curry,
+       randdist,
        softeq,
        ≊,
        ⪆,
