@@ -33,8 +33,8 @@ categorical(ω::Omega, p::Vector) = quantile(Categorical(p), rand(ω))
 categorical(p::MaybeRV{Vector{T}}, ωid::Id = ωnew()) where T <: Real = RandVar{Int, true}(categorical, (p,), ωid)
 
 "Uniform distribution with lower bound `a` and upper bound `b`"
-uniform(ω::Omega, a::T, b::T, ωid::Id) where T = ω[ωid] * (b - a) + a
-uniform(a::MaybeRV{T}, b::MaybeRV{T}, ωid::Id=ωnew()) where T = RandVar{T, true, typeof(uniform), Tuple{T, T, Id}}(uniform, (a, b), ωid)
+uniform(ω::Omega, a::T, b::T) where T = rand(ω) * (b - a) + a
+uniform(a::MaybeRV{T}, b::MaybeRV{T}, ωid::Id=ωnew()) where T <: AbstractFloat = RandVar{T, true}(uniform, (a, b), ωid)
 
 "Poisson distribution with rate parameter `λ`"
 poisson(ω::Omega, λ::Real) = quantile(Poisson(λ), rand(ω)) # FIXME Wish rand wasn't here, should be pure
@@ -51,5 +51,6 @@ mvnormal(μ::MaybeRV{T1}, Σ::MaybeRV{T2}, ωid::LazyId=LazyId()) where {T1, T2}
 
 "Normal Distribution with mean μ and variance σ"
 normal(ω::Omega, μ, σ) = rand(ω, Normal(μ, σ))
+normal(ω::Omega, μ, σ, ωid::LazyId) = normal(parent(ω)[ωid], μ, σ)
 normal(μ::MaybeRV{T}, σ::MaybeRV{T}, ωid::LazyId=LazyId()) where T <: AbstractFloat = 
   RandVar{T, true}(normal, (μ, σ), ωid)

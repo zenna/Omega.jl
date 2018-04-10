@@ -3,10 +3,14 @@ Id = Int
 
 "Lazy List of Ids"
 struct LazyId
-  d::Dict{Int, Id}
+  ids::Vector{Int}
+  # d::Dict{Int, Id}
+  # last::Int
 end
-LazyId() = LazyId(Dict{Int, Int}())
-Base.getindex(l::LazyId, i::Int) = get!(ωnew, l.d, i)
+# LazyId() = LazyId(Dict{Int, Int}())
+LazyId() = LazyId(Int[])
+# Base.getindex(l::LazyId, i::Int) = get!(ωnew, l.d, i)
+next!(l::LazyId) = push!(l.ids, ωnew())
 
 "Probability Space"
 abstract type Omega <: AbstractRNG end
@@ -17,6 +21,7 @@ mutable struct DictOmega{T} <: Omega
   counter::Int
 end
 
+DictOmega{T}() where T = DictOmega{T}(Dict{Int, T}(), 1)
 DictOmega() = DictOmega(Dict{Int, Any}(), 1)
 increment!(ω::DictOmega) = ω.counter += 1
 resetcount(ω::DictOmega{T}) where T = DictOmega{T}(ω.d, 1)
@@ -33,6 +38,9 @@ function Base.getindex(ω::T, i::I) where {T <: Omega, I}
   SubOmega{T, I}(ω, i)
 end
 
+# function Base.getindex(ω::T, i::I) where {T <: SubOmega, I}
+#   @show resetcount(parent(ω))[i]
+# end
 RV = Union{Integer, Base.Random.FloatInterval}
 
 function Base.rand(sω::SubOmega{I, Int}, ::Type{T}) where {I, T <: RV}
@@ -40,15 +48,56 @@ function Base.rand(sω::SubOmega{I, Int}, ::Type{T}) where {I, T <: RV}
 end
 
 function Base.rand(sω::SubOmega{I, LazyId}, ::Type{T}) where {I, T <: RV}
-  id = sω.id[sω.ω.counter]
-  increment!(sω.ω)
+  # id = sω.id[sω.ω.counter]
+  # increment!(sω.ω)
+  next!(sω.id)
   get!(()->rand(Base.Random.GLOBAL_RNG, T), sω.ω.d, id)
 end
 
-ωids(ω::Omega) = Set(keys(ω.d))
 global ωcounter = 1
 "Unique dimension id"
 function ωnew()
   global ωcounter = ωcounter + 1
   ωcounter - 1
 end
+
+mutable struct DirtyOmega <: Omega
+  _Float64::Dict{Int, Float64}
+  _Float32::Dict{Int, Float32}
+  _UInt32::Dict{Int, UInt32}
+  counter::Int
+end
+
+DirtyOmega() = DirtyOmega(Dict{Int, Float64}(),
+                          Dict{Int, Float32}(),
+                          Dict{Int, UInt32}(), 1)
+
+function closeopen(::Type{UInt32}, sω::SubOmega, id::Int)
+  get!(()->rand(Base.Random.GLOBAL_RNG, UInt32), sω.ω._UInt32, id)
+end
+                          
+function closeopen(::Type{Base.Random.CloseOpen}, sω::SubOmega, id::Int)
+  get!(()->rand(Base.Random.GLOBAL_RNG, Base.Random.CloseOpen), sω.ω._Float64, id)
+end
+
+function closeopen(::Type{Base.Random.Close1Open2}, sω::SubOmega, id::Int)
+  get!(()->rand(Base.Random.GLOBAL_RNG, Base.Random.Close1Open2), sω.ω._Float64, id)
+end
+
+function Base.rand(sω::SubOmega{I, Int}, ::Type{T}) where {I, T <: RV}
+  id = sω.id
+  closeopen(T, sω, id)
+end
+
+function Base.rand(sω::SubOmega{I, LazyId}, ::Type{T}) where {I, T <: RV}
+  id = sω.id[sω.ω.counter]
+  increment!(sω.ω)
+  closeopen(T, sω, id)
+end
+
+increment!(ω::DirtyOmega) = ω.counter += 1
+resetcount(ω::DirtyOmega) = DirtyOmega(ω._Float64,
+                                       ω._Float32,
+                                       ω._UInt32,
+                                       1)
+parent(ω::DirtyOmega) = resetcount(ω)

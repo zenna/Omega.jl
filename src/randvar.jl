@@ -7,13 +7,11 @@ struct RandVar{T, Prim, F, TPL, I} <: AbstractRandVar{T} # Rename to PrimRandVar
   id::I
 end
 
-"Transformation of a random variable"
-struct TransformedRandVar{T, F, ARGS} <: AbstractRandVar{T}
+"`RandVar` transformed by pure function `f::F`"
+struct FRandVar{T, F, ARGS} <: AbstractRandVar{T}
   f::F
   args::ARGS
 end
-
-# TODO: Add TransformedRv
 
 function RandVar{T, Prim}(f::F, args::TPL, id::I) where {T, Prim, F, TPL, I}
   RandVar{T, Prim, F, TPL, I}(f, args, id)
@@ -37,6 +35,8 @@ function (rv::RandVar{T, true})(ω::Omega) where T
   (rv.f)(ω[rv.id], args...)
 end
 
+# (rv::RandVar)(ω::SubOmega) = rv(parent(ω))
+
 function (rv::RandVar{T, false})(ω::Omega) where T
   ω = parent(ω)
   args = map(a->apl(a, ω), rv.args)
@@ -50,10 +50,6 @@ end
 function Base.copy(x::RandVar{T}) where T
   RandVar{T}(x.f, x.ωids)
 end
-
-"All dimensions of `ω` that `x` draws from"
-ωids(x::RandVar) = x.ωids
-ωids(x) = Set{Int}() # Non RandVars defaut to emptyset (convenience)
 
 "Constant randvar `ω -> x`"
 constant(x::T) where T = RandVar{T}(identity, (x,))
