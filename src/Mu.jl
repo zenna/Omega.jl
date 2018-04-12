@@ -10,7 +10,7 @@ include("util/misc.jl")
 
 # Core
 include("probspace.jl") # Sample Space
-include("randvar.jl")   # Random Variables
+include("randvar.jl")    # Random Variables
 include("randcond.jl")  # Random Conditional Distributi
 include("array.jl")     # Array primitives
 include("lift.jl")      # Lifting functions to RandVar domain

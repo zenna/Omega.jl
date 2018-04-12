@@ -1,10 +1,10 @@
 
-function Base.merge!(sω1::SubOmega, sω2::SubOmega)
-  # Where this gets a little tricky is that they are both sub omegas
-  for (k, v) in sω2.ω.d
-    sω1.ω.d[k] = v
-  end
-end
+# function Base.merge!(sω1::SubOmega, sω2::SubOmega)
+#   # Where this gets a little tricky is that they are both sub omegas
+#   for (k, v) in sω2.ω.d
+#     sω1.ω.d[k] = v
+#   end
+# end
 
 """
 Random Conditional Distribution

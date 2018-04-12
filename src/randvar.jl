@@ -29,16 +29,16 @@ apl(x, ω::Omega) = x
 apl(x::AbstractRandVar, ω::Omega) = x(ω)
 
 ## FIXME: Type instability
-function (rv::RandVar{T, true})(ω::Omega) where T
-  ω = parent(ω)
+function (rv::RandVar{T, true})(ω::DirtyOmega) where T
+  # ω = parent(ω)
   args = map(a->apl(a, ω), rv.args)
-  (rv.f)(ω[rv.id], args...)
+  (rv.f)(resetcount(ω)[rv.id], args...)
 end
 
 # (rv::RandVar)(ω::SubOmega) = rv(parent(ω))
 
-function (rv::RandVar{T, false})(ω::Omega) where T
-  ω = parent(ω)
+function (rv::RandVar{T, false})(ω::DirtyOmega) where T
+  # ω = parent(ω)
   args = map(a->apl(a, ω), rv.args)
   (rv.f)(args...)
 end
