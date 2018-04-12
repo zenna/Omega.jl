@@ -18,7 +18,7 @@ function dirichlet(ω::Omega, α)
   [gamma/Σ for gamma in gammas]
 end
 # FIXME: Type 
-dirichlet(α::MaybeRV{T}, ωid::Id = ωnew() = LazyId()) where T = RandVar{T, true}(dirichlet, (α,), ωid)
+dirichlet(α::MaybeRV{T}, ωid::Id = ωid::Id=ωnew()) where T = RandVar{T, true}(dirichlet, (α,), ωid)
 
 "Beta distribution"
 betarv(ω::Omega, α::AbstractFloat, β::AbstractFloat) = quantile(Beta(α, β), rand(ω))

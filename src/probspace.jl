@@ -7,6 +7,10 @@ function ωnew()
   ωcounter - 1
 end
 
+macro id()
+  Mu.ωnew()
+end
+
 "Index of Probability Space"
 Id = Int
 AstId = Int
@@ -46,19 +50,8 @@ resetcount(ω::DirtyOmega) = DirtyOmega(ω._Float64,
                                        ω._Float32,
                                        ω._UInt32,
                                        Dict{Ints, Int}())
-# function next!(ω::DirtyOmega, id::Tuple{Int, Int})
-#   if id in keys(ω.counts)
-#     val = ω.counts[id]
-#     ω.counts[id] += 1
-#     return val
-#   else
-#     ω.counts[id] = 1
-#     return 1
-#   end
-# end
 parent(ω::DirtyOmega) = resetcount(ω)
 parent(ωπ::OmegaProj) = resetcount(ωπ.ω)
-# parent(ωast::OmegaAst) = resetcount(ωast.ωπ.ω)
 
 ## Rand
 ## ====
