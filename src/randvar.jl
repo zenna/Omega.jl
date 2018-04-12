@@ -22,7 +22,7 @@ function RandVar{T, Prim}(f::F, args::TPL) where {T, Prim, F, TPL}
 end
 
 function RandVar{T}(f::F) where {T, F}
-  RandVar{T, true, F, Tuple{}, LazyId}(f, (), LazyId()) # FIXME: HACK
+  RandVar{T, true, F, Tuple{}, Int}(f, (), ωnew()) # FIXME: HACK
 end
 
 apl(x, ω::Omega) = x
