@@ -14,9 +14,6 @@ function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{MIH};
     p_ = y(ω_).epsilon
     ratio = p_ / plast
     if rand() < ratio
-      if y(ω).epsilon == best
-        @show "Down!" best, p_, ratio, x(ω), x(ω_)
-      end
       ω = ω_
       plast = p_
       accepted += 1.0
@@ -27,4 +24,4 @@ function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{MIH};
   samples
 end
 
-Base.rand(x::RandVar, y::RandVar; kwargs...) = rand(x, y, MH; kwargs...)
+Base.rand(x::RandVar, y::RandVar; kwargs...) = rand(x, y, MIH; kwargs...)

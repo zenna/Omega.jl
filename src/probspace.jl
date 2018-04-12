@@ -13,9 +13,6 @@ end
 
 "Index of Probability Space"
 Id = Int
-AstId = Int
-RandVarId = Int
-InvocationId = Int
 
 "Probability Space"
 abstract type Omega <: AbstractRNG end
@@ -42,8 +39,8 @@ struct OmegaProj <: Omega
 end
 
 append(is::Ints, i::Int) = tuple(is..., i)
-Base.getindex(ω::DirtyOmega, i::RandVarId) = OmegaProj(ω, (1,))
-Base.getindex(ωπ::OmegaProj, i::RandVarId) = OmegaProj(ωπ.ω, append(ωπ.id, i))
+Base.getindex(ω::DirtyOmega, i::Id) = OmegaProj(ω, (1,))
+Base.getindex(ωπ::OmegaProj, i::Id) = OmegaProj(ωπ.ω, append(ωπ.id, i))
 
 increment!(ω::DirtyOmega) = ω.counter += 1
 resetcount(ω::DirtyOmega) = DirtyOmega(ω._Float64,
