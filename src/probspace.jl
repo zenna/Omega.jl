@@ -17,7 +17,7 @@ Id = Int
 "Probability Space"
 abstract type Omega <: AbstractRNG end
 
-Ints = NTuple{N, Int} where N
+const Ints = NTuple{N, Int} where N
 
 struct DirtyOmega <: Omega
   _Float64::Dict{Ints, Vector{Float64}}

@@ -11,7 +11,7 @@ function y_(ω)
   [Mu.categorical(ω, weights(ω)) for i = 1:n_obs]
 end
 
-y = Mu.RandVar{Vector{Float64}}(y_)
+y = iid(y_, Vector{Float64})
 
 function ccount(samples, k)
   counts = zeros(k)
@@ -23,11 +23,11 @@ end
 
 Mu.lift(:ccount, 2)
 
-# Observations (make)
+# Observations
 y_obs = zeros(k)
 y_obs[2] = n_obs
 
-
 c = ccount(y, k)
-samples = rand(weights, c == y_obs, n=10000)
-[median(map(x->x[i], samples)) for i = 1:k]
+samples = rand(weights, c == y_obs)
+meds = [median(map(x->x[i], samples)) for i = 1:k]
+@test findmax(meds)[2] == 2

@@ -1,6 +1,8 @@
 "Random Variable"
 abstract type AbstractRandVar{T} end  # FIXME : Rename to RandVar
 
+Base.getindex(rng::AbstractRNG, ::Int64) = rng 
+
 struct RandVar{T, Prim, F, TPL, I} <: AbstractRandVar{T} # Rename to PrimRandVar or PrimRv
   f::F      # Function (generally Callable)
   args::TPL
@@ -23,6 +25,14 @@ end
 
 function RandVar{T}(f::F) where {T, F}
   RandVar{T, true, F, Tuple{}, Int}(f, (), ωnew()) # FIXME: HACK
+end
+
+"Construct an i.i.d. of `X`"
+iid(f, T=infer_elemtype(f)) = RandVar{T}(f)
+function infer_elemtype(f)
+  rt = Base.return_types(f, (Mu.DirtyOmega,))
+  @pre length(rt) == 1 "Could not infer unique return type"
+  rt[1]
 end
 
 apl(x, ω::Omega) = x

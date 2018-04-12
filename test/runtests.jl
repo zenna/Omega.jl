@@ -1,5 +1,6 @@
 using Mu
 using Spec
 
-walktests(Mu)
-walktests(Mu, "models")
+walktests(Mu, exclude=["randcond.jl"])
+walktests(Mu, joinpath("Mu", "test", "tests", "models"))
+

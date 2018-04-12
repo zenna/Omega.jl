@@ -10,11 +10,11 @@
 Random Conditional Distribution
 
 ``
-randdist(X,Y) = (y -> cond(X,Y=y))(Y)
+randcond(X,Y) = (y -> cond(X,Y=y))(Y)
               = \omega -> X \mid Y = Y(\omega)
 ``
 """
-function randdist(x::RandVar{T}, y::RandVar) where T
+function randcond(x::RandVar{T}, y::RandVar) where T
   function g(ω1::Omega)
     res = y(ω1) # Because ω is lazy, this causes values to be instantiated
     function h(ω2::Omega)

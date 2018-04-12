@@ -13,7 +13,6 @@ z = uniform(0.0, 1.0)
 y = x + z
 intervention = intervene(x, 3.0)
 samples = rand(intervention(y), y == 2.0, n=10000)
-@test samples
 
 x = uniform(0.0, 1.0)
 z = uniform(0.0, 1.0)

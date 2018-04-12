@@ -1,9 +1,9 @@
 
 MaybeSoftBool = Union{Bool, SoftBool}
-# "Conditional Random Variable `x | y`"
-# struct CondRandVar{T <: RandVar{T}, B <: RandVar{<:Bool}} <: RandVar{T}
+"Conditional Random Variable `x | y`"
+# struct CondRandVar{T, RVX, RVB <: RandVar{<:Bool}} <: AbstractRandVar{T}
 #   x::AbstractRandVar{T} 
-#   y::B
+#   y::RVB
 # end
 
 # "Conditional Random Variable `x | y`"

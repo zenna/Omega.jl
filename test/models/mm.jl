@@ -38,14 +38,12 @@ y = [mm(π, μ, s) for _ in y_obs]
 y_ = Mu.randarray(y)
 
 # Inference goal: conditional distribution of means given data
-samples = rand(Mu.randarray(μ), y_ == y_obs, MH, n=10000)
+samples = rand(Mu.randarray(μ), y_ == y_obs, MIH, n=10000)
 @show [median(map(x->x[i], samples)) for i=1:k]
 
 
 samples_π = rand(Mu.randarray(π), y_ == y_obs, SSMH, n=10000)
 @show [median(map(x->x[i], samples_π)) for i=1:k]
-
-
 
 ## Generate a mixture choosing from different distributions
 ## instead of computing a weighted average
@@ -64,5 +62,5 @@ c_i = Mu.categorical(Mu.randarray(π))
 mm() = mixture(c_i, Mu.randarray([normal(μ[i], s[i]) for i = 1:k]))
 y = [mm() for _ in y_obs]
 y_ = Mu.randarray(y)
-samples = rand(Mu.randarray(μ), y_ == y_obs, MH, n=10000)
+samples = rand(Mu.randarray(μ), y_ == y_obs, MIH, n=10000)
 @show [median(map(x->x[i], samples)) for i=1:k]

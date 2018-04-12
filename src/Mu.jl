@@ -1,9 +1,10 @@
-# __precompile__()
+__precompile__()
 "Minimal Probabilistic Programming Langauge"
 module Mu
 
 using Distributions
 using ProgressMeter
+using Spec
 
 # Util
 include("util/misc.jl")
@@ -22,6 +23,7 @@ include("cond.jl")      # Conditional Random Variables
 
 # Inference Algorithms
 include("inference/rand.jl")      # Sampling
+include("inference/rs.jl")       # Metropolized Independent Sampling
 include("inference/mih.jl")       # Metropolized Independent Sampling
 include("inference/ssmh.jl")      # Single Site Metropolis Hastings
 include("inference/cgan.jl")      # Conditional GAN inference
@@ -42,6 +44,7 @@ export mean,
        randarray,
        @lift,
        @id,
+       iid
 
        # Distributions
        gammarv,
@@ -57,7 +60,7 @@ export mean,
        intervene,
 
        # Algorithms
-       MH,
+       MIH,
        SSMH,
        RejectionSample
 end
