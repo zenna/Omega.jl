@@ -1,8 +1,6 @@
 using Mu
 
-k = uniform(1:4)
-
-d = normal(0.0, 1.0)
+k = Mu.poisson(5)
 
 function components(ω)
   a = Float64[(normal(ω[@id], 0.0, 1.0)) for i = 1:k(ω)]
