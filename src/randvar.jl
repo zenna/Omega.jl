@@ -51,9 +51,6 @@ function Base.copy(x::RandVar{T}) where T
   RandVar{T}(x.f, x.ωids)
 end
 
-"Constant randvar `ω -> x`"
-constant(x::T) where T = RandVar{T}(identity, (x,))
-
 name(x) = x
 name(rv::RandVar) = string(rv.f)
 Base.show(io::IO, rv::RandVar{T}) where T=

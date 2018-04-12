@@ -1,15 +1,14 @@
 "Index of Probability Space"
 Id = Int
 
-"Lazy List of Ids"
-struct LazyId
-  ids::Vector{Int}
-  # d::Dict{Int, Id}
-  # last::Int
-end
-# LazyId() = LazyId(Dict{Int, Int}())
 LazyId() = LazyId(Int[])
-# Base.getindex(l::LazyId, i::Int) = get!(ωnew, l.d, i)
+function Base.getindex(l::LazyId, i::Int)
+  if i > size(l.ids)
+    next!(l.ids)
+  else
+    l.ids[i]
+  end
+end
 next!(l::LazyId) = push!(l.ids, ωnew())
 
 "Probability Space"
@@ -48,9 +47,9 @@ function Base.rand(sω::SubOmega{I, Int}, ::Type{T}) where {I, T <: RV}
 end
 
 function Base.rand(sω::SubOmega{I, LazyId}, ::Type{T}) where {I, T <: RV}
-  # id = sω.id[sω.ω.counter]
-  # increment!(sω.ω)
-  next!(sω.id)
+  id = sω.id[sω.ω.counter]
+  increment!(sω.ω)
+  # next!(sω.id)
   get!(()->rand(Base.Random.GLOBAL_RNG, T), sω.ω.d, id)
 end
 

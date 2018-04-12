@@ -7,12 +7,11 @@ using ProgressMeter
 
 # Util
 include("util/misc.jl")
-# include("lazyid.jl")    # Infinite Sequence of Ids
 
 # Core
 include("probspace.jl") # Sample Space
 include("randvar.jl")   # Random Variables
-include("randdist.jl")  # Random Variables
+include("randcond.jl")  # Random Conditional Distributi
 include("array.jl")     # Array primitives
 include("lift.jl")      # Lifting functions to RandVar domain
 
@@ -20,7 +19,13 @@ include("lift.jl")      # Lifting functions to RandVar domain
 include("algorithm.jl") # Algorithm abstract type
 include("soft.jl")      # Soft logic
 include("cond.jl")      # Conditional Random Variables
-include("rand.jl")      # Sampling
+
+# Inference Algorithms
+include("inference/rand.jl")      # Sampling
+include("inference/mih.jl")       # Metropolized Independent Sampling
+include("inference/ssmh.jl")      # Single Site Metropolis Hastings
+include("inference/cgan.jl")      # Conditional GAN inference
+include("inference/spen.jl")      # Structured Predicton Energy Networks
 
 # Causal Inference
 include("do.jl")        # Causal Reasoning
@@ -30,7 +35,7 @@ include("distributions.jl")  # Sampling
 include("statistics.jl")     # Mean, etc
 
 export mean,
-       randdist,
+       randcond,
        softeq,
        ≊,
        ⪆,
