@@ -22,7 +22,7 @@ abstract type Omega <: AbstractRNG end
 
 Ints = NTuple{N, Int} where N
 
-mutable struct DirtyOmega <: Omega
+struct DirtyOmega <: Omega
   _Float64::Dict{Ints, Vector{Float64}}
   _Float32::Dict{Ints, Vector{Float32}}
   _UInt32::Dict{Ints, Vector{UInt32}}
