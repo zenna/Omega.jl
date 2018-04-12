@@ -22,7 +22,7 @@ dirichlet(α::MaybeRV{T}, ωid::Id = ωid::Id=ωnew()) where T = RandVar{T, true
 
 "Beta distribution"
 betarv(ω::Omega, α::AbstractFloat, β::AbstractFloat) = quantile(Beta(α, β), rand(ω))
-betarv(α::MaybeRV{T}, β::MaybeRV{T}, ωid::Id=ωnew()) where T <: AbstractFloat = RandVar{T, true}(Mu.beta, (α, β), ωid)
+betarv(α::MaybeRV{T}, β::MaybeRV{T}, ωid::Id=ωnew()) where T <: AbstractFloat = RandVar{T, true}(Mu.betarv, (α, β), ωid)
 
 "Bernoulli with weight `p`"
 bernoulli(ω::Omega, p::AbstractFloat) = quantile(Bernoulli(p), rand(ω))

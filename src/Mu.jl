@@ -44,7 +44,7 @@ export mean,
        randarray,
        @lift,
        @id,
-       iid
+       iid,
 
        # Distributions
        gammarv,

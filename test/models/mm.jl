@@ -1,23 +1,18 @@
 using Mu
 using Distributions
 
-# Number of components
-k = 3
 
-nobs = 10
+k = 3     # Number of components
+nobs = 10 # Number of observations
+y_obs = vcat((randn(div(nobs, 2)) + 50)-10, (randn(div(nobs,2)))) # Data
 
-# Data
-y_obs = vcat((randn(div(nobs, 2)) + 50)-10, (randn(div(nobs,2))))
-
-# Priors depend on data? What is this madness?!
-μ_data = mean(y_obs)
-σ²data = var(y_obs)
+μ_data = mean(y_obs)  # Data dependent mean prior
+σ²data = var(y_obs)   # Variance prior
 
 λ = normal(μ_data, sqrt(σ²data))
 
 r = Γ(1.0, 1/σ²data)
 
-# FIXME: overload Base.vect
 μ =  [normal(λ, 1/r) for i = 1:k]
 
 # Inference goal: conditional posterior distribution of means given data
