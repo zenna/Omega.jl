@@ -48,6 +48,7 @@ fnms = [:(Base.:-),
       :(Base.:*),
       :(Base.:/),
       :(Base.:^),
+      :(Base.:&),
       :(Base.:sin),
       :(Base.:cos),
       :(Base.:tan)]
