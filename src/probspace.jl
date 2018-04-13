@@ -60,28 +60,17 @@ lookup(::Type{CloseOpen}) = Float64, :_Float64
 @generated function closeopen(::Type{T}, ωπ::OmegaProj) where T
   T2, T2Sym = lookup(T)
   quote
-  if ωπ.id in keys(ωπ.ω.$T2Sym)
-    if ωπ.id ∉ keys(ωπ.ω.counts)
-      ωπ.ω.counts[ωπ.id] = 1
-    end
-    count = ωπ.ω.counts[ωπ.id]
-    length(ωπ.ω.$T2Sym[ωπ.id])
-    if count <= length(ωπ.ω.$T2Sym[ωπ.id])
-      ωπ.ω.counts[ωπ.id] += 1
-      return ωπ.ω.$T2Sym[ωπ.id][count]
-    else
-      @assert count == length(ωπ.ω.$T2Sym[ωπ.id]) + 1
+    id = ωπ.id
+    counts = ωπ.ω.counts
+    actualω = get!(ωπ.ω.$T2Sym, id, $T2[])
+    count = get!(counts, id, 1)
+    if count > length(actualω)
+      @assert count == length(actualω) + 1
       val = rand($T2)
-      push!(ωπ.ω.$T2Sym[ωπ.id], val)
-      ωπ.ω.counts[ωπ.id] += 1
-      return val
+      push!(actualω, val)
     end
-  else
-    val = rand($T2)
-    ωπ.ω.$T2Sym[ωπ.id] = $T2[val]
-    ωπ.ω.counts[ωπ.id] = 2
-    return val
-  end
+    counts[id] += 1
+    return actualω[count]
   end
 end
 
