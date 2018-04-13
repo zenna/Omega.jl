@@ -12,8 +12,8 @@ include("util/misc.jl")
 # Core
 include("omega/omega.jl") # Sample Space
 include("omega/dirtyomega.jl") # Sample Space
-# include("omega/pairomega.jl") # Sample Space
-# include("omega/diffomega.jl") # Sample Space
+include("omega/pairomega.jl")  # Pairing functions for omega ids
+include("omega/diffomega.jl")  # Differentiable Omega
 
 include("randvar.jl")    # Random Variables
 include("randcond.jl")  # Random Conditional Distributi
@@ -35,6 +35,9 @@ include("inference/spen.jl")      # Structured Predicton Energy Networks
 
 # Causal Inference
 include("do.jl")        # Causal Reasoning
+
+# Gradient
+include("gradient.jl")
 
 # Library
 include("distributions.jl")  # Sampling
