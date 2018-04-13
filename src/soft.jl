@@ -2,10 +2,10 @@
 ## =================
 
 "Real+ -> [0, 1]"
-f1(x; a=0.0001) = x / (x + a)
+f1(x; a=0.00001) = x / (x + a)
 
 "Real+ -> [0, 1]"
-f2(x; a=1000.0) = 1 - exp(-a * x)
+f2(x; a=1) = 1 - exp(-a * x)
 
 function bound_loss(x, a, b)
   # @pre b >= a
@@ -27,7 +27,10 @@ end
 
 softeq(x::Real, y::Real) = SoftBool(1 - f1((x - y)^2))
 softgt(x::Real, y::Real) = SoftBool(1 - f1(bound_loss(x, y, Inf)))
-softeq(x::Vector{<:Real}, y::Vector{<:Real}) = SoftBool(1 - f1(norm(x - y)))
+function softeq(x::Vector{<:Real}, y::Vector{<:Real})
+  SoftBool(1 - f2(norm(x - y)))
+end
+# softeq(x::Vector{<:Real}, y::Vector{<:Real}) = SoftBool(1 - mean(f1.(x - y)))
 
 Base.:&(x::SoftBool, y::SoftBool) = SoftBool(min(x.epsilon, y.epsilon))
 Base.:|(x::SoftBool, y::SoftBool) = SoftBool(max(x.epsilon, y.epsilon))

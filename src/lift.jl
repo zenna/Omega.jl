@@ -14,9 +14,8 @@ function mkrv(f, args::Tuple)
 end
 
 # No Exists{T} yet https://github.com/JuliaLang/julia/issues/21026#issuecomment-306624369"
-
 function liftnoesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
-  args = [isrv ?  :($(Symbol(:x, i))::AbstractRandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
+  args = [isrv ?  :($(Symbol(:x, i))::Mu.AbstractRandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
   quote
   function $fnm($(args...))
     Mu.mkrv($fnm, ($(args...),))
@@ -25,7 +24,7 @@ function liftnoesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
 end
 
 function liftesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
-  args = [isrv ?  :($(Symbol(:x, i))::AbstractRandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
+  args = [isrv ?  :($(Symbol(:x, i))::Mu.AbstractRandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
   quote
   function $(esc(fnm))($(args...))
     Mu.mkrv($(esc(fnm)), ($(args...),))
@@ -33,25 +32,31 @@ function liftesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
   end
 end
 
-function lift(fnm, n::Integer)
+function lift(fnm::Union{Expr, Symbol}, n::Integer; mod::Module=current_module())
   combs = rvcombinations(n)
   for comb in combs
-    eval(liftnoesc(fnm, comb))
+    eval(mod, liftnoesc(fnm, comb))
   end
+end
+
+function lift(f; n=3, mod::Module=current_module())
+  lift(:($f), n; mod=mod)
 end
 
 ## Pre Lifted
 ## ==========
 
 fnms = [:(Base.:-),
-      :(Base.:+),
-      :(Base.:*),
-      :(Base.:/),
-      :(Base.:^),
-      :(Base.:sin),
-      :(Base.:cos),
-      :(Base.:tan)]
+        :(Base.:+),
+        :(Base.:*),
+        :(Base.:/),
+        :(Base.:^),
+        :(Base.:sin),
+        :(Base.:cos),
+        :(Base.:tan),
+        :(Base.sum)]
 
+Base.:^(x1::Mu.AbstractRandVar{T}, x2::Integer) where T = RandVar{T, false}(^, (x1, x2))
 macro lift(fnm::Union{Symbol, Expr}, n::Integer)
   combinations = Iterators.product(((true,false) for i = 1:n)...)
   combinations = Iterators.filter(any, combinations)
@@ -75,3 +80,4 @@ end
 function Base.:(==)(x::AbstractRandVar, y)
   RandVar{Bool, false}(≊, (x, y))
 end
+
