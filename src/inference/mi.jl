@@ -1,8 +1,8 @@
 "Metropolized Independent Sampling"
-abstract type MIH <: Algorithm end
+abstract type MI <: Algorithm end
 
 "Sample from `x | y == true` with Metropolis Hasting"
-function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{MIH};
+function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{MI};
                    n::Integer = 1000) where T
   ω = DirtyOmega()
   plast = y(ω).epsilon
@@ -24,4 +24,4 @@ function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{MIH};
   samples
 end
 
-Base.rand(x::RandVar, y::RandVar; kwargs...) = rand(x, y, MIH; kwargs...)
+Base.rand(x::RandVar, y::RandVar; kwargs...) = rand(x, y, MI; kwargs...)
