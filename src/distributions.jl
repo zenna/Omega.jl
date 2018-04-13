@@ -2,10 +2,17 @@ normal(μ, σ, ωid::Id, ω::Omega) = quantile(Normal(μ, σ), ω[ωid])
 normal(μ::T, σ::T, ωid::Int=ωnew()) where T = RandVar{T, true}(normal, (μ, σ, ωid))
 normal(μ::AbstractRandVar{T}, σ::T, ωid::Int=ωnew()) where T = RandVar{T, true}(normal, (μ, σ, ωid))
 normal(μ::T, σ::AbstractRandVar{T}, ωid::Int=ωnew()) where T = RandVar{T, true}(normal, (μ, σ, ωid))
+normal(μ::AbstractRandVar{T}, σ::AbstractRandVar{T}, ωid::Int=ωnew()) where T = RandVar{T, true}(normal, (μ, σ, ωid))
 
 "Gamma distribution"
 gammarv(α, θ, ωi, ω::Omega) = quantile(Gamma(α, θ), ω[ωi])
 gammarv(α::T, θ::T, ωid::Id = ωnew()) where T <: Real =
+  RandVar{T, true}(gammarv, (α, θ, ωid))
+gammarv(α::AbstractRandVar{T}, θ::T, ωid::Id = ωnew()) where T <: Real =
+  RandVar{T, true}(gammarv, (α, θ, ωid))
+gammarv(α::T, θ::AbstractRandVar{T}, ωid::Id = ωnew()) where T <: Real =
+  RandVar{T, true}(gammarv, (α, θ, ωid))
+gammarv(α::AbstractRandVar{T}, θ::AbstractRandVar{T}, ωid::Id = ωnew()) where T <: Real =
   RandVar{T, true}(gammarv, (α, θ, ωid))
 Γ = gammarv
 
@@ -25,9 +32,9 @@ end
 # end
 
 "Inverse Gamma"
-inversegamma(α, θ, ωi) = quantile(InverseGamma(α, θ), ωi)
-inversegamma(α, θ, ωid::Id = ωnew()) =
-  RandVar{Real}(ω -> inversegamma(apl(α, ω), apl(θ, ω), ω[ωid]), ωid)
+inversegamma(α, θ, ωi, ω::Omega) = quantile(InverseGamma(α, θ), ω[ωi])
+inversegamma(α::T, θ::T, ωid::Id = ωnew()) where T <: Real =
+  RandVar{T, true}(inversegamma, (α, θ, ωid))
 
 "Beta"
 beta(α, β, ωid::Id, ω::Omega) = quantile(Beta(α, β), ω[ωid])
