@@ -1,5 +1,5 @@
 struct CountVec{T}
-  Vector{T}
+  data::Vector{T}
   count::Int
 end
 
@@ -7,4 +7,3 @@ end
 struct DiffOmega{T <: AbstractFloat}
   vals::Dict{Int, CountVec{T}}
 end
-
