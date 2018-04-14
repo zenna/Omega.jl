@@ -18,11 +18,11 @@ Id = Int
 "Tuple of Ints"
 const Ints = NTuple{N, Int} where N
 
-"Probability Space"
-abstract type Omega <: AbstractRNG end
+"Probability Space indexed with values of type I"
+abstract type Omega{I} <: AbstractRNG end
 
 "Projection of `ω` onto compoment `id`"
-struct OmegaProj{O <: Omega, I} <: Omega
+struct OmegaProj{O, I} <: Omega{I}
   ω::O
   id::I
 end

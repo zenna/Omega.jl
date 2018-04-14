@@ -1,4 +1,4 @@
-struct DirtyOmega <: Omega
+struct DirtyOmega <: Omega{Ints}
   _Float64::Dict{Ints, Vector{Float64}}
   _Float32::Dict{Ints, Vector{Float32}}
   _UInt32::Dict{Ints, Vector{UInt32}}
@@ -12,7 +12,7 @@ DirtyOmega() =
              Dict{Ints, Vector{Int}}())
 
 append(is::Ints, i::Int) = tuple(is..., i)
-Base.getindex(ω::DirtyOmega, i::Id) = OmegaProj{DirtyOmega, Ints}(ω, (1,))
+Base.getindex(ω::DirtyOmega, i::Id) = OmegaProj{DirtyOmega, Ints}(ω, (i,))
 Base.getindex(ωπ::OmegaProj{DirtyOmega}, i::Id) =
   OmegaProj{DirtyOmega, Ints}(ωπ.ω, append(ωπ.id, i))
 

@@ -11,6 +11,7 @@ include("util/misc.jl")
 
 # Core
 include("omega/omega.jl") # Sample Space
+include("omega/countvec.jl") # Sample Space
 include("omega/dirtyomega.jl") # Sample Space
 include("omega/pairomega.jl")  # Pairing functions for omega ids
 include("omega/diffomega.jl")  # Differentiable Omega
