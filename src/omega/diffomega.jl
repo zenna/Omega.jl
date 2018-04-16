@@ -3,7 +3,8 @@ struct DiffOmega{T <: Real, I} <: Omega{I}
   vals::Dict{I, CountVec{T}}
 end
 
-resetcount!(dω::DiffOmega) = foreach(resetcount!, values(dω.vals))
+resetcount!(dω::DiffOmega) = (foreach(resetcount!, values(dω.vals)); dω)
+resetcount(dω::DiffOmega) = deepcopy(dω)
 
 DiffOmega{T, I}() where {T, I} = DiffOmega(Dict{I, CountVec{T}}())
 DiffOmega() = DiffOmega{Float64, Int}()
