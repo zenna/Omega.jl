@@ -10,7 +10,6 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector)
   p = randn(length(q))
   current_p = p
 
-  
   # Make a half step for momentum at beginning
   # Rejects proposals outside domain TODO: Something smarter
   any(notunit, q) && return (current_q, false)

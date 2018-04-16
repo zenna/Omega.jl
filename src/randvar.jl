@@ -45,16 +45,14 @@ function (rv::RandVar{T, true})(ω::Omega) where T
   (rv.f)(ω[rv.id], args...)
 end
 
-(rv::RandVar)(ωπ::OmegaProj) = rv(ωπ.ω)
+# (rv::RandVar)(ωπ::OmegaProj) = rv(ωπ.ω)
 
 function (rv::RandVar{T, false})(ω::Omega) where T
   args = map(a->apl(a, ω), rv.args)
   (rv.f)(args...)
 end
 
-function (rv::NTuple{N, RandVar})(ω::Omega) where N
-  applymany(rv, ω)
-end
+(rv::NTuple{N, RandVar})(ω::Omega) where N = applymany(rv, ω)
 
 function Base.copy(x::RandVar{T}) where T
   RandVar{T}(x.f, x.ωids)

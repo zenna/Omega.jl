@@ -1,10 +1,10 @@
 import Base.Random: Close1Open2, CloseOpen
 
-global ωcounter = 1
+const ωcounter = [0]
 "Unique dimension id"
 function ωnew()
-  global ωcounter = ωcounter + 1
-  ωcounter - 1
+  global ωcounter
+  x::Int = ωcounter[1] += 1
 end
 
 "Construct globally unique id for indices for ω"
