@@ -51,7 +51,7 @@ function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{HMC};
   ωvec = tovector(ω)
 
   xsamples = T[] # FIXME: preallocate (and use inbounds)
-  U(ω::DiffOmega) = y(ω).epsilon
+  U(ω::DiffOmega) = -log(y(ω).epsilon)
   U(ωvec::Vector) = U(todiffomega(ωvec, ω))
   ∇U(ωvec) = gradient(y, ω, ωvec)
 
