@@ -1,34 +1,51 @@
 using Mu
 using ImageView
-using Colors
-import RayTrace: SimpleSphere, ListScene, render
+import RayTrace: SimpleSphere, ListScene, render, rgbimg
+import RayTrace: FancySphere, Vec3
 
 Mu.lift(:(RayTrace.SimpleSphere), n=2)
 Mu.lift(:(RayTrace.ListScene), n=1)
 Mu.lift(:(RayTrace.render), n=1)
-img_obs = RayTrace.render(RayTrace.exmaple_scene())
 
-"Create an rgb image from a 3D matrix (w, h, c)"
-function rgbimg(img)
-  w = size(img)[1]
-  h = size(img)[2]
-  clrimg = Array{Colors.RGB}(w, h)
-  for i = 1:w
-    for j = 1:h
-      clrimg[i,j] = Colors.RGB(img[i,j,:]...)
-    end
+nspheres = poisson(3)
+
+"Randm Variable over scenes"
+function scene_(ω)
+  spheres = map(1:nspheres(ω)) do i
+    FancySphere([uniform(ω, -5.0, 5.0), uniform(ω, -1.0, 0.0), uniform(ω, -20.0, -15.0)],
+                 uniform(ω, 1.0, 4.0),
+                 [uniform(ω, 0.0, 1.0), uniform(ω, 0.0, 1.0), uniform(ω, 0.0, 10.0)],
+                 1.0,
+                 0.0,
+                 Vec3([0.0, 0.0, 0.0]))
   end
-  clrimg
+  light = FancySphere(Vec3([0.0, 20.0, -30]),  3.0, Vec3([0.00, 0.00, 0.00]), 0.0, 0.0, Vec3([3.0, 3.0, 3.0]))
+  typeof(spheres)
+  push!(spheres, light)
+  scene = ListScene(spheres)
 end
 
-# nspheres = Mu.poisson(4)
-nspheres = Mu.poisson(3)
-nspheres = 3
-xyz = randarray([uniform(-20, 20), uniform(-1, 1), uniform(-20, 20)])
-spheres = randarray([RayTrace.SimpleSphere(xyz, uniform(0,5)) for i = 1:nspheres])
-scene = ListScene(spheres)
-img = render(scene)
+scene = iid(scene_)     # Random Variable of scenes
+img = render(scene)     # Random Variable over images
 
-using ImageView
+# img_obs = rand(img)   # arbitrary observed image
+img_obs = RayTrace.render(RayTrace.example_scene())
 
-sphere_posterior = rand((spheres, n), img == obs_img)
+scene_posterior = rand(scene, img == img_obs)
+
+"Some example spheres which should create actual image"
+function example_spheres()
+  RayTrace.ListScene(
+   [FancySphere(Vec3([0.0, -10004, -20]), 10000.0, Vec3([0.20, 0.20, 0.20]), 0.0, 0.0, Vec3([0.0, 0.0, 0.0])),
+    FancySphere(Vec3([0.0,      0, -20]),     4.0, Vec3([1.00, 0.32, 0.36]), 1.0, 0.5, Vec3([0.0, 0.0, 0.0])),
+    FancySphere(Vec3([5.0,     -1, -15]),     2.0, Vec3([0.90, 0.76, 0.46]), 1.0, 0.0, Vec3([0.0, 0.0, 0.0])),
+    FancySphere(Vec3([5.0,      0, -25]),     3.0, Vec3([0.65, 0.77, 0.97]), 1.0, 0.0, Vec3([0.0, 0.0, 0.0])),
+    FancySphere(Vec3([-5.5,      0, -15]),    3.0, Vec3([0.90, 0.90, 0.90]), 1.0, 0.0, Vec3([0.0, 0.0, 0.0])),
+    # light (emission > 0)
+    FancySphere(Vec3([0.0,     20.0, -30]),  3.0, Vec3([0.00, 0.00, 0.00]), 0.0, 0.0, Vec3([3.0, 3.0, 3.0]))])
+end
+
+img = render(example_spheres())
+img_ = rand(img)
+rgbimg_ = rgbimg(img_)
+imshow(rgbimg_)

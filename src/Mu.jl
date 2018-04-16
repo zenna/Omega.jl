@@ -64,6 +64,7 @@ export mean,
        dirichlet,
        betarv,
        bernoulli,
+       poisson,
 
        # Do
        intervene,

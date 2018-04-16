@@ -7,7 +7,7 @@ end
 CountVec(xs::Vector{T}) where T = CountVec{T}(xs, 1)
 CountVec{T}() where T = CountVec{T}(T[], 1)
 
-function next!(cv::CountVec, T)
+function next!(cv::CountVec, ::Type{T}) where T
   if cv.count <= length(cv.data)
     val = cv.data[cv.count]
     cv.count += 1

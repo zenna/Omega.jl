@@ -30,6 +30,11 @@ softgt(x::Real, y::Real) = SoftBool(1 - f1(bound_loss(x, y, Inf)))
 function softeq(x::Vector{<:Real}, y::Vector{<:Real})
   SoftBool(1 - f1(norm(x - y)))
 end
+
+function softeq(x::Array{<:Real}, y::Array{<:Real})
+  SoftBool(1 - f1(norm(x[:] - y[:])))
+end
+
 # softeq(x::Vector{<:Real}, y::Vector{<:Real}) = SoftBool(1 - mean(f1.(x - y)))
 
 Base.:&(x::SoftBool, y::SoftBool) = SoftBool(min(x.epsilon, y.epsilon))
