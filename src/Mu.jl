@@ -10,7 +10,12 @@ using Spec
 include("util/misc.jl")
 
 # Core
-include("probspace.jl") # Sample Space
+include("omega/omega.jl") # Sample Space
+include("omega/countvec.jl") # Sample Space
+include("omega/dirtyomega.jl") # Sample Space
+include("omega/pairomega.jl")  # Pairing functions for omega ids
+include("omega/diffomega.jl")  # Differentiable Omega
+
 include("randvar.jl")    # Random Variables
 include("randcond.jl")  # Random Conditional Distributi
 include("array.jl")     # Array primitives
@@ -24,13 +29,17 @@ include("cond.jl")      # Conditional Random Variables
 # Inference Algorithms
 include("inference/rand.jl")      # Sampling
 include("inference/rs.jl")       # Metropolized Independent Sampling
-include("inference/mih.jl")       # Metropolized Independent Sampling
+include("inference/mi.jl")       # Metropolized Independent Sampling
 include("inference/ssmh.jl")      # Single Site Metropolis Hastings
+include("inference/hmc.jl")      # Single Site Metropolis Hastings
 include("inference/cgan.jl")      # Conditional GAN inference
 include("inference/spen.jl")      # Structured Predicton Energy Networks
 
 # Causal Inference
 include("do.jl")        # Causal Reasoning
+
+# Gradient
+include("gradient.jl")
 
 # Library
 include("distributions.jl")  # Sampling
@@ -60,7 +69,8 @@ export mean,
        intervene,
 
        # Algorithms
-       MIH,
+       RejectionSample,
+       MI,
        SSMH,
-       RejectionSample
+       HMC
 end

@@ -1,8 +1,8 @@
-"Metropolized Independent Sampling"
-abstract type MIH <: Algorithm end
+"Metropolized Hasing Sampling"
+abstract type MH <: Algorithm end
 
 "Sample from `x | y == true` with Metropolis Hasting"
-function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{MIH};
+function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{MH};
                    n::Integer = 1000) where T
   ω = DirtyOmega()
   plast = y(ω).epsilon
@@ -23,5 +23,3 @@ function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{MIH};
   print_with_color(:light_blue,  "acceptance ratio: $(accepted/float(n))\n")
   samples
 end
-
-Base.rand(x::RandVar, y::RandVar; kwargs...) = rand(x, y, MIH; kwargs...)
