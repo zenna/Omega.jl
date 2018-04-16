@@ -41,6 +41,7 @@ uniform(ω::Omega, a::T, b::T) where T = rand(ω) * (b - a) + a
 uniform(a::MaybeRV{T}, b::MaybeRV{T}, ωid::Id=ωnew()) where T <: AbstractFloat =
   RandVar{T, true}(uniform, (a, b), ωid)
 
+  
 "Discrete uniform distribution with range `range`"
 uniform(range::UnitRange{T}, ωid=ωnew()) where T =
   RandVar{T, true}(rand, (range,), ωid)
@@ -51,7 +52,8 @@ mvnormal(μ::MaybeRV{T1}, Σ::MaybeRV{T2}, ωid::Id = ωnew()) where {T1, T2} =
   RandVar{T1, true}(mvnormal, (μ, Σ), ωid)
 
 "Normal Distribution with mean μ and variance σ"
-normal(ω::Omega, μ, σ) = rand(ω, Normal(μ, σ))
+normal(ω::Omega, μ, σ) = quantile(Normal(μ, σ), rand(ω))
+# normal(ω::Omega, μ, σ) = rand(ω, Normal(μ, σ))
 # normal(ω::Omega, μ, σ, ωid::Id = ωnew()) = normal(parent(ω)[ωid], μ, σ)
 normal(μ::MaybeRV{T}, σ::MaybeRV{T}, ωid::Id = ωnew()) where T <: AbstractFloat = 
   RandVar{T, true}(normal, (μ, σ), ωid)
