@@ -27,16 +27,6 @@ function RandVar{T}(f::F) where {T, F}
   RandVar{T, true, F, Tuple{}, Int}(f, (), ωnew()) # FIXME: HACK
 end
 
-"Construct an i.i.d. of `X`"
-iid(f, T=infer_elemtype(f)) = RandVar{T}(f)
-
-"Infer T from function `f: w -> T`"
-function infer_elemtype(f)
-  rt = Base.return_types(f, (Mu.DirtyOmega,))
-  @pre length(rt) == 1 "Could not infer unique return type"
-  rt[1]
-end
-
 apl(x, ω::Omega) = x
 apl(x::AbstractRandVar, ω::Omega) = x(ω)
 
@@ -60,7 +50,22 @@ function Base.copy(x::RandVar{T}) where T
   RandVar{T}(x.f, x.ωids)
 end
 
+## I.I.D
+## =====
+"Infer T from function `f: w -> T`"
+function infer_elemtype(f)
+  rt = Base.return_types(f, (Mu.DirtyOmega,))
+  @pre length(rt) == 1 "Could not infer unique return type"
+  rt[1]
+end
+
+"Construct an i.i.d. of `X`"
+iid(f, T=infer_elemtype(f)) = RandVar{T}(f)
+
+## Printing
+## ========
 name(x) = x
 name(rv::RandVar) = string(rv.f)
 Base.show(io::IO, rv::RandVar{T}) where T=
   print(io, "$(name(rv))($(join(map(name, rv.args), ", ")))::$T")
+

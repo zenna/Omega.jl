@@ -20,7 +20,6 @@ function scene_(ω)
                  Vec3([0.0, 0.0, 0.0]))
   end
   light = FancySphere(Vec3([0.0, 20.0, -30]),  3.0, Vec3([0.00, 0.00, 0.00]), 0.0, 0.0, Vec3([3.0, 3.0, 3.0]))
-  typeof(spheres)
   push!(spheres, light)
   scene = ListScene(spheres)
 end
