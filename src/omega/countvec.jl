@@ -6,6 +6,7 @@ end
 
 CountVec(xs::Vector{T}) where T = CountVec{T}(xs, 1)
 CountVec{T}() where T = CountVec{T}(T[], 1)
+Base.copy(cvec::CountVec{T}) where T = CountVec{T}(cvec.data, cvec.count) 
 
 function next!(cv::CountVec, ::Type{T}) where T
   if cv.count <= length(cv.data)
@@ -20,4 +21,6 @@ function next!(cv::CountVec, ::Type{T}) where T
     val
   end 
 end
-resetcount!(cv::CountVec) = cv.count = 1
+
+# resetcount!(cv::CountVec) = cv.count = 1
+resetcount(cvec::CountVec{T}) where T = CountVec{T}(cvec.data, 1)

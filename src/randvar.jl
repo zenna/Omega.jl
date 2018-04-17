@@ -31,16 +31,16 @@ apl(x, ω::Omega) = x
 apl(x::AbstractRandVar, ω::Omega) = x(ω)
 
 function (rv::RandVar{T, true})(ω::Omega) where T
-  # @show ω = resetcount(ω)
   args = map(a->apl(a, ω), rv.args)
+  ω = resetcount(ω)
   (rv.f)(ω[rv.id], args...)
 end
 
 # (rv::RandVar)(ωπ::OmegaProj) = rv(ωπ.ω)
 
 function (rv::RandVar{T, false})(ω::Omega) where T
-  # ω = resetcount(ω)
   args = map(a->apl(a, ω), rv.args)
+  ω = resetcount(ω)
   (rv.f)(args...)
 end
 

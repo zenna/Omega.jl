@@ -12,4 +12,4 @@ function X(rng)
   as, bs
 end
 
-rand(X)
+rand(iid(X))
