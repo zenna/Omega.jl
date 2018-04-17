@@ -11,10 +11,15 @@ function resetcount(dω::DiffOmega{T, I}) where {T, I}
   DiffOmega{T, I}(Dict{I, CountVec{T}}(k => resetcount(v) for (k, v) in dω.vals))
 end
 
+resetcount!(dω::DiffOmega) = foreach(resetcount!, values(dω.vals))
+
 DiffOmega{T, I}() where {T, I} = DiffOmega(Dict{I, CountVec{T}}())
 DiffOmega() = DiffOmega{Float64, Int}()
 
 lookupme(::Type{CloseOpen}) = Float64
+
+Base.rand(T, ω::DiffOmega) = rand(T, ω[0])
+Base.rand(ω::DiffOmega, T) = rand(ω[0], T)
 
 function Base.rand(::Type{T}, ωπ::OmegaProj{O}) where {T, T2, O <: DiffOmega{T2}}
   @assert false
@@ -28,6 +33,7 @@ function closeopen(::Type{T}, ωπ::OmegaProj{O}) where {T, T2, O <: DiffOmega{T
   cvec = get!(CountVec{T3}, ωπ.ω.vals, ωπ.id)
   next!(cvec, T)
 end
+
 
 ## Conversions
 ## ==========

@@ -27,6 +27,15 @@ struct OmegaProj{O, I} <: Omega{I}
   id::I
 end
 
+const RandVarId = Int
+
+struct NestedOmega{O <: Omega} <: Omega{Int} # Hack FIXME
+  vals::Dict{RandVarId, O}
+end
+
+Base.getindex(ω::NestedOmega{O}, i::Int) where O = get!(ω.vals, i, O())
+NestedOmega{O}() where O = NestedOmega(Dict{RandVarId, O}())
+
 ## Rand
 ## ====
 RV = Union{Integer, Base.Random.FloatInterval}
