@@ -2,7 +2,7 @@
 abstract type HMC <: Algorithm end
 
 "ω ∉ [0, 1]"
-notunit(ω) = ω > 1.0 || ω < 0.0 
+notunit(ω) = ω > 1.0 || ω < 0.0
 
 "Hamiltonian monte carlo with leapfron integration: https://arxiv.org/pdf/1206.1901.pdf"
 function hmc(U, ∇U, nsteps, stepsize, current_q::Vector)
@@ -13,19 +13,19 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector)
   # Make a half step for momentum at beginning
   # Rejects proposals outside domain TODO: Something smarter
   any(notunit, q) && return (current_q, false)
-  p = p - stepsize * ∇U(q) / 2.0
+  p = p - stepsize * ∇U(q) ./ 2.0
 
   for i = 1:nsteps
     # Helf step for the position and momentum
-    q = q .+ stepsize .* p   
+    q = q .+ stepsize .* p
     if i != nsteps
       any(notunit, q) && return (current_q, false)
-      p = p - stepsize * ∇U(q) ./ 2.0
+      p = p - stepsize * ∇U(q)
     end
   end
 
   # Make half a step for momentum at the end
-  any(notunit, q) && return current_q, false
+  any(notunit, q) && return (current_q, false)
   p = p .- stepsize .* ∇U(q) ./ 2.0
 
   # Evaluate the potential and kinetic energies at start and end
