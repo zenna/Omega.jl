@@ -26,14 +26,17 @@ function Base.rand(::Type{T}, ωπ::OmegaProj{O}) where {T, T2, O <: DiffOmega{T
   closeopen(lookupme(T), ωπ)
 end
 
+using ZenUtils
 function closeopen(::Type{T}, ωπ::OmegaProj{O}) where {T, T2, O <: DiffOmega{T2}}
-  # @show T
-  # @assert false
   T3 = lookupme(T)
-  cvec = get!(CountVec{T3}, ωπ.ω.vals, ωπ.id)
+  # vals = ωπ.ω.vals[ωπ.ω.id]
+  # ωπ_grab.ω.vals.vals
+  dω = ωπ.ω.vals[ωπ.ω.id]
+  @grab dω
+  # @assert false
+  cvec = get!(CountVec{T3}, dω.vals, ωπ.id)
   next!(cvec, T)
 end
-
 
 ## Conversions
 ## ==========

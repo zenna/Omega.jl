@@ -1,7 +1,7 @@
 "Random Variable"
 abstract type AbstractRandVar{T} end  # FIXME : Rename to RandVar
 
-Base.getindex(rng::AbstractRNG, ::Int64) = rng 
+# Base.getindex(rng::AbstractRNG, ::Int64) = rng 
 
 struct RandVar{T, Prim, F, TPL, I} <: AbstractRandVar{T} # Rename to PrimRandVar or PrimRv
   f::F      # Function (generally Callable)
@@ -27,24 +27,28 @@ function RandVar{T}(f::F) where {T, F}
   RandVar{T, true, F, Tuple{}, Int}(f, (), ωnew()) # FIXME: HACK
 end
 
+Base.getindex(ω::NestedOmega, x::RandVar) = NestedOmegaRandVar(ω, x.id)
+
 apl(x, ω::Omega) = x
 apl(x::AbstractRandVar, ω::Omega) = x(ω)
 
-function (rv::RandVar{T, true})(ω::Omega) where T
+function (rv::RandVar{T, true})(ω::NestedOmega) where T
   args = map(a->apl(a, ω), rv.args)
-  ωi = ω[rv.id]
+  ωi = ω[rv]
   resetcount!(ωi)
   (rv.f)(ωi, args...)
 end
 
-# (rv::RandVar)(ωπ::OmegaProj) = rv(ωπ.ω)
+(rv::RandVar)(nω::NestedOmegaRandVar) = rv(nω.vals)
 
-function (rv::RandVar{T, false})(ω::Omega) where T
+(rv::RandVar)(πω::OmegaProj) = rv(π.ω)
+
+function (rv::RandVar{T, false})(ω::NestedOmega) where T
   args = map(a->apl(a, ω), rv.args)
-  ω = resetcount(ω)
   (rv.f)(args...)
 end
 
+"X((w1, w2,...,)"
 (rv::NTuple{N, RandVar})(ω::Omega) where N = applymany(rv, ω)
 
 function Base.copy(x::RandVar{T}) where T

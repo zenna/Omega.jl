@@ -18,23 +18,36 @@ Id = Int
 "Tuple of Ints"
 const Ints = NTuple{N, Int} where N
 
+"Id of a random variable"
+const RandVarId = Int
+
 "Probability Space indexed with values of type I"
 abstract type Omega{I} <: AbstractRNG end
 
-"Projection of `ω` onto compoment `id`"
-struct OmegaProj{O, I} <: Omega{I}
-  ω::O
-  id::I
-end
-
-const RandVarId = Int
-
+"Root Omega mapping random variable ids to components of omega"
 struct NestedOmega{O <: Omega} <: Omega{Int} # Hack FIXME
   vals::Dict{RandVarId, O}
 end
 
 Base.getindex(ω::NestedOmega{O}, i::Int) where O = get!(ω.vals, i, O())
 NestedOmega{O}() where O = NestedOmega(Dict{RandVarId, O}())
+
+"Root Omega mapping random variable ids to components of omega"
+struct NestedOmegaRandVar{O <: Omega} <: Omega{Int} # Hack FIXME
+  vals::NestedOmega{O}
+  id::RandVarId
+end
+
+Base.rand(T, nω::NestedOmegaRandVar) = rand(T, nω[0])
+Base.rand(nω::NestedOmegaRandVar, T) = rand(nω[0], T)
+
+resetcount!(nω::NestedOmegaRandVar) = resetcount!(nω.vals[nω.id])
+
+"Projection of `ω` onto compoment `id`"
+struct OmegaProj{O, I} <: Omega{I}
+  ω::NestedOmegaRandVar{O}
+  id::I
+end
 
 ## Rand
 ## ====

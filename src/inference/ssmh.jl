@@ -4,8 +4,9 @@ abstract type SSMH <: Algorithm end
 "Sample from `x | y == true` with Single Site Metropolis Hasting"
 function Base.rand(x::RandVar{T}, y::RandVar{<:MaybeSoftBool},
                    alg::Type{SSMH};
-                   n::Integer = 1000) where T
-  ω = Omega()
+                   n::Integer = 1000,
+                   OmegaT = DiffOmega) where T
+  ω = OmegaT()
   plast = y(ω).epsilon
   qlast = 1.0
   samples = T[]
