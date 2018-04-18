@@ -1,20 +1,12 @@
-
-# function Base.merge!(sω1::SubOmega, sω2::SubOmega)
-#   # Where this gets a little tricky is that they are both sub omegas
-#   for (k, v) in sω2.ω.d
-#     sω1.ω.d[k] = v
-#   end
-# end
-
 """
-Random Conditional Distribution
+Random Conditional Distribution of `x` given `y`
 
 ``
-randcond(X,Y) = (y -> cond(X,Y=y))(Y)
+rcd(X,Y) = (y -> cond(X,Y == y))(Y)
               = \omega -> X \mid Y = Y(\omega)
 ``
 """
-function randcond(x::RandVar{T}, y::RandVar) where T
+function rcd(x::RandVar{T}, y::RandVar) where T
   function g(ω1::Omega)
     res = y(ω1) # Because ω is lazy, this causes values to be instantiated
     function h(ω2::Omega)
@@ -26,6 +18,6 @@ function randcond(x::RandVar{T}, y::RandVar) where T
   RandVar{RandVar{T}}(g)
 end
 
-# `randcond`
-# `rcd`
-
+function rcd(x::RandVar{T}) where T
+  @assert false
+end

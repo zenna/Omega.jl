@@ -1,9 +1,3 @@
-struct ValueTuple
-  _Float64::Float64
-  _Float32::Float32
-  _UInt32::UInt32
-end
-
 """
 Fast SimpleOmega
 
@@ -24,11 +18,8 @@ SimpleOmega{I, V}() where {I, V} = SimpleOmega{I, V}(Dict{I, V}())
 
 linearize(sω::SimpleOmega) = collect(values(sω.vals)) 
 
-using ZenUtils
 function unlinearize(ωvec::Vector, sω::SimpleOmega)
   # Keys not sorted, might be wrong
-  @grab ωvec
-  @grab sω
   SimpleOmega(Dict(k => ωvec[i] for (i, k) in enumerate(keys(sω.vals))))
 end
 
@@ -36,8 +27,40 @@ function Base.getindex(sω::SO, i::Int) where {I, SO <: SimpleOmega{<:I}}
   OmegaProj{SO, I}(sω, base(I, i))
 end
 
+## Rand
+## ====
 function Base.rand(ωπ::OmegaProj{O}, ::Type{T}) where {T, I, O <: SimpleOmega{I, <:Real}}
   get!(()->rand(Base.GLOBAL_RNG, T), ωπ.ω.vals, ωπ.id)
+end
+
+## Value Type
+## ==========
+
+struct ValueTuple
+  _Float64::Float64
+  _Float32::Float32
+  _UInt32::UInt32
+end
+
+function Base.rand(ωπ::OmegaProj{O}, ::Type{UInt32}) where {I, O <: SimpleOmega{I, ValueTuple}}
+  if ωπ.id ∈ keys(ωπ.ω.vals)
+    ωπ.ω.vals[ωπ.id]._UInt32::UInt32
+  else
+    val = rand(Base.GLOBAL_RNG, UInt32)
+    ωπ.ω.vals[ωπ.id] = ValueTuple(0.0, 0.0, val)
+    val
+    # return val::UInt32
+  end
+end
+
+function Base.rand(ωπ::OmegaProj{O}, ::Type{CloseOpen}) where {I, O <: SimpleOmega{I, ValueTuple}}
+  if ωπ.id ∈ keys(ωπ.ω.vals)
+    return ωπ.ω.vals[ωπ.id]._Float64
+  else
+    val = rand(Base.GLOBAL_RNG, Float64)
+    ωπ.ω.vals[ωπ.id] = ValueTuple(val, Float32(0.0), UInt(0))
+    return val
+  end
 end
 
 function (rv::RandVar{T, true})(ω::SimpleOmega) where T

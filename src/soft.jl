@@ -5,7 +5,7 @@
 f1(x; a=0.00001) = x / (x + a)
 
 "Real+ -> [0, 1]"
-f2(x; a=0.05) = 1 - exp(-a * x)
+f2(x; a=1) = 1 - exp(-a * x)
 
 function bound_loss(x, a, b)
   # @pre b >= a
@@ -39,5 +39,5 @@ end
 
 Base.:&(x::SoftBool, y::SoftBool) = SoftBool(min(x.epsilon, y.epsilon))
 Base.:|(x::SoftBool, y::SoftBool) = SoftBool(max(x.epsilon, y.epsilon))
-⪆ = softgt
-≊ = softeq
+const ⪆ = softgt
+const ≊ = softeq

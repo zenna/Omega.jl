@@ -28,6 +28,8 @@ function win_(rng)
     bernoulli(rng[@id], 0.4)
   end
 end
-win = iid(win, Float64) # FIXME: Why inferred type is void?
-win__ = Mu.randcond(win, bonus+dry_field+suspension) # FIXME, adding them to join
-mean(win__)
+
+win = iid(win_, Float64) # FIXME: Why inferred type is void?
+
+win__ = Mu.rcd(win, bonus+dry_field+suspension) # FIXME, adding them to join
+means = mean(win__)
