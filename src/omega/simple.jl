@@ -49,3 +49,13 @@ function (rv::RandVar{T, false})(ω::SimpleOmega) where T
   args = map(a->apl(a, ω), rv.args)
   (rv.f)(args...)
 end
+
+function Base.merge!(sω1::SimpleOmega, sω2::SimpleOmega)
+  for (k, v) in sω2.vals
+    sω1.vals[k] = v
+  end
+  sω1
+end
+
+Base.merge!(ωπ1::OmegaProj{O}, ωπ2::OmegaProj{O}) where {O <: SimpleOmega} =
+  merge!(ωπ1.ω, ωπ2.ω)
