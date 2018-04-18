@@ -11,7 +11,8 @@ nspheres = poisson(3)
 
 "Randm Variable over scenes"
 function scene_(ω)
-  spheres = map(1:nspheres(ω)) do i
+  # spheres = map(1:nspheres(ω)) do i
+  spheres = map(1:4) do i
     FancySphere([uniform(ω, -6.0, 5.0), uniform(ω, -1.0, 0.0), uniform(ω, -25.0, -15.0)],
                  uniform(ω, 1.0, 4.0),
                  [uniform(ω, 0.0, 1.0), uniform(ω, 0.0, 1.0), uniform(ω, 0.0, 10.0)],
