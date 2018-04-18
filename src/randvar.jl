@@ -9,12 +9,6 @@ struct RandVar{T, Prim, F, TPL, I} <: AbstractRandVar{T} # Rename to PrimRandVar
   id::I
 end
 
-"`RandVar` transformed by pure function `f::F`"
-struct FRandVar{T, F, ARGS} <: AbstractRandVar{T}
-  f::F
-  args::ARGS
-end
-
 function RandVar{T, Prim}(f::F, args::TPL, id::I) where {T, Prim, F, TPL, I}
   RandVar{T, Prim, F, TPL, I}(f, args, id)
 end
@@ -26,30 +20,6 @@ end
 function RandVar{T}(f::F) where {T, F}
   RandVar{T, true, F, Tuple{}, Int}(f, (), ωnew()) # FIXME: HACK
 end
-
-Base.getindex(ω::NestedOmega, x::RandVar) = NestedOmegaRandVar(ω, x.id)
-
-apl(x, ω::Omega) = x
-apl(x::AbstractRandVar, ω::Omega) = x(ω)
-
-function (rv::RandVar{T, true})(ω::NestedOmega) where T
-  args = map(a->apl(a, ω), rv.args)
-  ωi = ω[rv]
-  resetcount!(ωi)
-  (rv.f)(ωi, args...)
-end
-
-(rv::RandVar)(nω::NestedOmegaRandVar) = rv(nω.vals)
-
-(rv::RandVar)(πω::OmegaProj) = rv(π.ω)
-
-function (rv::RandVar{T, false})(ω::NestedOmega) where T
-  args = map(a->apl(a, ω), rv.args)
-  (rv.f)(args...)
-end
-
-"X((w1, w2,...,)"
-(rv::NTuple{N, RandVar})(ω::Omega) where N = applymany(rv, ω)
 
 function Base.copy(x::RandVar{T}) where T
   RandVar{T}(x.f, x.ωids)

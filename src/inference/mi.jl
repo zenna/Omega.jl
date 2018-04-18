@@ -3,7 +3,7 @@ abstract type MI <: Algorithm end
 
 "Sample from `x | y == true` with Metropolis Hasting"
 function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{MI};
-                   n::Integer = 1000, OmegaT = DirtyOmega) where T
+                   n::Integer = 1000, OmegaT = DefOmega) where T
   ω = OmegaT()
   plast = y(ω).epsilon
   qlast = 1.0
@@ -11,8 +11,9 @@ function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{MI};
   accepted = 0.0
   @showprogress 1 "Running Chain" for i = 1:n
     ω_ = OmegaT()
-    p_ = y(ω_).epsilon
+    @show p_ = y(ω_).epsilon
     ratio = p_ / plast
+    println("ratio", ratio)
     if rand() < ratio
       ω = ω_
       plast = p_

@@ -41,28 +41,30 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector)
   end
 end
 
-
 "Sample from `x | y == true` with Hamiltonian Monte Carlo"
 function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{HMC};
-                   n=1000, nsteps = 100, stepsize = 0.0001) where T
-  ω = DiffOmega()
+                   n=1000,
+                   nsteps = 100,
+                   stepsize = 0.0001,
+                   OmegaT::OT = DefaultOmega) where {T, OT}
+  ω = OmegaT()
   y(ω) # Initialize omega
-  ωvec = tovector(ω)
+  ωvec = linearize(ω)
 
   xsamples = T[] # FIXME: preallocate (and use inbounds)
-  U(ω::DiffOmega) = -log(y(ω).epsilon)
-  U(ωvec::Vector) = U(todiffomega(ωvec, ω))
+  U(ω) = -log(y(ω).epsilon)
+  U(ωvec::Vector) = U(unlinearize(ωvec, ω))
   ∇U(ωvec) = gradient(y, ω, ωvec)
 
   accepted = 0.0
 
   @showprogress 1 "Running HMC Chain" for i = 1:n
     ωvec, wasaccepted = hmc(U, ∇U, nsteps, stepsize, ωvec)
-    push!(xsamples, x(todiffomega(ωvec, ω)))
+    push!(xsamples, x(unlinearize(ωvec, ω)))
     if wasaccepted
       accepted += 1.0
     end
+    i % 10 == 0 && print_with_color(:light_blue,  "acceptance ratio: $(accepted/float(i))\n")
   end
-  print_with_color(:light_blue,  "acceptance ratio: $(accepted/float(n))\n")
   xsamples
 end

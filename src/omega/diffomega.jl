@@ -13,6 +13,9 @@ end
 
 resetcount!(dω::DiffOmega) = foreach(resetcount!, values(dω.vals))
 
+## Rand
+## ====
+
 DiffOmega{T, I}() where {T, I} = DiffOmega(Dict{I, CountVec{T}}())
 DiffOmega() = DiffOmega{Float64, Int}()
 
@@ -26,23 +29,18 @@ function Base.rand(::Type{T}, ωπ::OmegaProj{O}) where {T, T2, O <: DiffOmega{T
   closeopen(lookupme(T), ωπ)
 end
 
-using ZenUtils
 function closeopen(::Type{T}, ωπ::OmegaProj{O}) where {T, T2, O <: DiffOmega{T2}}
   T3 = lookupme(T)
-  # vals = ωπ.ω.vals[ωπ.ω.id]
-  # ωπ_grab.ω.vals.vals
   dω = ωπ.ω.vals[ωπ.ω.id]
-  @grab dω
-  # @assert false
   cvec = get!(CountVec{T3}, dω.vals, ωπ.id)
   next!(cvec, T)
 end
 
 ## Conversions
-## ==========
+## ===========
 
 "Flatten `DiffOmega` into Vector"
-function tovector(dω::DiffOmega{T}) where T
+function linearize(dω::DiffOmega{T}) where T
   vals = T[]
   for i in sort(collect(keys(dω.vals)))
     vals = vcat(vals, dω.vals[i].data)
@@ -51,7 +49,7 @@ function tovector(dω::DiffOmega{T}) where T
 end
 
 "Convert Vector to `DiffOmega``"
-function todiffomega(xs::Vector{T1}, dω1::DiffOmega{T2, Int}) where {T1, T2}
+function unlinearize(xs::Vector{T1}, dω1::DiffOmega{T2, Int}) where {T1, T2}
   dω = DiffOmega{T1, Int}()
   lb = 1
   for i in sort(collect(keys(dω1.vals)))

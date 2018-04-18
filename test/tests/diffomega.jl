@@ -12,7 +12,7 @@ test1()
 
 function test2()
   dω = test1()
-  v = Mu.tovector(dω)
+  v = Mu.linearize(dω)
 end
 
 test2()

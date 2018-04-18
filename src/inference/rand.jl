@@ -1,8 +1,10 @@
 UTuple{T} = Tuple{Vararg{T, N}} where N
-RandVars{T} = Union{RandVar{T}, UTuple{RandVar{T}}}
+
 
 "Unconditional Sample from `x`"
-Base.rand(x::UTuple{RandVar}, OmegaT = DirtyOmega) = x(OmegaT())
+Base.rand(x::UTuple{RandVar}, OmegaT::T = DefaultOmega) where T = x(OmegaT())
 
-"Unconditional Sample from `x`"
-Base.rand(x::RandVar, OmegaT = DirtyOmega) = x(OmegaT())
+const DefaultOmega = Mu.SimpleOmega{Mu.Paired, Mu.Float64}
+
+"Version A"
+Base.rand(x::RandVar, OmegaT::T = DefaultOmega) where T = x(OmegaT())
