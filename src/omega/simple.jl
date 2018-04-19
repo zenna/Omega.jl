@@ -82,3 +82,7 @@ end
 
 Base.merge!(ωπ1::OmegaProj{O}, ωπ2::OmegaProj{O}) where {O <: SimpleOmega} =
   merge!(ωπ1.ω, ωπ2.ω)
+
+
+Base.isempty(sω::SimpleOmega) = isempty(sω.vals)
+Base.length(sω::SimpleOmega) = length(sω.vals)
