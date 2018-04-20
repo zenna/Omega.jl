@@ -24,7 +24,7 @@ include("omega/diffomega.jl")  # Differentiable Omega
 
 include("randvarapply.jl")    # Random Variables
 
-include("randcond.jl")  # Random Conditional Distributi
+include("rcd.jl")  # Random Conditional Distributi
 include("array.jl")     # Array primitives
 include("lift.jl")      # Lifting functions to RandVar domain
 
@@ -53,7 +53,7 @@ include("distributions.jl")  # Sampling
 include("statistics.jl")     # Mean, etc
 
 export mean,
-       randcond,
+       rcd,
        softeq,
        ≊,
        ⪆,

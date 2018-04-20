@@ -49,7 +49,6 @@ function Base.rand(ωπ::OmegaProj{O}, ::Type{UInt32}) where {I, O <: SimpleOmeg
     val = rand(Base.GLOBAL_RNG, UInt32)
     ωπ.ω.vals[ωπ.id] = ValueTuple(0.0, 0.0, val)
     val
-    # return val::UInt32
   end
 end
 
