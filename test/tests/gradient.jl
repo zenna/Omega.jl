@@ -5,9 +5,12 @@ function testgrad()
   μ = uniform(0.0, 1.0)
   x = normal(μ, 1.0)
   y = x == 1.0
-  ω = Mu.DiffOmega()
-  gradient(y, ω)
+  ω = Mu.SimpleOmega{Int, Float64}()
+  y(ω)
+  Mu.gradient(y, ω)
 end
+
+testgrad()
 
 function testgrad2()
   μ = normal(0.0, 1.0)
@@ -15,9 +18,10 @@ function testgrad2()
   samples = y = x == 3.0
 
   # Gradient test
-  ω = Mu.DefaultOmega()
+  ω = Mu.SimpleOmega{Int, Float64}()
+  y(ω)
   unpackcall(xs) = y(Mu.unlinearize(xs, ω)).epsilon
-  gradient(y, ω)
+  Mu.gradient(y, ω)
   ForwardDiff.gradient(unpackcall, [.3, .2])
 end
 

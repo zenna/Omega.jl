@@ -13,9 +13,9 @@ nspheres = poisson(3)
 function scene_(ω)
   # spheres = map(1:nspheres(ω)) do i
   spheres = map(1:4) do i
-    FancySphere([uniform(ω, -6.0, 5.0), uniform(ω, -1.0, 0.0), uniform(ω, -25.0, -15.0)],
-                 uniform(ω, 1.0, 4.0),
-                 [uniform(ω, 0.0, 1.0), uniform(ω, 0.0, 1.0), uniform(ω, 0.0, 10.0)],
+    FancySphere([uniform(ω[@id][i], -6.0, 5.0), uniform(ω[@id][i] , -1.0, 0.0), uniform(ω[@id][i]  , -25.0, -15.0)],
+                 uniform(ω[@id][i]  , 1.0, 4.0),
+                 [uniform(ω[@id][i] , 0.0, 1.0), uniform(ω[@id][i] , 0.0, 1.0), uniform(ω[@id][i] , 0.0, 10.0)],
                  1.0,
                  0.0,
                  Vec3([0.0, 0.0, 0.0]))
@@ -31,9 +31,10 @@ img_ = rand(img)
 
 ## Show a random image
 showscene(scene) = imshow(rgbimg(render(scene)))
-rgbimg_ = rgbimg(img_)
-imshow(rgbimg_)
 
+# Show the actual scene
+# rgbimg_ = rgbimg(img_)
+# imshow(rgbimg_)
 # img_obs = rand(img)   # arbitrary observed image
 
 "Some example spheres which should create actual image"
@@ -49,4 +50,6 @@ end
 
 img_obs = render(example_spheres())
 
-scene_posterior = rand(scene, img == img_obs)
+scene_posterior = rand(scene, img == img_obs, HMC,
+                       n=1, OmegaT = Mu.SimpleOmega{Int, Float64},
+                       nsteps=1)

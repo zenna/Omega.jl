@@ -13,7 +13,7 @@ inversegamma(α::MaybeRV{T}, θ::MaybeRV{T}, ωid::Id = ωnew()) where T <: Real
 
 "Dirichlet distribution"
 function dirichlet(ω::Omega, α)
-  gammas = [gammarv(ω, αi, 1.0) for αi in α]
+  gammas = [gammarv(ω[@id][i], αi, 1.0) for (i, αi) in enumerate(α)]
   Σ = sum(gammas)
   [gamma/Σ for gamma in gammas]
 end
@@ -47,7 +47,7 @@ uniform(ω::Omega, a::T) where T = rand(ω, a)
 uniform(a::MaybeRV{T}, ωid::Id=ωnew()) where T <: Vector =
   RandVar{T, true}(uniform, (a,), ωid)
   
-  
+
 "Discrete uniform distribution with range `range`"
 uniform(range::UnitRange{T}, ωid=ωnew()) where T =
   RandVar{T, true}(rand, (range,), ωid)

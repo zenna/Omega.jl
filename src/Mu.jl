@@ -81,5 +81,8 @@ export mean,
        RejectionSample,
        MI,
        SSMH,
-       HMC
+       HMC,
+
+       # Gradient
+       gradient
 end

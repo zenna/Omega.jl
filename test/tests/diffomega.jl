@@ -1,4 +1,5 @@
 using Mu
+using Base.Test
 
 function test1()
   a = [1.0, 2.0, 3.0]
@@ -16,12 +17,3 @@ function test2()
 end
 
 test2()
-
-function test3()
-  ω = DiffOmega()
-  x = normal(0.0, 1.0)
-  x_ = x(ω)
-  @test x(ω) == x_
-end
-
-test3()

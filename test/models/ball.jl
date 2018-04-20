@@ -8,7 +8,7 @@ n_obs = 50
 weights = Mu.dirichlet([1.0 for i = 1:k])
 
 function y_(ω)
-  [Mu.categorical(ω, weights(ω)) for i = 1:n_obs]
+  [Mu.categorical(ω[@id][i], weights(ω[@id][i])) for i = 1:n_obs]
 end
 
 y = iid(y_, Vector{Float64})
