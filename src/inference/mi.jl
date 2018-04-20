@@ -13,14 +13,13 @@ function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{MI};
     ω_ = OmegaT()
     p_ = y(ω_).epsilon
     ratio = p_ / plast
-    # println("ratio", ratio)
     if rand() < ratio
       ω = ω_
       plast = p_
       accepted += 1.0
     end
     push!(samples, x(ω))
-    # i % 10 == 0 && print_with_color(:light_blue,  "acceptance ratio: $(accepted/float(i))\n")
+    # lens(:end_iter, i, ratio, accepted)
   end
   print_with_color(:light_blue,  "acceptance ratio: $(accepted/float(n))\n")
   samples

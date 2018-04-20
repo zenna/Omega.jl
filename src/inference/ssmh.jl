@@ -1,5 +1,3 @@
-using ZenUtils
-
 "Single Site MH"
 abstract type SSMH <: Algorithm end
 
