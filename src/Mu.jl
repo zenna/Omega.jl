@@ -5,7 +5,7 @@ module Mu
 using Distributions
 using ProgressMeter
 using Spec
-using Lens
+# using Lens
 
 # Util
 include("util/misc.jl")
