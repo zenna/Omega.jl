@@ -1,10 +1,8 @@
 using Documenter
 using Mu
 
-import Arrows: Props, AbstractArrow
-
 makedocs(
-  modules = [Arrows],
+  modules = [Mu],
   authors = "Zenna Tavares, Javier Burroni, Edgar Minaysan, Rajesh Ragananthan",
   format = :html,
   sitename = "Mu.jl",
