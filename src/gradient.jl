@@ -1,4 +1,4 @@
-using ForwardDiff
+import ForwardDiff
 
 "Gradient ∇Y()"
 function gradient(Y::RandVar{Bool}, ω::Omega, vals = linearize(ω))
