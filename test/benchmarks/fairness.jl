@@ -8,7 +8,7 @@ struct Person
   isrich::Float64
 end
 
-Mu.lift(:Person, 3)
+Mu.lift(:Person, 4)
 
 person = Person(bernoulli(0.3),
                 uniform(130.0, 180.0),
@@ -20,15 +20,21 @@ fake_person_data = [rand(person) for i = 1:ndata]
 
 θ = [normal(0.0, 1.0) for i = 1:3]
 
+σ(x) = logistic
+
 "Linear Classifier"
-function isrich(person::Person)
-  person.height * θ[1] +
-    person.age * θ[2] +
-    person.ismale * θ[3] > 0.0
+function isrich(person::Person, θ)
+  σ(person.height * θ[1] + person.age * θ[2] + person.ismale * θ[3]) > 0.5
 end
 
-data_cond = [iid(person) == data for data in fake_person_data]
-modelisfair = prob(rcd(cond(isrich(person), person.ismale), θ)) / 
-              prob(rcd(cond(isrich(person), person.female), θ)) < 0.8
+Mu.lift(:isrich, 2)
 
-rand(θ, modelisfair & data_cond)
+man_ = iid(person)
+man = cond(man_, man_.ismale)
+prob_man_is_rich = prob(rcd(isrich(man), θ))
+
+woman_ = iid(person)
+woman = cond(woman_, woman_.ismale)
+prob_woman_is_rich = prob(rcd(isrich(woman), θ))
+
+prob_man_is_rich / prob_woman_is_rich  < 0.8
