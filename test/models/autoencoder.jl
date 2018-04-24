@@ -2,6 +2,8 @@ using PyTorch
 using PyCall
 using ProgressMeter
 using UnicodePlots
+invraytrace__file = joinpath(Pkg.dir("Mu"), "test", "benchmarks", "invraytrace.jl")
+include(invraytrace__file)
 
 
 # from https://github.com/L1aoXingyu/pytorch-beginner/blob/master/08-AutoEncoder/conv_autoencoder.py
@@ -41,17 +43,11 @@ variable(x::Array) = PyTorch.autograd.Variable(PyTorch.torch.Tensor(x))
     end
   end
 
-
-model = Autoencoder()
-
-function criterion2(pred, gt)
+function criterion(pred, gt)
   eps = 1.0e-10
   partial = gt * pred[:add](eps)[:log]() + gt[:neg]()[:add](1.0) * pred[:add](eps)[:neg]()[:add](1.0)[:log]()
   partial[:neg]()[:sum]()
 end
-#criterion = nn.MSELoss()
-optimizer = optim.Adam(model[:parameters](), lr=0.001,
-                             weight_decay=1e-5)
 
 function to_batched(data::Vector)
   imgs = permutedims(cat(4, data...), [4, 3, 1, 2]);
@@ -62,27 +58,31 @@ function to_torch(data::Vector)
   data |> to_batched |> variable
 end
 
-N = 1000-1
+function generate_train_set(img, target, N=1000-1)
+  imgs = [rand(img) for i in 1:N];
+  push!(imgs, img_obs);
+  imgs
+end
 
-imgs = [rand(img) for i in 1:N];
-push!(imgs, img_obs);
-imgs_batched = imgs |> to_batched;
-batch_size = 40;
-num_epochs = 200;
-
-for epoch in 1:num_epochs
-  permutation = randperm(size(imgs)[1]);
-  l = 0.0
-  for part in Iterators.partition(permutation, batch_size)
-    im = variable(imgs_batched[part, :, :, :]);
-    output = model(im);
-    loss = criterion2(output, im)
-    optimizer[:zero_grad]();
-    loss[:backward]();
-    optimizer[:step]();
-    l = loss[:data][:numpy]()[1]
+function train_network(model, imgs, num_epochs = 200, batch_size = 40)
+  optimizer = optim.Adam(model[:parameters](), lr=0.001,
+                             weight_decay=1e-5)
+  imgs_batched = imgs |> to_batched;
+  for epoch in 1:num_epochs
+    permutation = randperm(size(imgs)[1]);
+    l = 0.0
+    for part in Iterators.partition(permutation, batch_size)
+      im = variable(imgs_batched[part, :, :, :]);
+      output = model(im);
+      loss = criterion(output, im)
+      optimizer[:zero_grad]();
+      loss[:backward]();
+      optimizer[:step]();
+      l = loss[:data][:numpy]()[1]
+    end
+    println("epoch $epoch/$num_epochs, loss:$(l)");
   end
-  println("epoch $epoch/$num_epochs, loss:$(l)");
+  model
 end
 
 # prediction = model(variable(imgs))
@@ -116,7 +116,7 @@ function Base.rand(x::Mu.RandVar{T}, target_img,
     ratio = p_ - last
     if (rand() |> log) < ratio
       ω = ω_
-      plast = p_
+      last = p_
       accepted += 1.0
     end
     push!(samples, ω)
@@ -126,27 +126,38 @@ function Base.rand(x::Mu.RandVar{T}, target_img,
 end
 
 
+
+
+imgs = generate_train_set(img, img_obs)
+model = train_network(Autoencoder, imgs)
+encoder(model) = (x)->model[:encoder]([x,] |>to_torch)[:data][:numpy]()
+
 samples = rand(img, 
                 img_obs,
-                (x) -> model[:encoder]([x,] |>to_torch)[:data][:numpy](),
-                n=40000);
+                encoder(model),
+                n=5000);
+
+encoder_ = encoder(model)
+z_obs = encoder_(img_obs);
+distances = (rng-> -(z_obs - encoder_(img(rng))).^2 |> sum).(samples[end-500:end]);
+lineplot(distances)
 
 
 
 
-
-
+function random_projection()
 # random projection                
-rand_proj_mat = randn(50, 100*100*3);
+  rand_proj_mat = randn(50, 100*100*3);
+  encoder(proj) = (x)->proj * reshape(x, 100*100*3, 1)
 
+  encoder_ = encoder(rand_proj_mat) 
+  samples = rand(img, 
+                  img_obs,
+                  encoder_,
+                  n=4000);
 
-encoder(x) = rand_proj_mat * reshape(x, 100*100*3, 1)
+  z_obs = encoder_(img_obs);
 
-samples = rand(img, 
-                img_obs,
-                encoder,
-                n=40000);
-
-z_obs = encoder(img_obs)
-
-distances = [(z_obs - encoder(img(rng))).^2 |> sum for rng in samples];
+  distances = [-(z_obs - encoder_(img(rng))).^2 |> sum for rng in samples];
+  samples
+end
