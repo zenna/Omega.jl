@@ -98,8 +98,8 @@ end
 function Base.rand(x::Mu.RandVar{T}, target_img,
                    encoder;
                    n::Integer = 1000,
-                   OmegaT::OT = Mu.DefaultOmega) where {T, OT}
-  ω = OmegaT()
+                   OmegaT::OT = Mu.DefaultOmega, 
+                   ω = OmegaT()) where {T, OT}
   target = encoder(target_img)
   distance(x) = -((x - target) .^2 |> sum)
   last =  ω |> x |>  encoder |> distance
@@ -129,20 +129,24 @@ end
 
 
 imgs = generate_train_set(img, img_obs)
-model = train_network(Autoencoder, imgs)
-encoder(model) = (x)->model[:encoder]([x,] |>to_torch)[:data][:numpy]()
+model = train_network(Autoencoder(), imgs)
+encoder(model, temp=1.0) = (x)->model[:encoder]([x,] |>to_torch)[:data][:numpy]()/temp
 
 samples = rand(img, 
                 img_obs,
                 encoder(model),
-                n=5000);
+                n=10000);
 
 encoder_ = encoder(model)
 z_obs = encoder_(img_obs);
 distances = (rng-> -(z_obs - encoder_(img(rng))).^2 |> sum).(samples[end-500:end]);
 lineplot(distances)
 
-
+samples2 = rand(img, 
+                img_obs,
+                encoder(model, 0.5),
+                n=10000,
+                ω=samples[end]);
 
 
 function random_projection()
