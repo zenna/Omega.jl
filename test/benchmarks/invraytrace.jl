@@ -49,7 +49,8 @@ function example_spheres()
 end
 
 img_obs = render(example_spheres())
-
-scene_posterior = rand(scene, img == img_obs, HMC,
+function compute_posterior()
+  rand(scene, img == img_obs, HMC,
                        n=1, OmegaT = Mu.SimpleOmega{Int, Float64},
                        nsteps=1)
+end
