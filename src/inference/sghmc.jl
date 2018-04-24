@@ -5,7 +5,7 @@ abstract type SGHMC <: Algorithm end
 notunit(ω) = ω > 1.0 || ω < 0.0
 
 "Stochastic Gradient Hamiltonian Monte Carlo with Langevin Dynamics Friction: https://arxiv.org/pdf/1402.4102.pdf"
-function sghmc(y, datagen, nbatch, nsteps, stepsize, current_q::Vector, ω)
+function sghmc(ygen, nsteps, stepsize, current_q::Vector, ω)
   d = length(q)
   q = current_q
   p = randn(d)
@@ -19,8 +19,7 @@ function sghmc(y, datagen, nbatch, nsteps, stepsize, current_q::Vector, ω)
 
   for i = 1:nsteps
     # get a new batch, construct the stochastic gradient
-    batch = datagen(nbatch)
-    predicate = (y == batch)
+    predicate = ygen()
     ∇U(q) = gradient(predicate, unlinearize(q, ω), q)
     
     # update the location and momentum parameters
@@ -34,9 +33,8 @@ function sghmc(y, datagen, nbatch, nsteps, stepsize, current_q::Vector, ω)
 end
 
 "Sample from `x | y == true` with Hamiltonian Monte Carlo"
-function Base.rand(OmegaT::OT, y::RandVar, data, alg::Type{SGHMC};
+function Base.rand(OmegaT::OT, ygen, alg::Type{SGHMC};
                    n=1000,
-                   nbatch=100,
                    nsteps = 100,
                    stepsize = 0.0001) where {T, OT}
   ω = OmegaT()
@@ -44,14 +42,9 @@ function Base.rand(OmegaT::OT, y::RandVar, data, alg::Type{SGHMC};
   ωvec = linearize(ω)
 
   ωsamples = OmegaT[] # FIXME: preallocate (and use inbounds)
-
   accepted = 0.0
-
-  datasample(data, nbatch) = Array(view(data, sample(1:length(data), nbatch, replace=false)))
-  datagen(nbatch) = datasample(data, nbatch)
-
   @showprogress 1 "Running SGHMC Chain" for i = 1:n
-    ωvec, wasaccepted = sghmc(y, datagen, nbatch, nsteps, stepsize, ωvec, ω)
+    ωvec, wasaccepted = sghmc(ygen, nsteps, stepsize, ωvec, ω)
     push!(ωsamples, unlinearize(ωvec, ω))
     if wasaccepted
       accepted += 1.0
@@ -59,4 +52,10 @@ function Base.rand(OmegaT::OT, y::RandVar, data, alg::Type{SGHMC};
     i % 10 == 0 && print_with_color(:light_blue,  "acceptance ratio: $(accepted/float(i))\n")
   end
   ωsamples
+end
+
+"Sample from `x | y == true` with Metropolis Hasting"
+function Base.rand(x::RandVar{T}, ygen, alg::Type{SGHMC};
+                   n::Integer = 1000, OmegaT::OT = DefaultOmega) where {T, OT}
+  map(x, rand(OmegaT, y, alg, n=n))
 end
