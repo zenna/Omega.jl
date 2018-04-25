@@ -11,23 +11,24 @@ include(invraytrace__file)
 
 variable(x::Array) = PyTorch.autograd.Variable(PyTorch.torch.Tensor(x))
 
+
 @pydef type Autoencoder <: nn.Module
   __init__(self) = begin
       pybuiltin(:super)(Autoencoder, self)[:__init__]()
       # convs = [(32, 8, [1,4,4,1]), (64, 4, [1,2,2,1]), (64, 3, [1,1,1,1])]
-      self[:encoder] = nn.Sequential(
+      self[:encoder_cnn] = nn.Sequential(
           nn.Conv2d(3, 32, 8, stride=4, padding=2),  # b, 16, 10, 10 #output = 25x25x32
           nn.ReLU(true),
           nn.BatchNorm2d(32),
           #nn.MaxPool2d(2, stride=2, return_indices=true),  # b, 16, 5, 5 # 18x18x16
           nn.Conv2d(32, 64, 4, stride=3, padding=0),  # b, 8, 3, 3  8x8x64
           nn.ReLU(true),
-          nn.Conv2d(64, 5, 4, stride=2, padding=0),  # b, 8, 3, 3  3x3x5
+          nn.Conv2d(64, 64, 4, stride=2, padding=0),  # b, 8, 3, 3  3x3x64
           #nn.MaxPool2d(2, stride=1, return_indices=true)  # b, 8, 2, 2  # 8x8x1
       )
-      self[:decoder] = nn.Sequential(
+      self[:decoder_cnn] = nn.Sequential(
           #nn.MaxUnpool2d(2, stride=1), # 9x9x1
-          nn.ConvTranspose2d(5, 64, 4, stride=2, padding=0),  # b, 16, 5, 5 
+          nn.ConvTranspose2d(64, 64, 4, stride=2, padding=0),  # b, 16, 5, 5 
           nn.ReLU(true),
           #nn.MaxUnpool2d(2, stride=2), # 9x9x1
           nn.ConvTranspose2d(64, 32, 4, stride=3, padding=0),  # b, 8, 15, 15
@@ -35,13 +36,33 @@ variable(x::Array) = PyTorch.autograd.Variable(PyTorch.torch.Tensor(x))
           nn.ConvTranspose2d(32, 3, 8, stride=4, padding=2),  # b, 1, 28, 28
           nn.Sigmoid()
       )
+      self[:encoder_fc] = nn.Sequential(
+        nn.Linear(3*3*64, 30),
+        nn.ReLU(true)
+      )
+      self[:decoder_fc] = nn.Sequential(
+        nn.Linear(30, 3*3*64),
+        nn.ReLU(true)
+      )
     end
 
-  forward(self, x) = begin
-        x = self[:encoder](x)
-        x = self[:decoder](x)
-    end
+  encoder(self, x) = begin
+    x = self[:encoder_cnn](x)
+    x = x[:view](-1, 3*3*64)
+    self[:encoder_fc](x)
   end
+
+  decoder(self, x) = begin
+    x = self[:decoder_fc](x)
+    x = x[:view](-1, 64, 3, 3)
+    self[:decoder_cnn](x)
+  end
+
+  forward(self, x) = begin
+      x = self[:encoder](x)
+      x = self[:decoder](x)
+  end
+end
 
 function criterion(pred, gt)
   eps = 1.0e-10
@@ -148,6 +169,18 @@ samples2 = rand(img,
                 n=10000,
                 ω=samples[end]);
 
+
+imgs2 = map(1:1000) do i
+  img(rand(samples)) end
+foreach(1:10) do i
+  push!(imgs2, img_obs);
+end
+model2 = train_network(Autoencoder(), imgs2);
+samples2 = rand(img, 
+                img_obs,
+                encoder(model2),
+                n=10000,
+                ω=samples[end]);
 
 function random_projection()
 # random projection                
