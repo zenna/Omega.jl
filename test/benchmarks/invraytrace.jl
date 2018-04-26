@@ -15,7 +15,7 @@ function scene_(ω)
   spheres = map(1:4) do i
     FancySphere([uniform(ω[@id][i], -6.0, 5.0), uniform(ω[@id][i] , -1.0, 0.0), uniform(ω[@id][i]  , -25.0, -15.0)],
                  uniform(ω[@id][i]  , 1.0, 4.0),
-                 [uniform(ω[@id][i] , 0.0, 1.0), uniform(ω[@id][i] , 0.0, 1.0), uniform(ω[@id][i] , 0.0, 10.0)],
+                 [uniform(ω[@id][i] , 0.0, 1.0), uniform(ω[@id][i] , 0.0, 1.0), uniform(ω[@id][i] , 0.0, 1.0)],
                  1.0,
                  0.0,
                  Vec3([0.0, 0.0, 0.0]))
