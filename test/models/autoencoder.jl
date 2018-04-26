@@ -32,7 +32,7 @@ variable(x::Array) = PyTorch.autograd.Variable(PyTorch.torch.Tensor(x))
           nn.ReLU(true),
           #nn.MaxUnpool2d(2, stride=2), # 9x9x1
           nn.ConvTranspose2d(64, 32, 4, stride=3, padding=0),  # b, 8, 15, 15
-          #nn.ReLU(true),
+          nn.ReLU(true),
           nn.ConvTranspose2d(32, 3, 8, stride=4, padding=2),  # b, 1, 28, 28
           nn.Sigmoid()
       )
@@ -160,7 +160,7 @@ samples = rand(img,
 
 encoder_ = encoder(model)
 z_obs = encoder_(img_obs);
-distances = (rng-> -(z_obs - encoder_(img(rng))).^2 |> sum).(samples[end-500:end]);
+distances = (rng-> -(z_obs - encoder_(img(rng))).^2 |> sum).(samples);
 lineplot(distances)
 
 samples2 = rand(img, 
