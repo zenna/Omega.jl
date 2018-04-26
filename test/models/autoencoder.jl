@@ -1,3 +1,4 @@
+import Mu: softeq
 using PyTorch
 using PyCall
 using ProgressMeter
@@ -13,8 +14,9 @@ variable(x::Array) = PyTorch.autograd.Variable(PyTorch.torch.Tensor(x))
 
 
 @pydef type Autoencoder <: nn.Module
-  __init__(self) = begin
+  __init__(self, nlatent = 30) = begin
       pybuiltin(:super)(Autoencoder, self)[:__init__]()
+      self[:nlatent] = nlatent
       # convs = [(32, 8, [1,4,4,1]), (64, 4, [1,2,2,1]), (64, 3, [1,1,1,1])]
       self[:encoder_cnn] = nn.Sequential(
           nn.Conv2d(3, 32, 8, stride=4, padding=2),  # b, 16, 10, 10 #output = 25x25x32
@@ -37,11 +39,11 @@ variable(x::Array) = PyTorch.autograd.Variable(PyTorch.torch.Tensor(x))
           nn.Sigmoid()
       )
       self[:encoder_fc] = nn.Sequential(
-        nn.Linear(3*3*64, 30),
+        nn.Linear(3*3*64, self[:nlatent]),
         nn.ReLU(true)
       )
       self[:decoder_fc] = nn.Sequential(
-        nn.Linear(30, 3*3*64),
+        nn.Linear(self[:nlatent], 3*3*64),
         nn.ReLU(true)
       )
     end
@@ -71,12 +73,18 @@ function criterion(pred, gt)
 end
 
 function to_batched(data::Vector)
+  data = map(x->x.img, data)
   imgs = permutedims(cat(4, data...), [4, 3, 1, 2]);
   imgs/255.0
 end
 
 function to_torch(data::Vector)
   data |> to_batched |> variable
+end
+
+function from_torch(data)
+  floats = data[:data][:numpy]()
+  permutedims(floats, [1, 3, 4, 2]) * 255
 end
 
 function generate_train_set(img, target, N=1000-1)
@@ -106,95 +114,46 @@ function train_network(model, imgs, num_epochs = 200, batch_size = 40)
   model
 end
 
-# prediction = model(variable(imgs))
-# prediction = prediction[:data][:numpy]();
-# prediction = prediction*255;
-# prediction2 = permutedims(prediction, [1, 3, 4, 2]);
-# imshow(rgbimg(prediction2[1, :,:,:]))
 
-
-
-
-"Sample from `x | y == true` with Single Site Metropolis Hasting"
-function Base.rand(x::Mu.RandVar{T}, target_img,
-                   encoder;
-                   n::Integer = 1000,
-                   OmegaT::OT = Mu.DefaultOmega, 
-                   ω = OmegaT()) where {T, OT}
-  target = encoder(target_img)
-  distance(x) = -((x - target) .^2 |> sum)
-  last =  ω |> x |>  encoder |> distance
-  qlast = 1.0
-  samples = []
-  accepted = 0.0
-  @showprogress 1 "Running Chain" for i = 1:n
-    ω_ = if isempty(ω)
-      ω
-    else
-      Mu.update_random(ω)
-    end
-    p_ = ω_ |> x |>  encoder |> distance
-    ratio = p_ - last
-    if (rand() |> log) < ratio
-      ω = ω_
-      last = p_
-      accepted += 1.0
-    end
-    push!(samples, ω)
-  end
-  print_with_color(:light_blue, "acceptance ratio: $(accepted/float(n))\n")
-  samples
-end
-
-
-
-
+## XXX This is nasty. we need to train/store the model somewhere
+## But it needs to be accesible to `softeq`
+## It could be even better to cache the latent values for `y`
 imgs = generate_train_set(img, img_obs)
-model = train_network(Autoencoder(), imgs)
+global model = train_network(Autoencoder(), imgs)
 encoder(model, temp=1.0) = (x)->model[:encoder]([x,] |>to_torch)[:data][:numpy]()/temp
-
-samples = rand(img, 
-                img_obs,
-                encoder(model),
-                n=10000);
-
 encoder_ = encoder(model)
-z_obs = encoder_(img_obs);
-distances = (rng-> -(z_obs - encoder_(img(rng))).^2 |> sum).(samples);
-lineplot(distances)
 
-samples2 = rand(img, 
-                img_obs,
-                encoder(model, 0.5),
-                n=10000,
-                ω=samples[end]);
-
-
-imgs2 = map(1:1000) do i
-  img(rand(samples)) end
-foreach(1:10) do i
-  push!(imgs2, img_obs);
+function softeq(img_x::Img, img_y::Img)
+  x = img_x.img |> encoder_
+  y = img_y.img |> encoder_
+  Mu.LogSoftBool(-(x - y).^2 |> sum)
 end
-model2 = train_network(Autoencoder(), imgs2);
-samples2 = rand(img, 
-                img_obs,
-                encoder(model2),
-                n=10000,
-                ω=samples[end]);
 
-function random_projection()
-# random projection                
-  rand_proj_mat = randn(50, 100*100*3);
-  encoder(proj) = (x)->proj * reshape(x, 100*100*3, 1)
 
-  encoder_ = encoder(rand_proj_mat) 
-  samples = rand(img, 
-                  img_obs,
-                  encoder_,
-                  n=4000);
+samples = rand(img, img == img_obs, SSMH)
 
+samples[end] |> img |> rgbimg |> imshow
+
+function plot_learning(samples)
   z_obs = encoder_(img_obs);
-
-  distances = [-(z_obs - encoder_(img(rng))).^2 |> sum for rng in samples];
-  samples
+  z(rng) = rng |> img |> encoder_
+  distances = (rng-> -(z_obs - z(rng)).^2 |> sum).(samples);
+  lineplot(distances)
 end
+              
+# function random_projection()
+# # random projection                
+#   rand_proj_mat = randn(50, 100*100*3);
+#   encoder(proj) = (x)->proj * reshape(x, 100*100*3, 1)
+
+#   encoder_ = encoder(rand_proj_mat) 
+#   samples = rand(img, 
+#                   img_obs,
+#                   encoder_,
+#                   n=4000);
+
+#   z_obs = encoder_(img_obs);
+
+#   distances = [-(z_obs - encoder_(img(rng))).^2 |> sum for rng in samples];
+#   samples
+# end

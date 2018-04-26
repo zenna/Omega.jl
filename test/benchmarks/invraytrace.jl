@@ -1,11 +1,19 @@
 using Mu
 using ImageView
-import RayTrace: SimpleSphere, ListScene, render, rgbimg
+import RayTrace: SimpleSphere, ListScene, rgbimg
 import RayTrace: FancySphere, Vec3
+
+struct Img
+  img::Array{Float64,3}
+end
+
+
+render(x) = Img(RayTrace.render(x))
+rgbimg(x::Img) = rgbimg(x.img)
 
 Mu.lift(:(RayTrace.SimpleSphere), n=2)
 Mu.lift(:(RayTrace.ListScene), n=1)
-Mu.lift(:(RayTrace.render), n=1)
+Mu.lift(:(render), n=1)
 
 nspheres = poisson(3)
 
