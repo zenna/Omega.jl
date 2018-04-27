@@ -40,6 +40,8 @@ include("inference/rs.jl")       # Metropolized Independent Sampling
 include("inference/mi.jl")       # Metropolized Independent Sampling
 include("inference/ssmh.jl")      # Single Site Metropolis Hastings
 include("inference/hmc.jl")      # Single Site Metropolis Hastings
+include("inference/sghmc.jl")      # Single Site Metropolis Hastings
+
 include("inference/cgan.jl")      # Conditional GAN inference
 include("inference/spen.jl")      # Structured Predicton Energy Networks
 
@@ -84,6 +86,7 @@ export mean,
        MI,
        SSMH,
        HMC,
+       SGHMC,
 
        # Gradient
        gradient,
