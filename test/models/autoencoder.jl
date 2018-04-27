@@ -161,6 +161,7 @@ function optim_parmas()
   φ[:optimizer_args] = alg_args(uniform([nn.ADAM]))
 end
 
+"Parameters!"
 function params()
   φ = Params()
   φ[:nimages] = 1000-1
@@ -168,3 +169,7 @@ function params()
   φ[:batch_size] = 40
   φ[:netparams] = netparams()
 end
+
+## Final Models
+## ============
+
