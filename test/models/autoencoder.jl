@@ -6,15 +6,13 @@ using UnicodePlots
 invraytrace__file = joinpath(Pkg.dir("Mu"), "test", "benchmarks", "invraytrace.jl")
 include(invraytrace__file)
 
-
 # from https://github.com/L1aoXingyu/pytorch-beginner/blob/master/08-AutoEncoder/conv_autoencoder.py
-
-
 variable(x::Array) = PyTorch.autograd.Variable(PyTorch.torch.Tensor(x))
 
-
 @pydef type Autoencoder <: nn.Module
-  __init__(self, nlatent = 30) = begin
+  __init__(self,
+           nlatent = 30,
+           act = nn.ReLU) = begin
       pybuiltin(:super)(Autoencoder, self)[:__init__]()
       self[:nlatent] = nlatent
       # convs = [(32, 8, [1,4,4,1]), (64, 4, [1,2,2,1]), (64, 3, [1,1,1,1])]
@@ -93,9 +91,11 @@ function generate_train_set(img, target, N=1000-1)
   imgs
 end
 
-function train_network(model, imgs, num_epochs = 200, batch_size = 40)
-  optimizer = optim.Adam(model[:parameters](), lr=0.001,
-                             weight_decay=1e-5)
+function optimizer()
+  optimizer = optim.Adam(model[:parameters](), lr=0.001, weight_decay=1e-5)
+end
+
+function train_network!(model, imgs, num_epochs = 200, batch_size = 40)
   imgs_batched = imgs |> to_batched;
   for epoch in 1:num_epochs
     permutation = randperm(size(imgs)[1]);
@@ -114,12 +114,11 @@ function train_network(model, imgs, num_epochs = 200, batch_size = 40)
   model
 end
 
-
 ## XXX This is nasty. we need to train/store the model somewhere
 ## But it needs to be accesible to `softeq`
 ## It could be even better to cache the latent values for `y`
 imgs = generate_train_set(img, img_obs)
-global model = train_network(Autoencoder(), imgs)
+global model = train_network!(Autoencoder(), imgs)
 encoder(model, temp=1.0) = (x)->model[:encoder]([x,] |>to_torch)[:data][:numpy]()/temp
 encoder_ = encoder(model)
 
@@ -129,9 +128,7 @@ function softeq(img_x::Img, img_y::Img)
   Mu.LogSoftBool(-(x - y).^2 |> sum)
 end
 
-
 samples = rand(img, img == img_obs, SSMH)
-
 samples[end] |> img |> rgbimg |> imshow
 
 function plot_learning(samples)
@@ -140,20 +137,34 @@ function plot_learning(samples)
   distances = (rng-> -(z_obs - z(rng)).^2 |> sum).(samples);
   lineplot(distances)
 end
-              
-# function random_projection()
-# # random projection                
-#   rand_proj_mat = randn(50, 100*100*3);
-#   encoder(proj) = (x)->proj * reshape(x, 100*100*3, 1)
 
-#   encoder_ = encoder(rand_proj_mat) 
-#   samples = rand(img, 
-#                   img_obs,
-#                   encoder_,
-#                   n=4000);
+function train()
+  φ = params()
+  imgs = generate_train_set(img, img_obs, φ[:nimages])
+  autoencoder = Autoencoder(nlatent = φ[:nlatent])
+  model = train_network!(autoencoder, imgs, φ[:num_epochs], φ[:batch_size])
+  encoder(model, temp=1.0) = (x)->model[:encoder]([x,] |>to_torch)[:data][:numpy]()/temp
+  encoder_ = encoder(model)
+  samples = rand(img, img == img_obs, SSMH)
+end
 
-#   z_obs = encoder_(img_obs);
+function netparams()
+  φ = Params()
+  φ[:act] = uniform([nn.Relu, nn.Elu])
+  φ[:nlatent] = uniform([30, 40, 50])
+end
 
-#   distances = [-(z_obs - encoder_(img(rng))).^2 |> sum for rng in samples];
-#   samples
-# end
+function optim_parmas()
+  φ[:optimizer] = uniform([nn.ADAM, nn.RMSPROP])
+  lr = uniform([0.0001, 0.001, 0.01, 0.1])
+  alg_args(::Type{nn.ADAM}) = Params(:lr => lr, :weight_decay =>1e-5)
+  φ[:optimizer_args] = alg_args(uniform([nn.ADAM]))
+end
+
+function params()
+  φ = Params()
+  φ[:nimages] = 1000-1
+  φ[:num_epochs] = uniform([200, 400])
+  φ[:batch_size] = 40
+  φ[:netparams] = netparams()
+end

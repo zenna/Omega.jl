@@ -37,5 +37,3 @@ function params_test3()
   φ[:nflips] = uniform(10:100)
   rand(φ)
 end
-
-params_test3()
