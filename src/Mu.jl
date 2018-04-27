@@ -53,6 +53,8 @@ include("gradient.jl")
 include("distributions.jl")  # Sampling
 include("statistics.jl")     # Mean, etc
 
+include("param.jl")
+
 export mean,
        rcd,
        softeq,
@@ -84,5 +86,8 @@ export mean,
        HMC,
 
        # Gradient
-       gradient
+       gradient,
+
+       # Parameters
+       Params
 end
