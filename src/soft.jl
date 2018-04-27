@@ -23,7 +23,15 @@ end
 "Soft Boolean"
 struct SoftBool{ET <: Real}
   epsilon::ET
+  logepsilon::ET
+  uselog::Bool
 end
+
+
+SoftBool(x) = SoftBool(x, zero(x), false)
+LogSoftBool(x) =  SoftBool(zero(x), x, true)
+
+logepsilon(x) = x.uselog ? x.logepsilon : x.epsilon |> log
 
 softeq(x::Real, y::Real) = SoftBool(1 - f2((x - y)^2))
 softgt(x::Real, y::Real) = SoftBool(1 - f2(bound_loss(x, y, Inf)))
