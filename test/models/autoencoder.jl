@@ -3,6 +3,8 @@ using PyTorch
 using PyCall
 using ProgressMeter
 using UnicodePlots
+using RunTools
+
 invraytrace__file = joinpath(Pkg.dir("Mu"), "test", "benchmarks", "invraytrace.jl")
 include(invraytrace__file)
 
@@ -117,10 +119,10 @@ end
 ## XXX This is nasty. we need to train/store the model somewhere
 ## But it needs to be accesible to `softeq`
 ## It could be even better to cache the latent values for `y`
-imgs = generate_train_set(img, img_obs)
-global model = train_network!(Autoencoder(), imgs)
-encoder(model, temp=1.0) = (x)->model[:encoder]([x,] |>to_torch)[:data][:numpy]()/temp
-encoder_ = encoder(model)
+# imgs = generate_train_set(img, img_obs)
+# global model = train_network!(Autoencoder(), imgs)
+# encoder(model, temp=1.0) = (x)->model[:encoder]([x,] |>to_torch)[:data][:numpy]()/temp
+# encoder_ = encoder(model)
 
 function softeq(img_x::Img, img_y::Img)
   x = img_x.img |> encoder_
@@ -128,8 +130,8 @@ function softeq(img_x::Img, img_y::Img)
   Mu.LogSoftBool(-(x - y).^2 |> sum)
 end
 
-samples = rand(img, img == img_obs, SSMH)
-samples[end] |> img |> rgbimg |> imshow
+# samples = rand(img, img == img_obs, SSMH)
+# samples[end] |> img |> rgbimg |> imshow
 
 function plot_learning(samples)
   z_obs = encoder_(img_obs);
@@ -138,8 +140,67 @@ function plot_learning(samples)
   lineplot(distances)
 end
 
-function train()
-  φ = params()
+## Params
+## ======
+
+"Network-specific parameters"
+function netparams()
+  φ = Params()
+  φ[:act] = uniform([nn.ReLU, nn.ELU])
+  φ[:nlatent] = uniform([30, 40, 50])
+end
+
+function alg_args(optimarg)
+  lr = uniform([0.0001, 0.001, 0.01, 0.1])
+  if optimarg == optim.Adam
+    Params(Dict(:lr => lr, :weight_decay =>1e-5))
+  else
+    Params()
+  end
+end
+
+Mu.lift(:alg_args, 1)
+
+"Optimization-specific parameters"
+function optimparams()
+  φ = Params()
+  φ[:optimizer] = uniform([optim.Adam, optim.RMSprop])
+  φ[:optimizer_args] = alg_args(uniform([optim.Adam]))
+  φ
+end
+
+# Issue is that, one of the variables is a RandVar{Params}
+# So when we apply it we get a params!
+# But that params itself has
+# What's the better way to do it?
+# Simple hack is that if we get back a Params then call it again
+# But what if its nost a normal params, don't just want to keep applying
+# What if we do it twice?
+
+"All parameters"
+function allparams()
+  φ = Params()
+  φ[:nimages] = 1000-1
+  φ[:num_epochs] = uniform([200, 400])
+  φ[:batch_size] = uniform([40, 80, 120])
+  φ[:netparams] = netparams()
+  φ[:optim] = optimparams()
+  φ
+end
+
+"Parameters we wish to enumerate"
+function enumparams()
+  prod(Params(Dict(:batch_size => [12, 24, 48],
+                   :lr => [0.0001, 0.001, 0.01])))
+end
+
+function paramsamples(nsamples = 1)
+  (merge(allparams(), φ, Param(Dict(:samplen => i))) for φ in enumparams(), i = 1:nsamples)
+end
+
+## Final Models
+## ============
+function train(φ)
   imgs = generate_train_set(img, img_obs, φ[:nimages])
   autoencoder = Autoencoder(nlatent = φ[:nlatent])
   model = train_network!(autoencoder, imgs, φ[:num_epochs], φ[:batch_size])
@@ -148,28 +209,40 @@ function train()
   samples = rand(img, img == img_obs, SSMH)
 end
 
-function netparams()
+function faketrain(φ)
+  println("Fake Training")
+  @show φ
+end
+
+function fake_runφ()
   φ = Params()
-  φ[:act] = uniform([nn.Relu, nn.Elu])
-  φ[:nlatent] = uniform([30, 40, 50])
+  φ[:train] = true
+  φ[:name] = "autoencoder"
+  φ[:runname] = randrunname()
+  φ[:tags] = ["invg", "test"]
+  φ[:logdir] = logdir(runname=φ[:runname])
+  φ[:runlocal] = false
+  φ[:runsbatch] = false
+  φ[:runnow] = true
+  φ[:dryrun] = true
+  φ
 end
 
-function optim_parmas()
-  φ[:optimizer] = uniform([nn.ADAM, nn.RMSPROP])
-  lr = uniform([0.0001, 0.001, 0.01, 0.1])
-  alg_args(::Type{nn.ADAM}) = Params(:lr => lr, :weight_decay =>1e-5)
-  φ[:optimizer_args] = alg_args(uniform([nn.ADAM]))
+function main()
+  runφs = paramsamples()  # Could also load this from cmdline
+  dispatchmany(faketrain, runφs)
 end
 
-"Parameters!"
-function params()
-  φ = Params()
-  φ[:nimages] = 1000-1
-  φ[:num_epochs] = uniform([200, 400])
-  φ[:batch_size] = 40
-  φ[:netparams] = netparams()
-end
+# Problem
+# 1. Make immutable or not?
+# 2. If immutable lots of merging
+# 3. But doesn't seem to work well with autosave
 
-## Final Models
-## ============
-
+## TODO
+# - Make Dryrun work
+# - Decide on passing around φ or using kwargs
+# - Get observed image
+# - Fix encoder stuff
+# - Auto saving of params
+# Chunking
+# Job name, id?

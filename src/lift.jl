@@ -81,3 +81,7 @@ function Base.:(==)(x::AbstractRandVar, y)
   RandVar{Bool, false}(≊, (x, y))
 end
 
+Base.:(>)(x::AbstractRandVar, y) = RandVar{Bool, false}(softgt, (x, y))
+Base.:(>)(x, y::AbstractRandVar) = RandVar{Bool, false}(softgt, (x, y))
+Base.:(<)(x::AbstractRandVar, y) = RandVar{Bool, false}(softlt, (x, y))
+Base.:(<)(x, y::AbstractRandVar) = RandVar{Bool, false}(softlt, (x, y))

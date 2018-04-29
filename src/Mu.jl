@@ -64,6 +64,7 @@ export mean,
        ⪆,
        randarray,
        @lift,
+       lift,
        @id,
        iid,
 

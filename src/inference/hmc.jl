@@ -14,6 +14,7 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector)
   # Rejects proposals outside domain TODO: Something smarter
   any(notunit, q) && return (current_q, false)
   p = p - stepsize * ∇U(q) / 2.0
+  
 
   for i = 1:nsteps
     # Helf step for the position and momentum
@@ -23,17 +24,18 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector)
       p = p - stepsize * ∇U(q) ./ 2.0
     end
   end
-
+  
   # Make half a step for momentum at the end
   any(notunit, q) && return current_q, false
   p = p .- stepsize .* ∇U(q) ./ 2.0
-
+  
   # Evaluate the potential and kinetic energies at start and end
   current_U = U(current_q)
   current_K =  sum(current_p.^2) / 2.0
   proposed_U = U(q)
   proposed_K = sum(p.^2) / 2.0
-
+  
+  # @assert false
   if rand() < exp(current_U - proposed_U + current_K - proposed_K)
     return (q, true) # accept ω
   else
@@ -43,10 +45,10 @@ end
 
 "Sample from `x | y == true` with Hamiltonian Monte Carlo"
 function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{HMC};
-                   n=1000,
-                   nsteps = 100,
+                   n=100,
+                   nsteps = 10,
                    stepsize = 0.0001,
-                   OmegaT::OT = DefaultOmega) where {T, OT}
+                   OmegaT::OT = Mu.SimpleOmega{Int, Float64}) where {T, OT}
   ω = OmegaT()
   y(ω) # Initialize omega
   ωvec = linearize(ω)
@@ -64,7 +66,9 @@ function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{HMC};
     if wasaccepted
       accepted += 1.0
     end
-    i % 10 == 0 && print_with_color(:light_blue,  "acceptance ratio: $(accepted/float(i))\n")
+    i % 1000 == 0 && print_with_color(:light_blue, 
+                                      "acceptance ratio: $(accepted/float(i)) ",
+                                      "Last log likelihood $(U(ω))\n")
   end
   xsamples
 end
