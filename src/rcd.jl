@@ -22,3 +22,15 @@ end
 function rcd(x::RandVar{T}) where T
   @assert false
 end
+
+const ∥ = rcd
+
+""
+struct RCDRandVar{O <: Omega, RVX <: AbstractRandVar, RVY <: AbstractRandVar}
+  X::RVX
+  Y::RVY
+  ω::Omega
+end
+
+function rcd2(x::RandVar, y::RandVar)
+end

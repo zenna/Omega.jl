@@ -58,7 +58,9 @@ include("statistics.jl")     # Mean, etc
 include("param.jl")
 
 export mean,
+       prob,
        rcd,
+       ∥,
        softeq,
        ≊,
        ⪆,

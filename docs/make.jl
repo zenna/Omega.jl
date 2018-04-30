@@ -3,7 +3,7 @@ using Mu
 
 makedocs(
   modules = [Mu],
-  authors = "Zenna Tavares, Javier Burroni, Edgar Minaysan, Rajesh Ragananthan",
+  authors = "Zenna Tavares, Javier Burroni, Edgar Minaysan, Rajesh Ragananthan, Armando Solar Lezama",
   format = :html,
   sitename = "Mu.jl",
   pages = [
@@ -12,7 +12,6 @@ makedocs(
     "Inference"=>"inference.md",
   ]
 )
-
 
 deploydocs(
   repo = "github.com/zenna/Mu.jl.git",
