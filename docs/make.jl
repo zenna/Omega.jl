@@ -9,6 +9,7 @@ makedocs(
   pages = [
     "Home"=>"index.md",
     "Getting started"=>"started.md",
+    "Inference"=>"inference.md",
   ]
 )
 

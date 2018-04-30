@@ -12,7 +12,7 @@ include(invraytrace__file)
 variable(x::Array) = PyTorch.autograd.Variable(PyTorch.torch.Tensor(x))
 
 @pydef type Autoencoder <: nn.Module
-  __init__(self,
+  __init__(self;
            nlatent = 30,
            act = nn.ReLU) = begin
       pybuiltin(:super)(Autoencoder, self)[:__init__]()
@@ -72,6 +72,7 @@ function criterion(pred, gt)
   partial[:neg]()[:sum]()
 end
 
+"Extract array from imgs and batch"
 function to_batched(data::Vector)
   data = map(x->x.img, data)
   imgs = permutedims(cat(4, data...), [4, 3, 1, 2]);
@@ -93,22 +94,25 @@ function generate_train_set(img, target, N=1000-1)
   imgs
 end
 
-function optimizer()
-  optimizer = optim.Adam(model[:parameters](), lr=0.001, weight_decay=1e-5)
+function optimizer(modelparams;
+                   φ = Params(),
+                   opt = φ[:optim][:optimizer],
+                   optargs = φ[:optim][:optargs])
+  opt(modelparams, optargs...)
 end
 
-function train_network!(model, imgs, num_epochs = 200, batch_size = 40)
-  imgs_batched = imgs |> to_batched;
+function train_network!(model, imgs, optimizer, num_epochs, batch_size)
+  imgs_batched = to_batched(imgs)
   for epoch in 1:num_epochs
-    permutation = randperm(size(imgs)[1]);
+    permutation = randperm(size(imgs)[1])
     l = 0.0
     for part in Iterators.partition(permutation, batch_size)
-      im = variable(imgs_batched[part, :, :, :]);
-      output = model(im);
+      im = variable(imgs_batched[part, :, :, :])
+      output = model(im)
       loss = criterion(output, im)
-      optimizer[:zero_grad]();
-      loss[:backward]();
-      optimizer[:step]();
+      @show optimizer[:zero_grad]()
+      @show loss[:backward]()
+      @show optimizer[:step]()
       l = loss[:data][:numpy]()[1]
     end
     println("epoch $epoch/$num_epochs, loss:$(l)");
@@ -125,7 +129,8 @@ end
 # encoder_ = encoder(model)
 
 function softeq(img_x::Img, img_y::Img)
-  x = img_x.img |> encoder_
+  @show x = img_x.img |> encoder_
+  @show typeof(x)
   y = img_y.img |> encoder_
   Mu.LogSoftBool(-(x - y).^2 |> sum)
 end
@@ -148,10 +153,11 @@ function netparams()
   φ = Params()
   φ[:act] = uniform([nn.ReLU, nn.ELU])
   φ[:nlatent] = uniform([30, 40, 50])
+  φ
 end
 
 function alg_args(optimarg)
-  lr = uniform([0.0001, 0.001, 0.01, 0.1])
+  lr = uniform([0.0001, 0.001, 0.01, 0.1]) # FIXME!!
   if optimarg == optim.Adam
     Params(Dict(:lr => lr, :weight_decay =>1e-5))
   else
@@ -165,27 +171,42 @@ Mu.lift(:alg_args, 1)
 function optimparams()
   φ = Params()
   φ[:optimizer] = uniform([optim.Adam, optim.RMSprop])
-  φ[:optimizer_args] = alg_args(uniform([optim.Adam]))
+  φ[:optargs] = alg_args(φ[:optimizer])
   φ
 end
 
-# Issue is that, one of the variables is a RandVar{Params}
-# So when we apply it we get a params!
-# But that params itself has
-# What's the better way to do it?
-# Simple hack is that if we get back a Params then call it again
-# But what if its nost a normal params, don't just want to keep applying
-# What if we do it twice?
+function runparams()
+  φ = Params()
+  φ[:train] = true
+  φ[:loadchain] = false
+  φ[:loadnet] = false
+  φ[:name] = "autoencoder"
+  φ[:runname] = randrunname()
+  φ[:tags] = ["invg", "test"]
+  φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])
+  φ[:runlocal] = false
+  φ[:runsbatch] = false
+  φ[:runnow] = true
+  φ[:dryrun] = true
+  φ[:modelparams] = modelparams()
+  φ[:runfile] = @__FILE__
+  φ
+end
+
+function modelparams()
+  φ = Params(Dict(:temperature => 1.0))
+end
 
 "All parameters"
 function allparams()
   φ = Params()
-  φ[:nimages] = 1000-1
-  φ[:num_epochs] = uniform([200, 400])
+  φ[:nimages] = 100-1
+  φ[:num_epochs] = uniform([2, 3])
   φ[:batch_size] = uniform([40, 80, 120])
   φ[:netparams] = netparams()
   φ[:optim] = optimparams()
-  φ
+  # φ[:runparams] = runparams()
+  merge(φ, runparams())
 end
 
 "Parameters we wish to enumerate"
@@ -195,42 +216,32 @@ function enumparams()
 end
 
 function paramsamples(nsamples = 1)
-  (merge(allparams(), φ, Param(Dict(:samplen => i))) for φ in enumparams(), i = 1:nsamples)
+  (rand(merge(allparams(), φ, Params(Dict(:samplen => i))))  for φ in enumparams(), i = 1:nsamples)
 end
 
 ## Final Models
 ## ============
 function train(φ)
+  display(φ)
   imgs = generate_train_set(img, img_obs, φ[:nimages])
-  autoencoder = Autoencoder(nlatent = φ[:nlatent])
-  model = train_network!(autoencoder, imgs, φ[:num_epochs], φ[:batch_size])
-  encoder(model, temp=1.0) = (x)->model[:encoder]([x,] |>to_torch)[:data][:numpy]()/temp
-  encoder_ = encoder(model)
+  autoencoder = Autoencoder(nlatent = φ[:netparams][:nlatent])
+  optimizer_ = optimizer(autoencoder[:parameters](), φ = φ)
+  model = train_network!(autoencoder, imgs, optimizer_, φ[:num_epochs], φ[:batch_size])
+  temp = φ[:modelparams][:temperature]
+  encoder(x) = model[:encoder]([x,] |> to_torch)[:data][:numpy]()/temp
+  @eval encoder_(x) = $(encoder)(x)
   samples = rand(img, img == img_obs, SSMH)
 end
 
 function faketrain(φ)
   println("Fake Training")
-  @show φ
-end
-
-function fake_runφ()
-  φ = Params()
-  φ[:train] = true
-  φ[:name] = "autoencoder"
-  φ[:runname] = randrunname()
-  φ[:tags] = ["invg", "test"]
-  φ[:logdir] = logdir(runname=φ[:runname])
-  φ[:runlocal] = false
-  φ[:runsbatch] = false
-  φ[:runnow] = true
-  φ[:dryrun] = true
-  φ
+  @show typeof(φ)
+  @grab φ
 end
 
 function main()
   runφs = paramsamples()  # Could also load this from cmdline
-  dispatchmany(faketrain, runφs)
+  dispatchmany(train, runφs)
 end
 
 # Problem
@@ -238,6 +249,10 @@ end
 # 2. If immutable lots of merging
 # 3. But doesn't seem to work well with autosave
 
+
+# The random variable thing doesn't quite work
+
+# Should be 
 ## TODO
 # - Make Dryrun work
 # - Decide on passing around φ or using kwargs
@@ -246,3 +261,20 @@ end
 # - Auto saving of params
 # Chunking
 # Job name, id?
+
+# How 
+
+## How to pass in the distance measure
+## Need to replace x == y
+## Global eval of softeq(x, y)
+## Could do with contextual dispatch but 
+
+
+## Specially arranged
+## Pass into distance
+## Could pass in function into random variable
+## 
+
+## FIXME
+
+## 
