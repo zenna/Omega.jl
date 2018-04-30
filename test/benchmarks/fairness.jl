@@ -22,12 +22,17 @@ fake_person_data = [rand(person) for i = 1:ndata]
 
 σ(x) = logistic
 
+## Classifier
+## ==========
 "Linear Classifier"
 function isrich(person::Person, θ)
   σ(person.height * θ[1] + person.age * θ[2] + person.ismale * θ[3]) > 0.5
 end
 
 Mu.lift(:isrich, 2)
+
+## Fairness
+## ========
 
 man_ = iid(person)
 man = cond(man_, man_.ismale)

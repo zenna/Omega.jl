@@ -5,8 +5,8 @@ using ProgressMeter
 using UnicodePlots
 using RunTools
 
-invraytrace__file = joinpath(Pkg.dir("Mu"), "test", "benchmarks", "invraytrace.jl")
-include(invraytrace__file)
+invraytrace_file = joinpath(Pkg.dir("Mu"), "test", "benchmarks", "invraytrace.jl")
+include(invraytrace_file)
 
 # from https://github.com/L1aoXingyu/pytorch-beginner/blob/master/08-AutoEncoder/conv_autoencoder.py
 variable(x::Array) = PyTorch.autograd.Variable(PyTorch.torch.Tensor(x))
@@ -77,7 +77,7 @@ function to_batched(data::Vector)
   data = map(x->x.img, data)
   imgs = permutedims(cat(4, data...), [4, 3, 1, 2]);
   imgs/255.0
-end
+end 
 
 function to_torch(data::Vector)
   data |> to_batched |> variable
@@ -88,17 +88,18 @@ function from_torch(data)
   permutedims(floats, [1, 3, 4, 2]) * 255
 end
 
+## It could be even better to cache the latent values for `y`
+"Distance in embedded space of `img_x` and `img_y`"
+function softeq(img_x::Img, img_y::Img)
+  x = encoder_(img_x)
+  y = encoder_(img_y) 
+  Mu.LogSoftBool(-(x - y).^2 |> sum)
+end
+
 function generate_train_set(img, target, N=1000-1)
   imgs = [rand(img) for i in 1:N];
   push!(imgs, img_obs);
   imgs
-end
-
-function optimizer(modelparams;
-                   φ = Params(),
-                   opt = φ[:optim][:optimizer],
-                   optargs = φ[:optim][:optargs])
-  opt(modelparams, optargs...)
 end
 
 function train_network!(model, imgs, optimizer, num_epochs, batch_size)
@@ -110,9 +111,9 @@ function train_network!(model, imgs, optimizer, num_epochs, batch_size)
       im = variable(imgs_batched[part, :, :, :])
       output = model(im)
       loss = criterion(output, im)
-      @show optimizer[:zero_grad]()
-      @show loss[:backward]()
-      @show optimizer[:step]()
+      optimizer[:zero_grad]()
+      loss[:backward]()
+      optimizer[:step]()
       l = loss[:data][:numpy]()[1]
     end
     println("epoch $epoch/$num_epochs, loss:$(l)");
@@ -120,29 +121,30 @@ function train_network!(model, imgs, optimizer, num_epochs, batch_size)
   model
 end
 
-## XXX This is nasty. we need to train/store the model somewhere
-## But it needs to be accesible to `softeq`
-## It could be even better to cache the latent values for `y`
-# imgs = generate_train_set(img, img_obs)
-# global model = train_network!(Autoencoder(), imgs)
-# encoder(model, temp=1.0) = (x)->model[:encoder]([x,] |>to_torch)[:data][:numpy]()/temp
-# encoder_ = encoder(model)
+"Train the network!"
+function train_network!(model, imgs, optimizer, num_epochs, batch_size)
+  imgs_batched = to_batched(imgs)
+  function step!(cb_data, callbacks)
+    for epoch in 1:num_epochs
+      permutation = randperm(size(imgs)[1])
+      l = 0.0
+      for part in Iterators.partition(permutation, batch_size)
+        im = variable(imgs_batched[part, :, :, :])
+        output = model(im)
+        loss = criterion(output, im)
+        optimizer[:zero_grad]()
+        loss[:backward]()
+        optimizer[:step]()
+        l = loss[:data][:numpy]()[1]
+      end
+      println("epoch $epoch/$num_epochs, loss:$(l)");
+    end
+    model
+  end
 
-function softeq(img_x::Img, img_y::Img)
-  @show x = img_x.img |> encoder_
-  @show typeof(x)
-  y = img_y.img |> encoder_
-  Mu.LogSoftBool(-(x - y).^2 |> sum)
-end
-
-# samples = rand(img, img == img_obs, SSMH)
-# samples[end] |> img |> rgbimg |> imshow
-
-function plot_learning(samples)
-  z_obs = encoder_(img_obs);
-  z(rng) = rng |> img |> encoder_
-  distances = (rng-> -(z_obs - z(rng)).^2 |> sum).(samples);
-  lineplot(distances)
+  function cont()
+  end 
+  RunTools.Optim.optimize(step!; cont = cont) 
 end
 
 ## Params
@@ -187,15 +189,14 @@ function runparams()
   φ[:runlocal] = false
   φ[:runsbatch] = false
   φ[:runnow] = true
-  φ[:dryrun] = true
+  φ[:dryrun] = false
   φ[:modelparams] = modelparams()
   φ[:runfile] = @__FILE__
   φ
 end
 
-function modelparams()
-  φ = Params(Dict(:temperature => 1.0))
-end
+"Model specific parameters"
+modelparams() = Params(Dict(:temperature => 1.0))
 
 "All parameters"
 function allparams()
@@ -205,7 +206,6 @@ function allparams()
   φ[:batch_size] = uniform([40, 80, 120])
   φ[:netparams] = netparams()
   φ[:optim] = optimparams()
-  # φ[:runparams] = runparams()
   merge(φ, runparams())
 end
 
@@ -225,18 +225,13 @@ function train(φ)
   display(φ)
   imgs = generate_train_set(img, img_obs, φ[:nimages])
   autoencoder = Autoencoder(nlatent = φ[:netparams][:nlatent])
-  optimizer_ = optimizer(autoencoder[:parameters](), φ = φ)
+  modelparams = autoencoder[:parameters]()
+  optimizer_ = φ[:optim][:optimizer](modelparams; φ[:optim][:optargs]...)
   model = train_network!(autoencoder, imgs, optimizer_, φ[:num_epochs], φ[:batch_size])
   temp = φ[:modelparams][:temperature]
-  encoder(x) = model[:encoder]([x,] |> to_torch)[:data][:numpy]()/temp
+  encoder(x) = model[:encoder](to_torch([x,]))[:data][:numpy]()/temp
   @eval encoder_(x) = $(encoder)(x)
   samples = rand(img, img == img_obs, SSMH)
-end
-
-function faketrain(φ)
-  println("Fake Training")
-  @show typeof(φ)
-  @grab φ
 end
 
 function main()
@@ -244,37 +239,21 @@ function main()
   dispatchmany(train, runφs)
 end
 
-# Problem
-# 1. Make immutable or not?
-# 2. If immutable lots of merging
-# 3. But doesn't seem to work well with autosave
+## Viz
+## ===
 
+# samples = rand(img, img == img_obs, SSMH)
+# samples[end] |> img |> rgbimg |> imshow
 
-# The random variable thing doesn't quite work
+function plot_learning(samples)
+  z_obs = encoder_(img_obs);
+  z(rng) = rng |> img |> encoder_
+  distances = (rng-> -(z_obs - z(rng)).^2 |> sum).(samples);
+  lineplot(distances)
+end
 
-# Should be 
 ## TODO
-# - Make Dryrun work
 # - Decide on passing around φ or using kwargs
 # - Get observed image
 # - Fix encoder stuff
 # - Auto saving of params
-# Chunking
-# Job name, id?
-
-# How 
-
-## How to pass in the distance measure
-## Need to replace x == y
-## Global eval of softeq(x, y)
-## Could do with contextual dispatch but 
-
-
-## Specially arranged
-## Pass into distance
-## Could pass in function into random variable
-## 
-
-## FIXME
-
-## 
