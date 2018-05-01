@@ -6,6 +6,7 @@ struct Params{I, T} <: Associative{I, T}
   d::Dict{I, T}
 end
 
+Base.as_kwargs(φ::Params) = Base.as_kwargs(φ.d)
 Base.values(φ::Params) = values(φ.d)
 Base.keys(φ::Params) = keys(φ.d)
 Base.get(φ::Params, k, v) = get(φ.d, k, v)

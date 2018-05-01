@@ -53,6 +53,8 @@ function isrich(w, person::Person)
 end
 # Mu.lift(:isrich, 1)
 
+## Classifier
+## ==========
 "Linear Classifier"
 function isrich2(person)
   σ(height(person) * θ[1] + age(person) * θ[2] + ismale(person) * θ[3])
