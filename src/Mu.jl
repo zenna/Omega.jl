@@ -5,7 +5,6 @@ module Mu
 using Distributions
 using ProgressMeter
 using Spec
-using RunTools
 # using Lens
 
 # Util
@@ -56,8 +55,6 @@ include("gradient.jl")
 include("distributions.jl")  # Sampling
 include("statistics.jl")     # Mean, etc
 
-include("params.jl")
-
 export mean,
        prob,
        rcd,
@@ -94,7 +91,4 @@ export mean,
 
        # Gradient
        gradient,
-
-       # Parameters
-       Params
 end
