@@ -158,7 +158,7 @@ end
 datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.csv")
 data = CSV.read(datapath)
 nframes = maximum(data[:frame]) - minimum(data[:frame])
-nframes = 34
+nframes = length(unique())
 frames = groupby(data, :frame)
 video = iid(ω -> video_(ω, nframes))
 rand(video)
