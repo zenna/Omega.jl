@@ -5,6 +5,7 @@ module Mu
 using Distributions
 using ProgressMeter
 using Spec
+using RunTools
 # using Lens
 
 # Util
@@ -40,6 +41,8 @@ include("inference/rs.jl")       # Metropolized Independent Sampling
 include("inference/mi.jl")       # Metropolized Independent Sampling
 include("inference/ssmh.jl")      # Single Site Metropolis Hastings
 include("inference/hmc.jl")      # Single Site Metropolis Hastings
+include("inference/sghmc.jl")      # Single Site Metropolis Hastings
+
 include("inference/cgan.jl")      # Conditional GAN inference
 include("inference/spen.jl")      # Structured Predicton Energy Networks
 
@@ -53,13 +56,18 @@ include("gradient.jl")
 include("distributions.jl")  # Sampling
 include("statistics.jl")     # Mean, etc
 
+include("params.jl")
+
 export mean,
+       prob,
        rcd,
+       ∥,
        softeq,
        ≊,
        ⪆,
        randarray,
        @lift,
+       lift,
        @id,
        iid,
 
@@ -82,7 +90,11 @@ export mean,
        MI,
        SSMH,
        HMC,
+       SGHMC,
 
        # Gradient
-       gradient
+       gradient,
+
+       # Parameters
+       Params
 end

@@ -54,7 +54,9 @@ fnms = [:(Base.:-),
         :(Base.:sin),
         :(Base.:cos),
         :(Base.:tan),
-        :(Base.sum)]
+        :(Base.sum),
+        :(Base.:&),
+        :(Base.:|)]
 
 Base.:^(x1::Mu.AbstractRandVar{T}, x2::Integer) where T = RandVar{T, false}(^, (x1, x2))
 macro lift(fnm::Union{Symbol, Expr}, n::Integer)
@@ -81,3 +83,7 @@ function Base.:(==)(x::AbstractRandVar, y)
   RandVar{Bool, false}(≊, (x, y))
 end
 
+Base.:(>)(x::AbstractRandVar, y) = RandVar{Bool, false}(softgt, (x, y))
+Base.:(>)(x, y::AbstractRandVar) = RandVar{Bool, false}(softgt, (x, y))
+Base.:(<)(x::AbstractRandVar, y) = RandVar{Bool, false}(softlt, (x, y))
+Base.:(<)(x, y::AbstractRandVar) = RandVar{Bool, false}(softlt, (x, y))

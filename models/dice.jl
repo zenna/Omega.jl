@@ -27,4 +27,12 @@ means3 = mean(coinrcd3)
 samples3 = [rand(means3) for i = 1:1000]
 UnicodePlots.histogram(samples3, bins=50)
 
-# histogram([samples1, samples2, samples3], layout=(1,3), nbins=50, xlims=[0.0, 1.0], normalize=true, size=(800,300), label="")
+histogram([samples1, samples2, samples3], layout=(1,3), nbins=50, xlims=[0.0, 1.0], normalize=true, size=(800,300), label="")
+
+# RCD should satisfy law of total variance
+x = coin
+y = thrower_bias + fair_coin
+a = mean(var(rcd(x, y)))
+b = var(mean(rcd(x, y)))
+c = var(x)
+@test c ≊ a + b

@@ -16,9 +16,9 @@ end
 SimpleOmega() = SimpleOmega(Dict{Vector{Int}, Float64}())
 SimpleOmega{I, V}() where {I, V} = SimpleOmega{I, V}(Dict{I, V}())
 
-linearize(sω::SimpleOmega{I, V}) where {I, V <: Real} = collect(values(sω.vals)) 
+linearize(sω::SimpleOmega{I, V}) where {I, V <: Real} = collect(values(sω.vals))
 
-function unlinearize(ωvec::Vector, sω::SimpleOmega{I, V}) where {I, V <: Real}
+function unlinearize(ωvec, sω::SimpleOmega{I, V}) where {I, V <: Real}
   # Keys not sorted, might be wrong
   SimpleOmega(Dict(k => ωvec[i] for (i, k) in enumerate(keys(sω.vals))))
 end

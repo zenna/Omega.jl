@@ -1,9 +1,9 @@
+
 """
-Random Conditional Distribution of `x` given `y`
+Random Conditional Distribution of `X` given `Y`
 
 ``
-rcd(X,Y) = (y -> cond(X,Y == y))(Y)
-              = \omega -> X \mid Y = Y(\omega)
+rcd(X, Y) = ω -> X | Y = Y(ω)
 ``
 """
 function rcd(x::RandVar{T}, y::RandVar) where T
@@ -18,6 +18,19 @@ function rcd(x::RandVar{T}, y::RandVar) where T
   RandVar{RandVar{T}}(g)
 end
 
+"`rcd(x) = rcd(x, parents(x))`"
 function rcd(x::RandVar{T}) where T
   @assert false
+end
+
+const ∥ = rcd
+
+""
+struct RCDRandVar{O <: Omega, RVX <: AbstractRandVar, RVY <: AbstractRandVar}
+  X::RVX
+  Y::RVY
+  ω::Omega
+end
+
+function rcd2(x::RandVar, y::RandVar)
 end
