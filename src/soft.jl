@@ -5,7 +5,7 @@
 f1(x; a=0.00001) = x / (x + a)
 
 "Real+ -> [0, 1]"
-f2(x; a=1) = 1 - exp(-a * x)
+f2(x; a=1000) = 1 - exp(-a * x)
 
 function bound_loss(x, a, b)
   # @pre b >= a
@@ -23,8 +23,13 @@ end
 "Soft Boolean"
 struct SoftBool{ET <: Real}
   epsilon::ET
+  logepsilon::ET
+  uselog::Bool
 end
 
+SoftBool(x) = SoftBool(x, zero(x), false)
+LogSoftBool(x) =  SoftBool(zero(x), x, true)
+logepsilon(x) = x.uselog ? x.logepsilon : x.epsilon |> log
 softeq(x::Real, y::Real) = SoftBool(1 - f2((x - y)^2))
 softgt(x::Real, y::Real) = SoftBool(1 - f2(bound_loss(x, y, Inf)))
 function softeq(x::Vector{<:Real}, y::Vector{<:Real})

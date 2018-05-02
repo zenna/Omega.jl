@@ -1,6 +1,6 @@
 using Mu
 
-k = Mu.poisson(5)
+k = poisson(5)
 
 function components(ω)
   a = Float64[(normal(ω[@id][i], 0.0, 1.0)) for i = 1:k(ω)]
