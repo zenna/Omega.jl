@@ -28,6 +28,9 @@ betarv(α::MaybeRV{T}, β::MaybeRV{T}, ωid::Id=ωnew()) where T <: AbstractFloa
 bernoulli(ω::Omega, p::AbstractFloat) = quantile(Bernoulli(p), rand(ω))
 bernoulli(p::MaybeRV{T}, ωid::Id = ωnew()) where T <: AbstractFloat = RandVar{Float64, true}(bernoulli, (p,), ωid)
 
+"Rademacher distribution"
+rademacher(p::MaybeRV{T}, ωid::Id = ωnew()) where T = bernoulli(p, ωid::Id) * 2.0 - 1.0
+
 "Categorical distribution with probability weight vector `p`"
 categorical(ω::Omega, p::Vector) = quantile(Categorical(p), rand(ω))
 categorical(p::MaybeRV{Vector{T}}, ωid::Id = ωnew()) where T <: Real = RandVar{Int, true}(categorical, (p,), ωid)

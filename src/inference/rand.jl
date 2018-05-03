@@ -1,6 +1,3 @@
-UTuple{T} = Tuple{Vararg{T, N}} where N
-
-
 "Unconditional Sample from `x`"
 Base.rand(x::UTuple{RandVar}, OmegaT::T = DefaultOmega) where T = x(OmegaT())
 

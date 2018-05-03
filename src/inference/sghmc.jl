@@ -55,7 +55,7 @@ function Base.rand(OmegaT::OT, ygen, alg::Type{SGHMC};
 end
 
 "Sample from `x | y == true` with Metropolis Hasting"
-function Base.rand(x::RandVar{T}, ygen, alg::Type{SGHMC};
-                   n::Integer = 1000, OmegaT::OT = DefaultOmega) where {T, OT}
-  map(x, rand(OmegaT, y, alg, n=n))
+function Base.rand(x::UTuple{<:RandVar}, ygen, alg::Type{SGHMC};
+                   n::Integer = 1000, OmegaT::OT = DefaultOmega) where {OT}
+  map(x, rand(OmegaT, ygen, alg, n=n))
 end

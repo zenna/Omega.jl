@@ -7,6 +7,8 @@ using ProgressMeter
 using Spec
 # using Lens
 
+UTuple{T} = Tuple{Vararg{T, N}} where N
+
 # Util
 include("util/misc.jl")
 
@@ -77,6 +79,7 @@ export mean,
        dirichlet,
        betarv,
        bernoulli,
+       rademacher,
        poisson,
 
        # Do

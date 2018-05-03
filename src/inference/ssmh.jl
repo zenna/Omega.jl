@@ -36,7 +36,7 @@ function Base.rand(OmegaT::OT, y::RandVar{<:MaybeSoftBool}, alg::Type{SSMH};
 end
 
 "Sample from `x | y == true` with Metropolis Hasting"
-function Base.rand(x::RandVar, y::RandVar{Bool}, alg::Type{SSMH};
+function Base.rand(x::UTuple{RandVar}, y::RandVar{Bool}, alg::Type{SSMH};
                    n::Integer = 1000, OmegaT::OT = DefaultOmega) where {OT}
   map(x, rand(OmegaT, y, alg, n=n))
 end
