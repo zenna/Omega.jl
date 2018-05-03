@@ -6,50 +6,79 @@ const batch_size = 128
 Mu.lift(:(Flux.σ), 1)
 Mu.lift(:(Flux.softmax), 1)
 
-function σ3(x::Array)
+function σ3(x)
   ones(x) ./ (ones(x) + exp.(-x))
 end
 Mu.lift(:σ3, 1)
 
+"Infinite batch generator"
+function infinite_batches(data, batch_dim, batch_size, nelems = size(data, batch_dim))
+  ids = Iterators.partition(Iterators.cycle(1:nelems), batch_size)
+  (slicedim(data, batch_dim, id) for id in ids)
+end
+
 "Bayesian Multi Layer Percetron"
 function mlp()
   nin = MNIST.NROWS * MNIST.NCOLS
-  nout = 100
+  # nout = 100
   # FIXME: This should be normal(0.0, 1.0, (nin, nout)
-  w1 = randarray([normal(0.0, 1.0) for i = 1:nout, j = 1:nin])
-  nin = 100
-  nout = 100
-  w2 = randarray([normal(0.0, 1.0) for i = 1:nout, j = 1:nin])
-  nin = 100
+  # w1 = randarray([normal(0.0, 1.0) for i = 1:nin, j = 1:nout])
+  # nin = 100
+  # nout = 20
+  # w2 = randarray([normal(0.0, 1.0) for i = 1:nin, j = 1:nout])
+  # nin = 20
   nout = 10
-  w3 = randarray([normal(0.0, 1.0) for i = 1:nout, j = 1:nin])
-  function f(x)
-    a = σ3(w1 * x)
-    b = σ3(w2 * a)
-    c = σ3(w3 * b)
-    Flux.softmax(c)  
+  w3 = randarray([normal(0.0, 1.0) for i = 1:nin, j = 1:nout])
+  function f(x; weight3=w3)
+    # a = σ3(x * weight1)
+    # b = σ3(a * weight2)
+    c = σ3(x * weight3)
+    Flux.softmax(c)
   end
+  f, w3
 end
 
 "Infinite iterator over MNIST"
 function mnistcycle(batch_size)
-  train_x, _ = MNIST.traindata()
-  train_x = permutedims(train_x, (3, 1, 2))
-  batchgen_ = DSLearn.infinite_batches(train_x, 1, batch_size)
-  batchgen = IterTools.imap(Image ∘ autograd.Variable ∘ PyTorch.torch.Tensor ∘ float, batchgen_)
+  train_x, train_y = MNIST.traindata()
+  traindata = (train_x, train_y)
+  batchgen_x = infinite_batches(train_x, 2, batch_size)
+  batchgen_y = infinite_batches(train_y, 1, batch_size)
+  Iterators.zip(batchgen_x, batchgen_y)
 end
 
 "Train MNIST using Stochastic Gradient HMC"
-function train()
-  f = mlp()
-  datagen = mnistcycle(batch_size)
-  datasample(data, nbatch) = Array(view(data, sample(1:length(data), nbatch, replace=false)))
-  datagen(nbatch) = datasample(data, nbatch)
-  ygen() = f(datagen(batch_size)) == ydata
-  rand((w1, w2, w2), Float64), ygen(), Mu.SGHMC)
+function train(niter)
+  f, w3 = mlp()
+  gen = mnistcycle(batch_size)
+  state = start(gen)
+  function ygen(state)
+    item, state = next(gen, state)
+    batch_x = transpose(item[1])
+    batch_y = convert(Array{Int64}, Flux.onehotbatch(convert(Array{Int64}, item[2]), 0:9))
+    predicate = f(batch_x) == batch_y
+    return predicate, state
+  end
+  samples = rand(w3, ygen, Mu.SGHMC, state, n=niter)
+  #@grab samples
 end
 
-## FIXME:
-## Every iteration we need to do f(x) == y
-## Which will produce a random variable
-## Broadcasting is broken
+"Test Bayesian network for MNIST using SGHMC"
+function test(niter)
+  f, _ = mlp()
+  weights = mean(train(niter))
+  test_x, test_y = MNIST.testdata()
+  correct = 0
+  #@grab weights
+  for i = 1:size(test_y)[1]
+    x = transpose(test_x[:, i])
+    onehot_y = f(x, weight3=weights)
+    #@grab onehot_y
+    y = Flux.argmax(transpose(onehot_y))[1]
+    testy = convert(Int64, test_y[i])
+    if y == testy
+      correct += 1
+    end
+  end
+  accepted = correct / size(test_y)[1]
+end

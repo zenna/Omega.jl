@@ -1,6 +1,8 @@
 "Hamiltonian Monte Carlo Sampling"
 abstract type HMC <: Algorithm end
 
+defaultomega(::Type{HMC}) = Mu.SimpleOmega{Int, Float64}
+
 "ω ∉ [0, 1]"
 notunit(ω) = ω > 1.0 || ω < 0.0 
 
@@ -44,16 +46,16 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector)
 end
 
 "Sample from `x | y == true` with Hamiltonian Monte Carlo"
-function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{HMC};
+function Base.rand(OmegaT::Type{OT}, y::RandVar{Bool}, alg::Type{HMC};
                    n=100,
                    nsteps = 10,
-                   stepsize = 0.0001,
-                   OmegaT::OT = Mu.SimpleOmega{Int, Float64}) where {T, OT}
+                   stepsize = 0.0001) where {OT <: Omega}
   ω = OmegaT()
   y(ω) # Initialize omega
   ωvec = linearize(ω)
 
-  xsamples = T[] # FIXME: preallocate (and use inbounds)
+  ωsamples = OmegaT[]
+  # xsamples = T[] # FIXME: preallocate (and use inbounds)
   U(ω) = -log(y(ω).epsilon)
   U(ωvec::Vector) = U(unlinearize(ωvec, ω))
   ∇U(ωvec) = gradient(y, ω, ωvec)
@@ -64,7 +66,8 @@ function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{HMC};
 
   @showprogress 1 "Running HMC Chain" for i = 1:n
     ωvec, wasaccepted = hmc(U, ∇U, nsteps, stepsize, ωvec)
-    push!(xsamples, x(unlinearize(ωvec, ω)))
+    # push!(xsamples, x(unlinearize(ωvec, ω)))
+    push!(ωsamples, unlinearize(ωvec, ω))
     if wasaccepted
       accepted += 1.0
     end
@@ -74,5 +77,6 @@ function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{HMC};
   end
   print_with_color(:light_blue, "acceptance ratio: $(accepted/float(n))",
                                 "Last log likelihood $(U(ω))\n")
-  xsamples
+  # xsamples
+  ωsamples
 end

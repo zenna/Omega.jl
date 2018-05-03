@@ -9,8 +9,8 @@ function update_random(sω::SimpleOmega)
 end
 
 "Sample from `x | y == true` with Single Site Metropolis Hasting"
-function Base.rand(OmegaT::OT, y::RandVar{<:MaybeSoftBool}, alg::Type{SSMH};
-                   n::Integer = 1000) where {OT}
+function Base.rand(OmegaT::Type{OT}, y::RandVar{<:MaybeSoftBool}, alg::Type{SSMH};
+                   n::Integer = 1000) where {OT <: Omega}
   ω = OmegaT()
   plast = y(ω) |> logepsilon
   qlast = 1.0
@@ -35,9 +35,9 @@ function Base.rand(OmegaT::OT, y::RandVar{<:MaybeSoftBool}, alg::Type{SSMH};
   samples
 end
 
-"Sample from `x | y == true` with Metropolis Hasting"
-function Base.rand(x::UTuple{RandVar}, y::RandVar{Bool}, alg::Type{SSMH};
-                   n::Integer = 1000, OmegaT::OT = DefaultOmega) where {OT}
-  map(x, rand(OmegaT, y, alg, n=n))
-end
+# "Sample from `x | y == true` with Metropolis Hasting"
+# function Base.rand(x::Union{RandVar, UTuple{RandVar}}, y::RandVar{Bool}, alg::Type{SSMH};
+#                    n::Integer = 1000, OmegaT::OT = DefaultOmega) where {OT}
+#   map(x, rand(OmegaT, y, alg, n=n))
+# end
 
