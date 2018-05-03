@@ -90,5 +90,5 @@ export mean,
        SGHMC,
 
        # Gradient
-       gradient,
+       gradient
 end
