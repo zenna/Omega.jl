@@ -68,7 +68,8 @@ function Base.rand(OmegaT::Type{OT}, ygen, state, alg::Type{SGHMC};
   predicate(ω) # Initialize omega
   ωvec = linearize(ω) # UNNEC
 
-  ωsamples = OmegaT[] # FIXME: preallocate (and use inbounds)
+  # ωsamples = OmegaT[] # FIXME: preallocate (and use inbounds)
+  ωsamples = [] # FIXME: preallocate (and use inbounds)
   accepted = 0
   m = div(n, 10)
   @showprogress 1 "Running SGHMC Chain" for i = 1:n

@@ -57,8 +57,8 @@ function train(; trainkwargs...)
     predicate = Mu.randbool(Flux.crossentropy, f(batch_x), batch_y)
     return predicate, state
   end
-  # OmegaT = Mu.SimpleOmega{Int, Array{Float64, 2}}
-  OmegaT = Mu.SimpleOmega{Int, Flux.TrackedArray}
+  OmegaT = Mu.SimpleOmega{Int, Array}
+  # OmegaT = Mu.SimpleOmega{Int, Flux.TrackedArray}
   samples = rand(w3, ygen, state, SGHMC; OmegaT=OmegaT, trainkwargs...)
 end
 
