@@ -2,15 +2,13 @@ using Mu
 using MNIST
 using Flux
 
+# σ3(x) =  ones(x) ./ (ones(x) .+ exp.(-x))
+σ3(x) =  1.0 ./ (1.0 .+ exp.(-x))
+
 const batch_size = 128
 Mu.lift(:(Flux.σ), 1)
 Mu.lift(:(Flux.softmax), 1)
-
-σ3(x) =  ones(x) ./ (ones(x) + exp.(-x))
 Mu.lift(:σ3, 1)
-
-## Data 
-## ====
 
 "Infinite batch generator"
 function infinite_batches(data, batch_dim, batch_size, nelems = size(data, batch_dim))
@@ -30,22 +28,20 @@ end
 "Bayesian Multi Layer Percetron"
 function mlp()
   nin = MNIST.NROWS * MNIST.NCOLS
-  # nout = 100
-  # FIXME: This should be normal(0.0, 1.0, (nin, nout)
-  # w1 = randarray([normal(0.0, 1.0) for i = 1:nin, j = 1:nout])
-  # nin = 100
-  # nout = 20
-  # w2 = randarray([normal(0.0, 1.0) for i = 1:nin, j = 1:nout])
-  # nin = 20
   nout = 10
-  w3 = randarray([normal(0.0, 1.0) for i = 1:nin, j = 1:nout])
+  w3 = logistic(0.0, 1.0, (nout, nin))
   function f(x; weight3=w3)
-    # a = σ3(x * weight1)
-    # b = σ3(a * weight2)
-    c = σ3(x * weight3)
+    c = σ3(weight3 * x)
     Flux.softmax(c)
   end
   f, w3
+end
+
+"Test mlp on fake image"
+function testmlp()
+  img = rand(MNIST.NROWS * MNIST.NCOLS)
+  f, w = mlp()
+  rand(f(img))
 end
 
 "Train MNIST using Stochastic Gradient HMC"
@@ -55,18 +51,21 @@ function train(; trainkwargs...)
   state = start(gen)
   function ygen(state)
     item, state = next(gen, state)
-    batch_x = transpose(item[1])
-    batch_y = convert(Array{Int64}, Flux.onehotbatch(convert(Array{Int64}, item[2]), 0:9))
+    batch_x = item[1]
+    batch_y = float(Flux.onehotbatch(item[2], 0:9))
     predicate = f(batch_x) == batch_y
+    predicate = Mu.randbool(Flux.crossentropy, f(batch_x), batch_y)
     return predicate, state
   end
-  samples = rand(w3, ygen, state, Mu.SGHMC; trainkwargs...)
+  # OmegaT = Mu.SimpleOmega{Int, Array{Float64, 2}}
+  OmegaT = Mu.SimpleOmega{Int, Flux.TrackedArray}
+  samples = rand(w3, ygen, state, SGHMC; OmegaT=OmegaT, trainkwargs...)
 end
 
 "Test Bayesian network for MNIST using SGHMC"
 function test(; trainkwargs...)
   f, _ = mlp()
-  weights = mean(train(niter; trainkwargs...))
+  weights = mean(train(; trainkwargs...))
   test_x, test_y = MNIST.testdata()
   correct = 0
   for i = 1:size(test_y)[1]

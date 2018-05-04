@@ -18,18 +18,27 @@ function bound_loss(x, a, b)
   end
 end
 
+randbool(f, x, y) = RandVar{Bool, false}(SoftBool ∘ f, (x, y))
+lograndbool(f, x, y) = RandVar{Bool, false}(LogSoftBool ∘ f, (x, y))
+
 ## Soft Logic
 ## ==========
 "Soft Boolean"
 struct SoftBool{ET <: Real}
   epsilon::ET
-  logepsilon::ET
-  uselog::Bool
 end
 
-SoftBool(x) = SoftBool(x, zero(x), false)
-LogSoftBool(x) =  SoftBool(zero(x), x, true)
-logepsilon(x) = x.uselog ? x.logepsilon : x.epsilon |> log
+struct LogSoftBool{ET <: Real}
+  logepsilon::ET
+end
+
+epsilon(x::SoftBool) = x.epsilon
+epsilon(x::LogSoftBool) = exp(x.epsilon)
+logepsilon(x::LogSoftBool) = x.logepsilon
+logepsilon(x::SoftBool) = log(x.epsilon)
+
+## (In)Equalities
+## ==============
 softeq(x::Real, y::Real) = SoftBool(1 - f2((x - y)^2))
 softgt(x::Real, y::Real) = SoftBool(1 - f2(bound_loss(x, y, Inf)))
 function softeq(x::Vector{<:Real}, y::Vector{<:Real})
@@ -37,11 +46,16 @@ function softeq(x::Vector{<:Real}, y::Vector{<:Real})
 end
 
 function softeq(x::Array{<:Real}, y::Array{<:Real})
+  println("Here")
+  # @grab x
+  # @grab y
   SoftBool(1 - f2(norm(x[:] - y[:])))
 end
 
 # softeq(x::Vector{<:Real}, y::Vector{<:Real}) = SoftBool(1 - mean(f1.(x - y)))
 
+## Boolean Operators
+## =================
 Base.:&(x::SoftBool, y::SoftBool) = SoftBool(min(x.epsilon, y.epsilon))
 Base.:|(x::SoftBool, y::SoftBool) = SoftBool(max(x.epsilon, y.epsilon))
 const ⪆ = softgt

@@ -12,6 +12,5 @@ defaultomega(::Type{ALG}) where ALG = DefaultOmega
 "Sample from `x | y == true` with Metropolis Hasting"
 function Base.rand(x::Union{RandVar, UTuple{<:RandVar}}, y, alg::Type{ALG};
                    n::Integer = 1000, OmegaT::OT = defaultomega(ALG)) where {ALG, OT}
-  @assert false
   map(x, rand(OmegaT, y, alg, n=n))
 end

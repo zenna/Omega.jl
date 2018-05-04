@@ -2,6 +2,7 @@ __precompile__()
 "Minimal Probabilistic Programming Langauge"
 module Mu
 
+using Flux
 using Distributions
 using ProgressMeter
 using Spec
@@ -81,6 +82,7 @@ export mean,
        bernoulli,
        rademacher,
        poisson,
+       logistic,
 
        # Do
        intervene,

@@ -1,4 +1,5 @@
 MaybeRV{T} = Union{T, AbstractRandVar{T}} where T
+Dims = UTuple{Int}
 
 "Gamma distribution"
 gammarv(ω::Omega, α::AbstractFloat, θ::AbstractFloat) = quantile(Gamma(α, θ), rand(ω))
@@ -44,12 +45,10 @@ uniform(ω::Omega, a::T, b::T) where T = rand(ω) * (b - a) + a
 uniform(a::MaybeRV{T}, b::MaybeRV{T}, ωid::Id=ωnew()) where T <: AbstractFloat =
   RandVar{T, true}(uniform, (a, b), ωid)
 
-
 "Uniform sample from vector"
 uniform(ω::Omega, a::T) where T = rand(ω, a)
 uniform(a::MaybeRV{T}, ωid::Id=ωnew()) where T <: Vector =
   RandVar{T, true}(uniform, (a,), ωid)
-  
 
 "Discrete uniform distribution with range `range`"
 uniform(range::UnitRange{T}, ωid=ωnew()) where T =
@@ -66,3 +65,12 @@ normal(ω::Omega, μ, σ) = quantile(Normal(μ, σ), rand(ω))
 # normal(ω::Omega, μ, σ, ωid::Id = ωnew()) = normal(parent(ω)[ωid], μ, σ)
 normal(μ::MaybeRV{T}, σ::MaybeRV{T}, ωid::Id = ωnew()) where T <: AbstractFloat = 
   RandVar{T, true}(normal, (μ, σ), ωid)
+
+"Logistic Distribution"
+logistic(ω::Omega, μ, s) = (p = rand(ω); μ + s * log(p / (1 - p)))
+logistic(ω::Omega, μ::Array, s::Array) = (p = rand(ω, size(μ)); μ .+ s .* log.(p ./ (1 .- p)))
+logistic(ω::Omega, μ, s, sz::Dims) = (p = rand(ω, sz); μ .+ s .* log.(p ./ (1 .- p)))
+logistic(μ::MaybeRV{T}, s::MaybeRV{T}, ωid::Id = ωnew()) where T =
+  RandVar{T, true}(logistic, (μ, s), ωid)
+logistic(μ::MaybeRV{T}, s::MaybeRV{T}, dims::MaybeRV{Dims{N}}, ωid::Id = ωnew()) where {N, T} =
+  RandVar{Array{T, N}, true}(logistic, (μ, s, dims), ωid)

@@ -56,7 +56,7 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar{Bool}, alg::Type{HMC};
 
   ωsamples = OmegaT[]
   # xsamples = T[] # FIXME: preallocate (and use inbounds)
-  U(ω) = -log(y(ω).epsilon)
+  U(ω) = -logepsilon(y(ω))
   U(ωvec::Vector) = U(unlinearize(ωvec, ω))
   ∇U(ωvec) = gradient(y, ω, ωvec)
 
