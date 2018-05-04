@@ -84,7 +84,7 @@ end
 "Test Bayesian network for MNIST using SGHMC"
 function test(; trainkwargs...)
   f, _ = mlp()
-  weights = mean(train(; trainkwargs...))
+  weights = train(; trainkwargs...)[end]
   test_x, test_y = MNIST.testdata()
   correct = 0
   for i = 1:size(test_y)[1]
