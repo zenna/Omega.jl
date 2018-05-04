@@ -6,7 +6,7 @@ using Flux
 σ3(x) =  1.0 ./ (1.0 .+ exp.(-x))
 σ3(x) =  1.0 ./ (1.0 .+ exp.(-x))
 
-const batch_size = 1
+const batch_size = 128
 Mu.lift(:(Flux.σ), 1)
 Mu.lift(:(Flux.softmax), 1)
 Mu.lift(:σ3, 1)
@@ -26,14 +26,12 @@ function mnistcycle(batch_size)
   Iterators.zip(batchgen_x, batchgen_y)
 end
 
-
-
 "Bayesian Multi Layer Percetron"
 function mlp()
   nin = MNIST.NROWS * MNIST.NCOLS
   nout = 10
-  # w3 = logistic(0.0, 1.0, (nout, nin))
-  w3 = uniform(0.1, 1.0, (nout, nin))
+  w3 = logistic(0.0, 0.01, (nout, nin))
+  # w3 = uniform(0.001, 0.01, (nout, nin))
   function f(x; weight3=w3)
     eps = 1e-6
     c = (weight3 * x)
@@ -48,6 +46,14 @@ function testmlp()
   f, weight3_ = mlp()
   w = Mu.SimpleOmega{Vector{Int}, Array}()
   weight3 = weight3_(w)
+  weight3 = param(weight3)
+  x = batch_x
+  eps = 1e-6
+  c = (weight3 * x)
+  pred = Flux.softmax(c) + eps
+  l = Flux.crossentropy(pred, batch_y)
+  Flux.back!(l)
+  weight3.grad
 
   gen = mnistcycle(batch_size)
   item = first(gen)
@@ -66,7 +72,7 @@ function train(; trainkwargs...)
     batch_x = item[1]
     batch_y = float(Flux.onehotbatch(item[2], 0:9))
     predicate = f(batch_x) == batch_y
-    predicate = Mu.randbool(Flux.crossentropy, f(batch_x), batch_y)
+    predicate = Mu.randbool((-) ∘ Flux.crossentropy, f(batch_x), batch_y)
     # predicate = Mu.randbool(Flux.binarycrossentropy, f(batch_x), batch_y)
     return predicate, state
   end
@@ -92,3 +98,5 @@ function test(; trainkwargs...)
   end
   accepted = correct / size(test_y)[1]
 end
+
+# train(; n=1000, nsteps=10)
