@@ -82,9 +82,9 @@ function test(; trainkwargs...)
   test_x, test_y = MNIST.testdata()
   correct = 0
   for i = 1:size(test_y)[1]
-    x = transpose(test_x[:, i])
+    x = test_x[:, i]
     onehot_y = f(x, weight3=weights)
-    y = Flux.argmax(transpose(onehot_y))[1]
+    y = Flux.argmax(onehot_y)
     testy = convert(Int64, test_y[i])
     if y == testy
       correct += 1
