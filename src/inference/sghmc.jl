@@ -83,6 +83,7 @@ function Base.rand(OmegaT::Type{OT}, ygen, state, alg::Type{SGHMC};
   ωsamples = [] # FIXME: preallocate (and use inbounds)
   accepted = 0
   m = div(n, 10)
+  @show n
   @showprogress 1 "Running SGHMC Chain" for i = 1:n
     ωvec, wasaccepted, state = sghmc(ygen, nsteps, stepsize, ωvec, ω, state)
     push!(ωsamples, unlinearize(ωvec, ω)) # UNNEC
