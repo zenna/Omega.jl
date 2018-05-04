@@ -2,10 +2,13 @@ __precompile__()
 "Minimal Probabilistic Programming Langauge"
 module Mu
 
+using Flux
 using Distributions
 using ProgressMeter
 using Spec
 # using Lens
+
+UTuple{T} = Tuple{Vararg{T, N}} where N
 
 # Util
 include("util/misc.jl")
@@ -40,6 +43,8 @@ include("inference/rs.jl")       # Metropolized Independent Sampling
 include("inference/mi.jl")       # Metropolized Independent Sampling
 include("inference/ssmh.jl")      # Single Site Metropolis Hastings
 include("inference/hmc.jl")      # Single Site Metropolis Hastings
+include("inference/sghmc.jl")      # Single Site Metropolis Hastings
+
 include("inference/cgan.jl")      # Conditional GAN inference
 include("inference/spen.jl")      # Structured Predicton Energy Networks
 
@@ -54,12 +59,15 @@ include("distributions.jl")  # Sampling
 include("statistics.jl")     # Mean, etc
 
 export mean,
+       prob,
        rcd,
+       ∥,
        softeq,
        ≊,
        ⪆,
        randarray,
        @lift,
+       lift,
        @id,
        iid,
 
@@ -72,7 +80,9 @@ export mean,
        dirichlet,
        betarv,
        bernoulli,
+       rademacher,
        poisson,
+       logistic,
 
        # Do
        intervene,
@@ -82,6 +92,7 @@ export mean,
        MI,
        SSMH,
        HMC,
+       SGHMC,
 
        # Gradient
        gradient

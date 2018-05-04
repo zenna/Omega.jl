@@ -16,9 +16,40 @@ end
 SimpleOmega() = SimpleOmega(Dict{Vector{Int}, Float64}())
 SimpleOmega{I, V}() where {I, V} = SimpleOmega{I, V}(Dict{I, V}())
 
-linearize(sω::SimpleOmega{I, V}) where {I, V <: Real} = collect(values(sω.vals)) 
+"Linearize ω into flat vector"
+function linearaize end
 
-function unlinearize(ωvec::Vector, sω::SimpleOmega{I, V}) where {I, V <: Real}
+"Inverse of `linearize`, structure vector into ω"
+function unlinearize end
+
+linearize(sω::SimpleOmega{I, V}) where {I, V <: Real} = collect(values(sω.vals))
+
+function linearize(sω::SimpleOmega{I, V}) where {I, V <: AbstractArray}
+  # warn("Are keys in order?")
+  # vcat((view(a, :) for a in values(sω.vals))...)
+  vcat((a[:] for a in values(sω.vals))...)
+end
+
+function unlinearize(ωvec, sω::SimpleOmega{I, V}, f=identity) where {I, V <: AbstractArray}
+  # warn("Are keys in order?")
+  vcat((view(a, :) for a in values(sω.vals))...)
+  lb = 1
+  d = similar(sω.vals)
+  pairs = []
+  for (k, v) in sω.vals
+    sz = size(v)
+    ub = lb + prod(sz) - 1
+    # subωvec = @view ωvec[lb:ub] 
+    subωvec = ωvec[lb:ub] 
+    lb = ub + 1
+    v = reshape(subωvec, sz)
+    push!(pairs, Pair(k, v))
+    # d[k] = v
+  end
+  SimpleOmega(Dict(pairs...))
+end
+
+function unlinearize(ωvec, sω::SimpleOmega{I, V}) where {I, V <: Real}
   # Keys not sorted, might be wrong
   SimpleOmega(Dict(k => ωvec[i] for (i, k) in enumerate(keys(sω.vals))))
 end
@@ -31,6 +62,14 @@ end
 ## ====
 function Base.rand(ωπ::OmegaProj{O}, ::Type{T}) where {T, I, O <: SimpleOmega{I, <:Real}}
   get!(()->rand(Base.GLOBAL_RNG, T), ωπ.ω.vals, ωπ.id)
+end
+
+function Base.rand(ωπ::OmegaProj{O}, ::Type{T},  dims::Dims) where {T, I, A<:AbstractArray, O <: SimpleOmega{I, A}}
+  get!(()->rand(Base.GLOBAL_RNG, T, dims), ωπ.ω.vals, ωπ.id)
+end
+
+function Base.rand(ωπ::OmegaProj{O}, ::Type{T},  dims::Dims) where {T, I, A<:Flux.TrackedArray, O <: SimpleOmega{I, A}}
+  get!(()->param(rand(Base.GLOBAL_RNG, T, dims)), ωπ.ω.vals, ωπ.id)
 end
 
 ## Value Type
