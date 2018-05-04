@@ -40,28 +40,6 @@ function mlp()
   f, w3
 end
 
-"Test mlp on fake image"
-function testmlp()
-  img = rand(MNIST.NROWS * MNIST.NCOLS)
-  f, weight3_ = mlp()
-  w = Mu.SimpleOmega{Vector{Int}, Array}()
-  weight3 = weight3_(w)
-  weight3 = param(weight3)
-  x = batch_x
-  eps = 1e-6
-  c = (weight3 * x)
-  pred = Flux.softmax(c) + eps
-  l = Flux.crossentropy(pred, batch_y)
-  Flux.back!(l)
-  weight3.grad
-
-  gen = mnistcycle(batch_size)
-  item = first(gen)
-  batch_x = item[1]
-  batch_y = float(Flux.onehotbatch(item[2], 0:9))
-  p, s = ygen(state)
-end
-
 "Train MNIST using Stochastic Gradient HMC"
 function train(; trainkwargs...)
   f, w3 = mlp()
