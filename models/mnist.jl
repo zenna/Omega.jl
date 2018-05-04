@@ -6,15 +6,25 @@ const batch_size = 128
 Mu.lift(:(Flux.σ), 1)
 Mu.lift(:(Flux.softmax), 1)
 
-function σ3(x)
-  ones(x) ./ (ones(x) + exp.(-x))
-end
+σ3(x) =  ones(x) ./ (ones(x) + exp.(-x))
 Mu.lift(:σ3, 1)
+
+## Data 
+## ====
 
 "Infinite batch generator"
 function infinite_batches(data, batch_dim, batch_size, nelems = size(data, batch_dim))
   ids = Iterators.partition(Iterators.cycle(1:nelems), batch_size)
   (slicedim(data, batch_dim, id) for id in ids)
+end
+
+"Infinite iterator over MNIST"
+function mnistcycle(batch_size)
+  train_x, train_y = MNIST.traindata()
+  traindata = (train_x, train_y)
+  batchgen_x = infinite_batches(train_x, 2, batch_size)
+  batchgen_y = infinite_batches(train_y, 1, batch_size)
+  Iterators.zip(batchgen_x, batchgen_y)
 end
 
 "Bayesian Multi Layer Percetron"
@@ -38,17 +48,8 @@ function mlp()
   f, w3
 end
 
-"Infinite iterator over MNIST"
-function mnistcycle(batch_size)
-  train_x, train_y = MNIST.traindata()
-  traindata = (train_x, train_y)
-  batchgen_x = infinite_batches(train_x, 2, batch_size)
-  batchgen_y = infinite_batches(train_y, 1, batch_size)
-  Iterators.zip(batchgen_x, batchgen_y)
-end
-
 "Train MNIST using Stochastic Gradient HMC"
-function train(niter)
+function train(; trainkwargs...)
   f, w3 = mlp()
   gen = mnistcycle(batch_size)
   state = start(gen)
@@ -59,21 +60,18 @@ function train(niter)
     predicate = f(batch_x) == batch_y
     return predicate, state
   end
-  samples = rand(w3, ygen, Mu.SGHMC, state, n=niter)
-  #@grab samples
+  samples = rand(w3, ygen, state, Mu.SGHMC; trainkwargs...)
 end
 
 "Test Bayesian network for MNIST using SGHMC"
-function test(niter)
+function test(; trainkwargs...)
   f, _ = mlp()
-  weights = mean(train(niter))
+  weights = mean(train(niter; trainkwargs...))
   test_x, test_y = MNIST.testdata()
   correct = 0
-  #@grab weights
   for i = 1:size(test_y)[1]
     x = transpose(test_x[:, i])
     onehot_y = f(x, weight3=weights)
-    #@grab onehot_y
     y = Flux.argmax(transpose(onehot_y))[1]
     testy = convert(Int64, test_y[i])
     if y == testy

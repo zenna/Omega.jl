@@ -38,7 +38,7 @@ function sghmc(ygen, nsteps, stepsize, current_q::Vector, ω, state)
 end
 
 "Sample from `ω | y == true` with Stochastic Gradient Hamiltonian Monte Carlo"
-function Base.rand(OmegaT::Type{OT}, ygen, alg::Type{SGHMC}, state;
+function Base.rand(OmegaT::Type{OT}, ygen, state, alg::Type{SGHMC};
                    n=1000,
                    nsteps = 100,
                    stepsize = 0.000001) where {OT <: Omega}
@@ -60,8 +60,11 @@ function Base.rand(OmegaT::Type{OT}, ygen, alg::Type{SGHMC}, state;
   ωsamples
 end
 
-# "Sample from `x | y == true` with Metropolis Hasting"
-# function Base.rand(x::Union{RandVar, UTuple{<:RandVar}}, ygen, alg::Type{SGHMC};
-#                    n::Integer = 1000, OmegaT::OT = Mu.SimpleOmega{Int, Float64}) where {OT}
-#   map(x, rand(OmegaT, ygen, alg, n=n))
-# end
+"Sample from `x | y == true` with Metropolis Hasting"
+function Base.rand(x::Union{RandVar, UTuple{<:RandVar}}, ygen, state, alg::Type{SGHMC};
+                   n::Integer = 1000,
+                   nsteps = 100,
+                   stepsize = 0.00001,
+                   OmegaT::OT = Mu.SimpleOmega{Int, Float64}) where {OT}
+  map(x, rand(OmegaT, ygen, state, alg; n=n, nsteps=nsteps, stepsize=stepsize))
+end
