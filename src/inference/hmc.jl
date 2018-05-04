@@ -3,43 +3,55 @@ abstract type HMC <: Algorithm end
 
 defaultomega(::Type{HMC}) = Mu.SimpleOmega{Int, Float64}
 
-"ω ∉ [0, 1]"
-notunit(ω) = ω > 1.0 || ω < 0.0 
+# "ω ∉ [0, 1]"
+# notunit(ω) = ω > 1.0 || ω < 0.0
 
-"Hamiltonian monte carlo with leapfron integration: https://arxiv.org/pdf/1206.1901.pdf"
+"Bijective transformation from [0, 1] to the real line, T(x)=log(1/(1-x)-1)"
+transform(x) = log.(1./(1.-x).-1)
+
+"The inverse of the transformation above, T^(-1)(y)=1-1/(1+e^y)"
+inv_transform(y) = 1.-1./(1.+exp.(y))
+
+"Jacobian of the transformation above, J(x) = 1/x(1-x)"
+jacobian(x) = 1./(x .* (1.-x))
+
+"Hamiltonian monte carlo with leapfrog integration: https://arxiv.org/pdf/1206.1901.pdf"
 function hmc(U, ∇U, nsteps, stepsize, current_q::Vector)
-  q = current_q
+  q = transform(current_q)
   p = randn(length(q))
   current_p = p
 
   # Make a half step for momentum at beginning
   # Rejects proposals outside domain TODO: Something smarter
-  any(notunit, q) && return (current_q, false)
-  p = p - stepsize * ∇U(q) / 2.0
-  
+  # any(notunit, q) && return (current_q, false)
+  invq = inv_transform(q)
+  p = p - stepsize * ∇U(invq) .* jacobian(invq) / 2.0
+
 
   for i = 1:nsteps
-    # Helf step for the position and momentum
-    q = q .+ stepsize .* p   
+    # Half step for the position and momentum
+    q = q .+ stepsize .* p
     if i != nsteps
-      any(notunit, q) && return (current_q, false)
-      p = p - stepsize * ∇U(q) ./ 2.0
+      # any(notunit, q) && return (current_q, false)
+      invq = inv_transform(q)
+      p = p - stepsize * ∇U(invq) .* jacobian(invq) ./ 2.0
     end
   end
-  
+
   # Make half a step for momentum at the end
-  any(notunit, q) && return current_q, false
-  p = p .- stepsize .* ∇U(q) ./ 2.0
-  
+  # any(notunit, q) && return current_q, false
+  invq = inv_transform(q)
+  p = p .- stepsize .* ∇U(invq) .* jacobian(invq) ./ 2.0
+
   # Evaluate the potential and kinetic energies at start and end
   current_U = U(current_q)
   current_K =  sum(current_p.^2) / 2.0
-  proposed_U = U(q)
+  proposed_U = U(invq)
   proposed_K = sum(p.^2) / 2.0
-  
+
   # @assert false
   if rand() < exp(current_U - proposed_U + current_K - proposed_K)
-    return (q, true) # accept ω
+    return (invq, true) # accept ω
   else
     return (current_q, false)  # reject ω
   end
@@ -71,7 +83,7 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar{Bool}, alg::Type{HMC};
     if wasaccepted
       accepted += 1.0
     end
-    i % m == 0 && print_with_color(:light_blue, 
+    i % m == 0 && print_with_color(:light_blue,
                                    "acceptance ratio: $(accepted/float(i)) ",
                                    "Last log likelihood $(U(ω))\n")
   end
