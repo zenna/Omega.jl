@@ -6,15 +6,6 @@ defaultomega(::Type{HMC}) = Mu.SimpleOmega{Int, Float64}
 # "ω ∉ [0, 1]"
 # notunit(ω) = ω > 1.0 || ω < 0.0
 
-"Bijective transformation from [0, 1] to the real line, T(x)=log(1/(1-x)-1)"
-transform(x) = log.(1./(1.-x).-1)
-
-"The inverse of the transformation above, T^(-1)(y)=1-1/(1+e^y)"
-inv_transform(y) = 1.-1./(1.+exp.(y))
-
-"Jacobian of the transformation above, J(x) = 1/x(1-x)"
-jacobian(x) = 1./(x .* (1.-x))
-
 "Hamiltonian monte carlo with leapfrog integration: https://arxiv.org/pdf/1206.1901.pdf"
 function hmc(U, ∇U, nsteps, stepsize, current_q::Vector)
   q = transform(current_q)
