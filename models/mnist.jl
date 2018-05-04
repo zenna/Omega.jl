@@ -4,8 +4,9 @@ using Flux
 
 # σ3(x) =  ones(x) ./ (ones(x) .+ exp.(-x))
 σ3(x) =  1.0 ./ (1.0 .+ exp.(-x))
+σ3(x) =  1.0 ./ (1.0 .+ exp.(-x))
 
-const batch_size = 128
+const batch_size = 1
 Mu.lift(:(Flux.σ), 1)
 Mu.lift(:(Flux.softmax), 1)
 Mu.lift(:σ3, 1)
@@ -25,14 +26,18 @@ function mnistcycle(batch_size)
   Iterators.zip(batchgen_x, batchgen_y)
 end
 
+
+
 "Bayesian Multi Layer Percetron"
 function mlp()
   nin = MNIST.NROWS * MNIST.NCOLS
   nout = 10
-  w3 = logistic(0.0, 1.0, (nout, nin))
+  # w3 = logistic(0.0, 1.0, (nout, nin))
+  w3 = uniform(0.1, 1.0, (nout, nin))
   function f(x; weight3=w3)
-    c = σ3(weight3 * x)
-    Flux.softmax(c)
+    eps = 1e-6
+    c = (weight3 * x)
+    Flux.softmax(c) + eps
   end
   f, w3
 end
@@ -40,8 +45,15 @@ end
 "Test mlp on fake image"
 function testmlp()
   img = rand(MNIST.NROWS * MNIST.NCOLS)
-  f, w = mlp()
-  rand(f(img))
+  f, weight3_ = mlp()
+  w = Mu.SimpleOmega{Vector{Int}, Array}()
+  weight3 = weight3_(w)
+
+  gen = mnistcycle(batch_size)
+  item = first(gen)
+  batch_x = item[1]
+  batch_y = float(Flux.onehotbatch(item[2], 0:9))
+  p, s = ygen(state)
 end
 
 "Train MNIST using Stochastic Gradient HMC"
@@ -55,6 +67,7 @@ function train(; trainkwargs...)
     batch_y = float(Flux.onehotbatch(item[2], 0:9))
     predicate = f(batch_x) == batch_y
     predicate = Mu.randbool(Flux.crossentropy, f(batch_x), batch_y)
+    # predicate = Mu.randbool(Flux.binarycrossentropy, f(batch_x), batch_y)
     return predicate, state
   end
   OmegaT = Mu.SimpleOmega{Int, Array}

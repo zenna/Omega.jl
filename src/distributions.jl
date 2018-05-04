@@ -44,6 +44,11 @@ poisson(λ::MaybeRV{T}, ωid::Id = ωnew()) where T <: Real = RandVar{Int, true}
 uniform(ω::Omega, a::T, b::T) where T = rand(ω) * (b - a) + a
 uniform(a::MaybeRV{T}, b::MaybeRV{T}, ωid::Id=ωnew()) where T <: AbstractFloat =
   RandVar{T, true}(uniform, (a, b), ωid)
+uniform(ω::Omega, a, b, sz::Dims) = p = rand(ω, sz) .* (b .- a) .+ a
+uniform(a::MaybeRV{T}, b::MaybeRV{T}, ωid::Id = ωnew()) where T =
+  RandVar{T, true}(uniform, (a, b), ωid)
+uniform(a::MaybeRV{T}, b::MaybeRV{T}, dims::MaybeRV{Dims{N}}, ωid::Id = ωnew()) where {N, T} =
+  RandVar{Array{T, N}, true}(uniform, (a, b, dims), ωid)
 
 "Uniform sample from vector"
 uniform(ω::Omega, a::T) where T = rand(ω, a)
