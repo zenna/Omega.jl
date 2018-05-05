@@ -3,8 +3,11 @@ using UnicodePlots
 using CSV
 using DataFrames
 using RunTools
+using ArgParse
 
 lift(:(Base.getindex), 2)
+const Δxk = :x2
+const Δyk = :y2
 
 struct Object{T}
   x::T
@@ -35,7 +38,7 @@ end
 "Render scene into an image"
 render(scene, camera)::Image = scene
 
-nboxes = poisson(5)
+nboxes = poisson(5) + 1
 
 "Scene at frame t=0"
 function initscene(ω)
@@ -47,10 +50,34 @@ function initscene(ω)
   end
   camera = Camera(uniform(ω[@id], 0.0, 1.0),
                   uniform(ω[@id], 0.0, 1.0),
-                  100.0,
-                  100.0)
+                  640.0,
+                  480.0)
   Scene(objects, camera)
 end
+
+function accumprop(prop, video)
+  props = Float64[]
+  for scene in video, object in scene.objects
+    push!(props, getfield(object, prop))
+  end
+  props
+end 
+
+"Scene at frame t=0"
+function initscene(ω, data)
+  objects = map(1:nboxes(ω)) do i
+    Object(normal(ω[@id][i], mean(accumprop(:x, data)), std(accumprop(:x, data))),
+           normal(ω[@id][i], mean(accumprop(:y, data)), std(accumprop(:y, data))),
+           normal(ω[@id][i], mean(accumprop(:Δx, data)), std(accumprop(:Δx, data))),
+           normal(ω[@id][i], mean(accumprop(:Δy, data)), std(accumprop(:Δy, data))))
+  end
+  camera = Camera(normal(ω[@id], 0.0, 1.0),
+                  normal(ω[@id], 0.0, 1.0),
+                  640.0,
+                  480.0)
+  Scene(objects, camera)
+end
+
 
 "Shift an object by adding gaussian perturbation to x, y, Δx, Δy"
 function move(ω, object::Object)
@@ -66,8 +93,7 @@ function move(ω, scene::Scene)
 end
 
 "Simulate `nsteps`"
-function video_(ω, nsteps = 1000)
-  scene = initscene(ω)
+function video_(ω, scene::Scene = initscene(ω), nsteps = 1000)
   trajectories = Scene[]
   for i = 1:nsteps
     scene = move(ω[i], scene)
@@ -76,21 +102,23 @@ function video_(ω, nsteps = 1000)
   trajectories
 end
 
+video_(ω, data::Vector, nsteps = 1000) = video_(ω, initscene(ω, data), nsteps)
+
 ## Inference
 ## =========
 
 "Construct a scene from dataset"
 function Scene(df::AbstractDataFrame)
   objects = map(eachrow(df)) do row
-    x = row[:y]
-    dx = row[:dy]
-    Δx = dx - x
-    y = row[:x]
-    dy = row[:dx]
-    Δy = dy - y
+    x = row[:x]
+    dx = row[Δxk]
+    Δx = abs(dx - x)
+    y = row[:y]
+    dy = row[Δyk]
+    Δy = abs(dy - y)
     Object(float(x), float(y), float(Δx), float(Δy))
   end
-  camera = Camera(0.0, 0.0, 640.0, 360.0)
+  camera = Camera(0.0, 0.0, 640.0, 480.0)
   Scene(objects, camera)
 end
 
@@ -118,8 +146,8 @@ end
 function corners(box)
   ((box.x, box.y),
    (box.x + box.Δx, box.y),
-   (box.x + box.Δx, box.y + box.Δy),
-   (box.x, box.y + box.Δy))
+   (box.x + box.Δx, box.y - box.Δy),
+   (box.x, box.y -  box.Δy))
 end
 
 "Draw Box"
@@ -138,8 +166,8 @@ fixao(x, y; aspectratio = 0.5) = (x, Int(y * aspectratio))
 
 "Draw Scene"
 function draw(scene::Scene,
-              canvas = BrailleCanvas(fixao(64, 32)..., origin_x = 0., origin_y = 0.,
-                                     width = scene.camera.Δx, height = scene.camera.Δy))
+              canvas = BrailleCanvas(fixao(64, 32)..., origin_x = -5.0, origin_y = -5.0,
+                                     width = scene.camera.Δx + 10, height = scene.camera.Δy + 10))
   draw(scene.camera, canvas, :red)
   foreach(obj -> draw(obj, canvas, :blue), scene.objects)
   canvas
@@ -156,11 +184,15 @@ end
 ## Run
 ## ===
 datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.csv")
-data = CSV.read(datapath)
-nframes = maximum(data[:frame]) - minimum(data[:frame])
-nframes = length(unique())
-frames = groupby(data, :frame)
-video = iid(ω -> video_(ω, nframes))
-rand(video)
-realvideo = map(Scene, frames)
-samples = rand(video, video == realvideo, SSMH);
+datapath = joinpath(datadir(), "spelke", "data", "Balls_2_ContactA", "Balls_2_ContactA_DetectedObjects.csv")
+
+function train()
+  data = CSV.read(datapath)
+  nframes = length(unique(data[:frame]))
+  frames = groupby(data, :frame)
+  realvideo = map(Scene, frames)
+  video = iid(ω -> video_(ω, realvideo, nframes))
+  rand(video)
+  samples = rand(video, video == realvideo, MI, n=10000);
+  viz(samples)
+end

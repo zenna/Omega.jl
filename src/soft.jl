@@ -33,9 +33,10 @@ struct LogSoftBool{ET <: Real}
 end
 
 epsilon(x::SoftBool) = x.epsilon
-epsilon(x::LogSoftBool) = exp(x.epsilon)
-logepsilon(x::LogSoftBool) = x.logepsilon
+epsilon(x::LogSoftBool) = exp(x.logepsilon)
+
 logepsilon(x::SoftBool) = log(x.epsilon)
+logepsilon(x::LogSoftBool) = x.logepsilon
 
 ## (In)Equalities
 ## ==============
