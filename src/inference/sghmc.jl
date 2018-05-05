@@ -23,8 +23,19 @@ defaultomega(::Type{SGHMC}) = Mu.SimpleOmega{Int, Float64}
 ## So either specialize them by type or:
 ## Provide way to make randbool
 
+function clip(x)
+  eps = 1e-5
+  if x == 0.0
+    eps
+  elseif x == 1.0
+    1 - eps
+  else
+    x
+  end
+end
+
 "Bijective transformation from [0, 1] to the real line, T(x)=log(1/(1-x)-1)"
-transform(x) = log.(1./(1.-x).-1)
+transform(x) = log.(1./(1.-clip(x)).-1)
 
 "The inverse of the transformation above, T^(-1)(y)=1-1/(1+e^y)"
 inv_transform(y) = 1.-1./(1.+exp.(y))
@@ -52,20 +63,26 @@ function sghmc(ygen, nsteps, stepsize, current_q::AbstractVector, ω, state)
     # generate a predicate and get the gradient of its ϵ
     predicate, state = ygen(state)
     invq = inv_transform(q)
+    @assert !(any(isnan(invq)))
     ∇U(q) = gradient(predicate, unlinearize(invq, ω), invq) .* jacobian(invq)
+    # ∇U(q) = gradient(predicate, unlinearize(q, ω), q)
 
     # update the location and momentum parameters
     q = q .+ stepsize .* p
+    @assert !(any(isnan(q)))
     #@show q[1], p[1]
     # any(notunit, q) && return (current_q, false, state)
     #@show state
     term = rand(MvNormal(d, 2 * stepsize .* (C .- Bhat)))
+    @assert !(any(isnan(term)))
     p = p - stepsize .* ∇U(q) - stepsize .* C * p + term
+    @assert !(any(isnan(p)))
     #@show ∇U(q)
   end
 
   # no MH step necessary
   q = inv_transform(q)
+  @assert !(any(isnan(q)))
   return (q, true, state)
 end
 
@@ -73,7 +90,7 @@ end
 function Base.rand(OmegaT::Type{OT}, ygen, state, alg::Type{SGHMC};
                    n=1000,
                    nsteps = 100,
-                   stepsize = 0.000001) where {OT <: Omega}
+                   stepsize = 0.001) where {OT <: Omega}
   ω = OmegaT()
   predicate, state = ygen(state)
   predicate(ω) # Initialize omega
@@ -86,6 +103,8 @@ function Base.rand(OmegaT::Type{OT}, ygen, state, alg::Type{SGHMC};
   @show n
   @showprogress 1 "Running SGHMC Chain" for i = 1:n
     ωvec, wasaccepted, state = sghmc(ygen, nsteps, stepsize, ωvec, ω, state)
+    @show mean(ωvec)
+    @show std(ωvec)
     push!(ωsamples, unlinearize(ωvec, ω)) # UNNEC
     if wasaccepted
       accepted += 1
@@ -99,7 +118,7 @@ end
 function Base.rand(x::Union{RandVar, UTuple{<:RandVar}}, ygen, state, alg::Type{SGHMC};
                    n::Integer = 1000,
                    nsteps = 100,
-                   stepsize = 0.00001,
+                   stepsize = 0.001,
                    OmegaT::OT = Mu.SimpleOmega{Int, Float64}) where {OT}
   map(x, rand(OmegaT, ygen, state, alg; n=n, nsteps=nsteps, stepsize=stepsize))
 end
