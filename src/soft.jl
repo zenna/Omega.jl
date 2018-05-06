@@ -33,14 +33,14 @@ struct LogSoftBool{ET <: Real}
 end
 
 epsilon(x::SoftBool) = x.epsilon
-epsilon(x::LogSoftBool) = exp(x.epsilon)
-logepsilon(x::LogSoftBool) = x.logepsilon
+epsilon(x::LogSoftBool) = exp(x.logepsilon)
+
 logepsilon(x::SoftBool) = log(x.epsilon)
+logepsilon(x::LogSoftBool) = x.logepsilon
 
 ## (In)Equalities
 ## ==============
 softeq(x::Real, y::Real) = SoftBool(1 - f2((x - y)^2))
-softgt(x::Real, y::Real) = SoftBool(1 - f2(bound_loss(x, y, Inf)))
 function softeq(x::Vector{<:Real}, y::Vector{<:Real})
   SoftBool(1 - f2(norm(x - y)))
 end
@@ -53,6 +53,9 @@ function softeq(x::Array{<:Real}, y::Array{<:Real})
 end
 
 # softeq(x::Vector{<:Real}, y::Vector{<:Real}) = SoftBool(1 - mean(f1.(x - y)))
+
+softgt(x::Real, y::Real) = SoftBool(1 - f2(bound_loss(x, y, Inf)))
+softlt(x::Real, y::Real) = SoftBool(1, f2(bound_loss(x, -Inf, y)))
 
 ## Boolean Operators
 ## =================

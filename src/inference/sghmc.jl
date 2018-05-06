@@ -3,46 +3,6 @@ abstract type SGHMC <: Algorithm end
 
 defaultomega(::Type{SGHMC}) = Mu.SimpleOmega{Int, Float64}
 
-# FIXME: Inefficient because:
-# Doing all this unnecessary work linearizing / reshaping, should use broadcast
-# The rejection proposali isn't good, we should probably move to an unconstrained space
-
-
-# Annealing
-# (i) Hyperparameter search on temperature
-# (ii) Anneal temperature
-# (iii) Parallel Tempering
-# (iv) Make Javier's framework for learned
-# (v) Implement distance functi onlearning
-
-# Fix rcd
-#
-
-## Issue is I want to specify what loss function to use
-## But these things aren't specialized by type
-## So either specialize them by type or:
-## Provide way to make randbool
-
-function clip(x)
-  eps = 1e-5
-  if x == 0.0
-    eps
-  elseif x == 1.0
-    1 - eps
-  else
-    x
-  end
-end
-
-"Bijective transformation from [0, 1] to the real line, T(x)=log(1/(1-x)-1)"
-transform(x) = log.(1./(1.-clip(x)).-1)
-
-"The inverse of the transformation above, T^(-1)(y)=1-1/(1+e^y)"
-inv_transform(y) = 1.-1./(1.+exp.(y))
-
-"Jacobian of the transformation above, J(x) = 1/x(1-x)"
-jacobian(x) = 1./(x .* (1.-x))
-
 "Stochastic Gradient Hamiltonian Monte Carlo with Langevin Dynamics Friction: https://arxiv.org/pdf/1402.4102.pdf"
 function sghmc(ygen, nsteps, stepsize, current_q::AbstractVector, ω, state)
   d = length(current_q)

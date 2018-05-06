@@ -25,17 +25,25 @@ function Base.copy(x::RandVar{T}) where T
   RandVar{T}(x.f, x.ωids)
 end
 
+apply(f, xs...) = f(xs...)
+# FIXME this looze type
+(rv::RandVar)(xs...) = RandVar{Any, false}(apply, (rv, xs...))
+
 ## I.I.D
 ## =====
 "Infer T from function `f: w -> T`"
-function infer_elemtype(f)
-  rt = Base.return_types(f, (Mu.DirtyOmega,))
+function infer_elemtype(f, args...)
+  @show argtypes = map(typeof, args)
+  rt = Base.return_types(f, (Mu.DirtyOmega,argtypes...))
   @pre length(rt) == 1 "Could not infer unique return type"
   rt[1]
 end
 
 "Construct an i.i.d. of `X`"
-iid(f, T=infer_elemtype(f)) = RandVar{T}(f)
+iid(f; T=infer_elemtype(f)) = RandVar{T}(f)
+
+"iid with arguments"
+iid(f, args...; T=infer_elemtype(f, args...)) = RandVar{T}(ω -> f(ω, args...))
 
 ## Printing
 ## ========

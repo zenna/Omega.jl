@@ -74,7 +74,7 @@ normal(μ::MaybeRV{T}, σ::MaybeRV{T}, ωid::Id = ωnew()) where T <: AbstractFl
 "Logistic Distribution"
 logistic(ω::Omega, μ, s) = (p = rand(ω); μ + s * log(p / (1 - p)))
 logistic(ω::Omega, μ::Array, s::Array) = (p = rand(ω, size(μ)); μ .+ s .* log.(p ./ (1 .- p)))
-logistic(ω::Omega, μ, s, sz::Dims) = (p = rand(ω, sz); μ .+ s .* log.(p ./ (1 .- p)))
+logistic(ω::Omega, μ, s, sz::Dims) =  (p = rand(ω, sz); μ .+ s .* log.(p ./ (1 .- p)))
 logistic(μ::MaybeRV{T}, s::MaybeRV{T}, ωid::Id = ωnew()) where T =
   RandVar{T, true}(logistic, (μ, s), ωid)
 logistic(μ::MaybeRV{T}, s::MaybeRV{T}, dims::MaybeRV{Dims{N}}, ωid::Id = ωnew()) where {N, T} =

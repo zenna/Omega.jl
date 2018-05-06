@@ -38,6 +38,7 @@ include("soft.jl")      # Soft logic
 include("cond.jl")      # Conditional Random Variables
 
 # Inference Algorithms
+include("inference/common.jl")      # Sampling
 include("inference/rand.jl")      # Sampling
 include("inference/rs.jl")       # Metropolized Independent Sampling
 include("inference/mi.jl")       # Metropolized Independent Sampling
@@ -57,6 +58,9 @@ include("gradient.jl")
 # Library
 include("distributions.jl")  # Sampling
 include("statistics.jl")     # Mean, etc
+
+# Neural Network Stuff
+include("flux.jl")
 
 export mean,
        prob,

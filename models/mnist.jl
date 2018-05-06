@@ -31,8 +31,8 @@ end
 function mlp()
   nin = MNIST.NROWS * MNIST.NCOLS
   nout = 10
-  # w3 = logistic(0.0, 0.01, (nout, nin))
-  w3 = uniform(-0.5, 0.5, (nout, nin))
+  w3 = logistic(0.0, 0.01, (nout, nin))
+  # w3 = uniform(-0.5, 0.5, (nout, nin))
   function f(x; weight3=w3)
     eps = 1e-6
     c = σ3(weight3 * x)
@@ -52,7 +52,7 @@ function train(; trainkwargs...)
     batch_y = float(Flux.onehotbatch(item[2], 0:9))
     predicate = f(batch_x) == batch_y
     
-    predicate = Mu.randbool((-) ∘ Flux.crossentropy, f(batch_x), batch_y)
+    predicate = Mu.randbool(Flux.crossentropy, f(batch_x), batch_y)
     # predicate = Mu.randbool(Flux.binarycrossentropy, f(batch_x), batch_y)
     return predicate, state
   end
@@ -86,4 +86,4 @@ function test(; trainkwargs...)
   @show accepted = correct / size(test_y)[1]
 end
 
-# train(; n=1000, nsteps=10)
+test(; n=1000, nsteps=10, stepsize=0.0001)
