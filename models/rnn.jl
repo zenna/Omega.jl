@@ -3,6 +3,7 @@ using Flux
 
 npatients = 5
 W_(ω, i) = Flux.Dense(ω[@id][i], 1, 1, Flux.elu)
+
 # Create one network per person
 fs = [iid(W_, i) for i  = 1:npatients]
 
@@ -18,7 +19,7 @@ function rnn_(ω, f, nsteps = 4)
   xs
 end
 
-# Run one simulation for each patient
+# Create one simulation RandVar for each patient
 nsteps = 50
 sims = [iid(rnn_, f, nsteps) for f in fs]
 
