@@ -5,13 +5,13 @@ abstract type MI <: Algorithm end
 function Base.rand(OmegaT::Type{OT}, y::RandVar{Bool}, alg::Type{MI};
                    n::Integer = 1000) where {OT <: Omega}
   ω = OmegaT()
-  plast = y(ω).epsilon
+  plast = epsilon(y(ω))
   qlast = 1.0
   ωsamples = OmegaT[]
   accepted = 0.0
   @showprogress 1 "Running Chain" for i = 1:n
     ω_ = OmegaT()
-    p_ = y(ω_).epsilon
+    p_ = epsilon(y(ω_))
     ratio = p_ / plast
     if rand() < ratio
       ω = ω_
