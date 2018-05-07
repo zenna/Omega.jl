@@ -87,6 +87,7 @@ export mean,
        rademacher,
        poisson,
        logistic,
+       exponential,
 
        # Do
        intervene,

@@ -79,3 +79,8 @@ logistic(μ::MaybeRV{T}, s::MaybeRV{T}, ωid::Id = ωnew()) where T =
   RandVar{T, true}(logistic, (μ, s), ωid)
 logistic(μ::MaybeRV{T}, s::MaybeRV{T}, dims::MaybeRV{Dims{N}}, ωid::Id = ωnew()) where {N, T} =
   RandVar{Array{T, N}, true}(logistic, (μ, s, dims), ωid)
+
+exponential(ω::Omega, λ) = -log(1 - rand(ω)) / λ
+exponential(ω::Omega, λ, sz::Dims) = log.(1 - rand(ω, sz)) ./ λ
+exponential(λ::MaybeRV{T}, ωid::Id = ωnew()) where T = RandVar{T, true}(exponential, (λ,), ωid)
+exponential(λ::MaybeRV{T}, dims::MaybeRV{Dims{N}}, ωid::Id = ωnew()) where {N, T} = RandVar{T, true}(exponential, (λ, dims), ωid)

@@ -73,7 +73,7 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar{Bool}, alg::Type{HMC};
     end
     i % m == 0 && print_with_color(:light_blue,
                                    "acceptance ratio: $(accepted/float(i)) ",
-                                   "Last log likelihood $(U(ω))\n")
+                                   "Last log likelihood $(U(unlinearize(ωvec, ω)))\n")
   end
   print_with_color(:light_blue, "acceptance ratio: $(accepted/float(n))",
                                 "Last log likelihood $(U(ω))\n")

@@ -81,10 +81,10 @@ end
 
 "Shift an object by adding gaussian perturbation to x, y, Δx, Δy"
 function move(ω, object::Object)
-  Object(object.x + normal(ω[@id], 0.0, 1.0),
-         object.y + normal(ω[@id], 0.0, 1.0),
-         object.Δx + normal(ω[@id], 0.0, 1.0),
-         object.Δy + normal(ω[@id], 0.0, 1.0))
+  Object(object.x + normal(ω[@id], 0.0, 2.0),
+         object.y + normal(ω[@id], 0.0, 2.0),
+         object.Δx + normal(ω[@id], 0.0, 2.0),
+         object.Δy + normal(ω[@id], 0.0, 2.0))
 end
 
 "Move entire all objects in scene"
@@ -195,4 +195,15 @@ function train()
   rand(video)
   samples = rand(video, video == realvideo, MI, n=10000);
   viz(samples)
+end
+
+"Frame by frame differences"
+function Δs(video)
+  Δs = Float64[]
+  for i = 1:length(video) - 1
+    v1 = video[i]
+    v2 = video[i + 1]
+    push!(Δs,  Δ(v1, v2))
+  end
+  Δs
 end
