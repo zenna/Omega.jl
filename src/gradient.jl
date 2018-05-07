@@ -34,3 +34,8 @@ function gradient(Y::RandVar{Bool}, sω::SimpleOmega{I, V}, vals) where {I, V <:
   sω_ = SimpleOmega(Dict(i => v.data for (i, v) in sωtracked.vals))
   linearize(sω_)
 end
+
+function fluxgradient(Y::RandVar{Bool}, sω::SimpleOmega{I, V}) where {I, V <: AbstractArray}
+  l = -logepsilon(Y(sω))
+  Flux.back!(l)
+end

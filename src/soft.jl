@@ -4,8 +4,8 @@
 "Real+ -> [0, 1]"
 f1(x; a=0.00001) = x / (x + a)
 
-"Real+ -> [0, 1], Large a is high temperature"
-f2(x; a=0.02) = 1 - exp(-a * x)
+"Squared exponential kernel α = 1/2l^2"
+kse(d, α=1.0) = 1 - exp(-α * d)
 
 function bound_loss(x, a, b)
   # @pre b >= a
@@ -25,9 +25,10 @@ randbool(ϵ::RandVar) = RandVar{Bool, false}(SoftBool, (ϵ,))
 ## Soft Logic
 ## ==========
 "Soft Boolean"
-struct SoftBool{ET <: Real}
+struct SoftBool{ET <: Real} 
   epsilon::ET
 end
+@invariant 0 <= epsilon(b::SoftBool) <= 1
 
 struct LogSoftBool{ET <: Real}
   logepsilon::ET
@@ -41,22 +42,15 @@ logepsilon(x::LogSoftBool) = x.logepsilon
 
 ## (In)Equalities
 ## ==============
-softeq(x::Real, y::Real) = SoftBool(1 - f2((x - y)^2))
-function softeq(x::Vector{<:Real}, y::Vector{<:Real})
-  SoftBool(1 - f2(norm(x - y)))
-end
-
-function softeq(x::Array{<:Real}, y::Array{<:Real})
-  println("Here")
-  # @grab x
-  # @grab y
-  SoftBool(1 - f2(norm(x[:] - y[:])))
-end
+@inline d(x::Real, y::Real) = (xy = (x - y); xy * xy)
+@inline d(x::Vector{<:Real}, y::Vector{<:Real}) = norm(x - y)
+@inline d(x::Array{<:Real}, y::Array{<:Real}) = norm(x[:] - y[:])
+softeq(x, y, k=kse) = SoftBool(1 - k(d(x, y)))
 
 # softeq(x::Vector{<:Real}, y::Vector{<:Real}) = SoftBool(1 - mean(f1.(x - y)))
 
-softgt(x::Real, y::Real) = SoftBool(1 - f2(bound_loss(x, y, Inf)))
-softlt(x::Real, y::Real) = SoftBool(1, f2(bound_loss(x, -Inf, y)))
+softgt(x::Real, y::Real) = SoftBool(1 - kse(bound_loss(x, y, Inf)))
+softlt(x::Real, y::Real) = SoftBool(1, kse(bound_loss(x, -Inf, y)))
 
 ## Boolean Operators
 ## =================

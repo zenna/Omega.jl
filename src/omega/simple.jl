@@ -16,6 +16,9 @@ end
 SimpleOmega() = SimpleOmega(Dict{Vector{Int}, Float64}())
 SimpleOmega{I, V}() where {I, V} = SimpleOmega{I, V}(Dict{I, V}())
 
+Base.values(sω::SimpleOmega) = values(sω.vals)
+Base.keys(sω::SimpleOmega) = keys(sω.vals)
+
 "Linearize ω into flat vector"
 function linearaize end
 

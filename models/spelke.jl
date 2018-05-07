@@ -136,7 +136,7 @@ end
 function Mu.softeq(a::Array{<:Scene,1}, b::Array{<:Scene})
   dists = Δ.(a, b)
   d = mean(dists)
-  e = log(1 - Mu.f2(d, a = 0.138))
+  e = log(1 - Mu.kse(d, a = 0.138))
   Mu.LogSoftBool(e)
 end
 
@@ -186,6 +186,9 @@ end
 datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.csv")
 datapath = joinpath(datadir(), "spelke", "data", "Balls_2_ContactA", "Balls_2_ContactA_DetectedObjects.csv")
 
+
+datapath = joinpath(datadir(), "spelke", "data", "Balls_4_Clowncar", "Balls_4_Clowncar_DetectedObjects.csv")
+
 function train()
   data = CSV.read(datapath)
   nframes = length(unique(data[:frame]))
@@ -193,7 +196,7 @@ function train()
   realvideo = map(Scene, frames)
   video = iid(ω -> video_(ω, realvideo, nframes))
   rand(video)
-  samples = rand(video, video == realvideo, MI, n=10000);
+  samples = rand(video, video == realvideo, SSMH, n=10000);
   viz(samples)
 end
 
