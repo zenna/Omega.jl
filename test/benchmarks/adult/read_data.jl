@@ -1,4 +1,6 @@
 using CSV
+using Flux
+using Flux: onehotbatch
 
 train_path = "./adult.data"
 test_path = "./adult.test"

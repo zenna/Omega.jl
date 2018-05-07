@@ -39,8 +39,8 @@ function unlinearize(ωvec, sω::SimpleOmega{I, V}, f=identity) where {I, V <: A
   for (k, v) in sω.vals
     sz = size(v)
     ub = lb + prod(sz) - 1
-    # subωvec = @view ωvec[lb:ub] 
-    subωvec = ωvec[lb:ub] 
+    # subωvec = @view ωvec[lb:ub]
+    subωvec = ωvec[lb:ub]
     lb = ub + 1
     v = reshape(subωvec, sz)
     push!(pairs, Pair(k, v))
@@ -91,11 +91,11 @@ function Base.rand(ωπ::OmegaProj{O}, ::Type{UInt32}) where {I, O <: SimpleOmeg
   end
 end
 
-function Base.rand(ωπ::OmegaProj{O}, ::Type{CloseOpen}) where {I, O <: SimpleOmega{I, ValueTuple}}
+function Base.rand(ωπ::OmegaProj{O}, ::Type{CO}) where {I, CO, O <: SimpleOmega{I, ValueTuple}}
   if ωπ.id ∈ keys(ωπ.ω.vals)
     return ωπ.ω.vals[ωπ.id]._Float64
   else
-    val = rand(Base.GLOBAL_RNG, Float64)
+    val = rand(Base.GLOBAL_RNG, CO)
     ωπ.ω.vals[ωπ.id] = ValueTuple(val, Float32(0.0), UInt(0))
     return val
   end
