@@ -40,9 +40,11 @@ include("cond.jl")      # Conditional Random Variables
 
 # Inference Algorithms
 include("inference/common.jl")  # Common Inference Functions
+include("inference/callbacks.jl")  # Common Inference Functions
 include("inference/rand.jl")    # Sampling
 include("inference/rs.jl")      # Rejection Sampling
-include("inference/mi.jl")      # Metropolized Independent Sampling
+# include("inference/mi.jl")      # Metropolized Independent Sampling
+include("inference/misuper.jl")      # Metropolized Independent Sampling
 include("inference/ssmh.jl")    # Single Site Metropolis Hastings
 include("inference/hmc.jl")     # Hamiltonian Monte Carlo
 include("inference/hmcfast.jl") # Faster Hamiltonian Monte Carlo
