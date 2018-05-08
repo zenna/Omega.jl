@@ -79,11 +79,20 @@ end
 ## Custom Lifts
 ## ============
 
-function Base.:(==)(x::AbstractRandVar, y)
-  RandVar{Bool, false}(≊, (x, y))
-end
+Base.:(==)(x::AbstractRandVar, y) = softeq(x, y)
+  # RandVar{Bool, false}(softeq, (x, y))
 
-Base.:(>)(x::AbstractRandVar, y) = RandVar{Bool, false}(softgt, (x, y))
-Base.:(>)(x, y::AbstractRandVar) = RandVar{Bool, false}(softgt, (x, y))
-Base.:(<)(x::AbstractRandVar, y) = RandVar{Bool, false}(softlt, (x, y))
-Base.:(<)(x, y::AbstractRandVar) = RandVar{Bool, false}(softlt, (x, y))
+Base.:(==)(x, y::AbstractRandVar) = softeq(x, y)
+  # RandVar{Bool, false}(softeq, (x, y))
+
+Base.:(==)(x::AbstractRandVar, y::AbstractRandVar) = softeq(x, y)
+  # RandVar{Bool, false}(softeq, (x, y))
+
+
+Base.:(>)(x::AbstractRandVar, y) = softgt(x, y)
+Base.:(>)(x, y::AbstractRandVar) = softgt(x, y)
+Base.:(>)(x::AbstractRandVar, y::AbstractRandVar) = softgt(x, y)
+
+Base.:(<)(x::AbstractRandVar, y) = softlt(x, y)
+Base.:(<)(x, y::AbstractRandVar) = softlt(x, y)
+Base.:(<)(x::AbstractRandVar, y::AbstractRandVar) = softgt(x, y)

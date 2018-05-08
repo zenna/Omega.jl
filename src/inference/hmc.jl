@@ -62,18 +62,16 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar{Bool}, alg::Type{HMC};
 
   accepted = 0.0
 
-  m = div(n, 10)
-
+  m = div(n, 100)
   @showprogress 1 "Running HMC Chain" for i = 1:n
     ωvec, wasaccepted = hmc(U, ∇U, nsteps, stepsize, ωvec)
     # push!(xsamples, x(unlinearize(ωvec, ω)))
+    ω_ = unlinearize(ωvec, ω)
     push!(ωsamples, unlinearize(ωvec, ω))
     if wasaccepted
       accepted += 1.0
     end
-    i % m == 0 && print_with_color(:light_blue,
-                                   "acceptance ratio: $(accepted/float(i)) ",
-                                   "Last log likelihood $(U(unlinearize(ωvec, ω)))\n")
+    i % m == 0 && showstats(accepted, i, y, ω_)
   end
   print_with_color(:light_blue, "acceptance ratio: $(accepted/float(n))",
                                 "Last log likelihood $(U(ω))\n")

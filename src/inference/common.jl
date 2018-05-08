@@ -28,3 +28,8 @@ bound(y) = 1 -1 /(1 + exp(y))
 
 "Jacobian of the transformation above, J(x) = 1/x(1-x)"
 jac(x) = 1 / (x * (1 -x))
+
+function showstats(accepted, i, y, ω)
+  print_with_color(:light_blue, "acceptance ratio: $(accepted/float(i)) ",
+                                "Last log likelihood $(epsilon(y(ω)))\n")
+end

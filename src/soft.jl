@@ -5,7 +5,7 @@
 f1(x; a=0.00001) = x / (x + a)
 
 "Squared exponential kernel α = 1/2l^2"
-kse(d, α=1.0) = 1 - exp(-α * d)
+kse(d, α=3.1) = 1 - exp(-α * d)
 
 function bound_loss(x, a, b)
   # @pre b >= a
@@ -52,9 +52,18 @@ softeq(x, y, k=kse) = SoftBool(1 - k(d(x, y)))
 softgt(x::Real, y::Real) = SoftBool(1 - kse(bound_loss(x, y, Inf)))
 softlt(x::Real, y::Real) = SoftBool(1, kse(bound_loss(x, -Inf, y)))
 
+
 ## Boolean Operators
 ## =================
 Base.:&(x::SoftBool, y::SoftBool) = SoftBool(min(x.epsilon, y.epsilon))
 Base.:|(x::SoftBool, y::SoftBool) = SoftBool(max(x.epsilon, y.epsilon))
 const ⪆ = softgt
 const ≊ = softeq
+
+
+## Lifts
+## =====
+
+Mu.lift(:softeq, 2)
+Mu.lift(:softgt, 2)
+Mu.lift(:softlt, 2)
