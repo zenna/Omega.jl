@@ -31,6 +31,13 @@ function simple2(ndim = ALG)
   samples = rand(x, sum(x) = 1.0, ALG)
 end
 
+"Test equality of random variables"
+function simpleeq(ALG)
+  x = normal(0.0, 1.0)
+  y = normal(0.0, 1.0)
+  samples = rand((x, y), x == y, ALG)
+end
+
 for ALG in Mu.Algorithm
   println("Testing $ALG")
   simple1(ALG)

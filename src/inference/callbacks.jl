@@ -103,3 +103,9 @@ function throttle(f, timeout; leading=true, trailing=false) # From Flux (thanks!
     return result
   end
 end
+
+"Defautlt callbacks"
+default_cbs(n) = [throttle(plotp(), 1.0),
+                  showprogress(n),
+                  throttle(printstats, 1.0),
+                  stopnan]

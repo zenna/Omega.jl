@@ -3,7 +3,7 @@ using Flux
 using ZenUtils
 
 "Gradient ∇Y()"
-function gradient(Y::RandVar{Bool}, ω::Omega, vals = linearize(ω))
+function gradient(Y::RandVar, ω::Omega, vals = linearize(ω))
   Y(ω)
   #@show Y(ω), ω, vals
   unpackcall(xs) = Y(unlinearize(xs, ω)).epsilon
@@ -11,7 +11,7 @@ function gradient(Y::RandVar{Bool}, ω::Omega, vals = linearize(ω))
   #@show ReverseDiff.gradient(unpackcall, vals)
 end
 
-function gradient(Y::RandVar{Bool}, sω::SimpleOmega{I, V}, vals) where {I, V <: AbstractArray}
+function gradient(Y::RandVar, sω::SimpleOmega{I, V}, vals) where {I, V <: AbstractArray}
   sω = unlinearize(vals, sω)
   sωtracked = SimpleOmega(Dict(i => param(v) for (i, v) in sω.vals))
   # @grab vals
