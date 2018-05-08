@@ -36,7 +36,7 @@ function simpleeq(ALG)
   x = normal(0.0, 1.0)
   y = normal(0.0, 1.0)
   diff = abs(x - y)
-  β = kumaraswamy(1.0, 3.0)
+  β = kumaraswamy(0.1, 5.0)
   k = Mu.kf1β(β)
   # α = uniform(0.0, 5.0)
   # α = 3.0
