@@ -109,8 +109,9 @@ video_(ω, data::Vector, nsteps = 1000) = video_(ω, initscene(ω, data), nsteps
 
 d(x1, x2) = x1 - x2
 K(x1, x2; l=0.1) = exp(-(d(x1, x2)^2)/(2l^2))
-t = 1:100
-Σ = [K(x, y) for x in t, y in t]
+t = 1:0.1:10
+using PDMats
+Σ = PDMat([K(x, y) for x in t, y in t] * 300)
 
 "Gaussian Process Random Variable"
 function gp_(ω)
@@ -118,8 +119,10 @@ function gp_(ω)
   objects = map(1:nboxes(ω)) do i
     x = mvnormal(ω[@id][i][1], zeros(t), Σ)
     y = mvnormal(ω[@id][i][2], zeros(t), Σ)
-    Δx = mvnormal(ω[@id][i][3], zeros(t), Σ)
-    Δy = mvnormal(ω[@id][i][4], zeros(t), Σ)
+    # Δx = mvnormal(ω[@id][i][3], zeros(t), Σ)
+    # Δy = mvnormal(ω[@id][i][4], zeros(t), Σ)
+    Δx = 30.0
+    Δy = 30.0
     Object.(x, y, Δx, Δy)
     # @grab x
   end
@@ -129,8 +132,13 @@ function gp_(ω)
   [Scene(obj_(i), camera) for i = 1:length(t)] 
 end
 
-gpvideo = iid(gp_)
-# sample = rand(gpvideo)
+"Gaussian Process Prior"
+function testgpprior()
+  w = SimpleOmega{Int, Array}()
+  gpvideo = iid(gp_)
+  samples = gpvideo(w)
+  viz(samples)
+end
 
 ## Inference
 ## =========
@@ -194,7 +202,7 @@ fixao(x, y; aspectratio = 0.5) = (x, Int(y * aspectratio))
 
 "Draw Scene"
 function draw(scene::Scene,
-              canvas = BrailleCanvas(fixao(64, 32)..., origin_x = -5.0, origin_y = -5.0,
+              canvas = BrailleCanvas(fixao(64, 32)..., origin_x = -50.0, origin_y = -50.0,
                                      width = scene.camera.Δx + 10, height = scene.camera.Δy + 10))
   draw(scene.camera, canvas, :red)
   foreach(obj -> draw(obj, canvas, :blue), scene.objects)
@@ -213,8 +221,6 @@ end
 ## ===
 datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.csv")
 datapath = joinpath(datadir(), "spelke", "data", "Balls_2_ContactA", "Balls_2_ContactA_DetectedObjects.csv")
-
-
 datapath = joinpath(datadir(), "spelke", "data", "Balls_4_Clowncar", "Balls_4_Clowncar_DetectedObjects.csv")
 
 function train()

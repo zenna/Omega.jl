@@ -75,6 +75,11 @@ function Base.rand(ωπ::OmegaProj{O}, ::Type{T},  dims::Dims) where {T, I, A<:A
   get!(()->rand(Base.GLOBAL_RNG, T, dims), ωπ.ω.vals, ωπ.id)
 end
 
+function Base.rand(ωπ::OmegaProj{O}, ::Type{T}) where {T, I, A<:AbstractArray, O <: SimpleOmega{I, A}}
+  val = get!(()->Float64[rand(Base.GLOBAL_RNG, T)], ωπ.ω.vals, ωπ.id)
+  first(val)
+end
+
 function Base.rand(ωπ::OmegaProj{O}, ::Type{T},  dims::Dims) where {T, I, A<:Flux.TrackedArray, O <: SimpleOmega{I, A}}
   get!(()->param(rand(Base.GLOBAL_RNG, T, dims)), ωπ.ω.vals, ωπ.id)
 end
