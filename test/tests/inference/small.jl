@@ -41,12 +41,13 @@ function simpleeq(ALG)
   # α = uniform(0.0, 5.0)
   # α = 3.0
   # k = Mu.kseα(α)
-  n = 500000
-  samples = rand((x, y), ≊(x, y, k), ALG;
+  n = 5000000
+  OmegaT = SimpleOmega{Int, Float64}
+  samples = rand(OmegaT, ≊(x, y, k), ALG;
                  n = n,
                  cb = [Mu.default_cbs(n);
                        throttle(Mu.plotrv(β, "Temperature: β"), 1);
-                      #  throttle(Mu.plotrv(α, "Temperature: α"), 1);
+                       throttle(Mu.plotω(x, y), 1);
                        throttle(Mu.plotrv(diff, "||x - y||"), 1)])
 end
 
