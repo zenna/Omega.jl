@@ -99,7 +99,7 @@ end
 function Base.rand(x::Union{RandVar, UTuple{<:RandVar}}, ygen, state, alg::Type{SGHMC};
                    n::Integer = 1000,
                    nsteps = 100,
-                   stepsize = 0.00001,
+                   stepsize = 0.001,
                    OmegaT::OT = Mu.SimpleOmega{Int, Float64}) where {OT}
   map(x, rand(OmegaT, ygen, state, alg; n=n, nsteps=nsteps, stepsize=stepsize))
 end

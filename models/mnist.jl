@@ -20,6 +20,7 @@ end
 "Infinite iterator over MNIST"
 function mnistcycle(batch_size)
   train_x, train_y = MNIST.traindata()
+  train_x = train_x ./ 256
   traindata = (train_x, train_y)
   batchgen_x = infinite_batches(train_x, 2, batch_size)
   batchgen_y = infinite_batches(train_y, 1, batch_size)
@@ -72,7 +73,7 @@ function train(; trainkwargs...)
     batch_x = item[1]
     batch_y = float(Flux.onehotbatch(item[2], 0:9))
     predicate = f(batch_x) == batch_y
-    predicate = Mu.randbool((-) ∘ Flux.crossentropy, f(batch_x), batch_y)
+    predicate = Mu.randbool((-) ∘ log ∘ Flux.crossentropy, f(batch_x), batch_y)
     # predicate = Mu.randbool(Flux.binarycrossentropy, f(batch_x), batch_y)
     return predicate, state
   end
@@ -84,13 +85,13 @@ end
 "Test Bayesian network for MNIST using SGHMC"
 function test(; trainkwargs...)
   f, _ = mlp()
-  weights = train(; trainkwargs...)[end]
+  weights = mean(train(; trainkwargs...))
   test_x, test_y = MNIST.testdata()
   correct = 0
   for i = 1:size(test_y)[1]
     x = test_x[:, i]
     onehot_y = f(x, weight3=weights)
-    y = Flux.argmax(onehot_y)
+    y = Flux.argmax(onehot_y) - 1
     testy = convert(Int64, test_y[i])
     if y == testy
       correct += 1
