@@ -6,8 +6,6 @@ using ScikitLearn
 include("./read_data.jl")
 σ(x) = one(x) / (one(x) + exp(-x))
 
-f(x) = 2x + 10
-
 Mu.lift(:σ, 1)
 
 male_idx = 62
@@ -103,5 +101,6 @@ train_data_Y_bin = [train_data_Y[2,i] > train_data_Y[1,i] for i = 1 : size(train
 
 datacond = randarray([1-(1-(isrich2(train_data_X[:,i]) == train_data_Y_bin[i])) * (1 - bernoulli(0.1)) for i = size(train_data_X)[2]])
 
+faircond = (prob(f_isrich ∥ (W,b)) / prob(m_isrich ∥ (W,b)) > 0.85)
 
-faircond =
+W_samples = rand(W, (faircond > 0) & (datacond == fill(true, length(train_data_Y_bin)))
