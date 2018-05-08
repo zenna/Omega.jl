@@ -6,7 +6,7 @@ using Flux
 σ3(x) =  1.0 ./ (1.0 .+ exp.(-x))
 σ3(x) =  1.0 ./ (1.0 .+ exp.(-x))
 
-const batch_size = 128
+const batch_size = 1280
 Mu.lift(:(Flux.σ), 1)
 Mu.lift(:(Flux.softmax), 1)
 Mu.lift(:σ3, 1)
@@ -20,7 +20,11 @@ end
 "Infinite iterator over MNIST"
 function mnistcycle(batch_size)
   train_x, train_y = MNIST.traindata()
+<<<<<<< HEAD
   train_x = train_x ./ 256
+=======
+  train_x / 256.0
+>>>>>>> ae587828bc10e1b31d4b874f9a16d1f9a58871f6
   traindata = (train_x, train_y)
   batchgen_x = infinite_batches(train_x, 2, batch_size)
   batchgen_y = infinite_batches(train_y, 1, batch_size)
@@ -32,35 +36,13 @@ function mlp()
   nin = MNIST.NROWS * MNIST.NCOLS
   nout = 10
   w3 = logistic(0.0, 0.01, (nout, nin))
-  # w3 = uniform(0.001, 0.01, (nout, nin))
+  # w3 = uniform(-0.5, 0.5, (nout, nin))
   function f(x; weight3=w3)
     eps = 1e-6
-    c = (weight3 * x)
+    c = σ3(weight3 * x)
     Flux.softmax(c) + eps
   end
   f, w3
-end
-
-"Test mlp on fake image"
-function testmlp()
-  img = rand(MNIST.NROWS * MNIST.NCOLS)
-  f, weight3_ = mlp()
-  w = Mu.SimpleOmega{Vector{Int}, Array}()
-  weight3 = weight3_(w)
-  weight3 = param(weight3)
-  x = batch_x
-  eps = 1e-6
-  c = (weight3 * x)
-  pred = Flux.softmax(c) + eps
-  l = Flux.crossentropy(pred, batch_y)
-  Flux.back!(l)
-  weight3.grad
-
-  gen = mnistcycle(batch_size)
-  item = first(gen)
-  batch_x = item[1]
-  batch_y = float(Flux.onehotbatch(item[2], 0:9))
-  p, s = ygen(state)
 end
 
 "Train MNIST using Stochastic Gradient HMC"
@@ -73,19 +55,30 @@ function train(; trainkwargs...)
     batch_x = item[1]
     batch_y = float(Flux.onehotbatch(item[2], 0:9))
     predicate = f(batch_x) == batch_y
+<<<<<<< HEAD
     predicate = Mu.randbool((-) ∘ log ∘ Flux.crossentropy, f(batch_x), batch_y)
+=======
+
+    predicate = Mu.randbool(Flux.crossentropy, f(batch_x), batch_y)
+>>>>>>> ae587828bc10e1b31d4b874f9a16d1f9a58871f6
     # predicate = Mu.randbool(Flux.binarycrossentropy, f(batch_x), batch_y)
     return predicate, state
   end
   OmegaT = Mu.SimpleOmega{Int, Array}
   # OmegaT = Mu.SimpleOmega{Int, Flux.TrackedArray}
   samples = rand(w3, ygen, state, SGHMC; OmegaT=OmegaT, trainkwargs...)
+  # samples = w3(OmegaT())
+  # @grab samples
+  weights = samples
+  # @grab weights
+  samples
 end
 
 "Test Bayesian network for MNIST using SGHMC"
 function test(; trainkwargs...)
+  weights = train(; trainkwargs...)[end]
+  # weights = weights_grab
   f, _ = mlp()
-  weights = mean(train(; trainkwargs...))
   test_x, test_y = MNIST.testdata()
   correct = 0
   for i = 1:size(test_y)[1]
@@ -93,11 +86,12 @@ function test(; trainkwargs...)
     onehot_y = f(x, weight3=weights)
     y = Flux.argmax(onehot_y) - 1
     testy = convert(Int64, test_y[i])
+    # testy
     if y == testy
       correct += 1
     end
   end
-  accepted = correct / size(test_y)[1]
+  @show accepted = correct / size(test_y)[1]
 end
 
-# train(; n=1000, nsteps=10)
+test(; n=1000, nsteps=10, stepsize=0.0001)

@@ -46,7 +46,7 @@ function unlinearize(ωvec, sω::SimpleOmega{I, V}, f=identity) where {I, V <: A
     push!(pairs, Pair(k, v))
     # d[k] = v
   end
-  SimpleOmega(Dict(pairs...))
+  SimpleOmega{I, V}(Dict(pairs...))
 end
 
 function unlinearize(ωvec, sω::SimpleOmega{I, V}) where {I, V <: Real}

@@ -15,4 +15,6 @@ function Base.var(x::AbstractRandVar{T}, n=10000) where {T <: RandVar{<:Real}}
   RandVar{Float64, false}(var, (x, n))
 end
 
+Base.mean(xs::AbstractRandVar{<:Array}) = RandVar{Float64, false}(mean, (xs,))
+
 const prob = mean
