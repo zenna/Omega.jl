@@ -35,6 +35,23 @@ function plotp()
   end
 end
 
+"Scatter plot ω values with UnicodePlots"
+function plotω(x::RandVar{T}, y::RandVar{T}) where T
+  xωs = Float64[]
+  yωs = Float64[]
+  function innerplotω(data)
+    color = :blue
+    if isempty(xωs)
+      color = :red
+    end
+    xω = data.ω.vals[x.id]
+    yω = data.ω.vals[y.id]
+    push!(xωs, xω)
+    push!(yωs, yω)
+    println(scatterplot(xωs, yωs, title="ω movement", color=color, xlim=[0, 1], ylim=[0, 1]))
+  end
+end
+
 "Plot histogram of loss with UnicodePlots"
 function plotrv(x::RandVar{T}, name = string(x), display_ = display) where T
   xs = T[]
