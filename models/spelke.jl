@@ -104,6 +104,34 @@ end
 
 video_(ω, data::Vector, nsteps = 1000) = video_(ω, initscene(ω, data), nsteps)
 
+## GP model
+## ========
+
+d(x1, x2) = x1 - x2
+K(x1, x2; l=0.1) = exp(-(d(x1, x2)^2)/(2l^2))
+t = 1:100
+Σ = [K(x, y) for x in t, y in t]
+
+"Gaussian Process Random Variable"
+function gp_(ω)
+  trajectories = Scene[]
+  objects = map(1:nboxes(ω)) do i
+    x = mvnormal(ω[@id][i][1], zeros(t), Σ)
+    y = mvnormal(ω[@id][i][2], zeros(t), Σ)
+    Δx = mvnormal(ω[@id][i][3], zeros(t), Σ)
+    Δy = mvnormal(ω[@id][i][4], zeros(t), Σ)
+    Object.(x, y, Δx, Δy)
+    # @grab x
+  end
+  @grab objects
+  camera = Camera(0.0, 0.0, 640.0, 480.0)
+  obj_(t) = map(obj -> obj[t], objects)
+  [Scene(obj_(i), camera) for i = 1:length(t)] 
+end
+
+gpvideo = iid(gp_)
+# sample = rand(gpvideo)
+
 ## Inference
 ## =========
 
