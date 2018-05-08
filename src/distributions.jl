@@ -96,3 +96,12 @@ exponential(ω::Omega, λ) = -log(1 - rand(ω)) / λ
 exponential(ω::Omega, λ, sz::Dims) = log.(1 - rand(ω, sz)) ./ λ
 exponential(λ::MaybeRV{T}, ωid::Id = ωnew()) where T = RandVar{T, true}(exponential, (λ,), ωid)
 exponential(λ::MaybeRV{T}, dims::MaybeRV{Dims{N}}, ωid::Id = ωnew()) where {N, T} = RandVar{T, true}(exponential, (λ, dims), ωid)
+
+"Kumaraswamy distribution, similar to beta but easier"
+kumaraswamyinvcdf(p, a, b) = (1 - (1 - p)^(1/b))^(1/a)
+kumaraswamy(ω::Omega, a, b) = kumaraswamyinvcdf(rand(ω), a, b)
+kumaraswamy(ω::Omega, a, b, dims::Dims) = kumaraswamyinvcdf.(rand(ω, dims), a, b)
+kumaraswamy(a::MaybeRV{T}, b::MaybeRV{T}, ωid::Id = ωnew()) where T =
+  RandVar{T, true}(kumaraswamy, (a, b), ωid)
+kumaraswamy(a::MaybeRV{T}, b::MaybeRV{T}, dims::MaybeRV{Dims{N}}, ωid::Id = ωnew()) where {N, T} =
+  RandVar{T, true}(kumaraswamy, (a, b, dims), ωid)

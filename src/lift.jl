@@ -56,7 +56,9 @@ fnms = [:(Base.:-),
         :(Base.:tan),
         :(Base.sum),
         :(Base.:&),
-        :(Base.:|)]
+        :(Base.:|),
+        :(Base.:sqrt),
+        :(Base.:abs)]
 
 Base.:^(x1::Mu.AbstractRandVar{T}, x2::Integer) where T = RandVar{T, false}(^, (x1, x2))
 macro lift(fnm::Union{Symbol, Expr}, n::Integer)

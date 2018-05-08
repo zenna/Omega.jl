@@ -30,7 +30,23 @@ function plotp()
     push!(alldata, data.p)
     push!(ys, data.i)
     if !isempty(alldata)
-      println(lineplot(ys, alldata, title="time vs p"))
+      println(lineplot(ys, alldata, title="Time vs p"))
+    end
+  end
+end
+
+"Plot histogram of loss with UnicodePlots"
+function plotrv(x::RandVar{T}, name = string(x), display_ = display) where T
+  xs = T[]
+  ys = Int[]
+  function innerplotrv(data)
+    x_ = x(data.ω)
+    println("$name is:")
+    display_(x_)
+    push!(xs, x_)
+    push!(ys, data.i)
+    if !isempty(xs)
+      println(lineplot(ys, xs, title="Time vs $name"))
     end
   end
 end
@@ -51,11 +67,11 @@ function printstats(data)
                                 "Last p: $(data.p)\n")
 end
 
-"Stop if nans are present"
-function stopnan(data)
-  if isnan(data.p)
-    println("p is nan")
-    Mu.Stop
+"Stop if nans or Inf are present"
+function stopnanorinf(data)
+  if isnan(data.p) || isinf(data.p)
+    println("p is $(data.p)")
+    return Mu.Stop
   end
 end
 
@@ -108,4 +124,4 @@ end
 default_cbs(n) = [throttle(plotp(), 1.0),
                   showprogress(n),
                   throttle(printstats, 1.0),
-                  stopnan]
+                  stopnanorinf]

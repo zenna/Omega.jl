@@ -69,7 +69,7 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{HMC};
     if wasaccepted
       accepted += 1
     end
-    cb(RunData(ω, accepted, p_, i))
+    cb(RunData(ω_, accepted, p_, i))
   end
   ωsamples
 end

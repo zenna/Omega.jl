@@ -1,11 +1,15 @@
-## Distance Functions
-## =================
+## Kernels 
+## =======
 
 "Real+ -> [0, 1]"
-f1(x; a=0.00001) = x / (x + a)
+kf1(x, β=0.0001) = x / (x + β)
+kf1β(β) = d -> kf1(d, β)
+lift(:kf1β, 1)
 
-"Squared exponential kernel α = 1/2l^2"
-kse(d, α=3.1) = 1 - exp(-α * d)
+"Squared exponential kernel `α = 1/2l^2`, higher α is lower temperature  "
+kse(d, α=1.0) = 1 - exp(-α * d)
+kseα(α) = d -> kse(d, α) 
+lift(:kseα, 1)
 
 function bound_loss(x, a, b)
   # @pre b >= a
@@ -16,7 +20,7 @@ function bound_loss(x, a, b)
   else
     zero(x)
   end
-end
+end 
 
 randbool(f, x, y) = RandVar{Bool, false}(SoftBool ∘ f, (x, y))
 lograndbool(f, x, y) = RandVar{Bool, false}(LogSoftBool ∘ f, (x, y))
@@ -65,5 +69,6 @@ const ≊ = softeq
 ## =====
 
 Mu.lift(:softeq, 2)
+Mu.lift(:softeq, 3)
 Mu.lift(:softgt, 2)
 Mu.lift(:softlt, 2)

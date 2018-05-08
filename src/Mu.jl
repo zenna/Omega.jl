@@ -77,6 +77,7 @@ export mean,
        lift,
        @id,
        iid,
+       kse,
 
        # Distributions
        gammarv,
@@ -92,6 +93,7 @@ export mean,
        poisson,
        logistic,
        exponential,
+       kumaraswamy,
 
        # Do
        intervene,
@@ -107,6 +109,10 @@ export mean,
        # Omegas
        Omega,
        SimpleOmega,
+
+       throttle,
+       plotrv,
+       default_cbs,
 
        # Gradient
        gradient

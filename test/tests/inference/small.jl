@@ -35,10 +35,30 @@ end
 function simpleeq(ALG)
   x = normal(0.0, 1.0)
   y = normal(0.0, 1.0)
-  samples = rand((x, y), x == y, ALG)
+  diff = abs(x - y)
+  β = kumaraswamy(1.0, 3.0)
+  k = Mu.kf1β(β)
+  # α = uniform(0.0, 5.0)
+  # α = 3.0
+  # k = Mu.kseα(α)
+  n = 500000
+  samples = rand((x, y), ≊(x, y, k), ALG;
+                 n = n,
+                 cb = [Mu.default_cbs(n);
+                       throttle(Mu.plotrv(β, "Temperature: β"), 1);
+                      #  throttle(Mu.plotrv(α, "Temperature: α"), 1);
+                       throttle(Mu.plotrv(diff, "||x - y||"), 1)])
 end
 
 for ALG in Mu.Algorithm
   println("Testing $ALG")
   simple1(ALG)
+end
+
+function showkernel()
+  x = y = linspace(-5, 5, 40)
+  zs = zeros(0,40)
+  n = 100
+  f(x,y) = Mu.f1(Mu.d(x, y), 0.0001)
+  p = plot(x, y, f, st = [:surface, :contourf])
 end
