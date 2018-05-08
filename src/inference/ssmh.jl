@@ -10,13 +10,15 @@ end
 
 "Sample from `x | y == true` with Single Site Metropolis Hasting"
 function Base.rand(OmegaT::Type{OT}, y::RandVar{<:MaybeSoftBool}, alg::Type{SSMH};
-                   n::Integer = 1000) where {OT <: Omega}
+                   n::Integer = 1000,
+                   cb = default_cbs(n)) where {OT <: Omega}
+  cb = runall(cb)
   ω = OmegaT()
   plast = y(ω) |> logepsilon
   qlast = 1.0
   samples = []
-  accepted = 0.0
-  @showprogress 1 "Running Chain" for i = 1:n
+  accepted = 1
+  for i = 1:n
     ω_ = if isempty(ω)
       ω
     else
@@ -27,17 +29,10 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar{<:MaybeSoftBool}, alg::Type{SSMH
     if log(rand()) < ratio
       ω = ω_
       plast = p_
-      accepted += 1.0
+      accepted += 1
     end
     push!(samples, ω)
+    cb(RunData(ω, accepted, p_, i))
   end
-  print_with_color(:light_blue, "acceptance ratio: $(accepted/float(n))\n")
   samples
 end
-
-# "Sample from `x | y == true` with Metropolis Hasting"
-# function Base.rand(x::Union{RandVar, UTuple{RandVar}}, y::RandVar{Bool}, alg::Type{SSMH};
-#                    n::Integer = 1000, OmegaT::OT = DefaultOmega) where {OT}
-#   map(x, rand(OmegaT, y, alg, n=n))
-# end
-

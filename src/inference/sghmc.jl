@@ -50,7 +50,8 @@ end
 function Base.rand(OmegaT::Type{OT}, ygen, state, alg::Type{SGHMC};
                    n=1000,
                    nsteps = 100,
-                   stepsize = 0.001) where {OT <: Omega}
+                   stepsize = 0.001,
+                   cb = default_cbs(n)) where {OT <: Omega}
   ω = OmegaT()
   predicate, state = ygen(state)
   predicate(ω) # Initialize omega
@@ -79,6 +80,8 @@ function Base.rand(x::Union{RandVar, UTuple{<:RandVar}}, ygen, state, alg::Type{
                    n::Integer = 1000,
                    nsteps = 100,
                    stepsize = 0.001,
-                   OmegaT::OT = Mu.SimpleOmega{Int, Float64}) where {OT}
-  map(x, rand(OmegaT, ygen, state, alg; n=n, nsteps=nsteps, stepsize=stepsize))
+                   OmegaT::OT = Mu.SimpleOmega{Int, Float64},
+                   cb = default_cbs(n)) where {OT}
+  map(x, rand(OmegaT, ygen, state, alg;
+              n = n, nsteps = nsteps, stepsize = stepsize, cb = cb))
 end
