@@ -1,5 +1,5 @@
 "Unconditional Sample from `x`"
-Base.rand(x::UTuple{RandVar}, OmegaT::T = DefaultOmega) where T <: Omega = x(OmegaT())
+Base.rand(x::Union{RandVar, UTuple{RandVar}}; OmegaT::Type{T} = DefaultOmega) where T <: Omega = x(OmegaT())
 
 # const DefaultOmega = Mu.SimpleOmega{Mu.Paired, Mu.Float64}
 const DefaultOmega = Mu.SimpleOmega{Mu.Paired, Mu.ValueTuple}

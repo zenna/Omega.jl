@@ -4,6 +4,7 @@ module Mu
 
 using Flux
 using Distributions
+using PDMats
 using ProgressMeter
 using Spec
 # using Lens

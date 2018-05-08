@@ -67,6 +67,10 @@ function Base.rand(ωπ::OmegaProj{O}, ::Type{T}) where {T, I, O <: SimpleOmega{
   get!(()->rand(Base.GLOBAL_RNG, T), ωπ.ω.vals, ωπ.id)
 end
 
+function Base.rand(ωπ::OmegaProj{O}, ::Type{T},  dims::Dims) where {T, I, V, O <: SimpleOmega{I, V}}
+  @assert false "Not implemented (blocking to prevent silent errors)"
+end
+
 function Base.rand(ωπ::OmegaProj{O}, ::Type{T},  dims::Dims) where {T, I, A<:AbstractArray, O <: SimpleOmega{I, A}}
   get!(()->rand(Base.GLOBAL_RNG, T, dims), ωπ.ω.vals, ωπ.id)
 end
