@@ -18,7 +18,7 @@ function dirichlet(ω::Omega, α)
   Σ = sum(gammas)
   [gamma/Σ for gamma in gammas]
 end
-# FIXME: Type 
+# FIXME: Type
 dirichlet(α::MaybeRV{T}, ωid::Id = ωid::Id=ωnew()) where T = RandVar{T, true}(dirichlet, (α,), ωid)
 
 "Beta distribution"
@@ -28,6 +28,8 @@ betarv(α::MaybeRV{T}, β::MaybeRV{T}, ωid::Id=ωnew()) where T <: AbstractFloa
 "Bernoulli with weight `p`"
 bernoulli(ω::Omega, p::AbstractFloat) = quantile(Bernoulli(p), rand(ω))
 bernoulli(p::MaybeRV{T}, ωid::Id = ωnew()) where T <: AbstractFloat = RandVar{Float64, true}(bernoulli, (p,), ωid)
+
+boolbernoulli(args...) = RandVar{SoftBool, false}(SoftBool, (bernoulli(args...),))
 
 "Rademacher distribution"
 rademacher(p::MaybeRV{T}, ωid::Id = ωnew()) where T = bernoulli(p, ωid::Id) * 2.0 - 1.0
@@ -65,9 +67,9 @@ uniform(range::UnitRange{T}, ωid=ωnew()) where T =
 normalinvt(p, μ, σ) = quantile(Normal(μ, σ), p)
 normal(ω::Omega, μ, σ) = normalinvt(rand(ω), μ, σ)
 normal(ω::Omega, μ, σ, sz::Dims) = normalinvt.(rand(ω, sz), μ, σ)
-normal(μ::MaybeRV{T}, σ::MaybeRV{T}, ωid::Id = ωnew()) where T <: AbstractFloat = 
+normal(μ::MaybeRV{T}, σ::MaybeRV{T}, ωid::Id = ωnew()) where T <: AbstractFloat =
   RandVar{T, true}(normal, (μ, σ), ωid)
-normal(μ::MaybeRV{T}, σ::MaybeRV{T}, dims::MaybeRV{Dims{N}}, ωid::Id = ωnew()) where {N, T <: AbstractFloat} = 
+normal(μ::MaybeRV{T}, σ::MaybeRV{T}, dims::MaybeRV{Dims{N}}, ωid::Id = ωnew()) where {N, T <: AbstractFloat} =
   RandVar{Array{T, N}, true}(normal, (μ, σ, dims), ωid)
 # normal(ω::Omega, μ, σ) = rand(ω, Normal(μ, σ))
 # normal(ω::Omega, μ, σ, ωid::Id = ωnew()) = normal(parent(ω)[ωid], μ, σ)
@@ -78,7 +80,7 @@ mvchol(x, μ, Σ::PDMat) = Distributions.unwhiten(Σ, x) .+ μ
 "Multivariate Normal Distribution with mean vector `μ` and covariance `Σ`"
 mvnormal(ω::Omega, μ::Vector, Σ::PDMat) = mvchol(normal(ω, 0.0, 1.0, size(μ)), μ, Σ)
 # mvnormal(ω::Omega, μ, Σ) = rand(ω, MvNormal(μ, Σ))
-mvnormal(μ::MaybeRV{T1}, Σ::MaybeRV{T2}, ωid::Id = ωnew()) where {T1, T2} = 
+mvnormal(μ::MaybeRV{T1}, Σ::MaybeRV{T2}, ωid::Id = ωnew()) where {T1, T2} =
   RandVar{T1, true}(mvnormal, (μ, PDMat(Σ)), ωid)
 
 lift(:PDMat, 1)

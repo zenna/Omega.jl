@@ -20,12 +20,12 @@ end
 
 randbool(f, x, y) = RandVar{Bool, false}(SoftBool ∘ f, (x, y))
 lograndbool(f, x, y) = RandVar{Bool, false}(LogSoftBool ∘ f, (x, y))
-randbool(ϵ::RandVar) = RandVar{Bool, false}(SoftBool, (ϵ,)) 
+randbool(ϵ::RandVar) = RandVar{Bool, false}(SoftBool, (ϵ,))
 
 ## Soft Logic
 ## ==========
 "Soft Boolean"
-struct SoftBool{ET <: Real} 
+struct SoftBool{ET <: Real}
   epsilon::ET
 end
 @invariant 0 <= epsilon(b::SoftBool) <= 1
@@ -57,6 +57,8 @@ softlt(x::Real, y::Real) = SoftBool(1, kse(bound_loss(x, -Inf, y)))
 ## =================
 Base.:&(x::SoftBool, y::SoftBool) = SoftBool(min(x.epsilon, y.epsilon))
 Base.:|(x::SoftBool, y::SoftBool) = SoftBool(max(x.epsilon, y.epsilon))
+Base.:|(x::RandVar, y::RandVar) = RandVar{SoftBool, false}(|, (x, y))
+
 const ⪆ = softgt
 const ≊ = softeq
 

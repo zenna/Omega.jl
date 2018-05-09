@@ -2,6 +2,7 @@ using Mu
 using ScikitLearn
 
 @sk_import mixture: GaussianMixture
+Mu.defaultomega() = Mu.SimpleOmega{Int, Array}
 
 include("./read_data.jl")
 σ(x) = one(x) / (one(x) + exp(-x))
@@ -70,7 +71,7 @@ f_pop_ = rand_gaussian_mixture(f_weights, f_means, f_covars)
 f_pop = iid(f_pop_)
 
 # define the classifier
-W = [normal(0.0, 1.0) for i = 1:num_features]
+W = randarray([normal(0.0, 1.0) for i = 1:num_features])
 b = normal(0.0, 1.0)
 
 function linear_model(ω, pop_model, W, b)
@@ -84,7 +85,7 @@ end
 function linear_model2(ω, data, W, b)
     ret = b
     for i = 1:num_features
-        ret += data[i] * W[i](ω)
+        ret += data[i] * W[i]
     end
     return σ(ret) > 0.5
 end
@@ -92,15 +93,16 @@ end
 m_isrich_(ω) = linear_model(ω, m_pop_, W, b)
 f_isrich_(ω) = linear_model(ω, f_pop_, W, b)
 
-m_isrich = iid(m_isrich_)
-f_isrich = iid(f_isrich_)
+m_isrich = iid(m_isrich_; T = Bool)
+f_isrich = iid(f_isrich_; T = Bool)
 
 isrich2(data) = iid(linear_model2, data, W, b)
 
 train_data_Y_bin = [train_data_Y[2,i] > train_data_Y[1,i] for i = 1 : size(train_data_Y)[2]]
 
-datacond = randarray([1-(1-(isrich2(train_data_X[:,i]) == train_data_Y_bin[i])) * (1 - bernoulli(0.1)) for i = size(train_data_X)[2]])
-
-faircond = (prob(f_isrich ∥ (W,b)) / prob(m_isrich ∥ (W,b)) > 0.85)
-
-W_samples = rand(W, (faircond > 0) & (datacond == fill(true, length(train_data_Y_bin)))
+# datacond = randarray([1-(1-(isrich2(train_data_X[:,i]) == train_data_Y_bin[i])) * (1 - bernoulli(0.1)) for i = size(train_data_X)[2]])
+# datacond = [(isrich2(train_data_X[:,i]) == train_data_Y_bin[i]) | boolbernoulli(0.1) for i = 1:size(train_data_X)[2]]
+datacond = [(isrich2(train_data_X[:,i]) == train_data_Y_bin[i]) | boolbernoulli(0.1) for i = 1:10]
+# datacond = randarray(datacond)
+faircond = (prob(f_isrich ∥ (W,b), 10) / prob(m_isrich ∥ (W,b), 10) > 0.85)#
+W_samples = rand(W, &(faircond, datacond...))
