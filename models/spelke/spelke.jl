@@ -5,6 +5,8 @@ using DataFrames
 using RunTools
 using ArgParse
 
+include("distances.jl")
+
 lift(:(Base.getindex), 2)
 const Δxk = :x2
 const Δyk = :y2
@@ -162,12 +164,6 @@ end
 Δ(a::Object, b::Object) =
   mean([Δ(a.x, b.x), Δ(a.y, b.y), Δ(a.Δx, b.Δx), Δ(a.Δy, b.Δy)])
 Δ(a::Scene, b::Scene) = hausdorff(a.objects, b.objects)
-
-"Distance betwee two scenes"
-function hausdorff(s1, s2, Δ = Δ)
-  Δm(x, S) = minimum([Δ(x, y) for y in S])
-  max(maximum([Δm(e, s2) for e in s1]), maximum([Δm(e, s1) for e in s2]))
-end
 
 function Mu.softeq(a::Array{<:Scene,1}, b::Array{<:Scene})
   dists = Δ.(a, b)
