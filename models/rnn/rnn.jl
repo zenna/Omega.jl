@@ -5,7 +5,7 @@ using UnicodePlots
 using DataFrames
 using CSV
 
-data = CSV.read("glucosedata.csv")
+data = CSV.read(joinpath(ENV["DATADIR"], "mu", "glucosedata.csv"))
 ## Model
 ## =====
 Mu.defaultomega() = SimpleOmega{Int, Array}
