@@ -17,6 +17,7 @@ function speedysurjection(s1, s2, Δ = Δ)
   end
   # Compute all pairwise so its more efficient.
   dm = [Δ(i,j) for i in dom, j in rng]
+  #println(dm)
   # Build function that minimizes everything.
   myfunction = [findmin(dm[t,:]) for t = 1:size(dm,1)]
   effectiverange = unique(map(tpl -> tpl[2], myfunction))
