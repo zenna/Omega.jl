@@ -6,6 +6,37 @@ function hausdorff(s1, s2, Δ = Δ)
   max(maximum([Δm(e, s2) for e in s1]), maximum([Δm(e, s1) for e in s2]))
 end
 
+"Speedy sujerction distance"
+function speedysurjection(s1, s2, Δ = Δ)
+  if length(s1) < length(s2)
+    dom = s2
+    rng = s1
+  else
+    dom = s1
+    rng = s2
+  end
+  # Compute all pairwise so its more efficient.
+  dm = [Δ(i,j) for i in dom, j in rng]
+  # Build function that minimizes everything.
+  myfunction = [findmin(dm[t,:]) for t = 1:size(dm,1)]
+  effectiverange = unique(map(tpl -> tpl[2], myfunction))
+  issurjective = length(effectiverange) == length(rng)
+  while !issurjective
+    mydistances = map(tpl -> tpl[1], myfunction)
+    # Get missing entries
+    missingrange = setdiff(1:length(rng), effectiverange)
+    while !isempty(missingrange)
+      targetcolumn = missingrange[end]
+      replacement = findmin(dm[:,targetcolumn] - mydistances)
+      myfunction[replacement[2]] = (dm[replacement[2],targetcolumn],targetcolumn)
+      pop!(missingrange)
+    end
+    effectiverange = unique(map(tpl -> tpl[2], myfunction))
+    issurjective = length(effectiverange) == length(rng)
+  end
+  return sum(map(tpl -> tpl[1], myfunction))
+end
+
 "Helper function to iterate over all possible mappings for the surjection distance function."
 function nextfunction(f, rng)
   shift = 0
