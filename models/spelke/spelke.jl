@@ -6,6 +6,8 @@ using RunTools
 using ArgParse
 using Stats
 
+include("distances.jl")
+
 lift(:(Base.getindex), 2)
 const Δxk = :x2
 const Δyk = :y2
@@ -287,12 +289,6 @@ end
 function sumofmin(s1, s2, Δ = Δ)
   Δm(x, S) = minimum([Δ(x, y) for y in S])
   (sum([Δm(e, s2) for e in s1])+sum([Δm(e, s1) for e in s2]))/2
-end
-
-"Distance betwee two scenes"
-function hausdorff(s1, s2, Δ = Δ)
-  Δm(x, S) = minimum([Δ(x, y) for y in S])
-  max(maximum([Δm(e, s2) for e in s1]), maximum([Δm(e, s1) for e in s2]))
 end
 
 function Mu.softeq(a::Array{<:Scene,1}, b::Array{<:Scene})
