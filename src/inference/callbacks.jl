@@ -76,6 +76,13 @@ function showprogress(n)
   end
 end
 
+"Construct callback that anneals temperature parameters"
+function anneal(α::Var...)
+  function (data)
+    foreach(α -> α * 0.95, αs)
+  end
+end
+
 ## Callbacks
 ## =========
 "Print the p value"

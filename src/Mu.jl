@@ -29,6 +29,9 @@ include("omega/diffomega.jl")     # Differentiable Omega
 
 include("randvarapply.jl")    # Random Variables
 
+# Var
+include("var.jl")
+
 include("rcd.jl")       # Random Conditional Distribution
 include("array.jl")     # Array primitives
 include("lift.jl")      # Lifting functions to RandVar domain

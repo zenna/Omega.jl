@@ -2,23 +2,23 @@
 abstract type RejectionSample <: Algorithm end
 
 "Sample from `x | y == true` with rejection sampling"
-function Base.rand(OmegaT::OT, y::RandVar{Bool}, alg::Type{RejectionSample}; n=100) where OT
+function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{RejectionSample};
+                   n = 100,
+                   cb = default_cbs(n)) where {OT <: Omega}
+  cb = runall(cb)
   samples = OmegaT[]
-  p = Progress(n, 1)
-  while true
+  accepted = 1
+  i = 1
+  while accepted < n
     ω = OmegaT()
-    yw = y(ω).epsilon
-    if Bool(round(yw))
+    if epsilon(y(ω)) == 1.0
       push!(samples, ω)
-      ProgressMeter.next!(p)
+      accepted += 1
+      cb(RunData(ω, accepted, 0.0, accepted))
+    else
+      cb(RunData(ω, accepted, 1.0, i))
     end
+    i += 1
   end
   samples
 end
-
-"Sample from `x | y == true` with Metropolis Hasting"
-function Base.rand(x::Union{RandVar, UTuple{RandVar}}, y::RandVar{Bool}, alg::Type{RejectionSample};
-                   n::Integer = 1000, OmegaT::OT = DefaultOmega) where {OT}
-  map(x, rand(OmegaT, y, alg, n=n))
-end
-

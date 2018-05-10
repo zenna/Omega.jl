@@ -1,6 +1,5 @@
 using Mu
 using Flux
-using PyCall
 using UnicodePlots
 using DataFrames
 using CSV
@@ -41,9 +40,16 @@ Mu.lift(:d, 2)
 
 ## Without RCD
 ties = [d(meansims[i], meansims[j]) < δ for i = 1:npatients, j = 1:npatients if i != j]
-# simulations = rand((sims...), (&)(ties...); OmegaT = Mu.defaultomega())
+simulations = rand((sims...), (&)(ties...); OmegaT = Mu.defaultomega())
 
 # # Make Plots
+"n simulations, n + 1 simulations, with mean tied"
+function plot1()
+  plot(Plots.fakedata(50,5), w=3,
+       title = "Time vs Glucose Level",
+       xaxis = "Time",
+       yaxis = "Glucose Level")
+end
 
 
 # ## With RCD
