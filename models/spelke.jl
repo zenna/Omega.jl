@@ -4,6 +4,7 @@ using CSV
 using DataFrames
 using RunTools
 using ArgParse
+using Stats
 
 lift(:(Base.getindex), 2)
 const Δxk = :x2
@@ -125,7 +126,101 @@ end
 Δ(a::Real, b::Real) = sqrt((a - b)^2)
 Δ(a::Object, b::Object) =
   mean([Δ(a.x, b.x), Δ(a.y, b.y), Δ(a.Δx, b.Δx), Δ(a.Δy, b.Δy)])
-Δ(a::Scene, b::Scene) = hausdorff(a.objects, b.objects)
+Δ(a::Scene, b::Scene) = fairsurjection(a.objects, b.objects)
+
+"Helper function to iterate over all possible mappings for the surjection distance function."
+function nextfunction(f, rng)
+  shift = 0
+  stop = false
+  while !stop
+    if shift == length(f)
+      return f
+    else  
+      if f[end-shift] < (length(rng))
+        f[end-shift] += 1
+        stop = true
+      else
+        f[end-shift]=1
+        shift += 1
+      end
+    end
+  end
+  return f
+end
+
+"Surjection distance"
+function surjection(s1, s2, Δ = Δ)
+  if length(s1) < length(s2)
+    dom = s2
+    rng = s1
+  else
+    dom = s1
+    rng = s2
+  end
+  # Cycle through all surjections
+  Distance = NaN
+  Surj = ones(length(dom))
+  Continue = true
+  while Continue
+    # Step 1: check if function is a surjection
+    if length(unique(Surj)) == length(rng)
+      # Step 2: compute distance and replace if necessary
+      surjdist = sum([Δ(dom[x],rng[floor(Int,Surj[x])]) for x in range(1,length(dom))])
+      if (surjdist < Distance) | isnan(Distance)
+        Distance = surjdist
+      end
+    end
+    # Step 3: Get next function
+    Surj = nextfunction(Surj, rng)
+    if unique(Surj) == [length(rng)]
+      Continue = false
+    end
+  end
+  return Distance
+end
+
+
+"Fair surjection distance"
+function fairsurjection(s1, s2, Δ = Δ)
+  if length(s1) < length(s2)
+    dom = s2
+    rng = s1
+  else
+    dom = s1
+    rng = s2
+  end
+  # Cycle through all surjections
+  Distance = NaN
+  Surj = ones(length(dom))
+  Continue = true
+  while Continue
+    # Step 1: check if function is a surjection
+    if length(unique(Surj)) == length(rng)
+      # Step 1b: check that the surjection is fair.
+      Spread = countmap(Surj)
+      CountedVals = [v for (k,v) in Spread]
+      if maximum(CountedVals)-minimum(CountedVals) <= 1
+        # Step 2: compute distance and replace if necessary
+        surjdist = sum([Δ(dom[x],rng[floor(Int,Surj[x])]) for x in range(1,length(dom))])
+        if (surjdist < Distance) | isnan(Distance)
+          Distance = surjdist
+        end
+      end
+    end
+    # Step 3: Get next function
+    Surj = nextfunction(Surj, rng)
+    if unique(Surj) == [length(rng)]
+      Continue = false
+    end
+  end
+  return Distance
+end
+
+"Sum of minimum distances"
+function sumofmin(s1, s2, Δ = Δ)
+  Δm(x, S) = minimum([Δ(x, y) for y in S])
+  (sum([Δm(e, s2) for e in s1])+sum([Δm(e, s1) for e in s2]))/2
+end
 
 "Distance betwee two scenes"
 function hausdorff(s1, s2, Δ = Δ)
@@ -184,7 +279,7 @@ end
 ## Run
 ## ===
 datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.csv")
-datapath = joinpath(datadir(), "spelke", "data", "Balls_2_ContactA", "Balls_2_ContactA_DetectedObjects.csv")
+datapath = joinpath(datadir(), "spelke", "data", "Balls_2_DivergenceA", "Balls_2_DivergenceA_DetectedObjects.csv")
 
 function train()
   data = CSV.read(datapath)
