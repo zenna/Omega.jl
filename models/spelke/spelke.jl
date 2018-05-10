@@ -149,7 +149,7 @@ end
 "Construct a scene from dataset"
 function Scene(df::AbstractDataFrame)
   objects = map(eachrow(df)) do row
-    x = row[:x]
+    @show x = row[:x]
     dx = row[Δxk]
     Δx = abs(dx - x)
     y = row[:y]
@@ -294,7 +294,7 @@ end
 function Mu.softeq(a::Array{<:Scene,1}, b::Array{<:Scene})
   dists = Δ.(a, b)
   d = mean(dists)
-  e = log(1 - Mu.kse(d, a = 0.138))
+  e = log(1 - Mu.kse(d, 0.138))
   Mu.LogSoftBool(e)
 end
 
