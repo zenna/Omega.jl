@@ -11,6 +11,15 @@ kse(d, α = 10.0) = 1 - exp(-α * d)
 kseα(α) = d -> kse(d, α) 
 lift(:kseα, 1)
 
+"Power law relation "
+kpow(d, α = 1.0, k = 2) = α*d^(-k)
+
+kpareto(x, xm = 0, α = 1.0) = (α * xm) / (x^(α + 1))
+kpareto2(x, xm = 1.0, α = 11) = (α * xm) / (x+xm^(α + 1))
+kpareto3(x, xm = 1.0, α = 3) = xm / (x+xm^(α + 1))
+
+burr(x, c = 1, k = 40) =  c * k * x^(c - 1) / (1 + x^c)^(k + 1) 
+
 function bound_loss(x, a, b)
   # @pre b >= a
   if x < a
@@ -49,13 +58,17 @@ logepsilon(x::LogSoftBool) = x.logepsilon
 @inline d(x::Real, y::Real) = (xy = (x - y); xy * xy)
 @inline d(x::Vector{<:Real}, y::Vector{<:Real}) = norm(x - y)
 @inline d(x::Array{<:Real}, y::Array{<:Real}) = norm(x[:] - y[:])
-softeq(x, y, k=kse) = SoftBool(1 - k(d(x, y)))
+
+"Soft Equality"
+softeq(x, y, k = kse) = SoftBool(1 - k(d(x, y)))
+
+"Unbounded soft equality"
+usofteq(x, y, k = kse) = SoftBool(k(d(x, y)))
 
 # softeq(x::Vector{<:Real}, y::Vector{<:Real}) = SoftBool(1 - mean(f1.(x - y)))
 
 softgt(x::Real, y::Real) = SoftBool(1 - kse(bound_loss(x, y, Inf)))
 softlt(x::Real, y::Real) = SoftBool(1, kse(bound_loss(x, -Inf, y)))
-
 
 ## Boolean Operators
 ## =================
@@ -63,12 +76,14 @@ Base.:&(x::SoftBool, y::SoftBool) = SoftBool(min(x.epsilon, y.epsilon))
 Base.:|(x::SoftBool, y::SoftBool) = SoftBool(max(x.epsilon, y.epsilon))
 const ⪆ = softgt
 const ≊ = softeq
-
+const ueq = usofteq
 
 ## Lifts
 ## =====
 
 Mu.lift(:softeq, 2)
+Mu.lift(:usofteq, 2)
+Mu.lift(:usofteq, 3)
 Mu.lift(:softeq, 3)
 Mu.lift(:softgt, 2)
 Mu.lift(:softlt, 2)
