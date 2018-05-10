@@ -1,7 +1,7 @@
 "Random Variable"
 abstract type AbstractRandVar{T} end  # FIXME : Rename to RandVar
 
-# Base.getindex(rng::AbstractRNG, ::Int64) = rng 
+# Base.getindex(rng::AbstractRNG, ::Int64) = rng
 
 struct RandVar{T, Prim, F, TPL, I} <: AbstractRandVar{T} # Rename to PrimRandVar or PrimRv
   f::F      # Function (generally Callable)
@@ -33,7 +33,7 @@ apply(f, xs...) = f(xs...)
 ## =====
 "Infer T from function `f: w -> T`"
 function infer_elemtype(f, args...)
-  @show argtypes = map(typeof, args)
+  argtypes = map(typeof, args)
   rt = Base.return_types(f, (Mu.DirtyOmega,argtypes...))
   @pre length(rt) == 1 "Could not infer unique return type"
   rt[1]
@@ -53,4 +53,3 @@ name(x) = x
 name(rv::RandVar) = string(rv.f)
 Base.show(io::IO, rv::RandVar{T}) where T=
   print(io, "$(name(rv))($(join(map(name, rv.args), ", ")))::$T")
-

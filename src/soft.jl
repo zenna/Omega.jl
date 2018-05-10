@@ -7,7 +7,7 @@ kf1β(β) = d -> kf1(d, β)
 lift(:kf1β, 1)
 
 "Squared exponential kernel `α = 1/2l^2`, higher α is lower temperature  "
-kse(d, α = 10.0) = 1 - exp(-α * d)
+kse(d, α = 50.0) = 1 - exp(-α * d)
 kseα(α) = d -> kse(d, α) 
 lift(:kseα, 1)
 
@@ -33,12 +33,12 @@ end
 
 randbool(f, x, y) = RandVar{Bool, false}(SoftBool ∘ f, (x, y))
 lograndbool(f, x, y) = RandVar{Bool, false}(LogSoftBool ∘ f, (x, y))
-randbool(ϵ::RandVar) = RandVar{Bool, false}(SoftBool, (ϵ,)) 
+randbool(ϵ::RandVar) = RandVar{Bool, false}(SoftBool, (ϵ,))
 
 ## Soft Logic
 ## ==========
 "Soft Boolean"
-struct SoftBool{ET <: Real} 
+struct SoftBool{ET <: Real}
   epsilon::ET
 end
 @invariant 0 <= epsilon(b::SoftBool) <= 1
@@ -68,12 +68,17 @@ usofteq(x, y, k = kse) = SoftBool(k(d(x, y)))
 # softeq(x::Vector{<:Real}, y::Vector{<:Real}) = SoftBool(1 - mean(f1.(x - y)))
 
 softgt(x::Real, y::Real) = SoftBool(1 - kse(bound_loss(x, y, Inf)))
-softlt(x::Real, y::Real) = SoftBool(1, kse(bound_loss(x, -Inf, y)))
+softlt(x::Real, y::Real) = SoftBool(1 - kse(bound_loss(x, -Inf, y)))
 
 ## Boolean Operators
 ## =================
 Base.:&(x::SoftBool, y::SoftBool) = SoftBool(min(x.epsilon, y.epsilon))
 Base.:|(x::SoftBool, y::SoftBool) = SoftBool(max(x.epsilon, y.epsilon))
+Base.:|(x::RandVar, y::RandVar) = RandVar{SoftBool, false}(|, (x, y))
+
+Base.all(xs::Vector{<:SoftBool}) = SoftBool(minimum(epsilon.(xs)))
+Base.all(xs::Vector{<:RandVar}) = RandVar{SoftBool}(all, ())
+
 const ⪆ = softgt
 const ≊ = softeq
 const ueq = usofteq
@@ -87,3 +92,7 @@ Mu.lift(:usofteq, 3)
 Mu.lift(:softeq, 3)
 Mu.lift(:softgt, 2)
 Mu.lift(:softlt, 2)
+
+## Show
+## ====
+Base.show(io::IO, sb::SoftBool) = print(io, "ϵ:$(epsilon(sb))")

@@ -19,7 +19,7 @@ include("omega/omega.jl")         # Sample Space
 include("omega/proj.jl")          # Sample Space
 include("randvar.jl")             # Random Variables
 
-## Different Types of Omega 
+## Different Types of Omega
 include("omega/nested.jl")        # Sample Space
 include("omega/simple.jl")        # Sample Space
 include("omega/countvec.jl")      # Sample Space
@@ -94,6 +94,7 @@ export mean,
        logistic,
        exponential,
        kumaraswamy,
+       boolbernoulli,
 
        # Do
        intervene,
