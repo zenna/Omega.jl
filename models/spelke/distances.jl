@@ -1,12 +1,10 @@
 # Point Set distances
-using Stats
 
 "distance betwee two scenes"
 function hausdorff(s1, s2, Δ = Δ)
   Δm(x, S) = minimum([Δ(x, y) for y in S])
   max(maximum([Δm(e, s2) for e in s1]), maximum([Δm(e, s1) for e in s2]))
 end
-
 
 "Helper function to iterate over all possible mappings for the surjection distance function."
 function nextfunction(f, rng)
@@ -37,11 +35,12 @@ function surjection(s1, s2, Δ = Δ)
     dom = s1
     rng = s2
   end
+
   # Cycle through all surjections
   distance = NaN
   Surj = ones(length(dom))
   continue_ = true
-  
+
   while continue_
     # Step 1: check if function is a surjection
     if length(unique(Surj)) == length(rng)
@@ -73,6 +72,7 @@ function fairsurjection(s1, s2, Δ = Δ)
   distance = NaN
   Surj = ones(length(dom))
   continue_ = true
+
   while continue_
     # Step 1: check if function is a surjection
     if length(unique(Surj)) == length(rng)

@@ -1,28 +1,32 @@
 using Mu
-using ScikitLearn
+# using ScikitLearn
 
-@sk_import mixture: GaussianMixture
+# @sk_import mixture: GaussianMixture
 
-include("./read_data.jl")
+# include("./read_data.jl")
 
-# Read data
-train_data_X, train_data_Y, test_data_X, test_data_X = get_train_and_test()
+# # Read data
+# train_data_X, train_data_Y, test_data_X, test_data_X = get_train_and_test()
 
-# Define the population model
+# # Define the population model
 
-mixture_data = vcat(train_data_X, train_data_Y)
+# mixture_data = vcat(train_data_X, train_data_Y)
 
-mixture_data = transpose(mixture_data)
+# mixture_data = transpose(mixture_data)
 
-clf = GaussianMixture(n_components=2, covariance_type="full")
+# clf = GaussianMixture(n_components=2, covariance_type="full")
 
-fit!(clf, mixture_data)
+# fit!(clf, mixture_data)
 
-weights = Array(clf["weights_"])
+# weights = Array(clf["weights_"])
 
-means = Array(clf["means_"])
+# means = Array(clf["means_"])
 
-covars = Array(clf["covariances_"])
+# covars = Array(clf["covariances_"])
+
+weights = [0.5, 0.5]
+means = [rand(110) for i = 1:2]
+covars = [eye(110) for i = 1:2]
 
 function rand_gaussian_mixture(weights, means, covars)
     cat_var = Mu.categorical(weights)

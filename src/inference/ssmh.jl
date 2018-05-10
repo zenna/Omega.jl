@@ -9,7 +9,7 @@ function update_random(sω::SimpleOmega)
 end
 
 "Sample from `x | y == true` with Single Site Metropolis Hasting"
-function Base.rand(OmegaT::Type{OT}, y::RandVar{<:MaybeSoftBool}, alg::Type{SSMH};
+function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{SSMH};
                    n::Integer = 1000,
                    cb = default_cbs(n)) where {OT <: Omega}
   cb = runall(cb)

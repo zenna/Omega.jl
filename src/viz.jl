@@ -15,8 +15,8 @@ function viz(y::Mu.RandVar, xdim, ydim, ω::Mu.Omega, xrng = 0:0.01:1, yrng = 0:
     Mu.epsilon(y(ω_))
   end
   p = plot(xrng, yrng, f, st = [:surface, :contourf])
-  xcurr = ω_.vals[xdim]
-  ycurr = ω_.vals[xdim]
+  # xcurr = ω_.vals[xdim]
+  # ycurr = ω_.vals[xdim]
   # scatter!([xcurr], [ycurr])
 end
 

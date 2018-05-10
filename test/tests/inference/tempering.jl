@@ -46,9 +46,11 @@ function simpleeq(ALG)
   diff = abs(x - y)
   k = Mu.kpow
   k = Mu.kpareto2
+  k = Mu.burr
   n = 5000000
   OmegaT = SimpleOmega{Int, Float64}
   samples = rand(OmegaT, Mu.ueq(x, y, k), ALG;
+                 stepsize=0.0001,
                  n = n,
                  cb = [Mu.default_cbs(n);
                       #  throttle(Mu.plotrv(β, "Temperature: β"), 1);
