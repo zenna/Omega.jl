@@ -1,11 +1,24 @@
-## Distance Functions
-## =================
+## Kernels 
+## =======
 
 "Real+ -> [0, 1]"
-f1(x; a=0.00001) = x / (x + a)
+kf1(x, β=0.0001) = x / (x + β)
+kf1β(β) = d -> kf1(d, β)
+lift(:kf1β, 1)
 
-"Real+ -> [0, 1], Large a is high temperature"
-f2(x; a=0.02) = 1 - exp(-a * x)
+"Squared exponential kernel `α = 1/2l^2`, higher α is lower temperature  "
+kse(d, α = 10.0) = 1 - exp(-α * d)
+kseα(α) = d -> kse(d, α) 
+lift(:kseα, 1)
+
+"Power law relation "
+kpow(d, α = 1.0, k = 2) = α*d^(-k)
+
+kpareto(x, xm = 0, α = 1.0) = (α * xm) / (x^(α + 1))
+kpareto2(x, xm = 1.0, α = 11) = (α * xm) / (x+xm^(α + 1))
+kpareto3(x, xm = 1.0, α = 3) = xm / (x+xm^(α + 1))
+
+burr(x, c = 1, k = 40) =  c * k * x^(c - 1) / (1 + x^c)^(k + 1) 
 
 function bound_loss(x, a, b)
   # @pre b >= a
@@ -16,7 +29,7 @@ function bound_loss(x, a, b)
   else
     zero(x)
   end
-end
+end 
 
 randbool(f, x, y) = RandVar{Bool, false}(SoftBool ∘ f, (x, y))
 lograndbool(f, x, y) = RandVar{Bool, false}(LogSoftBool ∘ f, (x, y))
@@ -25,9 +38,10 @@ randbool(ϵ::RandVar) = RandVar{Bool, false}(SoftBool, (ϵ,))
 ## Soft Logic
 ## ==========
 "Soft Boolean"
-struct SoftBool{ET <: Real}
+struct SoftBool{ET <: Real} 
   epsilon::ET
 end
+@invariant 0 <= epsilon(b::SoftBool) <= 1
 
 struct LogSoftBool{ET <: Real}
   logepsilon::ET
@@ -41,22 +55,20 @@ logepsilon(x::LogSoftBool) = x.logepsilon
 
 ## (In)Equalities
 ## ==============
-softeq(x::Real, y::Real) = SoftBool(1 - f2((x - y)^2))
-function softeq(x::Vector{<:Real}, y::Vector{<:Real})
-  SoftBool(1 - f2(norm(x - y)))
-end
+@inline d(x::Real, y::Real) = (xy = (x - y); xy * xy)
+@inline d(x::Vector{<:Real}, y::Vector{<:Real}) = norm(x - y)
+@inline d(x::Array{<:Real}, y::Array{<:Real}) = norm(x[:] - y[:])
 
-function softeq(x::Array{<:Real}, y::Array{<:Real})
-  println("Here")
-  # @grab x
-  # @grab y
-  SoftBool(1 - f2(norm(x[:] - y[:])))
-end
+"Soft Equality"
+softeq(x, y, k = kse) = SoftBool(1 - k(d(x, y)))
+
+"Unbounded soft equality"
+usofteq(x, y, k = kse) = SoftBool(k(d(x, y)))
 
 # softeq(x::Vector{<:Real}, y::Vector{<:Real}) = SoftBool(1 - mean(f1.(x - y)))
 
-softgt(x::Real, y::Real) = SoftBool(1 - f2(bound_loss(x, y, Inf)))
-softlt(x::Real, y::Real) = SoftBool(1, f2(bound_loss(x, -Inf, y)))
+softgt(x::Real, y::Real) = SoftBool(1 - kse(bound_loss(x, y, Inf)))
+softlt(x::Real, y::Real) = SoftBool(1, kse(bound_loss(x, -Inf, y)))
 
 ## Boolean Operators
 ## =================
@@ -64,3 +76,14 @@ Base.:&(x::SoftBool, y::SoftBool) = SoftBool(min(x.epsilon, y.epsilon))
 Base.:|(x::SoftBool, y::SoftBool) = SoftBool(max(x.epsilon, y.epsilon))
 const ⪆ = softgt
 const ≊ = softeq
+const ueq = usofteq
+
+## Lifts
+## =====
+
+Mu.lift(:softeq, 2)
+Mu.lift(:usofteq, 2)
+Mu.lift(:usofteq, 3)
+Mu.lift(:softeq, 3)
+Mu.lift(:softgt, 2)
+Mu.lift(:softlt, 2)

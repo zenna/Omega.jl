@@ -105,6 +105,42 @@ end
 
 video_(ω, data::Vector, nsteps = 1000) = video_(ω, initscene(ω, data), nsteps)
 
+## GP model
+## ========
+
+d(x1, x2) = x1 - x2
+K(x1, x2; l=0.1) = exp(-(d(x1, x2)^2)/(2l^2))
+t = 1:0.1:10
+using PDMats
+Σ = PDMat([K(x, y) for x in t, y in t] * 300)
+
+"Gaussian Process Random Variable"
+function gp_(ω)
+  trajectories = Scene[]
+  objects = map(1:nboxes(ω)) do i
+    x = mvnormal(ω[@id][i][1], zeros(t), Σ)
+    y = mvnormal(ω[@id][i][2], zeros(t), Σ)
+    # Δx = mvnormal(ω[@id][i][3], zeros(t), Σ)
+    # Δy = mvnormal(ω[@id][i][4], zeros(t), Σ)
+    Δx = 30.0
+    Δy = 30.0
+    Object.(x, y, Δx, Δy)
+    # @grab x
+  end
+  #@grab objects
+  camera = Camera(0.0, 0.0, 640.0, 480.0)
+  obj_(t) = map(obj -> obj[t], objects)
+  [Scene(obj_(i), camera) for i = 1:length(t)] 
+end
+
+"Gaussian Process Prior"
+function testgpprior()
+  w = SimpleOmega{Int, Array}()
+  gpvideo = iid(gp_)
+  samples = gpvideo(w)
+  viz(samples)
+end
+
 ## Inference
 ## =========
 
@@ -126,7 +162,7 @@ end
 Δ(a::Real, b::Real) = sqrt((a - b)^2)
 Δ(a::Object, b::Object) =
   mean([Δ(a.x, b.x), Δ(a.y, b.y), Δ(a.Δx, b.Δx), Δ(a.Δy, b.Δy)])
-Δ(a::Scene, b::Scene) = fairsurjection(a.objects, b.objects)
+Δ(a::Scene, b::Scene) = speedysurjection(a.objects, b.objects)
 
 "Helper function to iterate over all possible mappings for the surjection distance function."
 function nextfunction(f, rng)
@@ -177,6 +213,37 @@ function surjection(s1, s2, Δ = Δ)
     end
   end
   return Distance
+end
+
+"Speedy sujerction distance"
+function speedysurjection(s1, s2, Δ = Δ)
+  if length(s1) < length(s2)
+    dom = s2
+    rng = s1
+  else
+    dom = s1
+    rng = s2
+  end
+  # Compute all pairwise so its more efficient.
+  dm = [Δ(i,j) for i in dom, j in rng]
+  # Build function that minimizes everything.
+  myfunction = [findmin(dm[t,:]) for t = 1:size(dm,1)]
+  effectiverange = unique(map(tpl -> tpl[2], myfunction))
+  issurjective = length(effectiverange) == length(rng)
+  while !issurjective
+    mydistances = map(tpl -> tpl[1], myfunction)
+    # Get missing entries
+    missingrange = setdiff(1:length(rng), effectiverange)
+    while !isempty(missingrange)
+      targetcolumn = missingrange[end]
+      replacement = findmin(dm[:,targetcolumn] - mydistances)
+      myfunction[replacement[2]] = (dm[replacement[2],targetcolumn],targetcolumn)
+      pop!(missingrange)
+    end
+    effectiverange = unique(map(tpl -> tpl[2], myfunction))
+    issurjective = length(effectiverange) == length(rng)
+  end
+  return sum(map(tpl -> tpl[1], myfunction))
 end
 
 
@@ -231,7 +298,7 @@ end
 function Mu.softeq(a::Array{<:Scene,1}, b::Array{<:Scene})
   dists = Δ.(a, b)
   d = mean(dists)
-  e = log(1 - Mu.f2(d, a = 0.138))
+  e = log(1 - Mu.kse(d, a = 0.138))
   Mu.LogSoftBool(e)
 end
 
@@ -261,7 +328,7 @@ fixao(x, y; aspectratio = 0.5) = (x, Int(y * aspectratio))
 
 "Draw Scene"
 function draw(scene::Scene,
-              canvas = BrailleCanvas(fixao(64, 32)..., origin_x = -5.0, origin_y = -5.0,
+              canvas = BrailleCanvas(fixao(64, 32)..., origin_x = -50.0, origin_y = -50.0,
                                      width = scene.camera.Δx + 10, height = scene.camera.Δy + 10))
   draw(scene.camera, canvas, :red)
   foreach(obj -> draw(obj, canvas, :blue), scene.objects)
@@ -288,7 +355,7 @@ function train()
   realvideo = map(Scene, frames)
   video = iid(ω -> video_(ω, realvideo, nframes))
   rand(video)
-  samples = rand(video, video == realvideo, MI, n=10000);
+  samples = rand(video, video == realvideo, SSMH, n=10000);
   viz(samples)
 end
 

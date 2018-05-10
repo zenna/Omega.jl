@@ -39,44 +39,37 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector)
 
   # @assert false
   if rand() < exp(current_U - proposed_U + current_K - proposed_K)
-    return (invq, true) # accept ω
+    return (proposed_U, invq, true) # accept ω
   else
-    return (current_q, false)  # reject ω
+    return (current_U, current_q, false)  # reject ω
   end
 end
 
 "Sample from `x | y == true` with Hamiltonian Monte Carlo"
-function Base.rand(OmegaT::Type{OT}, y::RandVar{Bool}, alg::Type{HMC};
-                   n=100,
+function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{HMC};
+                   n = 100,
                    nsteps = 10,
-                   stepsize = 0.001) where {OT <: Omega}
+                   stepsize = 0.001,
+                   cb = default_cbs(n)) where {OT <: Omega}
+  cb = runall(cb)
   ω = OmegaT()
   y(ω) # Initialize omega
   ωvec = linearize(ω)
 
   ωsamples = OmegaT[]
-  # xsamples = T[] # FIXME: preallocate (and use inbounds)
   U(ω) = -logepsilon(y(ω))
   U(ωvec::Vector) = U(unlinearize(ωvec, ω))
   ∇U(ωvec) = gradient(y, ω, ωvec)
 
-  accepted = 0.0
-
-  m = div(n, 10)
-
-  @showprogress 1 "Running HMC Chain" for i = 1:n
-    ωvec, wasaccepted = hmc(U, ∇U, nsteps, stepsize, ωvec)
-    # push!(xsamples, x(unlinearize(ωvec, ω)))
+  accepted = 1
+  for i = 1:n
+    p_, ωvec, wasaccepted = hmc(U, ∇U, nsteps, stepsize, ωvec)
+    ω_ = unlinearize(ωvec, ω)
     push!(ωsamples, unlinearize(ωvec, ω))
     if wasaccepted
-      accepted += 1.0
+      accepted += 1
     end
-    i % m == 0 && print_with_color(:light_blue,
-                                   "acceptance ratio: $(accepted/float(i)) ",
-                                   "Last log likelihood $(U(unlinearize(ωvec, ω)))\n")
+    cb(RunData(ω_, accepted, p_, i))
   end
-  print_with_color(:light_blue, "acceptance ratio: $(accepted/float(n))",
-                                "Last log likelihood $(U(ω))\n")
-  # xsamples
   ωsamples
 end

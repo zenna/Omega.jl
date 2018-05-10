@@ -56,7 +56,9 @@ fnms = [:(Base.:-),
         :(Base.:tan),
         :(Base.sum),
         :(Base.:&),
-        :(Base.:|)]
+        :(Base.:|),
+        :(Base.:sqrt),
+        :(Base.:abs)]
 
 Base.:^(x1::Mu.AbstractRandVar{T}, x2::Integer) where T = RandVar{T, false}(^, (x1, x2))
 macro lift(fnm::Union{Symbol, Expr}, n::Integer)
@@ -79,11 +81,20 @@ end
 ## Custom Lifts
 ## ============
 
-function Base.:(==)(x::AbstractRandVar, y)
-  RandVar{Bool, false}(≊, (x, y))
-end
+Base.:(==)(x::AbstractRandVar, y) = softeq(x, y)
+  # RandVar{Bool, false}(softeq, (x, y))
 
-Base.:(>)(x::AbstractRandVar, y) = RandVar{Bool, false}(softgt, (x, y))
-Base.:(>)(x, y::AbstractRandVar) = RandVar{Bool, false}(softgt, (x, y))
-Base.:(<)(x::AbstractRandVar, y) = RandVar{Bool, false}(softlt, (x, y))
-Base.:(<)(x, y::AbstractRandVar) = RandVar{Bool, false}(softlt, (x, y))
+Base.:(==)(x, y::AbstractRandVar) = softeq(x, y)
+  # RandVar{Bool, false}(softeq, (x, y))
+
+Base.:(==)(x::AbstractRandVar, y::AbstractRandVar) = softeq(x, y)
+  # RandVar{Bool, false}(softeq, (x, y))
+
+
+Base.:(>)(x::AbstractRandVar, y) = softgt(x, y)
+Base.:(>)(x, y::AbstractRandVar) = softgt(x, y)
+Base.:(>)(x::AbstractRandVar, y::AbstractRandVar) = softgt(x, y)
+
+Base.:(<)(x::AbstractRandVar, y) = softlt(x, y)
+Base.:(<)(x, y::AbstractRandVar) = softlt(x, y)
+Base.:(<)(x::AbstractRandVar, y::AbstractRandVar) = softgt(x, y)
