@@ -36,16 +36,18 @@ function plottraces(qpdata, plt = plot())
   plt
 end
 
-function testcb()
+function testcb(;kwargs...)
   μ = normal(0.0, 1.0)
   x = normal(μ, 1.0)
   y = x == 0.0
   cb, cbdata = Mu.tracecb(Mu.QP)
   n = 200
   cb = [default_cbs(n); cb]
-  rand(μ, y, HMC; n = n, cb = cb, nsteps = 100, stepsize = 0.01)
+  rand(μ, y, HMC; n = n, cb = cb, kwargs...)
   qpdata = cbdata[2]
   plt = plot()
   ucontours2(y, μ.id, x.id, Mu.defaultomega(HMC)(), plt = plt)
   plottraces(qpdata, plt)
 end
+
+testcb(nsteps = 20, stepsize = 0.01)
