@@ -64,7 +64,8 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
   # @show  exp(current_U - proposed_U + current_K - proposed_K)
 
   # @assert false
-  if rand() < exp(current_U - proposed_U)
+  # if rand() < exp(current_U - proposed_U)
+  if rand() < exp(current_U - proposed_U + current_K - proposed_K)
     println("accepted ")
     return (proposed_U, invq, true) # accept ω
   else
