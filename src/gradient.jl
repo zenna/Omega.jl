@@ -16,7 +16,7 @@ function gradient(Y::RandVar, sω::SimpleOmega{I, V}, vals) where {I, V <: Abstr
   sω = unlinearize(vals, sω)
   sωtracked = SimpleOmega(Dict(i => param(v) for (i, v) in sω.vals))
   # @grab vals
-  l = epsilon(Y(sωtracked))
+  l = -epsilon(Y(sωtracked))
   @grab sωtracked
   # @grab Y
   # @grab l

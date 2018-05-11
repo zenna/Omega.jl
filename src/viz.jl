@@ -26,7 +26,7 @@ function plottrace(data, plt = plot())
   d = [d.q for d in data]
   xs = Mu.bound.([d[1] for d in d])
   ys = Mu.bound.([d[2] for d in d])
-  plot!(plt, xs, ys, arrow = :arrow, linealpha = 0.5)
+  plot!(plt, xs, ys, arrow = :arrow, linealpha = 0.5, legend=false)
 end
 
 function plottraces(qpdata, plt = plot())
@@ -39,15 +39,16 @@ end
 function testcb(;kwargs...)
   μ = normal(0.0, 1.0)
   x = normal(μ, 1.0)
-  y = x == 0.0
+  y = (x == 0.0) | (μ < 0.0)
+  # y = (x == 0.0)
   cb, cbdata = Mu.tracecb(Mu.QP)
   n = 200
   cb = [default_cbs(n); cb]
   rand(μ, y, HMC; n = n, cb = cb, kwargs...)
   qpdata = cbdata[2]
   plt = plot()
-  ucontours2(y, μ.id, x.id, Mu.defaultomega(HMC)(), plt = plt)
+  ucontours2(y, x.id, μ.id, Mu.defaultomega(HMC)(), plt = plt)
   plottraces(qpdata, plt)
 end
 
-testcb(nsteps = 20, stepsize = 0.01)
+testcb(nsteps = 20, stepsize = 0.01, n=5000)

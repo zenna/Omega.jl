@@ -20,11 +20,8 @@ end
 "Infinite iterator over MNIST"
 function mnistcycle(batch_size)
   train_x, train_y = MNIST.traindata()
-<<<<<<< HEAD
   train_x = train_x ./ 256
-=======
   train_x / 256.0
->>>>>>> ae587828bc10e1b31d4b874f9a16d1f9a58871f6
   traindata = (train_x, train_y)
   batchgen_x = infinite_batches(train_x, 2, batch_size)
   batchgen_y = infinite_batches(train_y, 1, batch_size)
@@ -54,7 +51,7 @@ function train(; trainkwargs...)
     item, state = next(gen, state)
     batch_x = item[1]
     batch_y = float(Flux.onehotbatch(item[2], 0:9))
-    predicate = f(batch_x) == batch_y
+    predicate = f(batch_x) == batch_y 
     predicate = Mu.randbool(Flux.crossentropy, f(batch_x), batch_y)
     # predicate = Mu.randbool(Flux.binarycrossentropy, f(batch_x), batch_y)
     return predicate, state
@@ -89,4 +86,4 @@ function test(; trainkwargs...)
   @show accepted = correct / size(test_y)[1]
 end
 
-test(; n=1000, nsteps=10, stepsize=0.0001)
+test(; n=500, nsteps=10, stepsize=0.001)

@@ -33,17 +33,3 @@ function showstats(accepted, i, y, ω)
   print_with_color(:light_blue, "acceptance ratio: $(accepted/float(i)) ",
                                 "Last log likelihood $(epsilon(y(ω)))\n")
 end
-
-function tracecb(::Type{T}) where T
-  ωs = T[]
-  allωs = Vector{T}[]
-  function f(qp, ::Type{Mu.Inside})
-    push!(ωs, qp)
-  end
-
-  function f(data, ::Type{Mu.Outside})
-    push!(allωs, copy(ωs))
-    empty!(ωs)
-  end
-  f, (ωs, allωs)
-end

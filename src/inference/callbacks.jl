@@ -103,6 +103,21 @@ function anneal(α::Var...)
   end
 end
 
+function tracecb(::Type{T}) where T
+  ωs = T[]
+  allωs = Vector{T}[]
+  function f(qp, ::Type{Mu.Inside})
+    push!(ωs, qp)
+  end
+
+  function f(data, ::Type{Mu.Outside})
+    push!(allωs, copy(ωs))
+    empty!(ωs)
+  end
+  f, (ωs, allωs)
+end
+
+
 ## Callbacks
 ## =========
 "Print the p value"
