@@ -23,14 +23,13 @@ fs = [iid(F_, i) for i = 1:npatients]
 "Recurrent Neural Network"
 function rnn_(ω, f, nsteps) 
   x = 0.0 # What should this be?
-  xs = Float64[]
+  xs = []
   for i = 1:nsteps
     x = f(x)[1]
     push!(xs, x)
   end
-  xs
+  [xs...]
 end
-
 
 # Create one simulation RandVar for each patient
 nsteps = 20
@@ -60,7 +59,7 @@ function datacond2(data, sim, personid)
 end
 
 d1, obvglucose = datacond2(data, sims[1], 3)
-sims_ = rand(sims[1], d1, OmegaT = Mu.defaultomega(), n=1000000);
+simsω = rand(Mu.defaultomega, d1, HMC, n=1000000);
 
 ## Plots
 ## ====
@@ -74,4 +73,4 @@ function plot1(sims)
 end
 
 traces(data, 3)[:Value]
-plot1([sims_[end], obvglucose])
+plot1([sims[1](simsω[end]), obvglucose])

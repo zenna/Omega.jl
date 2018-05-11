@@ -3,8 +3,13 @@ abstract type HMC <: Algorithm end
 
 defaultomega(::Type{HMC}) = Mu.SimpleOmega{Int, Float64}
 
+struct QP{T}
+  q::T
+  p::T
+end
+
 "Hamiltonian monte carlo with leapfrog integration: https://arxiv.org/pdf/1206.1901.pdf"
-function hmc(U, ∇U, nsteps, stepsize, current_q::Vector)
+function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
   q = transform(current_q)
   p = randn(length(q))
   current_p = p
@@ -16,6 +21,7 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector)
   p = p - stepsize * ∇U(invq) .* jacobian(invq) / 2.0
 
   for i = 1:nsteps
+    cb(QP(q, p), Inside)
     # Half step for the position and momentum
     q = q .+ stepsize .* p
     # @show mean(stepsize .* p), mean(q)
@@ -63,13 +69,13 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{HMC};
 
   accepted = 1
   for i = 1:n
-    p_, ωvec, wasaccepted = hmc(U, ∇U, nsteps, stepsize, ωvec)
+    p_, ωvec, wasaccepted = hmc(U, ∇U, nsteps, stepsize, ωvec, cb)
     ω_ = unlinearize(ωvec, ω)
     push!(ωsamples, unlinearize(ωvec, ω))
     if wasaccepted
       accepted += 1
     end
-    cb(RunData(ω_, accepted, p_, i))
+    cb(RunData(ω_, accepted, p_, i), Outside)
   end
   ωsamples
 end

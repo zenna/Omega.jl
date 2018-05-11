@@ -3,7 +3,7 @@ using UnicodePlots
 ## Common Tools
 ## ============
 runall(f) = f
-runall(fs::AbstractVector) = (data) -> foreach(f -> handlesignal(f(data)), fs)
+runall(fs::AbstractVector) = (data, stage) -> foreach(f -> handlesignal(f(data, stage)), fs)
 
 # Replace with named tuple in 0.7
 struct RunData{O}
@@ -13,6 +13,18 @@ struct RunData{O}
   i::Int
 end
 
+"Stage of algorithm at which callback is called.
+ Callback has type f(data, stage::Type{<:Stage}."
+abstract type Stage end
+
+""
+abstract type Inside <: Stage end
+
+"Outside"
+abstract type Outside <: Stage end
+
+
+"Signal returned by callback"
 abstract type Signal end
 abstract type Stop <: Signal end
 
@@ -26,9 +38,12 @@ handlesignal(::Type{Stop}) = throw(InterruptException)
 function plotp()
   alldata = Float64[]
   ys = Int[]
-  function innerplotp(data)
+  
+  innerplotp(data, stage) = nothing # Do nothing in other stages
+  function innerplotp(data, stage::Type{Outside})
     push!(alldata, data.p)
     push!(ys, data.i)
+    @show alldata
     if !isempty(alldata)
       println(lineplot(ys, alldata, title="Time vs p"))
     end
@@ -39,7 +54,9 @@ end
 function plotω(x::RandVar{T}, y::RandVar{T}) where T
   xωs = Float64[]
   yωs = Float64[]
-  function innerplotω(data)
+
+  innerplotω(data, stage) = nothing # Do nothing in other stages
+  function innerplotω(data, stage)
     color = :blue
     if isempty(xωs)
       color = :red
@@ -56,7 +73,9 @@ end
 function plotrv(x::RandVar{T}, name = string(x), display_ = display) where T
   xs = T[]
   ys = Int[]
-  function innerplotrv(data)
+
+  innerplotω(data, stage) = nothing # Do nothing in other stages
+  function innerplotrv(data, stage::Type{Outside})
     x_ = x(data.ω)
     println("$name is:")
     display_(x_)
@@ -71,14 +90,15 @@ end
 "Show progress meter"
 function showprogress(n)
   p = Progress(n, 1)
-  function(data)
+  updateprogress(data, stage) = nothing # Do nothing in other stages
+  function updateprogress(data, stage::Type{Outside})
     ProgressMeter.next!(p)
   end
 end
 
 "Construct callback that anneals temperature parameters"
 function anneal(α::Var...)
-  function (data)
+  function (data, stage)
     foreach(α -> α * 0.95, αs)
   end
 end
@@ -86,13 +106,16 @@ end
 ## Callbacks
 ## =========
 "Print the p value"
-function printstats(data)
+printstats(data, stage) = nothing
+function printstats(data, stage::Type{Outside})
   print_with_color(:light_blue, "\nacceptance ratio: $(data.accepted/float(data.i))\n",
                                 "Last p: $(data.p)\n")
 end
 
+
 "Stop if nans or Inf are present"
-function stopnanorinf(data)
+stopnanorinf(data, stage) = nothing
+function stopnanorinf(data, stage::Type{Outside})
   if isnan(data.p) || isinf(data.p)
     println("p is $(data.p)")
     return Mu.Stop
@@ -100,7 +123,7 @@ function stopnanorinf(data)
 end
 
 "As the name suggests"
-donothing() = data -> nothing
+donothing(data, stage) = nothing
 
 ## Callback Augmenters
 ## ===================
