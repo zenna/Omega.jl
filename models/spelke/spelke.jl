@@ -230,7 +230,7 @@ function train()
   video = iid(ω -> video_(ω, realvideo, nframes))
   rand(video)
   samples = rand(video, video == realvideo, SSMH, n=1000);
-  evalposterior(samples, realvideo, verbose=false, visual=true)
+  evalposterior(samples, realvideo, false, true)
   #viz(samples[end])
   samples
 end
