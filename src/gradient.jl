@@ -6,7 +6,7 @@ using ZenUtils
 function gradient(Y::RandVar, ω::Omega, vals = linearize(ω))
   Y(ω)
   #@show Y(ω), ω, vals
-  unpackcall(xs) = -log(Y(unlinearize(xs, ω)).epsilon)
+  unpackcall(xs) = -log(epsilon(Y(unlinearize(xs, ω))))
   ForwardDiff.gradient(unpackcall, vals)
   # @assert false
   #@show ReverseDiff.gradient(unpackcall, vals)

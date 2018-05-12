@@ -56,4 +56,4 @@ function testcb(;ALG = HMC, n = 1000, kwargs...)
   plottraces(qpdata, plt)
 end
 
-testcb(nsteps = 20, stepsize = 0.01, n = 1000)
+testcb(nsteps = 20, stepsize = 0.01, n = 100)

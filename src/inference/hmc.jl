@@ -28,11 +28,11 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
     if i != nsteps
       # any(notunit, q) && return (current_q, false)
       invq = inv_transform(q)
-      @show p
-      @show q
-      @show invq  
-      @show ∇U(invq)
-      @show ∇U(invq) .* jacobian(invq)
+      # @show p
+      # @show q
+      # @show invq  
+      # @show ∇U(invq)
+      # ∇U(invq) .* jacobian(invq)
       p = p - stepsize * ∇U(invq) .* jacobian(q) ./ 2.0
     end
   end
@@ -49,8 +49,8 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
   proposed_U = U(invq)
   proposed_K = sum(p.^2) / 2.0
 
-  @show current_p
-  @show p
+  # @show current_p
+  # @show p
 
   H_current = current_U + current_K
   H_proposed = proposed_U + proposed_K
