@@ -18,7 +18,7 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
   # Rejects proposals outside domain TODO: Something smarter
   # any(notunit, q) && return (current_q, false)
   invq = inv_transform(q)
-  # p = p - stepsize * ∇U(invq) .* jacobian(invq) / 2.0
+  p = p - stepsize * ∇U(invq) .* jacobian(q) / 2.0
 
   for i = 1:nsteps
     cb(QP(q, p), Inside)
