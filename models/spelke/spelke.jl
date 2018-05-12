@@ -13,12 +13,22 @@ lift(:(Base.getindex), 2)
 const Δxk = :x2
 const Δyk = :y2
 
-struct Object{T}
+abstract type AbstractObject end
+
+struct ShallowObject{T} <: AbstractObject
   x::T
   y::T
   Δx::T
   Δy::T
-  # label
+end
+
+struct Object{T} <: AbstractObject
+  x::T
+  y::T
+  Δx::T
+  Δy::T
+  vx::T
+  vy::T
 end
 
 "View port into scene"
@@ -44,21 +54,6 @@ render(scene, camera)::Image = scene
 
 nboxes = poisson(5) + 1
 
-"Scene at frame t=0"
-function initscene(ω)
-  objects = map(1:nboxes(ω)) do i
-    Object(uniform(ω[@id][i], 0.0, 1.0),
-           uniform(ω[@id][i], 0.0, 1.0),
-           uniform(ω[@id][i], 10.0, 300.0),
-           uniform(ω[@id][i], 10.0, 400.0))
-  end
-  camera = Camera(uniform(ω[@id], 0.0, 1.0),
-                  uniform(ω[@id], 0.0, 1.0),
-                  640.0,
-                  480.0)
-  Scene(objects, camera)
-end
-
 function accumprop(prop, video)
   props = Float64[]
   for scene in video, object in scene.objects
@@ -73,7 +68,9 @@ function initscene(ω, data)
     Object(normal(ω[@id][i], mean(accumprop(:x, data)), std(accumprop(:x, data))),
            normal(ω[@id][i], mean(accumprop(:y, data)), std(accumprop(:y, data))),
            normal(ω[@id][i], mean(accumprop(:Δx, data)), std(accumprop(:Δx, data))),
-           normal(ω[@id][i], mean(accumprop(:Δy, data)), std(accumprop(:Δy, data))))
+           normal(ω[@id][i], mean(accumprop(:Δy, data)), std(accumprop(:Δy, data))),
+           uniform(ω[@id][i], -1.0, 1.0),
+           uniform(ω[@id][i], -1.0, 1.0))
   end
   camera = Camera(normal(ω[@id], 0.0, 1.0),
                   normal(ω[@id], 0.0, 1.0),
@@ -85,10 +82,12 @@ end
 
 "Shift an object by adding gaussian perturbation to x, y, Δx, Δy"
 function move(ω, object::Object)
-  Object(object.x + normal(ω[@id], 0.0, 2.0),
-         object.y + normal(ω[@id], 0.0, 2.0),
-         object.Δx + normal(ω[@id], 0.0, 2.0),
-         object.Δy + normal(ω[@id], 0.0, 2.0))
+  Object(object.x + object.vx,
+         object.y + object.vy,
+         object.Δx,
+         object.Δy,
+         object.vx,
+         object.vy)
 end
 
 "Move entire all objects in scene"
@@ -125,9 +124,12 @@ function gp_(ω)
     y = mvnormal(ω[@id][i][2], zeros(t), Σ)
     # Δx = mvnormal(ω[@id][i][3], zeros(t), Σ)
     # Δy = mvnormal(ω[@id][i][4], zeros(t), Σ)
-    Δx = 30.0
-    Δy = 30.0
-    Object.(x, y, Δx, Δy)
+    Δx = 50.0
+    Δy = 50.0
+    # Whatever for now.
+    vx = 0
+    vy = 0
+    Object.(x, y, Δx, Δy, vx, vy)
     # @grab x
   end
   #@grab objects
@@ -156,16 +158,16 @@ function Scene(df::AbstractDataFrame)
     y = row[:y]
     dy = row[Δyk]
     Δy = abs(dy - y)
-    Object(float(x), float(y), float(Δx), float(Δy))
+    ShallowObject(float(x), float(y), float(Δx), float(Δy))
   end
   camera = Camera(0.0, 0.0, 640.0, 480.0)
   Scene(objects, camera)
 end
 
 Δ(a::Real, b::Real) = sqrt((a - b)^2)
-Δ(a::Object, b::Object) =
+Δ(a::AbstractObject, b::AbstractObject) =
   mean([Δ(a.x, b.x), Δ(a.y, b.y), Δ(a.Δx, b.Δx), Δ(a.Δy, b.Δy)])
-Δ(a::Scene, b::Scene) = speedysurjection(a.objects, b.objects)
+Δ(a::Scene, b::Scene) = surjection(a.objects, b.objects)
 
 function Mu.softeq(a::Array{<:Scene,1}, b::Array{<:Scene})
   dists = Δ.(a, b)
@@ -218,7 +220,7 @@ end
 ## Run
 ## ===
 datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.csv")
-datapath = joinpath(datadir(), "spelke", "data", "Balls_2_DivergenceA", "Balls_2_DivergenceA_DetectedObjects.csv")
+datapath = joinpath(datadir(), "spelke", "data", "Balls_3_Clean", "Balls_3_Clean_DetectedObjects.csv")
 
 function train()
   data = CSV.read(datapath)
@@ -227,8 +229,10 @@ function train()
   realvideo = map(Scene, frames)
   video = iid(ω -> video_(ω, realvideo, nframes))
   rand(video)
-  samples = rand(video, video == realvideo, SSMH, n=10000);
-  viz(samples[end])
+  samples = rand(video, video == realvideo, SSMH, n=1000);
+  evalposterior(samples, realvideo, verbose=false, visual=true)
+  #viz(samples[end])
+  samples
 end
 
 "Frame by frame differences"
