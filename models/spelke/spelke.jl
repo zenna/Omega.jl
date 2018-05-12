@@ -7,6 +7,7 @@ using ArgParse
 using Stats
 
 include("distances.jl")
+include("evals.jl")
 
 lift(:(Base.getindex), 2)
 const Δxk = :x2
@@ -227,7 +228,7 @@ function train()
   video = iid(ω -> video_(ω, realvideo, nframes))
   rand(video)
   samples = rand(video, video == realvideo, SSMH, n=10000);
-  viz(samples)
+  viz(samples[end])
 end
 
 "Frame by frame differences"
