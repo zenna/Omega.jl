@@ -20,7 +20,7 @@ abstract type Stage end
 ""
 abstract type Inside <: Stage end
 
-"Outside"
+"Stage at end of MHStep"
 abstract type Outside <: Stage end
 
 
@@ -103,11 +103,11 @@ function anneal(α::Var...)
   end
 end
 
-function tracecb(::Type{T}) where T
+function tracecb(::Type{T}, t = identity) where T
   ωs = T[]
   allωs = Vector{T}[]
   function f(qp, ::Type{Mu.Inside})
-    push!(ωs, qp)
+    push!(ωs, t(qp))
   end
 
   function f(data, ::Type{Mu.Outside})

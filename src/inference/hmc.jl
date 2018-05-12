@@ -3,10 +3,6 @@ abstract type HMC <: Algorithm end
 
 defaultomega(::Type{HMC}) = Mu.SimpleOmega{Int, Float64}
 
-struct QP{T}
-  q::T
-  p::T
-end
 
 "Hamiltonian monte carlo with leapfrog integration: https://arxiv.org/pdf/1206.1901.pdf"
 function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
@@ -32,10 +28,11 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
     if i != nsteps
       # any(notunit, q) && return (current_q, false)
       invq = inv_transform(q)
-      # @show q
-      # @show invq  
-      # @show ∇U(invq)
-      # @show ∇U(invq) .* jacobian(invq)
+      @show p
+      @show q
+      @show invq  
+      @show ∇U(invq)
+      @show ∇U(invq) .* jacobian(invq)
       p = p - stepsize * ∇U(invq) .* jacobian(invq) ./ 2.0
     end
   end

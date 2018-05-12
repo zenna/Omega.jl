@@ -1,4 +1,5 @@
 using Plots
+using Mu
 
 """
 μ = normal(0.0, 1.0)
@@ -6,7 +7,7 @@ x = normal(μ, 1.0)
 y = x == 0.0
 viz(y)
 """
-function ucontours2(y::Mu.RandVar, xdim, ydim, ω::Mu.Omega; xrng = 0:0.01:1, yrng = 0:0.01:1, plt = plot())
+function ucontours(y::Mu.RandVar, xdim, ydim, ω::Mu.Omega; xrng = 0:0.01:1, yrng = 0:0.01:1, plt = plot())
   ω_ = deepcopy(ω)
   function f(x_, y_)
     # @show x, y, ω_
@@ -24,8 +25,13 @@ isunit(x) = 0.0 <= x <= 1.0
 
 function plottrace(data, plt = plot())
   d = [d.q for d in data]
-  xs = Mu.bound.([d[1] for d in d])
-  ys = Mu.bound.([d[2] for d in d])
+  
+  # FOR HMCFAST: TOOD Specialise
+  # xs = Mu.bound.([d_[1][1] for d_ in d])
+  # ys = Mu.bound.([d_[2][1] for d_ in d])
+  xs = Mu.bound.([d_[1] for d_ in d])
+  ys = Mu.bound.([d_[2] for d_ in d])
+
   plot!(plt, xs, ys, arrow = :arrow, linealpha = 0.5, legend=false)
 end
 
@@ -36,19 +42,19 @@ function plottraces(qpdata, plt = plot())
   plt
 end
 
-function testcb(;kwargs...)
+function testcb(;ALG = HMC, kwargs...)
   μ = normal(0.0, 1.0)
   x = normal(μ, 1.0)
-  y = (x == 0.0) | (μ < 0.0)
-  # y = (x == 0.0)
-  cb, cbdata = Mu.tracecb(Mu.QP)
+  # y = (x == 0.0) | (μ < 0.0)
+  y = (x == 0.0)  
+  cb, cbdata = Mu.tracecb(Mu.QP, deepcopy)
   n = 200
   cb = [default_cbs(n); cb]
-  rand(μ, y, HMC; n = n, cb = cb, kwargs...)
+  rand(μ, y, ALG; n = n, cb = cb, kwargs...)
   qpdata = cbdata[2]
   plt = plot()
-  ucontours2(y, x.id, μ.id, Mu.defaultomega(HMC)(), plt = plt)
+  ucontours(y, x.id, μ.id, Mu.defaultomega(HMC)(), plt = plt)
   plottraces(qpdata, plt)
 end
 
-testcb(nsteps = 20, stepsize = 0.01, n=5000)
+testcb(nsteps = 20, stepsize = 0.01, n = 1000)

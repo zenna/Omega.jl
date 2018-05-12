@@ -36,3 +36,12 @@ function showstats(accepted, i, y, ω)
   print_with_color(:light_blue, "acceptance ratio: $(accepted/float(i)) ",
                                 "Last log likelihood $(epsilon(y(ω)))\n")
 end
+
+## HMC COMMON
+## ===========
+
+"Structure for passing Q and P values of HMC to callbacks"
+struct QP{T} # TODO: Replace with NameedTuple 
+  q::T
+  p::T
+end
