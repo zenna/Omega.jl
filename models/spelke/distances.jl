@@ -73,12 +73,11 @@ function surjection(s1, s2, Δ = Δ)
   distance = Inf
   Surj = ones(length(dom))
   continue_ = true
-
   while continue_
     # Step 1: check if function is a surjection
     if length(unique(Surj)) == length(rng)
       # Step 2: compute distance and replace if necessary
-      surjdist = sum([Δ(dom[x],rng[floor(Int,Surj[x])]) for x in range(1,length(dom))])
+      surjdist = sum([dm[x,floor(Int,Surj(x))] for x in 1:length(dom)])
       if (surjdist < distance)
         distance = surjdist
       end
