@@ -55,6 +55,71 @@ function testcb(;ALG = HMC, kwargs...)
   plt = plot()
   ucontours(y, x.id, μ.id, Mu.defaultomega(HMC)(), plt = plt)
   plottraces(qpdata, plt)
+  qpdata, plt
 end
 
 testcb(nsteps = 20, stepsize = 0.01, n = 1000)
+
+
+
+function testcb2(;kwargs...)
+  μ = normal(0.0, 1.0)
+  x = normal(μ, 1.0)
+  # y = (x == 0.0) | (μ < 0.0)
+  y = (x^2 + μ^2 == 1.0)
+  cb, cbdata = Mu.tracecb(Mu.QP)
+  n = 200
+  cb = [default_cbs(n); cb]
+  rand(μ, y, HMC; n = n, cb = cb, kwargs...)
+  qpdata = cbdata[2]
+  plt = plot()
+  ucontours2(y, x.id, μ.id, Mu.defaultomega(HMC)(), plt = plt)
+  plottraces(qpdata, plt)
+  qpdata, plt
+end
+qpdata, plt = testcb2(nsteps = 20, stepsize = 0.01, n=5000)
+
+
+function to_output_space(q1, q2)
+  n1  = Distributions.Normal(0, 1)
+  μ = quantile(n1, q1)
+  n2 = Distributions.Normal(μ, 1)
+  μ, quantile(n2, q2)
+end
+
+
+function plotOutput(data, i=0,plt = plot())
+  transf(d) = to_output_space(d.q |> Mu.inv_transform)...)[2]
+  ys = map(transf, data)
+  k = 1.0/(data |> length)
+  xs = i:k:(i+1-k)
+  plot!(plt, xs, ys, arrow = :arrow, linealpha = 0.5, legend=false)
+end
+
+function plotOutputs(data, plt=plot())
+  for (i, qp) in enumerate(data)
+    plotOutput(qp, i, plt)
+  end
+  plt
+end
+
+function plotOutputXY(data, plt = plot())
+  xs, ys = zip([g((d.q |> Mu.inv_transform)...)               
+                for d in data]...) |> collect
+  plot!(plt, xs |> collect, ys |> collect, arrow = :arrow, linealpha = 0.5, legend=false)
+end
+
+function plotOutputsXY(data, plt=plot())
+  foreach(data) do qp
+    plotOutputXY(qp, plt)
+  end
+  plt
+end
+
+function filtered_qp(qpdata)
+  indexes = filter(1:length(qpdata)-1) do i
+    qpdata[i][1].q != qpdata[i+1][1].q
+  end
+  qpdata[indexes]
+end
+  
