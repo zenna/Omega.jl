@@ -4,7 +4,6 @@ using CSV
 using DataFrames
 using RunTools
 using ArgParse
-using Stats
 
 include("distances.jl")
 include("evals.jl")

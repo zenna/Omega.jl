@@ -1,3 +1,5 @@
+using StatsBase
+
 include("distances.jl")
 
 function evalposterior(samples, realvideo, verbose=false, visual=false)
@@ -18,9 +20,9 @@ function evalposterior(samples, realvideo, verbose=false, visual=false)
   if verbose print("Worst sample's (#$worstsampleno) avg. dist = $worstsampled\n") end
   # Part 3: Get average distances over time
   timeperformance = [mean(distancematrix[i,:]) for i=1:size(distancematrix)[1]]
-  timecor = round(corspearman(1:90,timeperformance),2)
+  timecor = round(corspearman(1:length(realvideo),timeperformance),2)
   if verbose print("Spearman with time = $timecor\n") end
-  if visual print(lineplot(1:90,timeperformance, title="Average distance of samples over time")) end
+  if visual print(lineplot(1:length(realvideo),timeperformance, title="Average distance of samples over time")) end
   results = Dict(:avgdistance => avgperformance, :bestdistance => bestsampled, :bestdistanceid => bestsampleno, :worstdistance => worstsampled, :worstdistanceid => worstsampleno, :timecor => timecor)
   return results
 end
