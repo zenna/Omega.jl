@@ -33,7 +33,7 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
       @show invq  
       @show ∇U(invq)
       @show ∇U(invq) .* jacobian(invq)
-      p = p - stepsize * ∇U(invq) .* jacobian(invq) ./ 2.0
+      p = p - stepsize * ∇U(invq) .* jacobian(q) ./ 2.0
     end
   end
   # @assert false
@@ -41,7 +41,7 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
   # Make half a step for momentum at the end
   # any(notunit, q) && return current_q, false
   invq = inv_transform(q)
-  p = p .- stepsize .* ∇U(invq) .* jacobian(invq) ./ 2.0
+  p = p .- stepsize .* ∇U(invq) .* jacobian(q) ./ 2.0
 
   # Evaluate the potential and kinetic energies at start and end
   current_U = U(current_q)
