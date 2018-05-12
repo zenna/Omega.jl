@@ -141,7 +141,7 @@ function stopnanorinf(data, stage::Type{Outside})
     println("p is $(data.p)")
     throw(NaNError())
     return Mu.Stop
-  else isinf(data.p)
+  elseif isinf(data.p)
     println("p is $(data.p)")
     throw(InfError())
     return Mu.Stop
