@@ -10,6 +10,17 @@ function infparams()
   φ
 end
 
+function kernelparams()
+  φ = Params()
+  φ[:kernel] = uniform([Mu.kf1, Mu.kse])
+  φ[:kernelargs] = kernelparams_(φ[:kernel])
+  φ
+end
+
+kernelparams_(::typeof(Mu.kf1)) = Params(:β => uniform([0.01, 0.1, 1.0, 10.0, 20.0, 40.0]))
+kernelparams_(::typeof(Mu.kse)) = Params(:α => uniform([0.01, 0.1, 1.0, 10.0, 20.0, 40.0]))
+Mu.lift(:kernelparams_, 1)
+
 "Paramters for HMC algorithms"
 function infparams_(::Type{HMC})
   stepsize = uniform([0.0001, 0.001, 0.01, 0.1]) # FIXME!!
@@ -46,6 +57,7 @@ modelparams() = Params(Dict(:temperature => 1.0))
 function allparams()
   φ = Params()
   φ[:infalg] = infparams()
+  φ[:kernel] = kernelparams()
   merge(φ, runparams())
 end
 
