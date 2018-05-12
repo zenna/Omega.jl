@@ -1,5 +1,11 @@
 using UnicodePlots
 
+"Inf found"
+struct InfError <: Exception end
+
+"NaNs found"
+struct NaNError <: Exception end
+
 ## Common Tools
 ## ============
 runall(f) = f
@@ -131,8 +137,13 @@ end
 "Stop if nans or Inf are present"
 stopnanorinf(data, stage) = nothing
 function stopnanorinf(data, stage::Type{Outside})
-  if isnan(data.p) || isinf(data.p)
+  if isnan(data.p)
     println("p is $(data.p)")
+    throw(NaNError())
+    return Mu.Stop
+  elseif isinf(data.p)
+    println("p is $(data.p)")
+    throw(InfError())
     return Mu.Stop
   end
 end

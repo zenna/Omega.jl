@@ -27,10 +27,10 @@ function plottrace(data, plt = plot())
   d = [d.q for d in data]
   
   # FOR HMCFAST: TOOD Specialise
-  # xs = Mu.bound.([d_[1][1] for d_ in d])
-  # ys = Mu.bound.([d_[2][1] for d_ in d])
-  xs = Mu.bound.([d_[1] for d_ in d])
-  ys = Mu.bound.([d_[2] for d_ in d])
+  xs = Mu.bound.([d_[1][1] for d_ in d])
+  ys = Mu.bound.([d_[2][1] for d_ in d])
+  # xs = Mu.bound.([d_[1] for d_ in d])
+  # ys = Mu.bound.([d_[2] for d_ in d])
 
   plot!(plt, xs, ys, arrow = :arrow, linealpha = 0.5, legend=false)
 end
@@ -42,13 +42,12 @@ function plottraces(qpdata, plt = plot())
   plt
 end
 
-function testcb(;ALG = HMC, kwargs...)
+function testcb(;ALG = HMC, n = 1000, kwargs...)
   μ = normal(0.0, 1.0)
   x = normal(μ, 1.0)
-  # y = (x == 0.0) | (μ < 0.0)
   y = (x == 0.0)  
+  y = (x == 0.0) | (μ < 0.0)
   cb, cbdata = Mu.tracecb(Mu.QP, deepcopy)
-  n = 200
   cb = [default_cbs(n); cb]
   rand(μ, y, ALG; n = n, cb = cb, kwargs...)
   qpdata = cbdata[2]

@@ -22,7 +22,7 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{MI};
       accepted += 1
     end
     push!(ωsamples, ω)
-    cb(RunData(ω, accepted, p_, i))
+    cb(RunData(ω, accepted, p_, i), Outside)
   end
   ωsamples
 end

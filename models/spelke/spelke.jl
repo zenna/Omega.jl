@@ -4,7 +4,7 @@ using CSV
 using DataFrames
 using RunTools
 using ArgParse
-using Stats
+# using Stats
 
 include("distances.jl")
 
@@ -45,7 +45,8 @@ nboxes = poisson(5) + 1
 
 "Scene at frame t=0"
 function initscene(ω)
-  objects = map(1:nboxes(ω)) do i
+  # objects = map(1:nboxes(ω)) do i
+  objects = map(1:2) do i
     Object(uniform(ω[@id][i], 0.0, 1.0),
            uniform(ω[@id][i], 0.0, 1.0),
            uniform(ω[@id][i], 10.0, 300.0),
@@ -149,7 +150,7 @@ end
 "Construct a scene from dataset"
 function Scene(df::AbstractDataFrame)
   objects = map(eachrow(df)) do row
-    @show x = row[:x]
+    x = row[:x]
     dx = row[Δxk]
     Δx = abs(dx - x)
     y = row[:y]
