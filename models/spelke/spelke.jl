@@ -4,7 +4,7 @@ using CSV
 using DataFrames
 using RunTools
 using ArgParse
-using Stats
+# using Stats
 
 include("distances.jl")
 
@@ -21,11 +21,11 @@ struct Object{T}
 end
 
 "View port into scene"
-struct Camera{T}
-  x::T
-  y::T
-  Δx::T
-  Δy::T
+struct Camera{T1, T2, T3, T4}
+  x::T1
+  y::T2
+  Δx::T3
+  Δy::T4
 end
 
 "Latent scene: camera and objects"
@@ -45,7 +45,8 @@ nboxes = poisson(5) + 1
 
 "Scene at frame t=0"
 function initscene(ω)
-  objects = map(1:nboxes(ω)) do i
+  # objects = map(1:nboxes(ω)) do i
+  objects = map(1:3) do i
     Object(uniform(ω[@id][i], 0.0, 1.0),
            uniform(ω[@id][i], 0.0, 1.0),
            uniform(ω[@id][i], 10.0, 300.0),
@@ -68,7 +69,8 @@ end
 
 "Scene at frame t=0"
 function initscene(ω, data)
-  objects = map(1:nboxes(ω)) do i
+  # objects = map(1:nboxes(ω)) do i
+    objects = map(1:3) do i
     Object(normal(ω[@id][i], mean(accumprop(:x, data)), std(accumprop(:x, data))),
            normal(ω[@id][i], mean(accumprop(:y, data)), std(accumprop(:y, data))),
            normal(ω[@id][i], mean(accumprop(:Δx, data)), std(accumprop(:Δx, data))),
@@ -149,7 +151,7 @@ end
 "Construct a scene from dataset"
 function Scene(df::AbstractDataFrame)
   objects = map(eachrow(df)) do row
-    @show x = row[:x]
+    x = row[:x]
     dx = row[Δxk]
     Δx = abs(dx - x)
     y = row[:y]
@@ -164,7 +166,7 @@ end
 Δ(a::Real, b::Real) = sqrt((a - b)^2)
 Δ(a::Object, b::Object) =
   mean([Δ(a.x, b.x), Δ(a.y, b.y), Δ(a.Δx, b.Δx), Δ(a.Δy, b.Δy)])
-Δ(a::Scene, b::Scene) = speedysurjection(a.objects, b.objects)
+Δ(a::Scene, b::Scene) = surjection(a.objects, b.objects)
 
 function Mu.softeq(a::Array{<:Scene,1}, b::Array{<:Scene})
   dists = Δ.(a, b)
@@ -207,7 +209,7 @@ function draw(scene::Scene,
 end
 
 "Draw a sequence of frames"
-function viz(vid, sleeptime = 0.2)
+function viz(vid, sleeptime = 0.02)
   foreach(vid) do o
     display(draw(o))
     sleep(sleeptime)
@@ -216,18 +218,21 @@ end
 
 ## Run
 ## ===
-datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.csv")
-datapath = joinpath(datadir(), "spelke", "data", "Balls_2_DivergenceA", "Balls_2_DivergenceA_DetectedObjects.csv")
 
 function train()
+  # datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.csv")
+  # datapath = joinpath(datadir(), "spelke", "data", "Balls_2_DivergenceA", "Balls_2_DivergenceA_DetectedObjects.csv")
+  datapath = joinpath(datadir(), "spelke", "data", "Balls_3_Clean", "Balls_3_Clean_DetectedObjects.csv")
+
   data = CSV.read(datapath)
   nframes = length(unique(data[:frame]))
   frames = groupby(data, :frame)
   realvideo = map(Scene, frames)
   video = iid(ω -> video_(ω, realvideo, nframes))
   rand(video)
-  samples = rand(video, video == realvideo, SSMH, n=10000);
-  viz(samples)
+  samples = rand(video, video == realvideo, HMC, n=200);
+  viz(samples[end])
+  samples
 end
 
 "Frame by frame differences"

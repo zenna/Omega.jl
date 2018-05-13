@@ -12,6 +12,7 @@ defaultomega(::Type{ALG}) where ALG = DefaultOmega
 function Base.rand(x::Union{RandVar, UTuple{RandVar}}, y, alg::Type{ALG};
                    n::Integer = 1000,
                    OmegaT::OT = defaultomega(ALG),
-                   cb = default_cbs(n)) where {ALG, OT}
-  map(x, rand(OmegaT, y, alg; n = n, cb = cb))
+                   cb = default_cbs(n),
+                   kwargs...) where {ALG, OT}
+  map(x, rand(OmegaT, y, alg; n = n, cb = cb, kwargs...))
 end

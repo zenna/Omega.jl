@@ -22,23 +22,25 @@ end
 test()
 
 function testbeta()
-  plotbeta(beta) = lineplot(i->pdf(beta, i), 0.0001, 0.999)
+  plotbeta(beta) = lineplot(i->Distributions.pdf(beta, i), 0.0001, 0.999)
   α = uniform(0.001, 5.0)
   β = uniform(0.001, 5.0)
   b = betarv(α, β)
   brcd = b ∥ (α, β)
   samples = rand((α, β), mean(brcd) == 0.5, SSMH)
-  s = Beta(rand(samples)...); plotbeta(s)
-  s = Beta(rand(samples)...); plotbeta(s)
+  s = Distributions.Beta(rand(samples)...); plotbeta(s)
+  s = Distributions.Beta(rand(samples)...); plotbeta(s)
   samples2 = rand((α, β), mean(brcd) == α, SSMH)  
 end
 
 testbeta()
 
+# RCD here is not correct
 function testbad()
   α = rademacher(0.5)
   β = rademacher(0.5) * α
   γ = rademacher(0.5) + α + β
-  samples = [rand(mean(γ ∥ b)) for i = 1:1000]
-
+  samples = [rand(mean(γ ∥ (α, β))) for i = 1:1000]
 end
+
+testbad()
