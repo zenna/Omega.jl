@@ -49,15 +49,16 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
   current_K =  sum(current_p.^2) / 2.0
   proposed_U = U(invq)
   proposed_K = sum(p.^2) / 2.0
+  # @assert false
 
   # @show current_p
   # @show p
   # @show current_p, p
   # @show current_q, invq
 
-  H_current = current_U + current_K
-  H_proposed = proposed_U + proposed_K
-  @show H_proposed - H_current
+  # H_current = current_U + current_K
+  # H_proposed = proposed_U + proposed_K
+  # @show H_proposed - H_current
   # @assert false
 
   # @show current_U, proposed_U, current_K,  proposed_K
@@ -66,10 +67,8 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
   # @assert false
   # if rand() < exp(current_U - proposed_U)
   if log(rand()) < current_U - proposed_U + current_K - proposed_K
-    println("accepted ")
     return (proposed_U, invq, true) # accept ω
   else
-    println("rejected")
     return (current_U, current_q, false)  # reject ω
   end
 end
@@ -90,7 +89,7 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{HMC};
   U(ωvec::Vector) = U(unlinearize(ωvec, ω))
   ∇U(ωvec) = gradient(y, ω, ωvec)
 
-  accepted = 1
+  accepted = 0
   for i = 1:n
     p_, ωvec, wasaccepted = hmc(U, ∇U, nsteps, stepsize, ωvec, cb)
     ω_ = unlinearize(ωvec, ω)
