@@ -62,7 +62,7 @@ function plotω(x::RandVar{T}, y::RandVar{T}) where T
   yωs = Float64[]
 
   innerplotω(data, stage) = nothing # Do nothing in other stages
-  function innerplotω(data, stage)
+  function innerplotω(data, stage::Type{Outside})
     color = :blue
     if isempty(xωs)
       color = :red
@@ -134,14 +134,14 @@ function printstats(data, stage::Type{Outside})
 end
 
 
-"Stop if nans or Inf are present"
+"Stop if nans or Inf are present (-Inf) still permissible"
 stopnanorinf(data, stage) = nothing
 function stopnanorinf(data, stage::Type{Outside})
   if isnan(data.p)
     println("p is $(data.p)")
     throw(NaNError())
     return Mu.Stop
-  elseif isinf(data.p)
+  elseif data.p == Inf
     println("p is $(data.p)")
     throw(InfError())
     return Mu.Stop

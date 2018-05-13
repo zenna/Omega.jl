@@ -33,6 +33,7 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
       # @show invq  
       # @show ∇U(invq)
       # ∇U(invq) .* jacobian(invq)
+      # @show ∇U(invq) .* jacobian(q)
       p = p - stepsize * ∇U(invq) .* jacobian(q) ./ 2.0
     end
   end
@@ -51,6 +52,8 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
 
   # @show current_p
   # @show p
+  # @show current_p, p
+  # @show current_q, invq
 
   H_current = current_U + current_K
   H_proposed = proposed_U + proposed_K
@@ -62,7 +65,7 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
 
   # @assert false
   # if rand() < exp(current_U - proposed_U)
-  if rand() < exp(current_U - proposed_U + current_K - proposed_K)
+  if log(rand()) < current_U - proposed_U + current_K - proposed_K
     println("accepted ")
     return (proposed_U, invq, true) # accept ω
   else
