@@ -46,14 +46,14 @@ function testcb(;ALG = HMC, n = 1000, kwargs...)
   μ = normal(0.0, 1.0)
   x = normal(μ, 1.0)
   y = (x == 0.0)  
-  y = (x == 0.0) | (μ < 0.0)
+  # y = (x == 0.0) | (μ < 0.0)
   cb, cbdata = Mu.tracecb(Mu.QP, deepcopy)
   cb = [default_cbs(n); cb]
   rand(μ, y, ALG; n = n, cb = cb, kwargs...)
   qpdata = cbdata[2]
   plt = plot()
   ucontours(y, x.id, μ.id, Mu.defaultomega(HMC)(), plt = plt)
-  plottraces(qpdata, plt)
+  print(plottraces(qpdata, plt))
   qpdata, plt
 end
 
