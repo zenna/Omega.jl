@@ -28,11 +28,11 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
     if i != nsteps
       # any(notunit, q) && return (current_q, false)
       invq = inv_transform(q)
-      @show p
-      @show q
-      @show invq  
-      @show ∇U(invq)
-      @show ∇U(invq) .* jacobian(invq)
+      # @show p
+      # @show q
+      # @show invq  
+      # @show ∇U(invq)
+      # @show ∇U(invq) .* jacobian(q)
       p = p - stepsize * ∇U(invq) .* jacobian(q) ./ 2.0
     end
   end
@@ -49,8 +49,8 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
   proposed_U = U(invq)
   proposed_K = sum(p.^2) / 2.0
 
-  @show current_p
-  @show p
+  @show current_p, p
+  @show current_q, invq
 
   H_current = current_U + current_K
   H_proposed = proposed_U + proposed_K
@@ -62,7 +62,7 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
 
   # @assert false
   # if rand() < exp(current_U - proposed_U)
-  if rand() < exp(current_U - proposed_U + current_K - proposed_K)
+  if log(rand()) < current_U - proposed_U + current_K - proposed_K
     println("accepted ")
     return (proposed_U, invq, true) # accept ω
   else
