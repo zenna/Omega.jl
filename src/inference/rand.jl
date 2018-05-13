@@ -1,11 +1,18 @@
-UTuple{T} = Tuple{Vararg{T, N}} where N
-
-
 "Unconditional Sample from `x`"
-Base.rand(x::UTuple{RandVar}, OmegaT::T = DefaultOmega) where T = x(OmegaT())
-
+function Base.rand(x::Union{RandVar, UTuple{RandVar}}; OmegaT::Type{T} = defaultomega()) where T <: Omega
+  x(OmegaT())
+end
 # const DefaultOmega = Mu.SimpleOmega{Mu.Paired, Mu.Float64}
 const DefaultOmega = Mu.SimpleOmega{Mu.Paired, Mu.ValueTuple}
+defaultomega() = DefaultOmega
 
-"Version A"
-Base.rand(x::RandVar, OmegaT::T = DefaultOmega) where T = x(OmegaT())
+defaultomega(::Type{ALG}) where ALG = DefaultOmega
+
+"Sample from `x | y == true` with Metropolis Hasting"
+function Base.rand(x::Union{RandVar, UTuple{RandVar}}, y, alg::Type{ALG};
+                   n::Integer = 1000,
+                   OmegaT::OT = defaultomega(ALG),
+                   cb = default_cbs(n),
+                   kwargs...) where {ALG, OT}
+  map(x, rand(OmegaT, y, alg; n = n, cb = cb, kwargs...))
+end
