@@ -11,7 +11,8 @@ end
 "Sample from `x | y == true` with Single Site Metropolis Hasting"
 function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{SSMH};
                    n::Integer = 1000,
-                   cb = default_cbs(n)) where {OT <: Omega}
+                   cb = default_cbs(n),
+                   hack = true) where {OT <: Omega}
   cb = runall(cb)
   ω = OmegaT()
   plast = y(ω) |> logepsilon

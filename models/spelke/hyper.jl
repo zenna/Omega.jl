@@ -35,24 +35,28 @@ function infparams_(::Type{HMC})
 end
 
 "Default is no argument params"
-infparams_(::Type{T}) where T = Params()
+function infparams_(::Type{T}) where T
+  Params{Symbol, Any}(Dict{Symbol, Any}(:hack => true))
+end
 Mu.lift(:infparams_, 1)
 
 function runparams()
+  # required for sim
   φ = Params()
   φ[:train] = true
   φ[:loadchain] = false
   φ[:loadnet] = false
+
   φ[:name] = "spelke test"
   φ[:runname] = randrunname()
   φ[:tags] = ["test", "spelke"]
-  φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])
-  φ[:runlocal] = true
-  φ[:runsbatch] = false
-  φ[:runnow] = true
-  φ[:dryrun] = false
-  φ[:modelparams] = modelparams()
+  φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])   # LOGDIR is required for sim to save
   φ[:runfile] = @__FILE__
+  
+  # φ[:here] = true
+  # φ[:sbatch] = false
+  # φ[:now] = true
+  # φ[:dryrun] = false
   φ
 end
 
@@ -62,9 +66,11 @@ modelparams() = Params(Dict(:temperature => 1.0))
 "All parameters"
 function allparams()
   φ = Params()
+  φ[:modelφ] = modelparams()
   φ[:infalg] = infparams()
   φ[:kernel] = kernelparams()
-  merge(φ, runparams())
+  # φ[:runφ] = runparams()
+  merge(φ, runparams()) # FIXME: replace this with line above when have magic indexing
 end
 
 "Parameters we wish to enumerate"
@@ -90,18 +96,40 @@ function infer(φ)
   rand(y, y, φ[:infalg][:infalg]; φ[:infalg][:infalgargs]...)
 end
 
-function main()
-  if isempty(ARGS)
-    @show args
-    runφs = RunTools.loadparam(ARGS[1])
-  else
-    runφs = paramsamples()  # Could also load this from cmdline
-    dispatchmany(infer, runφs, ignoreexceptions = [Mu.InfError, Mu.NaNError])
-  end 
+function save(φ::Params;
+              dryrun = get(φ, :dryrun, false))
+  mkpath_ = dryrun ? dry(mkpath) : mkpath 
+  mkpath_(φ[:logdir])
+  RunTools.saveparams(φ, joinpath(φ[:logdir], "$(φ[:runname]).pm"))
 end
 
-# main()
+function fakeargs()
+  Params(:dispatch => false,
+         :param => "/home/zenna/data/runs/test_spelke/oOz15_2018-05-13T18:51:47.999_blade/oOz15.bson",
+         :now => true)
+end
 
-## Issue is I want this thing to run locally
-## BUT! I don't want it to run locally here
-## I want it to run locally when I save it
+function fakeargsdisp()
+  Params(:dispatch => true,
+         :param => "/home/zenna/data/runs/test_spelke/pTvnE_2018-05-13T18:38:41.28_blade/pTvnE.bson",
+         :now => false,
+         :sbatch => false,
+         :here => false,
+         :dryrun => false)
+end
+
+function main(sim = infer, args = RunTools.stdargs())
+  sim_ = args[:dryrun] ? RunTools.dry(sim) : sim
+  if args[:dispatch]
+    runφs = paramsamples()
+    RunTools.dispatchmany(infer, runφs;
+                          sbatch = args[:sbatch],
+                          here = args[:here],
+                          dryrun = args[:dryrun])
+  elseif args[:now] 
+    φ = RunTools.loadparams(args[:param])
+    sim_(φ)
+  end
+end
+
+main()
