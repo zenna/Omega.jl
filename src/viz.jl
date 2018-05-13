@@ -46,14 +46,14 @@ function testcb(;ALG = HMC, n = 1000, kwargs...)
   μ = normal(0.0, 1.0)
   x = normal(μ, 1.0)
   y = (x == 0.0)  
-  y = (x == 0.0) | (μ < 0.0)
+  # y = (x == 0.0) | (μ < 0.0)
   cb, cbdata = Mu.tracecb(Mu.QP, deepcopy)
   cb = [default_cbs(n); cb]
   rand(μ, y, ALG; n = n, cb = cb, kwargs...)
   qpdata = cbdata[2]
   plt = plot()
   ucontours(y, x.id, μ.id, Mu.defaultomega(HMC)(), plt = plt)
-  plottraces(qpdata, plt)
+  print(plottraces(qpdata, plt))
   qpdata, plt
 end
 
@@ -85,30 +85,30 @@ function to_output_space(q1, q2)
 end
 
 
-function plotOutput(data, i=0,plt = plot())
-  transf(d) = to_output_space(d.q |> Mu.inv_transform)...)[2]
-  ys = map(transf, data)
-  k = 1.0/(data |> length)
-  xs = i:k:(i+1-k)
-  plot!(plt, xs, ys, arrow = :arrow, linealpha = 0.5, legend=false)
-end
+# function plotoutput(data, i=0,plt = plot())
+#   transf(d) = to_output_space(d.q |> Mu.inv_transform)...)[2]
+#   ys = map(transf, data)
+#   k = 1.0/(data |> length)
+#   xs = i:k:(i+1-k)
+#   plot!(plt, xs, ys, arrow = :arrow, linealpha = 0.5, legend=false)
+# end
 
-function plotOutputs(data, plt=plot())
+function plotoutputs(data, plt=plot())
   for (i, qp) in enumerate(data)
-    plotOutput(qp, i, plt)
+    plotoutput(qp, i, plt)
   end
   plt
 end
 
-function plotOutputXY(data, plt = plot())
+function plotoutputXY(data, plt = plot())
   xs, ys = zip([g((d.q |> Mu.inv_transform)...)               
                 for d in data]...) |> collect
   plot!(plt, xs |> collect, ys |> collect, arrow = :arrow, linealpha = 0.5, legend=false)
 end
 
-function plotOutputsXY(data, plt=plot())
+function plotoutputsXY(data, plt=plot())
   foreach(data) do qp
-    plotOutputXY(qp, plt)
+    plotoutputXY(qp, plt)
   end
   plt
 end

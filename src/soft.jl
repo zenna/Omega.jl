@@ -7,7 +7,7 @@ kf1β(β) = d -> kf1(d, β)
 lift(:kf1β, 1)
 
 "Squared exponential kernel `α = 1/2l^2`, higher α is lower temperature  "
-kse(d, α = 0.1) = 1 - exp(-α * d)
+kse(d, α = 5.0) = 1 - exp(-α * d)
 kseα(α) = d -> kse(d, α) 
 lift(:kseα, 1)
 

@@ -50,7 +50,7 @@ function traces(data, i, measure = 807)
 end
 
 "wow!"
-function datacond2(data, sim, personid)
+function datacond(data, sim, personid)
   exampledata = traces(data, personid)
   rng = 1:min(nsteps, nrow(exampledata))
   obvglucose = normalize(Float64.(exampledata[:Value])[rng])
@@ -65,11 +65,27 @@ simsω = rand(Mu.defaultomega, d1, HMC, n=1000000);
 ## ====
 using Plots
 "n simulations, n + 1 simulations, with mean tied"
-function plot1(sims)
-  Plots.plot(sims, w=3,
-       title = "Time vs Glucose Level",
-       xaxis = "Time",
-       yaxis = "Glucose Level")
+function plot1(sims, dpi = 80)
+  p = Plots.plot(sims, w=3,
+                 title = "Time vs Glucose Level",
+                 xaxis = "Time",
+                 yaxis = "Glucose Level",
+                 fmt = :pdf,
+                 size = (Int(5.5*dpi), 2*dpi),
+                 dpi = dpi)
+  savefig(p, joinpath(ENV["DATADIR"], "mu", "figures", "test.pdf"))
+  p
+end
+
+nipssize() = ()
+
+function setupplots()
+  upscale = 1 #8x upscaling in resolution
+  fntsm = Plots.font("sans-serif", 10.0*upscale)
+  fntlg = Plots.font("sans-serif", 14.0*upscale)
+  default(titlefont = fntlg, guidefont=fntlg, tickfont=fntsm, legendfont=fntsm)
+  default(size = (500*upscale, 300*upscale)) #Plot canvas size
+  default(dpi = 300) #Only for PyPlot - presently broken
 end
 
 traces(data, 3)[:Value]

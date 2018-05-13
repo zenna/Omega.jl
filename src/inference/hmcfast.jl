@@ -17,6 +17,7 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
  
   # Make a half step for momentum at beginning
   ∇qvals = [x.grad for x in values(prop_ω)]
+  foreach(∇qvals) do ∇q @. ∇q = 0 end  #reset gradients
   ∇U(prop_ω)  # Gradient step
   foreach((p, ∇q) -> @.(p = p - stepsize * ∇q * jac(prop_q) / 2.0), pvals, ∇qvals)
 
@@ -33,6 +34,7 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
       foreach(prop_qvals) do prop_q @. prop_q = bound(prop_q) end 
 
       # Gradient step
+      foreach(∇qvals) do ∇q @. ∇q = 0 end  #reset gradients
       ∇U(prop_ω)
       foreach(pvals, ∇qvals) do p, ∇q @. p = p - stepsize * ∇q * jac(∇q) / 2.0 end
 
