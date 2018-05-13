@@ -11,7 +11,6 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{MI};
   qlast = 1.0
   ωsamples = OmegaT[]
   accepted = 0
-
   for i = 1:n
     ω_ = OmegaT()
     p_ = epsilon(y(ω_))

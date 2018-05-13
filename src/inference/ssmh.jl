@@ -17,7 +17,7 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{SSMH};
   plast = y(ω) |> logepsilon
   qlast = 1.0
   samples = []
-  accepted = 1
+  accepted = 0
   for i = 1:n
     ω_ = if isempty(ω)
       ω

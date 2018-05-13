@@ -2,6 +2,12 @@
 using RunTools
 using Mu
 
+# I think there's still randomness given same omega
+# omegaids are bad
+# need to save params to disk
+# dont need to save everything!
+
+
 "Optimization-specific parameters"
 function infparams()
   φ = Params()
@@ -41,7 +47,7 @@ function runparams()
   φ[:runname] = randrunname()
   φ[:tags] = ["test", "spelke"]
   φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])
-  φ[:runlocal] = false
+  φ[:runlocal] = true
   φ[:runsbatch] = false
   φ[:runnow] = true
   φ[:dryrun] = false
@@ -78,8 +84,6 @@ function simplemodel()
   x == y
 end
 
-using ZenUtils
-
 function infer(φ)
   display(φ)
   y = simplemodel()
@@ -87,6 +91,17 @@ function infer(φ)
 end
 
 function main()
-  runφs = paramsamples()  # Could also load this from cmdline
-  dispatchmany(infer, runφs, ignoreexceptions = [Mu.InfError, Mu.NaNError])
+  if isempty(ARGS)
+    @show args
+    runφs = RunTools.loadparam(ARGS[1])
+  else
+    runφs = paramsamples()  # Could also load this from cmdline
+    dispatchmany(infer, runφs, ignoreexceptions = [Mu.InfError, Mu.NaNError])
+  end 
 end
+
+# main()
+
+## Issue is I want this thing to run locally
+## BUT! I don't want it to run locally here
+## I want it to run locally when I save it
