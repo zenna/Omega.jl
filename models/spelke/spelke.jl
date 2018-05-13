@@ -51,7 +51,7 @@ end
 "Render scene into an image"
 render(scene, camera)::Image = scene
 
-nboxes = poisson(5) + 1
+nboxes = poisson(2) + 1
 
 function accumprop(prop, video)
   props = Float64[]
@@ -64,12 +64,20 @@ end
 "Scene at frame t=0"
 function initscene(ω, data)
   objects = map(1:nboxes(ω)) do i
+    #Object(normal(ω[@id][i], mean(accumprop(:x, data)), std(accumprop(:x, data))),
+    #       normal(ω[@id][i], mean(accumprop(:y, data)), std(accumprop(:y, data))),
+    #       normal(ω[@id][i], mean(accumprop(:Δx, data)), std(accumprop(:Δx, data))),
+    #       normal(ω[@id][i], mean(accumprop(:Δy, data)), std(accumprop(:Δy, data))),
+    #       uniform(ω[@id][i], -1.0, 1.0),
+    #       uniform(ω[@id][i], -1.0, 1.0))
     Object(normal(ω[@id][i], mean(accumprop(:x, data)), std(accumprop(:x, data))),
-           normal(ω[@id][i], mean(accumprop(:y, data)), std(accumprop(:y, data))),
-           normal(ω[@id][i], mean(accumprop(:Δx, data)), std(accumprop(:Δx, data))),
-           normal(ω[@id][i], mean(accumprop(:Δy, data)), std(accumprop(:Δy, data))),
-           uniform(ω[@id][i], -1.0, 1.0),
-           uniform(ω[@id][i], -1.0, 1.0))
+       normal(ω[@id][i], mean(accumprop(:y, data)), std(accumprop(:y, data))),
+       normal(ω[@id][i], mean(accumprop(:Δx, data)), std(accumprop(:Δx, data))),
+       normal(ω[@id][i], mean(accumprop(:Δy, data)), std(accumprop(:Δy, data))),
+       uniform(ω[@id][i], [-5.0, 5.0]),
+       uniform(ω[@id][i], [-3.0, 3.0]))
+       #normal(ω[@id][i], 0.0, 1.0),
+       #normal(ω[@id][i], 0.0, 1.0))
   end
   camera = Camera(normal(ω[@id], 0.0, 1.0),
                   normal(ω[@id], 0.0, 1.0),
@@ -151,7 +159,7 @@ end
 "Construct a scene from dataset"
 function Scene(df::AbstractDataFrame)
   objects = map(eachrow(df)) do row
-    @show x = row[:x]
+    x = row[:x]
     dx = row[Δxk]
     Δx = abs(dx - x)
     y = row[:y]
@@ -171,8 +179,9 @@ end
 function Mu.softeq(a::Array{<:Scene,1}, b::Array{<:Scene})
   dists = Δ.(a, b)
   d = mean(dists)
-  e = log(1 - Mu.kse(d, 0.138))
-  Mu.LogSoftBool(e)
+  e = 1 - Mu.kse(d, 0.08)
+  eps = 1e-6
+  Mu.SoftBool(e + eps)
 end
 
 ## Visualization
@@ -219,7 +228,7 @@ end
 ## Run
 ## ===
 datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.csv")
-datapath = joinpath(datadir(), "spelke", "data", "Balls_3_Clean", "Balls_3_Clean_DetectedObjects.csv")
+datapath = joinpath(datadir(), "spelke", "data", "Balls_2_Synced", "Balls_2_Synced_DetectedObjects.csv")
 
 function train()
   data = CSV.read(datapath)
@@ -231,7 +240,7 @@ function train()
   samples = rand(video, video == realvideo, SSMH, n=1000);
   evalposterior(samples, realvideo, false, true)
   #viz(samples[end])
-  samples
+  #samples
 end
 
 "Frame by frame differences"
