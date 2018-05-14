@@ -14,10 +14,10 @@ Mu.lift(:d, 2)
 function rnn_(ω, f, nsteps) 
   h = zeros(10) # What should this be?
   xs = []
+  input = vcat(0, h)
   for i = 1:nsteps
-    input = vcat(i, h)
-    all_ = f(input)
-    x, h = all_[1], [y.tracker.data for y in all_[2:end]]
+    input = f(input)
+    x = all_[1]
     push!(xs, x)
   end
   [xs...]
@@ -34,16 +34,16 @@ end
 
 function model(nsteps)
   npatients = 5
-  # function F_(ω, i)
-  #   other = Flux.Dense(ω[@id][i][2], 10, 1, Flux.sigmoid)
-  #   Chain(
-  #     Flux.Dense(ω[@id][i][1], 1 + 10, 10, Flux.elu),
-  #     h -> vcat(other(h), h))
-  # end
-  F_(ω, i) = Chain(
-    Flux.Dense(ω[@id][i][1], 1, 10, Flux.relu),
-    Flux.Dense(ω[@id][i][2], 10, 1, Flux.sigmoid)
-  )
+  function F_(ω, i)
+    other = Flux.Dense(ω[@id][i][2], 10, 1, Flux.sigmoid)
+    Chain(
+      Flux.Dense(ω[@id][i][1], 1 + 10, 10, Flux.elu),
+      h -> vcat(other(h), h))
+  end
+  # F_(ω, i) = Chain(
+  #   Flux.Dense(ω[@id][i][1], 1, 10, Flux.relu),
+  #   Flux.Dense(ω[@id][i][2], 10, 1, Flux.sigmoid)
+  # )
 
   # Create one network per person
   fs = [iid(F_, i) for i = 1:npatients]
