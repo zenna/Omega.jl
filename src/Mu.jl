@@ -118,6 +118,11 @@ export mean,
        plotrv,
        default_cbs,
 
+       withkernel,
+
        # Gradient
-       gradient
+       gradient,
+
+       # Misc
+       ntranspose
 end
