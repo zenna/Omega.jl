@@ -23,7 +23,7 @@ end
 
 function model(nsteps)
   npatients = 5
-  F_(ω, i) = Flux.Dense(ω[@id][i], 5, 1, Flux.elu)
+  F_(ω, i) = Flux.Dense(ω[@id][i], 50, 1, Flux.elu)
 
   # Create one network per person
   fs = [iid(F_, i) for i = 1:npatients]
@@ -69,7 +69,9 @@ function infer(nsteps = 20)
   sims, meansims = model(nsteps)
   personid = 3
   y, obvglucose = datacond(data, sims[1], personid, nsteps)
-  simsω = rand(SimpleOmega{Vector{Int}, Flux.Array}, y, HMC, n=10000)
+  # @assert false
+  simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y, HMCFAST, n=10000)
+  # simsω = rand(SimpleOmega{Vector{Int}, Flux.Array}, y, HMC, n=10000)
   simsω, obvglucose, sims
 end
 

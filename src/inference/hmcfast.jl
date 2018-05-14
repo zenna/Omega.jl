@@ -60,7 +60,11 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
 
   #@show current_U, proposed_U, current_K, proposed_K
   # Accept or reject
-  rand() < exp(current_U - proposed_U + current_K - proposed_K)
+  if rand() < exp(current_U - proposed_U + current_K - proposed_K)
+    (proposed_U, true)
+  else
+    (current_U, false)
+  end
 end
 
 "Sample from `x | y == true` with Hamiltonian Monte Carlo"
@@ -87,7 +91,7 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{HMCFAST};
 
   accepted = 0
   for i = 1:n
-    wasaccepted = hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω,
+    p_, wasaccepted = hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω,
                           prop_ω, nsteps, stepsize, cb)
     if wasaccepted
       push!(ωsamples, deepcopy(prop_ω))
@@ -97,7 +101,7 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{HMCFAST};
       # QVALS need to reflect
       push!(ωsamples, deepcopy(ω))
     end
-    cb(RunData(prop_ω, accepted, 1.0, i), Outside)
+    cb(RunData(prop_ω, accepted, Flux.data(p_), i), Outside)
   end
   ωsamples
 end

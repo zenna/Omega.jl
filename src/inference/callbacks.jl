@@ -49,8 +49,6 @@ function plotp()
   function innerplotp(data, stage::Type{Outside})
     push!(alldata, data.p)
     push!(ys, data.i)
-    @show alldata
-    @show ys
     if !isempty(alldata)
       println(lineplot(ys, alldata, title="Time vs p"))
     end
