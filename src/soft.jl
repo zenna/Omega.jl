@@ -7,7 +7,7 @@ kf1β(β) = d -> kf1(d, β)
 lift(:kf1β, 1)
 
 "Squared exponential kernel `α = 1/2l^2`, higher α is lower temperature  "
-kse(d, α = 5.0) = 1 - exp(-α * d)
+kse(d, α = 1.0) = 1 - exp(-α * d)
 kseα(α) = d -> kse(d, α) 
 lift(:kseα, 1)
 
@@ -56,7 +56,8 @@ logepsilon(x::LogSoftBool) = x.logepsilon
 ## (In)Equalities
 ## ==============
 @inline d(x::Real, y::Real) = (xy = (x - y); xy * xy)
-@inline d(x::Vector{<:Real}, y::Vector{<:Real}) = norm(x - y)
+# @inline d(x::Vector{<:Real}, y::Vector{<:Real}) = norm(x - y)
+@inline d(x::Vector{<:Real}, y::Vector{<:Real}) = minimum((d.(x,y)))
 @inline d(x::Array{<:Real}, y::Array{<:Real}) = norm(x[:] - y[:])
 
 "Soft Equality"
