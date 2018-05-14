@@ -60,7 +60,7 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
 
   #@show current_U, proposed_U, current_K, proposed_K
   # Accept or reject
-  @show rand() < exp(current_U - proposed_U + current_K - proposed_K)
+  rand() < exp(current_U - proposed_U + current_K - proposed_K)
 end
 
 "Sample from `x | y == true` with Hamiltonian Monte Carlo"
