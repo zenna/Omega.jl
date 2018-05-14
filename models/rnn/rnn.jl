@@ -12,18 +12,38 @@ Mu.lift(:d, 2)
 
 "Recurrent Neural Network"
 function rnn_(ω, f, nsteps) 
-  x = 0.0 # What should this be?
+  h = zeros(10) # What should this be?
   xs = []
   for i = 1:nsteps
-    x = f(x)[1]
+    input = vcat(i, h)
+    all_ = f(input)
+    x, h = all_[1], [y.tracker.data for y in all_[2:end]]
     push!(xs, x)
   end
   [xs...]
 end
 
+# function rnn_(ω, f, nsteps) 
+#   xs = []
+#   for i = 1:nsteps
+#     x = f(i)[1]
+#     push!(xs, x)
+#   end
+#   [xs...]
+# end
+
 function model(nsteps)
   npatients = 5
-  F_(ω, i) = Flux.Dense(ω[@id][i], 50, 1, Flux.elu)
+  # function F_(ω, i)
+  #   other = Flux.Dense(ω[@id][i][2], 10, 1, Flux.sigmoid)
+  #   Chain(
+  #     Flux.Dense(ω[@id][i][1], 1 + 10, 10, Flux.elu),
+  #     h -> vcat(other(h), h))
+  # end
+  F_(ω, i) = Chain(
+    Flux.Dense(ω[@id][i][1], 1, 10, Flux.relu),
+    Flux.Dense(ω[@id][i][2], 10, 1, Flux.sigmoid)
+  )
 
   # Create one network per person
   fs = [iid(F_, i) for i = 1:npatients]
@@ -48,7 +68,7 @@ function traces(data, i, measure = 807)
   people = groupby(data, :Id)
   p1 = people[i]
   p2 = filter(row -> row[:Measure] == measure, p1)
-  sort(p2, :Time)
+  sort(p2, cols = [:Time,])
 end
 
 "Data condition, returns (sim == peronid.data, peronid.data)"
@@ -64,13 +84,13 @@ end
 loaddata() = CSV.read(joinpath(ENV["DATADIR"], "mu", "glucosedata.csv"))
 
 "Data, model, condition"
-function infer(nsteps = 20)
+function infer(nsteps = 20;n=1000)
   data = loaddata()
   sims, meansims = model(nsteps)
   personid = 3
   y, obvglucose = datacond(data, sims[1], personid, nsteps)
   # @assert false
-  simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y, HMCFAST, n=10000)
+  simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y, HMCFAST, n=n)
   # simsω = rand(SimpleOmega{Vector{Int}, Flux.Array}, y, HMC, n=10000)
   simsω, obvglucose, sims
 end
@@ -102,7 +122,7 @@ function setupplots()
   default(dpi = 300) #Only for PyPlot - presently broken
 end
 
-function main()
-  simsω, obvglucose, sims = infer()
-  plot1([sims[1](simsω[end]), obvglucose])
+function main(n=1000)
+  simsω, obvglucose, sims = infer(n=n)
+  plot1([Flux.data.(sims[1](simsω[end])), obvglucose])
 end
