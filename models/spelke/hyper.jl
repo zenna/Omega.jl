@@ -2,12 +2,6 @@
 using RunTools
 using Mu
 
-# I think there's still randomness given same omega
-# omegaids are bad
-# need to save params to disk
-# dont need to save everything!
-
-
 "Optimization-specific parameters"
 function infparams()
   φ = Params()
@@ -35,7 +29,9 @@ function infparams_(::Type{HMC})
 end
 
 "Default is no argument params"
-infparams_(::Type{T}) where T = Params()
+function infparams_(::Type{T}) where T
+  Params{Symbol, Any}(Dict{Symbol, Any}(:hack => true))
+end
 Mu.lift(:infparams_, 1)
 
 function runparams()
@@ -43,16 +39,14 @@ function runparams()
   φ[:train] = true
   φ[:loadchain] = false
   φ[:loadnet] = false
+
   φ[:name] = "spelke test"
   φ[:runname] = randrunname()
   φ[:tags] = ["test", "spelke"]
-  φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])
-  φ[:runlocal] = true
-  φ[:runsbatch] = false
-  φ[:runnow] = true
-  φ[:dryrun] = false
-  φ[:modelparams] = modelparams()
+  φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])   # LOGDIR is required for sim to save
   φ[:runfile] = @__FILE__
+
+  φ[:gitinfo] = RunTools.gitinfo()
   φ
 end
 
@@ -62,9 +56,11 @@ modelparams() = Params(Dict(:temperature => 1.0))
 "All parameters"
 function allparams()
   φ = Params()
+  φ[:modelφ] = modelparams()
   φ[:infalg] = infparams()
   φ[:kernel] = kernelparams()
-  merge(φ, runparams())
+  # φ[:runφ] = runparams()
+  merge(φ, runparams()) # FIXME: replace this with line above when have magic indexing
 end
 
 "Parameters we wish to enumerate"
@@ -90,18 +86,20 @@ function infer(φ)
   rand(y, y, φ[:infalg][:infalg]; φ[:infalg][:infalgargs]...)
 end
 
-function main()
-  if isempty(ARGS)
-    @show args
-    runφs = RunTools.loadparam(ARGS[1])
-  else
-    runφs = paramsamples()  # Could also load this from cmdline
-    dispatchmany(infer, runφs, ignoreexceptions = [Mu.InfError, Mu.NaNError])
-  end 
-end
+# function main(sim = infer, args = RunTools.stdargs())
+#   sim_ = args[:dryrun] ? RunTools.dry(sim) : sim
+#   if args[:dispatch]
+#     runφs = paramsamples()
+#     RunTools.dispatchmany(infer, runφs;
+#                           sbatch = args[:sbatch],
+#                           here = args[:here],
+#                           dryrun = args[:dryrun])
+#   elseif args[:now] 
+#     φ = RunTools.loadparams(args[:param])
+#     sim_(φ)
+#   end
+# end
 
-# main()
+main() = RunTools.control(infer, paramsamples())
 
-## Issue is I want this thing to run locally
-## BUT! I don't want it to run locally here
-## I want it to run locally when I save it
+main()

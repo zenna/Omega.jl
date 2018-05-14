@@ -4,7 +4,8 @@ abstract type MI <: Algorithm end
 "Sample `ω | y == true` with Metropolis Hasting"
 function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{MI};
                    n = 1000,
-                   cb = default_cbs(n)) where {OT <: Omega}
+                   cb = default_cbs(n),
+                   hack = true) where {OT <: Omega}
   cb = runall(cb)
   ω = OmegaT()
   plast = epsilon(y(ω))

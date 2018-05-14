@@ -78,7 +78,8 @@ logepsilon(x::LogSoftBool) = x.logepsilon
 ## (In)Equalities
 ## ==============
 @inline d(x::Real, y::Real) = (xy = (x - y); xy * xy)
-@inline d(x::Vector{<:Real}, y::Vector{<:Real}) = norm(x - y)
+# @inline d(x::Vector{<:Real}, y::Vector{<:Real}) = norm(x - y)
+@inline d(x::Vector{<:Real}, y::Vector{<:Real}) = minimum((d.(x,y)))
 @inline d(x::Array{<:Real}, y::Array{<:Real}) = norm(x[:] - y[:])
 
 "Soft Equality"

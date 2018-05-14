@@ -49,7 +49,6 @@ function plotp()
   function innerplotp(data, stage::Type{Outside})
     push!(alldata, data.p)
     push!(ys, data.i)
-    @show alldata
     if !isempty(alldata)
       println(lineplot(ys, alldata, title="Time vs p"))
     end
@@ -161,7 +160,7 @@ as much as it can, without ever going more than once per `wait` duration;
 but if you'd like to disable the execution on the leading edge, pass
 `leading=false`. To enable execution on the trailing edge, ditto.
 """
-function throttle(f, timeout; leading=true, trailing=false) # From Flux (thanks!)
+function throttle(f, timeout; leading = true, trailing = false) # From Flux (thanks!)
   cooldown = true
   later = nothing
   result = nothing
@@ -182,6 +181,8 @@ function throttle(f, timeout; leading=true, trailing=false) # From Flux (thanks!
           later()
           later = nothing
         end
+      catch e
+        rethrow(e)
       finally
         cooldown = true
       end
@@ -194,7 +195,12 @@ function throttle(f, timeout; leading=true, trailing=false) # From Flux (thanks!
 end
 
 "Defautlt callbacks"
-default_cbs(n) = [throttle(plotp(), 1.0),
+default_cbs(n) = [throttle(plotp(), 0.1),
                   showprogress(n),
                   throttle(printstats, 1.0),
                   stopnanorinf]
+
+# default_cbs(n) = [plotp(),
+#                   showprogress(n),
+#                   printstats,
+#                   stopnanorinf]
