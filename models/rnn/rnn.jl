@@ -70,7 +70,7 @@ function infer(nsteps = 20)
   personid = 3
   y, obvglucose = datacond(data, sims[1], personid, nsteps)
   # @assert false
-  simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y, HMCFAST, n=10000)
+  simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y, HMCFAST, n=1000)
   # simsω = rand(SimpleOmega{Vector{Int}, Flux.Array}, y, HMC, n=10000)
   simsω, obvglucose, sims
 end
