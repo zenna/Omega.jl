@@ -49,6 +49,8 @@ function plotp()
   function innerplotp(data, stage::Type{Outside})
     push!(alldata, data.p)
     push!(ys, data.i)
+    @show alldata
+    @show ys
     if !isempty(alldata)
       println(lineplot(ys, alldata, title="Time vs p"))
     end
@@ -195,7 +197,7 @@ function throttle(f, timeout; leading = true, trailing = false) # From Flux (tha
 end
 
 "Defautlt callbacks"
-default_cbs(n) = [throttle(plotp(), 1.0),
+default_cbs(n) = [throttle(plotp(), 0.1),
                   showprogress(n),
                   throttle(printstats, 1.0),
                   stopnanorinf]
