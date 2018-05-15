@@ -11,8 +11,8 @@ d(x, y) = (x - y)^2
 Mu.lift(:d, 2)
 
 "Recurrent Neural Network"
-function rnn_(ω, f, nsteps) 
-  h = zeros(10) # What should this be?
+function rnn_(ω, f, nsteps, h1_size) 
+  h = zeros(h1_size) # What should this be?
   xs = []
   input = vcat(0, h)
   for i = 1:nsteps
@@ -32,26 +32,22 @@ end
 #   [xs...]
 # end
 
-function model(nsteps)
+function model(nsteps, h1_size=10, h2_size=30)
   npatients = 5
   function F_(ω, i)
     other = Chain(
-              Flux.Dense(ω[@id][i][2], 10, 30, Flux.relu),
-              Flux.Dense(ω[@id][i][3], 30, 1, Flux.sigmoid))
+              Flux.Dense(ω[@id][i][2], h1_size, h2_size, Flux.relu),
+              Flux.Dense(ω[@id][i][3], h2_size, 1, Flux.sigmoid))
     Chain(
-      Flux.Dense(ω[@id][i][1], 1 + 10, 10, Flux.relu),
+      Flux.Dense(ω[@id][i][1], 1 + h1_size, h1_size, Flux.relu),
       h -> vcat(other(h), h))
   end
-  # F_(ω, i) = Chain(
-  #   Flux.Dense(ω[@id][i][1], 1, 10, Flux.relu),
-  #   Flux.Dense(ω[@id][i][2], 10, 1, Flux.sigmoid)
-  # )
 
   # Create one network per person
   fs = [iid(F_, i) for i = 1:npatients]
 
   # Create one simulation RandVar for each patient
-  sims = [iid(rnn_, f, nsteps) for f in fs]
+  sims = [iid(rnn_, f, nsteps, h1_size) for f in fs]
 
   # Take average over time
   meansims = mean.(sims)
@@ -86,15 +82,20 @@ end
 loaddata() = CSV.read(joinpath(ENV["DATADIR"], "mu", "glucosedata.csv"))
 
 "Data, model, condition"
-function infer(nsteps = 20;n=1000)
-  data = loaddata()
-  sims, meansims = model(nsteps)
-  personid = 3
-  y, obvglucose = datacond(data, sims[1], personid, nsteps)
+function infer(nsteps = 20;n=1000, h1 = 10)
+  y, obvglucose, sims = conditioned_model(nsteps)
   # @assert false
   simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y, HMCFAST, n=n, stepsize = 0.01)
   # simsω = rand(SimpleOmega{Vector{Int}, Flux.Array}, y, HMC, n=10000)
   simsω, obvglucose, sims
+end
+
+function conditioned_model(nsteps = 20; h1 = 10, h2=30)
+  data = loaddata()
+  sims, meansims = model(nsteps, h1_size = h1, h2_size = h2)
+  personid = 3
+  y, obvglucose = datacond(data, sims[1], personid, nsteps)
+  y, obvglucose, sims
 end
 
 ## Plots
@@ -132,8 +133,16 @@ function plot_idx(idx, simsω, sims, obvglucose)
   plot1([Flux.data.(sims[1](simsω[idx])), obvglucose])
 end
 
+function mindistance(simsω, sims, obvglucose, norm_=2)
+  k = length(obvglucose)
+  sim = sims[1]
+  norms = map(enumerate(simsω)) do idx, ω 
+    norm(Flux.data.(ω |> sim)[1:k] - obvglucose, norm_) 
+  end
+  p, id_ = findmin(norms)
+end
+
 function plot_minimum(simsω, sims, obvglucose, norm_=2)
-  norms = [norm(Flux.data.(sims[1](simsω[idx]))[1:19] - obvglucose, norm_) for idx in 1:length(simsω)]
-  @show p, id_ = findmin(norms)
+  @show p, id_ = mindistance(simsω, sims, obvglucose, norm_=norm_)
   plot_idx(id_, simsω, sims, obvglucose)
 end
