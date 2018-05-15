@@ -84,6 +84,11 @@ function infer(φ)
 
 end
 
+function paramsamples(nsamples = 3)
+  (rand(merge(allparams(), φ, Params(Dict(:samplen => i))))  for φ in enumparams(), i = 1:nsamples)
+end
+
+
 function main(sim = infer, args = RunTools.stdargs())
   sim_ = args[:dryrun] ? RunTools.dry(sim) : sim
   if args[:dispatch]
