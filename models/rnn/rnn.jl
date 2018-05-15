@@ -84,7 +84,7 @@ loaddata() = CSV.read(joinpath(ENV["DATADIR"], "mu", "glucosedata.csv"))
 
 "Data, model, condition"
 function infer(nsteps = 20;n=1000, h1 = 10)
-  y, obvglucose, sims = conditioned_model(nsteps)
+  y, obvglucose, sims = conditioned_model(nsteps = nsteps)
   # @assert false
   simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y, HMCFAST, n=n, stepsize = 0.01)
   # simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y, HMCFAST, n=1000)
@@ -144,6 +144,6 @@ function mindistance(simsω, sim, obvglucose, norm_ = 2)
 end
 
 function plot_minimum(simsω, sims, obvglucose, norm_ = 2)
-  @show p, id_ = mindistance(simsω, sims, obvglucose, norm_=norm_)
+  @show p, id_ = mindistance(simsω, sims, obvglucose, norm_)
   plot_idx(id_, simsω, sims, obvglucose)
 end
