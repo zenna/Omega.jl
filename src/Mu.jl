@@ -124,5 +124,7 @@ export mean,
        gradient,
 
        # Misc
-       ntranspose
+       ntranspose,
+
+       MaybeRV
 end

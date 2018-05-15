@@ -71,6 +71,7 @@ end
 
 epsilon(x::SoftBool) = x.epsilon
 epsilon(x::LogSoftBool) = exp(x.logepsilon)
+epsilon(x::Bool) = float(x)
 
 logepsilon(x::SoftBool) = log(x.epsilon)
 logepsilon(x::LogSoftBool) = x.logepsilon
