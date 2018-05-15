@@ -17,7 +17,7 @@ function rnn_(ω, f, nsteps)
   input = vcat(0, h)
   for i = 1:nsteps
     input = f(input)
-    x = all_[1]
+    x = input[1]
     push!(xs, x)
   end
   [xs...]
@@ -35,9 +35,11 @@ end
 function model(nsteps)
   npatients = 5
   function F_(ω, i)
-    other = Flux.Dense(ω[@id][i][2], 10, 1, Flux.sigmoid)
+    other = Chain(
+              Flux.Dense(ω[@id][i][2], 10, 30, Flux.relu),
+              Flux.Dense(ω[@id][i][3], 30, 1, Flux.sigmoid))
     Chain(
-      Flux.Dense(ω[@id][i][1], 1 + 10, 10, Flux.elu),
+      Flux.Dense(ω[@id][i][1], 1 + 10, 10, Flux.relu),
       h -> vcat(other(h), h))
   end
   # F_(ω, i) = Chain(
@@ -90,7 +92,7 @@ function infer(nsteps = 20;n=1000)
   personid = 3
   y, obvglucose = datacond(data, sims[1], personid, nsteps)
   # @assert false
-  simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y, HMCFAST, n=n)
+  simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y, HMCFAST, n=n, stepsize = 0.01)
   # simsω = rand(SimpleOmega{Vector{Int}, Flux.Array}, y, HMC, n=10000)
   simsω, obvglucose, sims
 end
@@ -124,5 +126,14 @@ end
 
 function main(n=1000)
   simsω, obvglucose, sims = infer(n=n)
-  plot1([Flux.data.(sims[1](simsω[end])), obvglucose])
+  plot1([Flux.data.(sims[1](simsω[end])), obvglucose])end
+
+function plot_idx(idx, simsω, sims, obvglucose)
+  plot1([Flux.data.(sims[1](simsω[idx])), obvglucose])
+end
+
+function plot_minimum(simsω, sims, obvglucose, norm_=2)
+  norms = [norm(Flux.data.(sims[1](simsω[idx]))[1:19] - obvglucose, norm_) for idx in 1:length(simsω)]
+  @show p, id_ = findmin(norms)
+  plot_idx(id_, simsω, sims, obvglucose)
 end
