@@ -4,7 +4,6 @@ using Mu
 rnn_file = joinpath(Pkg.dir("Mu"), "models", "rnn", "rnn.jl")
 include(rnn_file)
 
-
 "Optimization-specific parameters"
 function infparams()
   φ = Params()
@@ -27,7 +26,6 @@ function infparams_(::Type{T}) where T
 end
 Mu.lift(:infparams_, 1)
 
-
 function runparams()
   φ = Params()
   φ[:train] = true
@@ -44,7 +42,6 @@ function runparams()
   φ
 end
 
-
 "Model specific parameters"
 function modelparams()
   h1 = uniform([5, 10, 15, 20, 25, 30])
@@ -52,12 +49,12 @@ function modelparams()
   Params(Dict(:h1 => h1, :h2 => h1))
 end
 
-
 "All parameters"
 function allparams()
   φ = Params()
   φ[:modelφ] = modelparams()
   φ[:infalg] = infparams()
+  φ[:α] = uniform([100.0, 200.0, 500.0, 1000.0])
 #  φ[:kernel] = kernelparams()
   # φ[:runφ] = runparams()
   merge(φ, runparams()) # FIXME: replace this with line above when have magic indexing
@@ -71,23 +68,27 @@ function enumparams()
   #                  :lr => [0.0001, 0.001, 0.01])))
 end
 
-
 function infer(φ)
   display(φ)
-  y, obvglucose, sims = conditioned_model(φ[:modelparams]...)
+  y, obvglucose, sims = withkernel(Mu.kseα(φ[:α])) do
+    conditioned_model(; φ[:modelφ]...)
+  end
   simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y, 
         φ[:infalg][:infalg]; φ[:infalg][:infalgargs]...)
-  p, id_ = mindistance(simsω, sims, obvglucose, norm_=2)
+  p, id_ = mindistance(simsω, sims[1], obvglucose, 2)
   display((p, id_))
-  p, id_ = mindistance(simsω, sims, obvglucose, norm_=1)
-  display((p, id_))
+  path = joinpath(φ[:logdir], "rnnplotl2.pdf")
+  plot_idx(id_, simsω, sims[1], obvglucose; save = true, path = path)
 
+  path = joinpath(φ[:logdir], "rnnplotl1.pdf")
+  p, id_ = mindistance(simsω, sims[1], obvglucose, 1)
+  plot_idx(id_, simsω, sims[1], obvglucose; save = true, path = path)
+  display((p, id_))
 end
 
 function paramsamples(nsamples = 3)
   (rand(merge(allparams(), φ, Params(Dict(:samplen => i))))  for φ in enumparams(), i = 1:nsamples)
 end
-
 
 function main(sim = infer, args = RunTools.stdargs())
   sim_ = args[:dryrun] ? RunTools.dry(sim) : sim

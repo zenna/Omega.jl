@@ -3,6 +3,8 @@ using Flux
 using UnicodePlots
 using DataFrames
 using CSV
+using Plots
+gr()
 
 Mu.defaultomega() = SimpleOmega{Vector{Int}, Array}
 
@@ -61,12 +63,11 @@ end
 #   d1, obvglucose = datacond2(data, sims[1], 3)
 #   simsω = rand(Mu.defaultomega, d1, HMC, n=1000000);
 # end
-
 function traces(data, i, measure = 807)
   people = groupby(data, :Id)
   p1 = people[i]
   p2 = filter(row -> row[:Measure] == measure, p1)
-  sort(p2, cols = [:Time,])
+  sort(p2, :Time,)
 end
 
 "Data condition, returns (sim == peronid.data, peronid.data)"
@@ -90,9 +91,9 @@ function infer(nsteps = 20;n=1000, h1 = 10)
   simsω, obvglucose, sims
 end
 
-function conditioned_model(nsteps = 20; h1 = 10, h2=30)
+function conditioned_model(; nsteps = 20, h1 = 10, h2 = 30)
   data = loaddata()
-  sims, meansims = model(nsteps, h1_size = h1, h2_size = h2)
+  sims, meansims = model(nsteps, h1, h2)
   personid = 3
   y, obvglucose = datacond(data, sims[1], personid, nsteps)
   y, obvglucose, sims
@@ -100,9 +101,8 @@ end
 
 ## Plots
 ## ====
-using Plots
 "n simulations, n + 1 simulations, with mean tied"
-function plot1(sims, dpi = 80, save = false)
+function plot1(sims, dpi = 80; save = false, path = joinpath(ENV["DATADIR"], "mu", "figures", "test.pdf"))
   p = Plots.plot(sims, w=3,
                  title = "Time vs Glucose Level",
                  xaxis = "Time",
@@ -110,7 +110,7 @@ function plot1(sims, dpi = 80, save = false)
                  fmt = :pdf,
                  size = (Int(5.5*dpi), 2*dpi),
                  dpi = dpi)
-  save && savefig(p, joinpath(ENV["DATADIR"], "mu", "figures", "test.pdf"))
+  save && savefig(p, path)
   p
 end
 
@@ -125,24 +125,24 @@ function setupplots()
   default(dpi = 300) #Only for PyPlot - presently broken
 end
 
-function main(n=1000)
+function main(n = 1000)
   simsω, obvglucose, sims = infer(n=n)
-  plot1([Flux.data.(sims[1](simsω[end])), obvglucose])end
-
-function plot_idx(idx, simsω, sims, obvglucose)
-  plot1([Flux.data.(sims[1](simsω[idx])), obvglucose])
+  plot1([Flux.data.(sims[1](simsω[end])), obvglucose])
 end
 
-function mindistance(simsω, sims, obvglucose, norm_=2)
+function plot_idx(idx, simsω, sim, obvglucose; plotkwargs...)
+  plot1([Flux.data.(sim(simsω[idx])), obvglucose]; plotkwargs...)
+end
+
+"Find ω with minimum distance"
+function mindistance(simsω, sim, obvglucose, norm_ = 2)
   k = length(obvglucose)
-  sim = sims[1]
-  norms = map(enumerate(simsω)) do idx, ω 
-    norm(Flux.data.(ω |> sim)[1:k] - obvglucose, norm_) 
-  end
+  ok =  [Flux.data.(sim(simω))[1:k] for simω in simsω]
+  norms = [norm(x - obvglucose, norm_) for x in ok]
   p, id_ = findmin(norms)
 end
 
-function plot_minimum(simsω, sims, obvglucose, norm_=2)
+function plot_minimum(simsω, sims, obvglucose, norm_ = 2)
   @show p, id_ = mindistance(simsω, sims, obvglucose, norm_=norm_)
   plot_idx(id_, simsω, sims, obvglucose)
 end
