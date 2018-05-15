@@ -87,6 +87,7 @@ function infer(nsteps = 20;n=1000, h1 = 10)
   y, obvglucose, sims = conditioned_model(nsteps)
   # @assert false
   simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y, HMCFAST, n=n, stepsize = 0.01)
+  # simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y, HMCFAST, n=1000)
   # simsω = rand(SimpleOmega{Vector{Int}, Flux.Array}, y, HMC, n=10000)
   simsω, obvglucose, sims
 end
