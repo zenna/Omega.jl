@@ -86,7 +86,7 @@ function infer(φ)
   display((p, id_))
 end
 
-function paramsamples(nsamples = 3)
+function paramsamples(nsamples = 100)
   (rand(merge(allparams(), φ, Params(Dict(:samplen => i))))  for φ in enumparams(), i = 1:nsamples)
 end
 
