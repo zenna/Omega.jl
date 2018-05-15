@@ -97,3 +97,5 @@ function main(sim = infer, args = RunTools.stdargs())
     sim_(φ)
   end
 end
+
+main()
