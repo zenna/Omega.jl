@@ -18,7 +18,7 @@ function infparams_(::Type{HMCFAST})
   stepsize = uniform([0.0001, 0.001, 0.01, 0.1]) # FIXME!!
   nsteps = uniform([1, 2, 5, 10, 20])
   n = uniform([5000, 10000, 20000, 30000])
-  Params(Dict(:stepsize => stepsize, :nsteps => nsteps, :n = n))
+  Params(Dict(:stepsize => stepsize, :nsteps => nsteps, :n => n))
 end
 
 "Default is no argument params"
@@ -49,7 +49,7 @@ end
 function modelparams()
   h1 = uniform([5, 10, 15, 20, 25, 30])
   h2 = uniform([5, 10, 15, 20, 25, 30])
-  Params(Dict(:h1 => h1, :h2 => h1)
+  Params(Dict(:h1 => h1, :h2 => h1))
 end
 
 
@@ -84,6 +84,16 @@ function infer(φ)
 
 end
 
-main() = RunTools.control(infer, paramsamples())
-
-main()
+function main(sim = infer, args = RunTools.stdargs())
+  sim_ = args[:dryrun] ? RunTools.dry(sim) : sim
+  if args[:dispatch]
+    runφs = paramsamples()
+    RunTools.dispatchmany(infer, runφs;
+                          sbatch = args[:sbatch],
+                          here = args[:here],
+                          dryrun = args[:dryrun])
+  elseif args[:now] 
+    φ = RunTools.loadparams(args[:param])
+    sim_(φ)
+  end
+end
