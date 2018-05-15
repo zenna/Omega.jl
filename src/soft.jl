@@ -9,7 +9,10 @@ lift(:kf1β, 1)
 "Squared exponential kernel `α = 1/2l^2`, higher α is lower temperature  "
 kse(d, α = 20.0) = 1 - exp(-α * d)
 kseα(α) = d -> kse(d, α) 
+logkse(d, α = 20.0) = 1.0 -  -α * d
+logkseα(α) = d->logkse(α)
 lift(:kseα, 1)
+lift(:logkseα, 1)
 
 "Power law relation "
 kpow(d, α = 1.0, k = 2) = α*d^(-k)
@@ -83,7 +86,7 @@ logepsilon(x::LogSoftBool) = x.logepsilon
 @inline d(x::Array{<:Real}, y::Array{<:Real}) = norm(x[:] - y[:])
 
 "Soft Equality"
-softeq(x, y, k = globalkernel()) = SoftBool(1 - k(d(x, y)))
+softeq(x, y, k = globalkernel()) = LogSoftBool(1.0 - k(d(x, y)))
 
 "Unbounded soft equality"
 usofteq(x, y, k = globalkernel()) = SoftBool(k(d(x, y)))

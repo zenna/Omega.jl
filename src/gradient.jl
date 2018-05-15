@@ -5,7 +5,7 @@ using Flux
 function gradient(Y::RandVar, ω::Omega, vals = linearize(ω))
   Y(ω)
   #@show Y(ω), ω, vals
-  unpackcall(xs) = -log(epsilon(Y(unlinearize(xs, ω))))
+  unpackcall(xs) = -logepsilon(Y(unlinearize(xs, ω)))
   ForwardDiff.gradient(unpackcall, vals)
   # @assert false
   #@show ReverseDiff.gradient(unpackcall, vals)
