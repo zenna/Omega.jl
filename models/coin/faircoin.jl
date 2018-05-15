@@ -1,38 +1,13 @@
 using Mu
 import UnicodePlots
 
-fair_coin = bernoulli(0.5)
-thrower_bias = uniform([0.5, 0.0, -0.2])
+weight = uniform([0.3, 0.5, 0.7])
+thrower_bias = uniform([-0.2, 0.0, -0.2])
 
-function coin_(ω)
-  true_weight = Bool(fair_coin(ω[@id])) ? 0.5 : 0.3
-  modified_weight = thrower_bias(ω[@id]) + true_weight
-  bernoulli(ω[@id], modified_weight)
-end
+nflips = 5
+flips = [bernoulli(weight + thrower_bias) for i = 1:nflips]
 
-coin = iid(coin_, Float64)
+rcdflipn = mean(flips[end] ∥ (weight, thrower_bias), 10000)
 
-coinrcd1 = rcd(coin, fair_coin)
-means1 = mean(coinrcd1)
-samples1 = [rand(means1) for i = 1:1000]
-UnicodePlots.histogram(samples1, bins=50)
-
-coinrcd2 = rcd(coin, thrower_bias)
-means2 = mean(coinrcd2)
-samples2 = [rand(means2) for i = 1:1000]
-UnicodePlots.histogram(samples2, bins=50)
-
-coinrcd3 = rcd(coin, thrower_bias + fair_coin)
-means3 = mean(coinrcd3)
-samples3 = [rand(means3) for i = 1:1000]
-UnicodePlots.histogram(samples3, bins=50)
-
-histogram([samples1, samples2, samples3], layout=(1,3), nbins=50, xlims=[0.0, 1.0], normalize=true, size=(800,300), label="")
-
-# RCD should satisfy law of total variance
-x = coin
-y = thrower_bias + fair_coin
-a = mean(var(rcd(x, y)))
-b = var(mean(rcd(x, y)))
-c = var(x)
-@test c ≊ a + b
+samples = rand(rcdflipn, randarray(flips[1:end-1]) == [0.0 for i = 1:nflips - 1],  RejectionSample)
+samples2 = rand(rcdflipn, randarray(flips[1:end-1]) == [float(iseven(i)) for i = 1:nflips - 1], RejectionSample)
