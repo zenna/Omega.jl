@@ -99,6 +99,8 @@ function infer_ties()
     npatients = 5
     nsteps = 20
     sims, meansims = model(nsteps, h1, h2)
+    σ2s  = var.(sims)
+    σs = sqrt.(σ2s)
     nsteps = 20
     n = 3000
     y_3, obvglucose_3 = datacond(data, sims[3], 3, nsteps)
@@ -106,8 +108,9 @@ function infer_ties()
     δ = 0.001
     #ties = [d(meansims[i], meansims[j]) < δ for i = 3:3, j = 1:npatients if i != j]
     ties = [d(meansims[3], meansims[4]) < δ for i = 3:3, j = 4:4]
+    ties_higher = [d(σs[3], σs[4]) < 1e-10 for i = 3:3, j = 4:4]
     #simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, (y_4 & y_3) & ((&)(ties...)), HMCFAST,
-    simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, (y_4 & y_3) & ties[1], HMCFAST,
+    simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, (y_4 & y_3) & ties[1] & ties_higher[1], HMCFAST,
                   n=n, stepsize = 0.01);
     sims, simsω, (obvglucose_3, obvglucose_4), meansims
   end

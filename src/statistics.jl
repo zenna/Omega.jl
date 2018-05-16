@@ -16,6 +16,7 @@ function Base.var(x::AbstractRandVar{T}, n=10000) where {T <: RandVar{<:Real}}
 end
 
 Base.mean(xs::AbstractRandVar{<:Array}) = RandVar{Float64, false}(mean, (xs,))
+Base.var(xs::AbstractRandVar{<:Array}) = RandVar{Float64, false}(var, (xs,))
 
 prob(x::RandVar{T}, n) where {T <: Bool} = mean(x, n)
 prob(x::RandVar{T}, n = 10000) where { T<: RandVar{Bool}} = RandVar{Float64, false}(prob, (x, n), 0)
