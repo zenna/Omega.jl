@@ -94,7 +94,7 @@ end
 
 function infer_ties()
   data = loaddata();
-  sims, simsω, (obvglucose_3, obvglucose_4), meansims = Mu.withkernel(Mu.kseα(200)) do
+  sims, simsω, (obvglucose_3, obvglucose_4), meansims = Mu.withkernel(Mu.kseα(400)) do
     h1, h2 = 25, 25
     npatients = 5
     nsteps = 20
@@ -107,8 +107,8 @@ function infer_ties()
     y_4, obvglucose_4 = datacond(data, sims[4], 4, 3)
     δ = 0.001
     #ties = [d(meansims[i], meansims[j]) < δ for i = 3:3, j = 1:npatients if i != j]
-    ties = [d(meansims[3], meansims[4]) < δ for i = 3:3, j = 4:4]
-    ties_higher = [d(σs[3], σs[4]) < 1e-10 for i = 3:3, j = 4:4]
+    ties = [d(meansims[3], meansims[4])*100 < δ*100 for i = 3:3, j = 4:4]
+    ties_higher = [d(σs[3], σs[4])*100 < 1e-5*100 for i = 3:3, j = 4:4]
     #simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, (y_4 & y_3) & ((&)(ties...)), HMCFAST,
     simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, (y_4 & y_3) & ties[1] & ties_higher[1], HMCFAST,
                   n=n, stepsize = 0.01);
@@ -138,6 +138,19 @@ function plot1(sims, dpi = 80; save = false, path = joinpath(ENV["DATADIR"], "mu
   p
 end
 
+
+function plot2(sims, dpi = 80; save = false, path = joinpath(ENV["DATADIR"], "mu", "figures", "test.pdf"))
+  p = Plots.plot(sims, w=3, alpha=0.3,
+                 title = "Time vs Glucose Level",
+                 xaxis = "Time",
+                 yaxis = "Glucose Level",
+                 fmt = :pdf,
+                 size = (Int(5.5*dpi), 2*dpi),
+                 dpi = dpi)
+  save && savefig(p, path)
+  p
+end
+
 nipssize() = ()
 
 function setupplots()
@@ -156,6 +169,12 @@ end
 
 function plot_idx(idx, simsω, sim, obvglucose; plotkwargs...)
   plot1([Flux.data.(sim(simsω[idx])), obvglucose]; plotkwargs...)
+end
+
+function plot_many(ids, simsω, sim, obvglucoses; plotkwargs...)
+  data = [Flux.data.(sim(simsω[idx])) for idx in ids]
+  p = plot2(data, plotkwargs...)
+  Plots.plot!(p, obvglucoses, alpha=1, w=3)
 end
 
 "Find ω with minimum distance"
