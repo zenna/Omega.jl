@@ -28,6 +28,7 @@ struct Object{T} <: AbstractObject
   Δy::T
   vx::T
   vy::T
+  d::T
 end
 
 "View port into scene"
@@ -51,7 +52,69 @@ end
 "Render scene into an image"
 render(scene, camera)::Image = scene
 
-nboxes = poisson(2) + 1
+function blocks(a, b)
+  # Check if object a blocks anchor of object b.
+  # If a is behind b then it cannot block it.
+  if (a.d >= b.d)
+    return 0
+  end
+  if (b.x >= a.x && (b.x+b.Δx) <= (a.x+a.Δx)) || (b.y >= a.y && (b.y+b.Δy) <= (a.y+a.Δy))
+    return 1
+  else
+    return 0
+  end
+end
+
+function blockedarea(a, b)
+  # Compute area that a blocks in b
+  # if a is farther away, it cannot block it.
+  if (a.d >= b.d)
+    return 0
+  end
+  # Otherwise compute intersecting rectangle.
+  interwidth = minimum([a.x + a.Δx, b.x + b.Δx]) - maximum([a.x, b.x])
+  interheight = minimum([a.y, b.y]) - maximum([a.y + a.Δy, b.y + b.Δy])
+  interarea = interwidth * interheight
+  barea = b.Δx * b.Δy
+  return interarea/barea
+end
+
+function render(scene)
+  # Better rendering function that computes overlap, and
+  # returns probability proportional to percentage of overlap.
+  # But should be changed to be a learned thing.
+  blockmatrix = [blockedarea(a, b) for a in scene.objects, b in scene.objects]
+  objectids = Int[]
+  for objid = 1:length(scene.objects)
+    if rand() >= sum(blockmatrix[objid, :])
+      append!(objectids, objid)
+    end
+  end
+  objects = [scene.objects[id] for id in objectids]
+  return Scene(objects, scene.camera)
+end
+
+function oldrender(scene)
+  # Ignore camera for now.
+  # Identify all blocking areas.
+  # Does block a block block b?
+  blockmatrix = [blocks(a, b) for a in scene.objects, b in scene.objects]
+  # Iterate over all boxes. If they're on top of everything, render them.
+  # Otherwise do something
+  objectids = Int[]
+  for objid = 1:length(scene.objects)
+    if sum(blockmatrix[objid, :]) == 0
+      append!(objectids, objid)
+    end
+  end
+  # objects = map(1:length(objectids)) do i
+  #   scene.objects[objectids[i]]
+  # end
+  # objects = [scene.objects[objectids[i]] for i = 1:length(objectids)]
+  objects = [scene.objects[id] for id in objectids]
+  return Scene(objects,scene.camera)
+end
+lift(:render, 1)
 
 function accumprop(prop, video)
   props = Float64[]
@@ -59,23 +122,21 @@ function accumprop(prop, video)
     push!(props, getfield(object, prop))
   end
   props
-end 
+end
+
+#nboxes = poisson(3) + 1
+nboxes = poisson(1) + 3
 
 "Scene at frame t=0"
 function initscene(ω, data)
   objects = map(1:nboxes(ω)) do i
-    #Object(normal(ω[@id][i], mean(accumprop(:x, data)), std(accumprop(:x, data))),
-    #       normal(ω[@id][i], mean(accumprop(:y, data)), std(accumprop(:y, data))),
-    #       normal(ω[@id][i], mean(accumprop(:Δx, data)), std(accumprop(:Δx, data))),
-    #       normal(ω[@id][i], mean(accumprop(:Δy, data)), std(accumprop(:Δy, data))),
-    #       uniform(ω[@id][i], -1.0, 1.0),
-    #       uniform(ω[@id][i], -1.0, 1.0))
     Object(normal(ω[@id][i], mean(accumprop(:x, data)), std(accumprop(:x, data))),
        normal(ω[@id][i], mean(accumprop(:y, data)), std(accumprop(:y, data))),
        normal(ω[@id][i], mean(accumprop(:Δx, data)), std(accumprop(:Δx, data))),
        normal(ω[@id][i], mean(accumprop(:Δy, data)), std(accumprop(:Δy, data))),
-       uniform(ω[@id][i], [-5.0, 5.0]),
-       uniform(ω[@id][i], [-3.0, 3.0]))
+       normal(ω[@id][i], 5.0, 0.5), # Speedies
+       normal(ω[@id][i], -3.0, 0.5),
+       uniform(ω[@id][i], [1.0, 2.0]))
        #normal(ω[@id][i], 0.0, 1.0),
        #normal(ω[@id][i], 0.0, 1.0))
   end
@@ -94,7 +155,8 @@ function move(ω, object::Object)
          object.Δx,
          object.Δy,
          object.vx,
-         object.vy)
+         object.vy,
+         object.d)
 end
 
 "Move entire all objects in scene"
@@ -107,7 +169,7 @@ function video_(ω, scene::Scene = initscene(ω), nsteps = 1000)
   trajectories = Scene[]
   for i = 1:nsteps
     scene = move(ω[i], scene)
-    push!(trajectories, scene)
+    push!(trajectories, render(scene))
   end
   trajectories
 end
@@ -228,7 +290,7 @@ end
 ## Run
 ## ===
 datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.csv")
-datapath = joinpath(datadir(), "spelke", "data", "Balls_2_Synced", "Balls_2_Synced_DetectedObjects.csv")
+datapath = joinpath(datadir(), "spelke", "data", "Balls_3_Clean_Diverge", "Balls_3_Clean_Diverge_DetectedObjects.csv")
 
 function train()
   data = CSV.read(datapath)
@@ -237,10 +299,10 @@ function train()
   realvideo = map(Scene, frames)
   video = iid(ω -> video_(ω, realvideo, nframes))
   rand(video)
-  samples = rand(video, video == realvideo, SSMH, n=1000);
+  samples = rand(video, video == realvideo, SSMH, n=10000);
   evalposterior(samples, realvideo, false, true)
   #viz(samples[end])
-  #samples
+  samples
 end
 
 "Frame by frame differences"
