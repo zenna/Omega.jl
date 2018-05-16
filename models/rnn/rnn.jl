@@ -92,28 +92,28 @@ function infer(nsteps = 20;n=1000, h1 = 10)
   simsω, obvglucose, sims
 end
 
-function infer_ties()
+function ties_model(;αmean=100, αstd = 100,
+                    h1 = 25, h2 = 25, nsteps = 20, 
+                    δmean = 0.001, δstd = 1e-5)
   data = loaddata();
-  sims, simsω, (obvglucose_3, obvglucose_4), meansims = Mu.withkernel(Mu.kseα(400)) do
-    h1, h2 = 25, 25
-    npatients = 5
-    nsteps = 20
-    sims, meansims = model(nsteps, h1, h2)
-    σ2s  = var.(sims)
-    σs = sqrt.(σ2s)
-    nsteps = 20
-    n = 3000
-    y_3, obvglucose_3 = datacond(data, sims[3], 3, nsteps)
-    y_4, obvglucose_4 = datacond(data, sims[4], 4, 3)
-    δ = 0.001
-    #ties = [d(meansims[i], meansims[j]) < δ for i = 3:3, j = 1:npatients if i != j]
-    ties = [d(meansims[3], meansims[4])*100 < δ*100 for i = 3:3, j = 4:4]
-    ties_higher = [d(σs[3], σs[4])*100 < 1e-5*100 for i = 3:3, j = 4:4]
-    #simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, (y_4 & y_3) & ((&)(ties...)), HMCFAST,
-    simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, (y_4 & y_3) & ties[1] & ties_higher[1], HMCFAST,
+  sims, meansims = model(nsteps, h1, h2)
+  σ2s  = var.(sims)
+  σs = sqrt.(σ2s)
+  y_3, obvglucose_3 = datacond(data, sims[3], 3, nsteps)
+  y_4, obvglucose_4 = datacond(data, sims[4], 4, 3)
+  _, obvglucose_4_full = datacond(data, sims[4], 4, nsteps)
+  
+  ties = [d(meansims[3], meansims[4])*αmean < δmean*αmean for i = 3:3, j = 4:4]
+  ties_higher = [d(σs[3], σs[4])*αstd < δstd*αstd for i = 3:3, j = 4:4]
+  y_3, y_4, ties, ties_higher, sims, meansims, 
+    (obvglucose_3, obvglucose_4, obvglucose_4_full)
+end
+
+function infer_ties(y_3, y_4, ties, ties_higher; n=3000)
+    simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, 
+                  (y_4 & y_3) & ties[1] & ties_higher[1], HMCFAST,
                   n=n, stepsize = 0.01);
-    sims, simsω, (obvglucose_3, obvglucose_4), meansims
-  end
+    simsω
 end
 
 function conditioned_model(;personid = 3, nsteps = 20, h1 = 10, h2 = 30)
@@ -147,8 +147,6 @@ function plot2(sims, dpi = 80; save = false, path = joinpath(ENV["DATADIR"], "mu
                  fmt = :pdf,
                  size = (Int(5.5*dpi), 2*dpi),
                  dpi = dpi)
-  save && savefig(p, path)
-  p
 end
 
 nipssize() = ()
@@ -171,10 +169,12 @@ function plot_idx(idx, simsω, sim, obvglucose; plotkwargs...)
   plot1([Flux.data.(sim(simsω[idx])), obvglucose]; plotkwargs...)
 end
 
-function plot_many(ids, simsω, sim, obvglucoses; plotkwargs...)
+function plot_many(ids, simsω, sim, obvglucoses; save= false, path = "")
   data = [Flux.data.(sim(simsω[idx])) for idx in ids]
-  p = plot2(data, plotkwargs...)
+  p = plot2(data)
   Plots.plot!(p, obvglucoses, alpha=1, w=3)
+  save && savefig(p, path)
+  p
 end
 
 "Find ω with minimum distance"
