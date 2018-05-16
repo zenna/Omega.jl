@@ -45,7 +45,7 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
     foreach(prop_qvals) do prop_q @. prop_q = unbound(prop_q) end
     foreach(pvals, ∇qvals, prop_qvals) do p, ∇q, q 
       @. p = p - κ * stepsize * ∇q * jac(q)
-    end  
+    end
   end
   # @assert false
 
@@ -60,7 +60,7 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
 
   #@show current_U, proposed_U, current_K, proposed_K
   # Accept or reject
-  if rand() < exp(current_U - proposed_U + current_K - proposed_K)
+  if log(rand()) < current_U - proposed_U + current_K - proposed_K
     (proposed_U, true)
   else
     (current_U, false)
