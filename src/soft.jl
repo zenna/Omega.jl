@@ -37,9 +37,10 @@ end
 
 "Temporarily set global kernel"
 function withkernel(thunk, k)
+  old = globalkernel()
   globalkernel!(k)
   res = thunk()
-  globalkernel!(kse)
+  globalkernel!(old)
   res
 end
 
