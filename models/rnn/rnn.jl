@@ -9,7 +9,7 @@ gr()
 Mu.defaultomega() = SimpleOmega{Vector{Int}, Array}
 
 δ = 0.1
-d(x, y) = (x - y)^2
+d(x, y) = (x - y)^2.0
 Mu.lift(:d, 2)
 
 "Recurrent Neural Network"
@@ -74,7 +74,7 @@ end
 function datacond(data, sim, personid, nsteps)
   exampledata = traces(data, personid)
   range = 1:min(nsteps, nrow(exampledata))
-  obvglucose = normalize(Float64.(exampledata[:Value])[range])
+  obvglucose = normalize(Float64.(exampledata[:Value]))[range]
   datacond = sim[range] == obvglucose
   datacond, obvglucose
 end
@@ -84,7 +84,7 @@ loaddata() = CSV.read(joinpath(ENV["DATADIR"], "mu", "glucosedata.csv"))
 
 "Data, model, condition"
 function infer(nsteps = 20;n=1000, h1 = 10)
-  y, obvglucose, sims = conditioned_model(nsteps)
+  y, obvglucose, sims = conditioned_model(nsteps = nsteps)
   # @assert false
   simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y, HMCFAST, n=n, stepsize = 0.01)
   # simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y, HMCFAST, n=1000)
@@ -92,11 +92,29 @@ function infer(nsteps = 20;n=1000, h1 = 10)
   simsω, obvglucose, sims
 end
 
-function conditioned_model(; nsteps = 20, h1 = 10, h2 = 30)
+function infer_ties()
+  data = loaddata()
+  sims, simsω, (obvglucose_3, obvglucose_4) = Mu.withkernel(Mu.kseα(200)) do
+    h1, h2 = 25, 25
+    npatients = 5
+    nsteps = 20
+    sims, meansims = model(nsteps, h1, h2)
+    nsteps = 20
+    n = 1000
+    y_3, obvglucose_3 = datacond(data, sims[3], 3, nsteps)
+    y_4, obvglucose_4 = datacond(data, sims[4], 4, 1)
+    δ = 0.001
+    ties = [d(meansims[i], meansims[j]) < δ for i = 3:3, j = 1:npatients if i != j]
+    simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, (y_4 & y_3) & ((&)(ties...)), HMCFAST,
+                  n=n, stepsize = 0.01);
+    sims, simsω, (obvglucose_3, obvglucose_4)
+  end
+end
+
+function conditioned_model(;personid = 3, nsteps = 20, h1 = 10, h2 = 30)
   data = loaddata()
   sims, meansims = model(nsteps, h1, h2)
-  personid = 3
-  y, obvglucose = datacond(data, sims[1], personid, nsteps)
+  y, obvglucose = datacond(data, sims[personid], personid, nsteps)
   y, obvglucose, sims
 end
 
@@ -144,6 +162,6 @@ function mindistance(simsω, sim, obvglucose, norm_ = 2)
 end
 
 function plot_minimum(simsω, sims, obvglucose, norm_ = 2)
-  @show p, id_ = mindistance(simsω, sims, obvglucose, norm_=norm_)
+  @show p, id_ = mindistance(simsω, sims, obvglucose, norm_)
   plot_idx(id_, simsω, sims, obvglucose)
 end
