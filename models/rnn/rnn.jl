@@ -93,21 +93,23 @@ function infer(nsteps = 20;n=1000, h1 = 10)
 end
 
 function infer_ties()
-  data = loaddata()
-  sims, simsω, (obvglucose_3, obvglucose_4) = Mu.withkernel(Mu.kseα(200)) do
+  data = loaddata();
+  sims, simsω, (obvglucose_3, obvglucose_4), meansims = Mu.withkernel(Mu.kseα(200)) do
     h1, h2 = 25, 25
     npatients = 5
     nsteps = 20
     sims, meansims = model(nsteps, h1, h2)
     nsteps = 20
-    n = 1000
+    n = 3000
     y_3, obvglucose_3 = datacond(data, sims[3], 3, nsteps)
-    y_4, obvglucose_4 = datacond(data, sims[4], 4, 1)
+    y_4, obvglucose_4 = datacond(data, sims[4], 4, 3)
     δ = 0.001
-    ties = [d(meansims[i], meansims[j]) < δ for i = 3:3, j = 1:npatients if i != j]
-    simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, (y_4 & y_3) & ((&)(ties...)), HMCFAST,
+    #ties = [d(meansims[i], meansims[j]) < δ for i = 3:3, j = 1:npatients if i != j]
+    ties = [d(meansims[3], meansims[4]) < δ for i = 3:3, j = 4:4]
+    #simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, (y_4 & y_3) & ((&)(ties...)), HMCFAST,
+    simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, (y_4 & y_3) & ties[1], HMCFAST,
                   n=n, stepsize = 0.01);
-    sims, simsω, (obvglucose_3, obvglucose_4)
+    sims, simsω, (obvglucose_3, obvglucose_4), meansims
   end
 end
 
