@@ -7,7 +7,7 @@ kf1β(β) = d -> kf1(d, β)
 lift(:kf1β, 1)
 
 "Squared exponential kernel `α = 1/2l^2`, higher α is lower temperature  "
-kse(d, α = 20.0) = 1 - exp(-α * d)
+kse(d, α = 0.00001) = 1 - exp(-α * d)
 kseα(α) = d -> kse(d, α) 
 lift(:kseα, 1)
 
@@ -103,6 +103,7 @@ Base.all(xs::Vector{<:SoftBool}) = SoftBool(minimum(epsilon.(xs)))
 Base.all(xs::Vector{<:RandVar}) = RandVar{SoftBool}(all, ())
 
 const ⪆ = softgt
+const ⪅ = softlt
 const ≊ = softeq
 const ueq = usofteq
 
