@@ -35,8 +35,7 @@ end
 #   [xs...]
 # end
 
-function model(nsteps, h1_size=10, h2_size=30)
-  npatients = 5
+function model(nsteps, h1_size=10, h2_size=30; npatients = 5)
   function F_(ω, i)
     other = Chain(
               Flux.Dense(ω[@id][i][2], h1_size, h2_size, Flux.relu),
@@ -71,13 +70,27 @@ function traces(data, i, measure = 807)
   sort(p2, :Time,)
 end
 
+function more_than_20(data)
+  people = groupby(data, :Id)
+  sizes = map(enumerate(people)) do a
+    i,p = a
+    i=> (filter(row -> row[:Measure] == 807, p) |> size)[1]  
+  end
+  id_to_sizes = Dict(filter(sizes) do pair
+    pair[2] >= 20
+    end)
+end
 "Data condition, returns (sim == peronid.data, peronid.data)"
-function datacond(data, sim, personid, nsteps)
+function filtereddata(data, personid, nsteps)
   exampledata = traces(data, personid)
   range = 1:min(nsteps, nrow(exampledata))
-  obvglucose = normalize(Float64.(exampledata[:Value]))[range]
-  datacond = sim[range] == obvglucose
-  datacond, obvglucose
+  normalize(Float64.(exampledata[:Value]))[range], range
+end
+
+function datacond(data, sim, personid, nsteps)
+  obvglucose, range = filtereddata(data, personid, nsteps)
+  cond = sim[range] == obvglucose
+  cond, obvglucose
 end
 
 "Load the data"
@@ -93,28 +106,55 @@ function infer(nsteps = 20;n=1000, h1 = 10)
   simsω, obvglucose, sims
 end
 
-function ties_model(;αmean=100, αstd = 100,
-                    h1 = 25, h2 = 25, nsteps = 20, 
-                    δmean = 0.001, δstd = 1e-5)
-  data = loaddata();
-  sims, meansims = model(nsteps, h1, h2)
+function variables_from_ids(data, ids, nsteps, h1, h2)
+  npatients = length(ids)
+  sims, meansims = model(nsteps, h1, h2; npatients = npatients)
+  y_g = map(sims, ids) do sim, id
+    datacond(data, sim, id, nsteps)
+  end
+  y, glucose = zip(y_g...)
   σ2s  = var.(sims)
   σs = sqrt.(σ2s)
-  y_3, obvglucose_3 = datacond(data, sims[3], 3, nsteps)
-  y_4, obvglucose_4 = datacond(data, sims[4], 4, 3)
-  _, obvglucose_4_full = datacond(data, sims[4], 4, nsteps)
-  
-  ties = [d(meansims[3], meansims[4])*αmean < δmean*αmean for i = 3:3, j = 4:4]
-  ties_higher = [d(σs[3], σs[4])*αstd < δstd*αstd for i = 3:3, j = 4:4]
-  y_3, y_4, ties, ties_higher, sims, meansims, 
-    (obvglucose_3, obvglucose_4, obvglucose_4_full)
+  y, glucose, sims, meansims, σs
 end
 
-function infer_ties(y_3, y_4, ties, ties_higher; n=3000)
-    simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, 
-                  (y_4 & y_3) & ties[1] & ties_higher[1], HMCFAST,
-                  n=n, stepsize = 0.01);
-    simsω
+function ties_model(;αmean=100, αstd = 100,
+                    h1 = 25, h2 = 25, nsteps = 20, 
+                    δmean = 0.001, δstd = 1e-5,
+                    maxw = 3, maxt = 2)
+  data = loaddata();
+  id_witness = [52, 47, 54, 32, 50, 40, 16, 11, 46, 43, 9, 55, 42, 58, 17, 59, 49, 22, 6, 24]
+  id_treatment = [44, 4, 37, 51, 61, 5, 38, 23, 14, 48]
+  id_witness = id_witness[1:maxw] #XXX
+  id_treatment = id_treatment[1:maxt] #XXX
+  y_w, glucose_w, sims_w, meansims_w, σs_w = variables_from_ids(data, id_witness, nsteps, h1, h2)
+  y_t, glucose_t, sims_t, meansims_t, σs_t = variables_from_ids(data, id_treatment, 3, h1, h2)
+  glucose_t_full = map(id_treatment) do personid
+    filtereddata(data, personid, nsteps)[1]
+  end
+  meansims = vcat(meansims_w, meansims_t)
+  σs = vcat(σs_w, σs_t)
+  k = length(meansims)
+  ties = [d(meansims[i], meansims[j])*αmean < δmean*αmean for i in 1:k for j in (i+1):k] 
+  ties_higher = [d(σs[i], σs[j])*αstd < δstd*αstd for i in 1:k for j in (i+1):k] 
+  y_w, y_t, ties, ties_higher, (sims_w, sims_t), 
+    (glucose_w, glucose_t, glucose_t_full)
+end
+
+function infer_ties(y_w, y_t, ties, ties_higher; n=3000)
+  conjuntion = x -> length(x) > 1 ? (&)(x...) : x[1]
+  y_w = y_w |> conjuntion
+  y_t = y_t |> conjuntion
+  ties = ties |> conjuntion
+  ties_higher = ties_higher |> conjuntion
+  simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, 
+                y_w &
+                y_t &
+                ties &
+                ties_higher, 
+                HMCFAST,
+                n=n, stepsize = 0.01);
+  simsω
 end
 
 function conditioned_model(;personid = 3, nsteps = 20, h1 = 10, h2 = 30)
