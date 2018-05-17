@@ -121,9 +121,9 @@ function infer_ties(φ)
   end
 end
 
-function paramsamples(pairs = 16)
-  params = enumparams(pairs)
-  (merge(allparams(), φ, Params(Dict(:samplen => i)))  for φ in params, i = 1:length(params))
+function paramsamples(nsamples = 1)
+  params = enumparams(16)
+  (merge(allparams(), φ, Params(Dict(:samplen => i)))  for φ in params, i = 1:nsamples)
 end
 
 # function paramsamples(nsamples = 400)
