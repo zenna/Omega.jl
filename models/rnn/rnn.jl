@@ -79,6 +79,7 @@ function more_than_20(data)
   id_to_sizes = Dict(filter(sizes) do pair
     pair[2] >= 20
     end)
+  id_to_sizes |> keys |> collect
 end
 "Data condition, returns (sim == peronid.data, peronid.data)"
 function filtereddata(data, personid, nsteps)
@@ -106,11 +107,11 @@ function infer(nsteps = 20;n=1000, h1 = 10)
   simsω, obvglucose, sims
 end
 
-function variables_from_ids(data, ids, nsteps, h1, h2)
+function variables_from_ids(data, ids, nsteps, observed_size, h1, h2)
   npatients = length(ids)
   sims, meansims = model(nsteps, h1, h2; npatients = npatients)
   y_g = map(sims, ids) do sim, id
-    datacond(data, sim, id, nsteps)
+    datacond(data, sim, id, observed_size)
   end
   y, glucose = zip(y_g...)
   σ2s  = var.(sims)
@@ -118,17 +119,14 @@ function variables_from_ids(data, ids, nsteps, h1, h2)
   y, glucose, sims, meansims, σs
 end
 
-function ties_model(;αmean=100, αstd = 100,
+function ties_model(;ids_w = [], ids_t = [], observed_size = 3, αmean=100, αstd = 100,
                     h1 = 25, h2 = 25, nsteps = 20, 
-                    δmean = 0.001, δstd = 1e-5,
-                    maxw = 3, maxt = 2)
+                    δmean = 0.001, δstd = 1e-5,)
   data = loaddata();
-  id_witness = [52, 47, 54, 32, 50, 40, 16, 11, 46, 43, 9, 55, 42, 58, 17, 59, 49, 22, 6, 24]
-  id_treatment = [44, 4, 37, 51, 61, 5, 38, 23, 14, 48]
-  id_witness = id_witness[1:maxw] #XXX
-  id_treatment = id_treatment[1:maxt] #XXX
-  y_w, glucose_w, sims_w, meansims_w, σs_w = variables_from_ids(data, id_witness, nsteps, h1, h2)
-  y_t, glucose_t, sims_t, meansims_t, σs_t = variables_from_ids(data, id_treatment, 3, h1, h2)
+  id_witness = ids_w
+  id_treatment = ids_t
+  y_w, glucose_w, sims_w, meansims_w, σs_w = variables_from_ids(data, id_witness, nsteps, nsteps, h1, h2)
+  y_t, glucose_t, sims_t, meansims_t, σs_t = variables_from_ids(data, id_treatment, nsteps, observed_size, h1, h2)
   glucose_t_full = map(id_treatment) do personid
     filtereddata(data, personid, nsteps)[1]
   end
@@ -141,7 +139,8 @@ function ties_model(;αmean=100, αstd = 100,
     (glucose_w, glucose_t, glucose_t_full)
 end
 
-function infer_ties(y_w, y_t, ties, ties_higher; n=3000)
+function infer_ties(y_w, y_t, ties, ties_higher, algo = HMCFAST; 
+                    n=3000, stepsize = 0.01, nsteps=20)
   conjuntion = x -> length(x) > 1 ? (&)(x...) : x[1]
   y_w = y_w |> conjuntion
   y_t = y_t |> conjuntion
@@ -152,8 +151,9 @@ function infer_ties(y_w, y_t, ties, ties_higher; n=3000)
                 y_t &
                 ties &
                 ties_higher, 
-                HMCFAST,
-                n=n, stepsize = 0.01);
+                algo,
+                n=n, stepsize = 0.01,
+                nsteps=nsteps);
   simsω
 end
 
@@ -239,6 +239,24 @@ function save_dataset(selection, thinned, sims, obvglucose_4_full,
   stringdata = json(Dict(:simulations => ok, :simulation_witness =>simulation_witness,
                         :obvglucose_4_full => obvglucose_4_full,
                         :obvglucose_4 => obvglucose_4, :obvglucose_3=>obvglucose_3))
+  open(path, "w") do f
+    write(f, stringdata)
+  end
+end
+
+function save_dataset2(selection, thinned, sim_w, sim_t, glucose_w, glucose_t, 
+                        glucose_t_full; 
+                        path = joinpath(ENV["DATADIR"], "mu", "data", "simu.json"))
+  to_array(sim) = [Flux.data.(sim(thinned[simω])) for simω in selection]
+  witness = to_array(sim_w)
+  treatment = to_array(sim_t)
+  mse = [(glucose_t_full[1:length(t)] .- t).^2 |> sum for t in treatment]
+
+  stringdata = json(Dict(:simulations => treatment, :simulation_witness =>witness,
+                        :glucose_w => glucose_w,
+                        :glucose_t => glucose_t, :glucose_t_full=>glucose_t_full,
+                        :observed_size => length(glucose_t),
+                        :mse => mse))
   open(path, "w") do f
     write(f, stringdata)
   end
