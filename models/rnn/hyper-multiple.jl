@@ -35,7 +35,7 @@ function runparams()
 
   φ[:name] = "rnn test"
   φ[:runname] = randrunname()
-  φ[:tags] = ["test", "rnn", "two_patients_many"]
+  φ[:tags] = ["test", "rnn", "two_patients_many2"]
   φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])   # LOGDIR is required for sim to save
   φ[:runfile] = @__FILE__
 
