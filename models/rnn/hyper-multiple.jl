@@ -110,7 +110,7 @@ function infer_ties(φ)
                 glucose_w[1], glucose_t[1], glucose_t_full[1];
                 path = path)
     Mu.withkernel(Mu.kseα(φ[:αglobal_ind])) do
-      simsω_ind = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y_t, 
+      simsω_ind = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y_t[1], 
                         φ[:infalg][:infalg]; φ[:infalg][:infalgargs]...)
       thinned = simsω_ind[1000:100:end]
       selection = randperm(thinned |> length)[1:10]
