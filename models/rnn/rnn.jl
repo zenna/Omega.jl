@@ -4,6 +4,7 @@ using UnicodePlots
 using DataFrames
 using CSV
 using Plots
+using JSON
 gr()
 
 Mu.defaultomega() = SimpleOmega{Vector{Int}, Array}
@@ -188,4 +189,17 @@ end
 function plot_minimum(simsω, sims, obvglucose, norm_ = 2)
   @show p, id_ = mindistance(simsω, sims, obvglucose, norm_)
   plot_idx(id_, simsω, sims, obvglucose)
+end
+
+function save_dataset(selection, thinned, sims, obvglucose_4_full, 
+    obvglucose_4, obvglucose_3; 
+    path = joinpath(ENV["DATADIR"], "mu", "data", "simu.json"))
+  ok = [Flux.data.(sims[4](thinned[simω])) for simω in selection]
+  simulation_witness = [Flux.data.(sims[3](thinned[simω])) for simω in selection]
+  stringdata = json(Dict(:simulations => ok, :simulation_witness =>simulation_witness,
+                        :obvglucose_4_full => obvglucose_4_full,
+                        :obvglucose_4 => obvglucose_4, :obvglucose_3=>obvglucose_3))
+  open(path, "w") do f
+    write(f, stringdata)
+  end
 end

@@ -1,6 +1,7 @@
 # Hyper Parameter search for Spelke inference
 using RunTools
 using Mu
+using JSON
 rnn_file = joinpath(Pkg.dir("Mu"), "models", "rnn", "rnn.jl")
 include(rnn_file)
 
@@ -117,6 +118,10 @@ function infer_ties(φ)
     plot_many(selection, thinned, sims[4], 
             [obvglucose_4_full, obvglucose_4, obvglucose_3];
             save = true, path=path)
+    path = joinpath(φ[:logdir], "simulations.json")
+    save_dataset(selection, thinned, sims, 
+            obvglucose_4_full, obvglucose_4, obvglucose_3;
+            path = path)
   end
 end
 
