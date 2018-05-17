@@ -3,6 +3,8 @@ using ImageView
 using RunTools
 import RayTrace: SimpleSphere, ListScene, rgbimg
 import RayTrace: FancySphere, Vec3, Sphere, Scene
+using BSON
+using FileIO
 
 include("net.jl")
 
@@ -67,7 +69,7 @@ end
 
 "Default is no argument params"
 function infparams_(::Type{T}) where T
-  Params{Symbol, Any}(Dict{Symbol, Any}(:n => 1))
+  Params{Symbol, Any}(Dict{Symbol, Any}(:n => uniform([1000, 10000, 50000, 100000])))
 end
 Mu.lift(:infparams_, 1)
 
@@ -98,10 +100,9 @@ function allparams()
   merge(φ, runparams()) # FIXME: replace this with line above when have magic indexing
 end
 
-function paramsamples(nsamples = 100)
+function paramsamples(nsamples = 10)
   (rand(merge(allparams(), φ, Params(Dict(:samplen => i))))  for φ in enumparams(), i = 1:nsamples)
 end
-
 
 "Parameters we wish to enumerate"
 function enumparams()
@@ -161,8 +162,6 @@ const img_obs = render(observation_spheres())
 
 eucl(x, y) = sqrt(sum((x - y) .^ 2))
 function Mu.d(x::Img, y::Img)
-  @grab x
-  @grab y
   xfeatures = squeezenet(expanddims(x.img))
   yfeatures = squeezenet(expanddims(y.img))
   ds = map(eucl, xfeatures, yfeatures)
@@ -171,14 +170,33 @@ end
 
 expanddims(x) = reshape(x, size(x)..., 1)
 
+using ZenUtils
+
 function infer(φ)
   scene = iid(scene_)     # Random Variable of scenes
   img = render(scene)     # Random Variable over images
-  samples2 = rand(scene, nointersect(scene) & (img == img_obs), φ[:infalg][:infalg]; φ[:infalg][:infalgargs]...)
+
+  "Save images"
+  function saveimg(data, stage::Type{Outside})
+    imgpath = joinpath(φ[:logdir], "final$(data.i).png")
+    img_ = map(Images.clamp01nan, rgbimg(img(data.ω)))
+    
+    FileIO.save(imgpath, rgbimg(img_))
+  end
+
+  n = φ[:infalg][:infalgargs][:n]
+  samples = rand(scene, nointersect(scene) & (img == img_obs), φ[:infalg][:infalg];
+                 cb = [Mu.default_cbs(n); Mu.throttle(saveimg, 30)],
+                 φ[:infalg][:infalgargs]...)
+
+  # Save the scenes
+  path = joinpath(φ[:logdir], "omegas.bson")
+  BSON.bson(path, omegas=samples)
 end
 
-main() = control(infer, paramsamples())
+main() = RunTools.control(infer, paramsamples())
 
+main()
 ## Plots
 ## =====
 Δ(a::Sphere, b::Sphere) = norm(a.center - b.center) + abs(a.radius - b.radius)

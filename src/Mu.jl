@@ -128,5 +128,7 @@ export mean,
        # Misc
        ntranspose,
 
+       Outside,
+
        MaybeRV
 end
