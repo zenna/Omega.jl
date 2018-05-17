@@ -261,3 +261,18 @@ function save_dataset2(selection, thinned, sim_w, sim_t, glucose_w, glucose_t,
     write(f, stringdata)
   end
 end
+
+function save_dataset3(selection, thinned, sim_t, glucose_t, glucose_t_full; 
+                    path = joinpath(ENV["DATADIR"], "mu", "data", "simu.json"))
+  to_array(sim) = [Flux.data.(sim(thinned[simω])) for simω in selection]
+  treatment = to_array(sim_t)
+  mse = [(glucose_t_full[1:length(t)] .- t).^2 |> sum for t in treatment]
+
+  stringdata = json(Dict(:simulations => treatment,
+    :glucose_t => glucose_t, :glucose_t_full=>glucose_t_full,
+    :observed_size => length(glucose_t),
+    :mse => mse))
+  open(path, "w") do f
+    write(f, stringdata)
+  end
+end

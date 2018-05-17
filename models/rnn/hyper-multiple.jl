@@ -65,6 +65,7 @@ function allparams()
   φ[:modelφ] = modelparams()
   φ[:infalg] = infparams()
   φ[:αglobal] = 400
+  φ[:αglobal_ind] = 600
   φ[:tiesargs] = tieparams()
 #  φ[:kernel] = kernelparams()
   # φ[:runφ] = runparams()
@@ -108,10 +109,19 @@ function infer_ties(φ)
     save_dataset2(selection, thinned, sims_w[1], sims_t[1], 
                 glucose_w[1], glucose_t[1], glucose_t_full[1];
                 path = path)
+    Mu.withkernel(Mu.kseα(φ[:αglobal_ind])) do
+      simsω_ind = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y_t, 
+                        φ[:infalg][:infalg]; φ[:infalg][:infalgargs]...)
+      thinned = simsω_ind[1000:100:end]
+      selection = randperm(thinned |> length)[1:10]
+      path = joinpath(φ[:logdir], "simulations_no_tie.json")
+      save_dataset3(selection, thinned, sims_t[1], glucose_t[1], glucose_t_full[1];
+      path = path)
+    end
   end
 end
 
-function paramsamples(pairs = 3)
+function paramsamples(pairs = 16)
   params = enumparams(pairs)
   (merge(allparams(), φ, Params(Dict(:samplen => i)))  for φ in params, i = 1:length(params))
 end
