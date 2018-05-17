@@ -85,7 +85,8 @@ end
 function filtereddata(data, personid, nsteps)
   exampledata = traces(data, personid)
   range = 1:min(nsteps, nrow(exampledata))
-  normalize(Float64.(exampledata[:Value]))[range], range
+  range2 = 1:max(20, min(nsteps, nrow(exampledata)))
+  normalize(Float64.(exampledata[:Value])[range2])[range], range
 end
 
 function datacond(data, sim, personid, nsteps)

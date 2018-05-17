@@ -47,7 +47,7 @@ function tieparams()
   φ = Params()
   φ[:αmean] = 100
   φ[:αstd] = 100
-  φ[:δmean] = .001
+  φ[:δmean] = .05
   φ[:δstd] = 1e-5
   merge(φ, modelparams())
 end
