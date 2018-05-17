@@ -35,7 +35,7 @@ function runparams()
 
   φ[:name] = "rnn test"
   φ[:runname] = randrunname()
-  φ[:tags] = ["test", "rnn"]
+  φ[:tags] = ["test", "rnn", "two_patients"]
   φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])   # LOGDIR is required for sim to save
   φ[:runfile] = @__FILE__
 
@@ -125,22 +125,9 @@ function infer_ties(φ)
   end
 end
 
-function paramsamples(nsamples = 100)
+function paramsamples(nsamples = 400)
   (rand(merge(allparams(), φ, Params(Dict(:samplen => i))))  for φ in enumparams(), i = 1:nsamples)
 end
 
-function main(sim = infer_ties, args = RunTools.stdargs())
-  sim_ = args[:dryrun] ? RunTools.dry(sim) : sim
-  if args[:dispatch]
-    runφs = paramsamples()
-    RunTools.dispatchmany(infer, runφs;
-                          sbatch = args[:sbatch],
-                          here = args[:here],
-                          dryrun = args[:dryrun])
-  elseif args[:now] 
-    φ = RunTools.loadparams(args[:param])
-    sim_(φ)
-  end
-end
-
+main() = RunTools.control(infer_ties, paramsamples())
 main()
