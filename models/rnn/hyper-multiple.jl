@@ -35,7 +35,7 @@ function runparams()
 
   φ[:name] = "rnn test"
   φ[:runname] = randrunname()
-  φ[:tags] = ["test", "rnn", "two_patients_many2"]
+  φ[:tags] = ["test", "rnn", "two_patients_many3"]
   φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])   # LOGDIR is required for sim to save
   φ[:runfile] = @__FILE__
 
@@ -74,14 +74,15 @@ end
 
 
 "Parameters we wish to enumerate"
-function enumparams(pairs = 3)
-  assert(pairs <= 16)
+function enumparams(max = 70)
   data = loaddata()
   ids = more_than_20(data)
-  id_witness, id_treatment = ids[1:pairs], ids[pairs+1:2*pairs]
+  id_witness, id_treatment = ids[1:16], ids[16+1:2*16]
+  pairs = [(w, t) for w = id_witness for t = id_treatment]
+  pairs = pairs[randperm(length(pairs))]
   [Params(Dict(:ids_w => [id_w], :ids_t => [id_t], 
                 :observed_size => observed_size))
-        for (id_w, id_t) in zip(id_witness, id_treatment) 
+        for (id_w, id_t) in pairs[1:max]
         for observed_size in [3, 5, 10]]
 end
 
@@ -122,7 +123,7 @@ function infer_ties(φ)
 end
 
 function paramsamples(nsamples = 1)
-  params = enumparams(16)
+  params = enumparams(100)
   (merge(allparams(), φ, Params(Dict(:samplen => i)))  for φ in params, i = 1:nsamples)
 end
 
