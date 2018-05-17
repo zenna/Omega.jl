@@ -100,7 +100,7 @@ function allparams()
   merge(φ, runparams()) # FIXME: replace this with line above when have magic indexing
 end
 
-function paramsamples(nsamples = 10)
+function paramsamples(nsamples = 1000)
   (rand(merge(allparams(), φ, Params(Dict(:samplen => i))))  for φ in enumparams(), i = 1:nsamples)
 end
 
