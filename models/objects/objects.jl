@@ -112,12 +112,15 @@ function nointersect(s1::Sphere, s2::Sphere)
   d1 = d(s1, s2)
   d2 = (s1.radius + s2.radius)
   # d1 > d2
-  d1 ⪆ (d2 + 0.5)
+  withkernel(Mu.kseα(10000)) do
+    @show a = d1 ⪆ d2
+    Mu.SoftBool(Mu.logepsilon(a))
+  end
 end
 
 "Do any objects in the scene intersect with any other"
 intersect(sc::Scene) = any(pairwisef(intersects, sc))
-nointersect(sc::Scene) = all(pairwisef(nointersect, sc))
+nointersect(sc::Scene) = @show all(pairwisef(nointersect, sc))
 lift(:nointersect, 1)
 
 "Are all objects isequidistant?"
@@ -158,6 +161,12 @@ function main()
   img = render(scene)     # Random Variable over images
   # samples = rand(scene, nointersect(scene) & (img == img_obs), HMCFAST)
   samples = rand(scene, isequidistant(scene), HMC, n=10000)
+end
+
+function main2()
+  scene = iid(scene_)     # Random Variable of scenes
+  img = render(scene)     # Random Variable over images
+  samples = rand(scene, nointersect(scene) & (img == img_obs), SSMH)
 end
 
 ## Plots

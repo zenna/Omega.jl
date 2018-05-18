@@ -5,10 +5,14 @@ using Distributions
 function randargs(rng, sym, weight)
   args = []
   for i = 1:2
-    if rand(rng[@id]) > weight
-      push!(args, rand(rng[@id][i], 1:20))
-    else
+    p = rand(rng[@id][i])
+    # a = uniform(rng[@id], 1:3)
+    if p > weight
+      push!(args, :x)
+    elseif p > weight / 2.0
       push!(args, randexpr_(rng[@id][i], weight * weight))
+    else
+      push!(args, rand(rng[@id][i], 1:20))
     end
   end
   args
@@ -22,9 +26,27 @@ function randexpr_(rng::AbstractRNG, weight = 0.5)
   Expr(:call, head, args...)
 end
 
+function wrap_(rng, weight = 0.5)
+  expr = randexpr_(rng, weight)
+  :(x -> $(expr))
+end 
 randexpr = iid(randexpr_)
 evalexpr_(rng) = eval(randexpr(rng))
 evalexpr = iid(evalexpr_)
 
 exprs = rand(randexpr, evalexpr == 5.0;
              OmegaT = Mu.SimpleOmega{Mu.Paired, Mu.ValueTuple})
+
+
+xs = collect(0.00001:1.0:10.0)
+fx(rng) = map(x -> Base.invokelatest(eval(wrap_(rng)), x), xs)
+data = sin.(0.00001:1.0:10.0)
+
+function run()
+  randexpr = iid(randexpr_)
+  evalexpr_(rng) = eval(randexpr(rng))
+  evalexpr = iid(fx, T=Vector{Float64})
+
+  exprs = rand(randexpr, evalexpr == sin.(xs);
+              OmegaT = Mu.SimpleOmega{Mu.Paired, Mu.ValueTuple})
+end

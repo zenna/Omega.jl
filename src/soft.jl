@@ -90,7 +90,13 @@ softlt(x::Real, y::Real, k = globalkernel()) = SoftBool(-k(bound_loss(x, -Inf, y
 
 ## Boolean Operators
 ## =================
-Base.:&(x::SoftBool, y::SoftBool) = SoftBool(min(logepsilon(x), logepsilon(y)))
+function Base.:&(x::SoftBool, y::SoftBool)
+  @show a = logepsilon(x)
+  @show b = logepsilon(y)
+  @show c = min(a, b)
+  SoftBool(c)
+end
+# Base.:&(x::SoftBool, y::SoftBool) = SoftBool(logepsilon(x) +  logepsilon(y))
 Base.:|(x::SoftBool, y::SoftBool) = SoftBool(max(logepsilon(x), logepsilon(y)))
 Base.:|(x::RandVar, y::RandVar) = RandVar{SoftBool, false}(|, (x, y))
 
