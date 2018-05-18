@@ -14,7 +14,7 @@ struct Img{T}
   img::T
 end
 
-render(x) = Img(RayTrace.render(x, 224, 224))
+render(x) = Img(RayTrace.render(x, 100, 100))
 rgbimg(x::Img) = rgbimg(x.img)
 
 Mu.lift(:(RayTrace.SimpleSphere), n=2)
@@ -26,7 +26,7 @@ nspheres = poisson(3)
 "Randm Variable over scenes"
 function scene_(ω)
   # spheres = map(1:nspheres(ω)) do i
-  spheres = map(1:30) do i
+  spheres = map(1:5) do i
     FancySphere([uniform(ω[@id][i], -6.0, 5.0), uniform(ω[@id][i] , -6.0, 0.0), uniform(ω[@id][i]  , -25.0, -15.0)],
                  uniform(ω[@id][i]  , 1.0, 4.0),
                  [uniform(ω[@id][i] , 0.0, 1.0), uniform(ω[@id][i] , 0.0, 1.0), uniform(ω[@id][i] , 0.0, 1.0)],
@@ -127,11 +127,16 @@ end
 const img_obs = render(observation_spheres())
 
 eucl(x, y) = sqrt(sum((x - y) .^ 2))
+
+#rand_proj_mat = randn(50, 224×224×3);
+δ = 5e-4
+rand_proj_mat = δ*rand(sqrt(3)*[1, -1, 0, 0, 0, 0], (100,100*100*3));
+encode(x) =  (rand_proj_mat*reshape(x.img, 100*100*3, 1))[:, 1]
+
 function Mu.d(x::Img, y::Img)
-  xfeatures = squeezenet(expanddims(x.img))
-  yfeatures = squeezenet(expanddims(y.img))
-  ds = map(eucl, xfeatures, yfeatures)
-  mean(ds)
+  xfeatures = encode(x)
+  yfeatures = encode(y)
+  sum((xfeatures - yfeatures) .^ 2)
 end
 
 expanddims(x) = reshape(x, size(x)..., 1)
@@ -140,7 +145,8 @@ function main()
   scene = iid(scene_)     # Random Variable of scenes
   img = render(scene)     # Random Variable over images
   # samples = rand(scene, nointersect(scene) & (img == img_obs), HMCFAST)
-  samples = rand(scene, nointersect(scene), HMC, n=10000)
+  samples = rand(scene, nointersect(scene) & (img == img_obs), SSMH, n=100)
+  #samples = rand(scene, nointersect(scene), HMC, n=1000);
 end
 
 ## Plots
