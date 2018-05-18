@@ -44,6 +44,8 @@ handlesignal(::Type{Stop}) = throw(InterruptException)
 function plotp()
   alldata = Float64[]
   ys = Int[]
+  maxseen = -Inf
+  minseen = Inf
   
   innerplotp(data, stage) = nothing # Do nothing in other stages
   function innerplotp(data, stage::Type{Outside})
@@ -51,6 +53,14 @@ function plotp()
     push!(ys, data.i)
     if !isempty(alldata)
       println(lineplot(ys, alldata, title="Time vs p"))
+    end
+    if data.p > maxseen
+      maxseen = data.p
+      print_with_color(:light_blue, "\nNew max at id $(data.i): $(data.p)\n")
+    end
+    if data.p < minseen
+      minseen = data.p
+      print_with_color(:light_blue, "\nNew min at id $(data.i): $(data.p)\n")
     end
   end
 end

@@ -23,7 +23,7 @@ function runparams()
 
   φ[:name] = "rnn test"
   φ[:runname] = randrunname()
-  φ[:tags] = ["test", "objects"]
+  φ[:tags] = ["test", "objectsgood"]
   φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])   # LOGDIR is required for sim to save
   φ[:runfile] = @__FILE__
 
@@ -36,13 +36,13 @@ function allparams()
   φ = Params()
   # φ[:modelφ] = modelparams()
   φ[:infalg] = infparams()
-  φ[:α] = uniform([20.0, 40.0, 10.0, 1000.0])
+  φ[:α] = uniform([100.0, 200.0, 400.0, 500.0, 1000.0])
 #  φ[:kernel] = kernelparams()
   # φ[:runφ] = runparams()
   merge(φ, runparams()) # FIXME: replace this with line above when have magic indexing
 end
 
-function paramsamples(nsamples = 1000)
+function paramsamples(nsamples = 10)
   (rand(merge(allparams(), φ, Params(Dict(:samplen => i))))  for φ in enumparams(), i = 1:nsamples)
 end
 
@@ -65,7 +65,10 @@ function infer(φ)
   end
 
   n = φ[:infalg][:infalgargs][:n]
-  samples = rand(scene, nointersect(scene) & (img == img_obs), φ[:infalg][:infalg];
+  pred = withkernel(Mu.kseα(φ[:α])) do
+    nointersect(scene) & (img == img_obs)
+  end
+  samples = rand(scene, pred, φ[:infalg][:infalg];
                  cb = [Mu.default_cbs(n); Mu.throttle(saveimg, 30)],
                  φ[:infalg][:infalgargs]...)
 

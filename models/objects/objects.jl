@@ -26,8 +26,8 @@ nspheres = poisson(3)
 "Randm Variable over scenes"
 function scene_(ω)
   # spheres = map(1:nspheres(ω)) do i
-  spheres = map(1:30) do i
-    FancySphere([uniform(ω[@id][i], -6.0, 5.0), uniform(ω[@id][i] , -6.0, 0.0), uniform(ω[@id][i]  , -25.0, -15.0)],
+  spheres = map(1:4) do i
+    FancySphere([uniform(ω[@id][i], -6.0, 5.0), uniform(ω[@id][i] , -1.0, 0.0), uniform(ω[@id][i]  , -25.0, -15.0)],
                  uniform(ω[@id][i]  , 1.0, 4.0),
                  [uniform(ω[@id][i] , 0.0, 1.0), uniform(ω[@id][i] , 0.0, 1.0), uniform(ω[@id][i] , 0.0, 1.0)],
                  1.0,
@@ -35,9 +35,26 @@ function scene_(ω)
                  Vec3([0.0, 0.0, 0.0]))
   end
   light = FancySphere(Vec3([0.0, 20.0, -30]),  3.0, Vec3([0.00, 0.00, 0.00]), 0.0, 0.0, Vec3([3.0, 3.0, 3.0]))
-  # push!(spheres, light)  
-  scene = ListScene([spheres; light])
+  push!(spheres, light)
+  scene = ListScene(spheres)
 end
+
+# "Randm Variable over scenes"
+# function scene_(ω)
+#   # spheres = map(1:nspheres(ω)) do i
+#   spheres = map(1:4) do i
+#     FancySphere([uniform(ω[@id][i], -6.0, 5.0), uniform(ω[@id][i] , -6.0, 0.0), uniform(ω[@id][i]  , -25.0, -15.0)],
+#                 #  uniform(ω[@id][i]  , 1.0, 4.0),
+#                  1.0,
+#                  [uniform(ω[@id][i] , 0.0, 1.0), uniform(ω[@id][i] , 0.0, 1.0), uniform(ω[@id][i] , 0.0, 1.0)],
+#                  1.0,
+#                  0.0,
+#                  Vec3([0.0, 0.0, 0.0]))
+#   end
+#   light = FancySphere(Vec3([0.0, 20.0, -30]),  3.0, Vec3([0.00, 0.00, 0.00]), 0.0, 0.0, Vec3([3.0, 3.0, 3.0]))
+#   # push!(spheres, light) 4
+#   scene = ListScene([spheres; light])
+# end
 
 
 function scenetodf(scene::RayTrace.ListScene)
@@ -73,16 +90,16 @@ showscene(scene) = imshow(rgbimg(render(scene)))
 ## Conditions
 ## ==========
 function same(xs)
-  a = [@show x1 ≊ x2 for x1 in xs, x2 in xs if x1 !== x2]
-  @show length(xs)
+  a = [x1 ≊ x2 for x1 in xs, x2 in xs if x1 !== x2]
+  # @show length(xs)
   aba = all(a)
-  @show aba
-  println()
+  # @show aba
+  # println()
   aba
 end
 norma(x) = sqrt(sum(x .* x))
 
-pairwisef(f, sc::Scene) = [f(obj1, obj2) for obj1 in sc.geoms, obj2 in sc.geoms if obj1 !== obj2]
+pairwisef(f, sc::Scene) = [f(obj1, obj2) for obj1 in sc.geoms[1:end-1], obj2 in sc.geoms[1:end-1] if obj1 !== obj2]
 
 "Euclidean distance between all objects"
 d(s1::Sphere, s2::Sphere) = norma(s1.center - s2.center)
@@ -140,7 +157,7 @@ function main()
   scene = iid(scene_)     # Random Variable of scenes
   img = render(scene)     # Random Variable over images
   # samples = rand(scene, nointersect(scene) & (img == img_obs), HMCFAST)
-  samples = rand(scene, nointersect(scene), HMC, n=10000)
+  samples = rand(scene, isequidistant(scene), HMC, n=10000)
 end
 
 ## Plots

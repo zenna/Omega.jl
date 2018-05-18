@@ -2,7 +2,7 @@ import bpy
 import csv
 import os
 datadir = os.environ['DATADIR']
-fp = os.path.join(datadir, "mu", "geoms2.csv")
+fp = os.path.join(datadir, "mu", "geoms6.csv")
 
 with open( fp ) as csvfile:
     rdr = csv.reader( csvfile )
