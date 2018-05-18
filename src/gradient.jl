@@ -13,7 +13,7 @@ function gradient(Y::RandVar, ω::Omega, vals = linearize(ω))
 end
 
 function gradient(Y::RandVar, sω::SimpleOmega{I, V}, vals) where {I, V <: AbstractArray}
-  @assert false
+  # @assert false
   sω = unlinearize(vals, sω)
   sωtracked = SimpleOmega(Dict(i => param(v) for (i, v) in sω.vals))
   # @grab vals
@@ -38,7 +38,7 @@ function gradient(Y::RandVar, sω::SimpleOmega{I, V}, vals) where {I, V <: Abstr
 end
 
 function fluxgradient(Y::RandVar, sω::SimpleOmega{I, V}) where {I, V <: AbstractArray}
-  @assert false
+  # @assert false
   l = -logepsilon(Y(sω))
   Flux.back!(l)
 end

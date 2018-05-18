@@ -14,8 +14,13 @@ struct Img{T}
   img::T
 end
 
-render(x) = Img(RayTrace.render(x, 224, 224))
+render(x) = Img(RayTrace.render(x, 100, 100, 30.0, RayTrace.trcdepth))
 rgbimg(x::Img) = rgbimg(x.img)
+
+showimg(img) = imshow(rgbimg(img))
+
+"Show a random image"
+showscene(scene) = imshow(rgbimg(render(scene)))
 
 Mu.lift(:(RayTrace.SimpleSphere), n=2)
 Mu.lift(:(RayTrace.ListScene), n=1)
@@ -26,7 +31,7 @@ nspheres = poisson(3)
 "Randm Variable over scenes"
 function scene_(ω)
   # spheres = map(1:nspheres(ω)) do i
-  spheres = map(1:30) do i
+  spheres = map(1:4) do i
     FancySphere([uniform(ω[@id][i], -6.0, 5.0), uniform(ω[@id][i] , -6.0, 0.0), uniform(ω[@id][i]  , -25.0, -15.0)],
                  uniform(ω[@id][i]  , 1.0, 4.0),
                  [uniform(ω[@id][i] , 0.0, 1.0), uniform(ω[@id][i] , 0.0, 1.0), uniform(ω[@id][i] , 0.0, 1.0)],
@@ -67,8 +72,7 @@ end
 #   scene = ListScene([spheres; light])
 # end
 
-"Show a random image"
-showscene(scene) = imshow(rgbimg(render(scene)))
+
 
 ## Conditions
 ## ==========
@@ -126,21 +130,28 @@ end
 
 const img_obs = render(observation_spheres())
 
-eucl(x, y) = sqrt(sum((x - y) .^ 2))
+# eucl(x, y) = sqrt(sum((x - y) .^ 2))
+# function Mu.d(x::Img, y::Img)
+#   xfeatures = squeezenet(expanddims(x.img))
+#   yfeatures = squeezenet(expanddims(y.img))
+#   ds = map(eucl, xfeatures, yfeatures)
+#   mean(ds)
+# end
+
 function Mu.d(x::Img, y::Img)
-  xfeatures = squeezenet(expanddims(x.img))
-  yfeatures = squeezenet(expanddims(y.img))
-  ds = map(eucl, xfeatures, yfeatures)
-  mean(ds)
+  a = x.img[:, :, 1]
+  b = y.img[:, :, 1]
+  Mu.d(a, b)
 end
+
 
 expanddims(x) = reshape(x, size(x)..., 1)
 
-function main()
+function main(;kwargs...)
   scene = iid(scene_)     # Random Variable of scenes
   img = render(scene)     # Random Variable over images
-  # samples = rand(scene, nointersect(scene) & (img == img_obs), HMCFAST)
-  samples = rand(scene, nointersect(scene), HMC, n=10000)
+  samples = rand(scene, nointersect(scene) & (img == img_obs), HMCFAST; kwargs...)
+  # samples = rand(scene, nointersect(scene), HMC, n=10000)
 end
 
 ## Plots
