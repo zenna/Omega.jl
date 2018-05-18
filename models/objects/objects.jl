@@ -5,6 +5,8 @@ import RayTrace: SimpleSphere, ListScene, rgbimg
 import RayTrace: FancySphere, Vec3, Sphere, Scene
 using BSON
 using FileIO
+using DataFrames
+
 
 include("net.jl")
 
@@ -24,8 +26,8 @@ nspheres = poisson(3)
 "Randm Variable over scenes"
 function scene_(ω)
   # spheres = map(1:nspheres(ω)) do i
-  spheres = map(1:4) do i
-    FancySphere([uniform(ω[@id][i], -6.0, 5.0), uniform(ω[@id][i] , -1.0, 0.0), uniform(ω[@id][i]  , -25.0, -15.0)],
+  spheres = map(1:30) do i
+    FancySphere([uniform(ω[@id][i], -6.0, 5.0), uniform(ω[@id][i] , -6.0, 0.0), uniform(ω[@id][i]  , -25.0, -15.0)],
                  uniform(ω[@id][i]  , 1.0, 4.0),
                  [uniform(ω[@id][i] , 0.0, 1.0), uniform(ω[@id][i] , 0.0, 1.0), uniform(ω[@id][i] , 0.0, 1.0)],
                  1.0,
@@ -35,6 +37,17 @@ function scene_(ω)
   light = FancySphere(Vec3([0.0, 20.0, -30]),  3.0, Vec3([0.00, 0.00, 0.00]), 0.0, 0.0, Vec3([3.0, 3.0, 3.0]))
   # push!(spheres, light)  
   scene = ListScene([spheres; light])
+end
+
+
+function scenetodf(scene::RayTrace.ListScene)
+  alldf = DataFrame(x = Float64[], y = Float64[], z = Float64[], r = Float64[])
+  for obj in scene.geoms
+    x, y, z = obj.center
+    df_ = DataFrame(x = [x], y = [y], z = [z], r = [obj.radius])
+    append!(alldf, df_)
+  end
+  alldf
 end
 
 # "Randm Variable over scenes"
@@ -57,58 +70,6 @@ end
 "Show a random image"
 showscene(scene) = imshow(rgbimg(render(scene)))
 
-## Params
-## ======
-"Optimization-specific parameters"
-function infparams()
-  φ = Params()
-  φ[:infalg] = SSMH
-  φ[:infalgargs] = infparams_(φ[:infalg])
-  φ
-end
-
-"Default is no argument params"
-function infparams_(::Type{T}) where T
-  Params{Symbol, Any}(Dict{Symbol, Any}(:n => uniform([1000, 10000, 50000, 100000])))
-end
-Mu.lift(:infparams_, 1)
-
-function runparams()
-  φ = Params()
-  φ[:train] = true
-  φ[:loadchain] = false
-  φ[:loadnet] = false
-
-  φ[:name] = "rnn test"
-  φ[:runname] = randrunname()
-  φ[:tags] = ["test", "objects"]
-  φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])   # LOGDIR is required for sim to save
-  φ[:runfile] = @__FILE__
-
-  φ[:gitinfo] = RunTools.gitinfo()
-  φ
-end
-
-"All parameters"
-function allparams()
-  φ = Params()
-  # φ[:modelφ] = modelparams()
-  φ[:infalg] = infparams()
-  φ[:α] = uniform([20.0, 40.0, 10.0, 1000.0])
-#  φ[:kernel] = kernelparams()
-  # φ[:runφ] = runparams()
-  merge(φ, runparams()) # FIXME: replace this with line above when have magic indexing
-end
-
-function paramsamples(nsamples = 1000)
-  (rand(merge(allparams(), φ, Params(Dict(:samplen => i))))  for φ in enumparams(), i = 1:nsamples)
-end
-
-"Parameters we wish to enumerate"
-function enumparams()
-  [Params()]
-end
-
 ## Conditions
 ## ==========
 function same(xs)
@@ -119,7 +80,7 @@ function same(xs)
   println()
   aba
 end
-norma(x) = sum(x .* x)
+norma(x) = sqrt(sum(x .* x))
 
 pairwisef(f, sc::Scene) = [f(obj1, obj2) for obj1 in sc.geoms, obj2 in sc.geoms if obj1 !== obj2]
 
@@ -130,7 +91,12 @@ d(s1::Sphere, s2::Sphere) = norma(s1.center - s2.center)
 cold(s1::Sphere, s2::Sphere) = norma(s1.surface_color - s2.surface_color)
 
 intersect(s1::Sphere, s2::Sphere) = d(s1, s2) ⪅ (s1.radius + s2.radius)
-nointersect(s1::Sphere, s2::Sphere) = d(s1, s2) ⪆ (s1.radius + s2.radius)
+function nointersect(s1::Sphere, s2::Sphere)
+  d1 = d(s1, s2)
+  d2 = (s1.radius + s2.radius)
+  # d1 > d2
+  d1 ⪆ (d2 + 0.5)
+end
 
 "Do any objects in the scene intersect with any other"
 intersect(sc::Scene) = any(pairwisef(intersects, sc))
@@ -165,38 +131,18 @@ function Mu.d(x::Img, y::Img)
   xfeatures = squeezenet(expanddims(x.img))
   yfeatures = squeezenet(expanddims(y.img))
   ds = map(eucl, xfeatures, yfeatures)
-  @show mean(ds)
+  mean(ds)
 end
 
 expanddims(x) = reshape(x, size(x)..., 1)
 
-using ZenUtils
-
-function infer(φ)
+function main()
   scene = iid(scene_)     # Random Variable of scenes
   img = render(scene)     # Random Variable over images
-
-  "Save images"
-  function saveimg(data, stage::Type{Outside})
-    imgpath = joinpath(φ[:logdir], "final$(data.i).png")
-    img_ = map(Images.clamp01nan, rgbimg(img(data.ω)))
-    
-    FileIO.save(imgpath, rgbimg(img_))
-  end
-
-  n = φ[:infalg][:infalgargs][:n]
-  samples = rand(scene, nointersect(scene) & (img == img_obs), φ[:infalg][:infalg];
-                 cb = [Mu.default_cbs(n); Mu.throttle(saveimg, 30)],
-                 φ[:infalg][:infalgargs]...)
-
-  # Save the scenes
-  path = joinpath(φ[:logdir], "omegas.bson")
-  BSON.bson(path, omegas=samples)
+  # samples = rand(scene, nointersect(scene) & (img == img_obs), HMCFAST)
+  samples = rand(scene, nointersect(scene), HMC, n=10000)
 end
 
-main() = RunTools.control(infer, paramsamples())
-
-main()
 ## Plots
 ## =====
 Δ(a::Sphere, b::Sphere) = norm(a.center - b.center) + abs(a.radius - b.radius)
