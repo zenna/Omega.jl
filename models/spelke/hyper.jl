@@ -3,6 +3,19 @@ using RunTools
 using Mu
 using CSV
 using DataFrames
+using TensorboardX
+
+function writescalar(writer, name, scalar = data -> data.p)
+  function writescalra(data, ::Type{Mu.Outside})
+    add_scalar!(writer, name, scalar(data), data.i)
+  end
+end
+
+function writescalar(writer, name, rv::Mu.RandVar)
+  function writescalra(data, ::Type{Mu.Outside})
+    add_scalar!(writer, name, Mu.logepsilon(rv(data.ω)), data.i)
+  end
+end
 
 include("spelke.jl")
 
@@ -18,26 +31,26 @@ end
 function infparams_(::Type{HMC})
   stepsize = uniform([0.0001, 0.001, 0.01, 0.1]) # FIXME!!
   nsteps = uniform([1, 2, 5, 10, 20])
-  Params(Dict(:stepsize => stepsize, :nsteps => nsteps))
+  Params(Dict(:stepsize => stepsize, :nsteps => nsteps, :n => 10000))
 end
 
 "Default is no argument params"
 function infparams_(::Type{T}) where T
-  Params{Symbol, Any}(Dict{Symbol, Any}(:hack => true))
+  Params{Symbol, Any}(Dict{Symbol, Any}(:n => 10000, :hack => true))
 end
 Mu.lift(:infparams_, 1)
 
-
 function kernelparams()
   φ = Params()
-  φ[:kernel] = uniform([Mu.kf1, Mu.kse])
-  φ[:kernelargs] = kernelparams_(φ[:kernel])
+  φ[:α] = uniform([1, 10.0, 50.0, 100.0, 500.0, 1000.0])
+  φ[:kernel] = Mu.kseα(φ[:α])
+  # φ[:kernelargs] = kernelparams_(φ[:kernel])
   φ
 end
 
-kernelparams_(::typeof(Mu.kf1)) = Params(:β => uniform([0.01, 0.1, 1.0, 10.0, 20.0, 40.0]))
-kernelparams_(::typeof(Mu.kse)) = Params(:α => uniform([0.01, 0.1, 1.0, 10.0, 20.0, 40.0]))
-Mu.lift(:kernelparams_, 1)
+# kernelparams_(::typeof(Mu.kf1)) = Params(:β => uniform([0.01, 0.1, 1.0, 10.0, 20.0, 40.0]))
+# kernelparams_(::typeof(Mu.kse)) = Params(:α => uniform([0.01, 0.1, 1.0, 10.0, 20.0, 40.0]))
+# Mu.lift(:kernelparams_, 1)
 
 function runparams()
   φ = Params()
@@ -47,7 +60,7 @@ function runparams()
 
   φ[:name] = "spelke test"
   φ[:runname] = randrunname()
-  φ[:tags] = ["test", "spelke2"]
+  φ[:tags] = ["rain", "spelke2"]
   φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])   # LOGDIR is required for sim to save
   φ[:runfile] = @__FILE__
 
@@ -73,7 +86,7 @@ function enumparams()
   [Params()]
 end
 
-function paramsamples(nsamples = 3)
+function paramsamples(nsamples = 20)
   (rand(merge(allparams(), φ, Params(Dict(:samplen => i))))  for φ in enumparams(), i = 1:nsamples)
 end
 
@@ -84,7 +97,23 @@ function infer(φ)
   realvideo = map(Scene, frames)
   video = iid(ω -> video_(ω, realvideo, nframes))
   rand(video)
-  samples = rand(video, video == realvideo, φ[:infalg][:infalg]; φ[:infalg][:infalgargs]...);
+
+  ## Tensorboard
+  writer = TensorboardX.SummaryWriter(φ[:logdir])
+
+  # Test equality at particular temperature
+  pred = withkernel(φ[:kernel][:kernel]) do
+    video == realvideo
+  end
+
+  predhard = withkernel(Mu.kseα(100000.0)) do
+    video == realvideo
+  end
+  
+  cb = [Mu.default_cbs(φ[:infalg][:infalgargs][:n]); writescalar(writer, "P"); writescalar(writer, "P_hard", predhard)]
+
+
+  samples = rand(video, pred, φ[:infalg][:infalg]; cb = cb, φ[:infalg][:infalgargs]...);
   evalposterior(samples, realvideo, false, true)
   samples
 end

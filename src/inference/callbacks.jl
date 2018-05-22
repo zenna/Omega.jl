@@ -204,6 +204,16 @@ function throttle(f, timeout; leading = true, trailing = false) # From Flux (tha
   end
 end
 
+"Higher order function that makes a callback run just once every n"
+function everyn(callback, n::Integer)
+  function everyncb(data, stage)
+    if data.i % n == 0
+      callback(data, stage)
+    end
+  end
+  return everyncb
+end
+
 "Defautlt callbacks"
 default_cbs(n) = [throttle(plotp(), 0.1),
                   showprogress(n),
