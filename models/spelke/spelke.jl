@@ -125,11 +125,13 @@ function accumprop(prop, video)
 end
 
 #nboxes = poisson(3) + 1
-nboxes = poisson(1) + 3
+#nboxes = poisson(1) + 3
+nboxes = 3
+#nboxes(ω)
 
 "Scene at frame t=0"
 function initscene(ω, data)
-  objects = map(1:nboxes(ω)) do i
+  objects = map(1:nboxes) do i
     Object(normal(ω[@id][i], mean(accumprop(:x, data)), std(accumprop(:x, data))),
        normal(ω[@id][i], mean(accumprop(:y, data)), std(accumprop(:y, data))),
        normal(ω[@id][i], mean(accumprop(:Δx, data)), std(accumprop(:Δx, data))),
@@ -188,7 +190,7 @@ using PDMats
 "Gaussian Process Random Variable"
 function gp_(ω)
   trajectories = Scene[]
-  objects = map(1:nboxes(ω)) do i
+  objects = map(1:nboxes) do i
     x = mvnormal(ω[@id][i][1], zeros(t), Σ)
     y = mvnormal(ω[@id][i][2], zeros(t), Σ)
     # Δx = mvnormal(ω[@id][i][3], zeros(t), Σ)
