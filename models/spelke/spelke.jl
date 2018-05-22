@@ -32,11 +32,11 @@ struct Object{T} <: AbstractObject
 end
 
 "View port into scene"
-struct Camera{T}
-  x::T
-  y::T
-  Δx::T
-  Δy::T
+struct Camera{T1, T2, T3, T4}
+  x::T1
+  y::T2
+  Δx::T3
+  Δy::T4
 end
 
 "Latent scene: camera and objects"
@@ -282,7 +282,7 @@ function draw(scene::Scene,
 end
 
 "Draw a sequence of frames"
-function viz(vid, sleeptime = 0.2)
+function viz(vid, sleeptime = 0.02)
   foreach(vid) do o
     display(draw(o))
     sleep(sleeptime)
@@ -295,6 +295,10 @@ datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.c
 datapath = joinpath(datadir(), "spelke", "data", "Balls_3_Clean_Diverge", "Balls_3_Clean_Diverge_DetectedObjects.csv")
 
 function train()
+  # datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.csv")
+  # datapath = joinpath(datadir(), "spelke", "data", "Balls_2_DivergenceA", "Balls_2_DivergenceA_DetectedObjects.csv")
+  datapath = joinpath(datadir(), "spelke", "data", "Balls_3_Clean", "Balls_3_Clean_DetectedObjects.csv")
+
   data = CSV.read(datapath)
   nframes = length(unique(data[:frame]))
   frames = groupby(data, :frame)
@@ -303,7 +307,6 @@ function train()
   rand(video)
   samples = rand(video, video == realvideo, SSMH, n=10000);
   evalposterior(samples, realvideo, false, true)
-  #viz(samples[end])
   samples
 end
 

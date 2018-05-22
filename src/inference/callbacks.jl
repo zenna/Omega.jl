@@ -1,5 +1,11 @@
 using UnicodePlots
 
+"Inf found"
+struct InfError <: Exception end
+
+"NaNs found"
+struct NaNError <: Exception end
+
 ## Common Tools
 ## ============
 runall(f) = f
@@ -38,6 +44,8 @@ handlesignal(::Type{Stop}) = throw(InterruptException)
 function plotp()
   alldata = Float64[]
   ys = Int[]
+  maxseen = -Inf
+  minseen = Inf
   
   innerplotp(data, stage) = nothing # Do nothing in other stages
   function innerplotp(data, stage::Type{Outside})
@@ -45,6 +53,14 @@ function plotp()
     push!(ys, data.i)
     if !isempty(alldata)
       println(lineplot(ys, alldata, title="Time vs p"))
+    end
+    if data.p > maxseen
+      maxseen = data.p
+      print_with_color(:light_blue, "\nNew max at id $(data.i): $(data.p)\n")
+    end
+    if data.p < minseen
+      minseen = data.p
+      print_with_color(:light_blue, "\nNew min at id $(data.i): $(data.p)\n")
     end
   end
 end
@@ -55,7 +71,7 @@ function plotω(x::RandVar{T}, y::RandVar{T}) where T
   yωs = Float64[]
 
   innerplotω(data, stage) = nothing # Do nothing in other stages
-  function innerplotω(data, stage)
+  function innerplotω(data, stage::Type{Outside})
     color = :blue
     if isempty(xωs)
       color = :red
@@ -127,11 +143,16 @@ function printstats(data, stage::Type{Outside})
 end
 
 
-"Stop if nans or Inf are present"
+"Stop if nans or Inf are present (-Inf) still permissible"
 stopnanorinf(data, stage) = nothing
 function stopnanorinf(data, stage::Type{Outside})
-  if isnan(data.p) || isinf(data.p)
+  if isnan(data.p)
     println("p is $(data.p)")
+    throw(NaNError())
+    return Mu.Stop
+  elseif data.p == Inf
+    println("p is $(data.p)")
+    throw(InfError())
     return Mu.Stop
   end
 end
@@ -149,7 +170,7 @@ as much as it can, without ever going more than once per `wait` duration;
 but if you'd like to disable the execution on the leading edge, pass
 `leading=false`. To enable execution on the trailing edge, ditto.
 """
-function throttle(f, timeout; leading=true, trailing=false) # From Flux (thanks!)
+function throttle(f, timeout; leading = true, trailing = false) # From Flux (thanks!)
   cooldown = true
   later = nothing
   result = nothing
@@ -170,6 +191,8 @@ function throttle(f, timeout; leading=true, trailing=false) # From Flux (thanks!
           later()
           later = nothing
         end
+      catch e
+        rethrow(e)
       finally
         cooldown = true
       end
@@ -182,7 +205,12 @@ function throttle(f, timeout; leading=true, trailing=false) # From Flux (thanks!
 end
 
 "Defautlt callbacks"
-default_cbs(n) = [throttle(plotp(), 1.0),
+default_cbs(n) = [throttle(plotp(), 0.1),
                   showprogress(n),
                   throttle(printstats, 1.0),
                   stopnanorinf]
+
+# default_cbs(n) = [plotp(),
+#                   showprogress(n),
+#                   printstats,
+#                   stopnanorinf]

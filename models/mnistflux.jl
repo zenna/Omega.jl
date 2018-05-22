@@ -25,7 +25,7 @@ end
 
 m = iid(net)
 fx = m(X);
-ob = Mu.lograndbool(crossentropy, fx, Y)
+ob = Mu.randbool(crossentropy, fx, Y)
 
 OmegaT = Mu.SimpleOmega{Int, Array}
 rand(m, ob, HMC, OmegaT=OmegaT)

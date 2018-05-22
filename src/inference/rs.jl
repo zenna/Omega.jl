@@ -14,9 +14,9 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{RejectionSample};
     if epsilon(y(ω)) == 1.0
       push!(samples, ω)
       accepted += 1
-      cb(RunData(ω, accepted, 0.0, accepted))
+      cb(RunData(ω, accepted, 0.0, accepted), Outside)
     else
-      cb(RunData(ω, accepted, 1.0, i))
+      cb(RunData(ω, accepted, 1.0, i), Outside)
     end
     i += 1
   end

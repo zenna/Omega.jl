@@ -54,7 +54,7 @@ uniform(a::MaybeRV{T}, b::MaybeRV{T}, dims::MaybeRV{Dims{N}}, ωid::Id = ωnew()
 
 "Uniform sample from vector"
 uniform(ω::Omega, a::T) where T = rand(ω, a)
-uniform(a::MaybeRV{T}, ωid::Id=ωnew()) where {V, T <: Vector{<:V}} =
+uniform(a::MaybeRV{T}, ωid::Id=ωnew()) where {V, T <: Vector{V}} =
   RandVar{V, true}(uniform, (a,), ωid)
 
 "Discrete uniform distribution with range `range`"

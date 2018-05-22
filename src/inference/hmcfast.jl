@@ -14,30 +14,37 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
 
   # Current Kinetic Energy
   current_K =  sum(map(p->sum(p.^2), pvals)) / 2.0
+  ∇qvals = [x.grad for x in values(prop_ω)]
+  function ∇step()
+    foreach(∇qvals) do ∇q @. ∇q = 0 end  #reset gradients
+    ∇U(prop_ω)  # Gradient step
+  end
  
   # Make a half step for momentum at beginning
-  ∇qvals = [x.grad for x in values(prop_ω)]
-  ∇U(prop_ω)  # Gradient step
-  foreach((p, ∇q) -> @.(p = p - stepsize * ∇q * jac(∇q) / 2.0), pvals, ∇qvals)
 
+  ∇step()
   # Unbound
   foreach(prop_qvals) do prop_q @. prop_q = unbound(prop_q) end
+  foreach((p, ∇q, prop_q) -> @.(p = p - stepsize * ∇q * jac(prop_q) / 2.0), 
+            pvals, ∇qvals, prop_qvals)
 
   for i = 1:nsteps
     cb(QP(prop_qvals, pvals), Inside)
     # @show prop_qvals
-    # Half step p and q 
+    # Half step p and q
+    # @show prop_qvals 
     foreach(pvals, prop_qvals) do p, q @. q = q + stepsize * p end    
-    if i != nsteps
-      # Bound q
-      foreach(prop_qvals) do prop_q @. prop_q = bound(prop_q) end 
+    # @show prop_qvals
+    κ = i !=  nsteps ? 1.0 : 0.5
+    # Bound q
+    foreach(prop_qvals) do prop_q @. prop_q = bound(prop_q) end 
 
-      # Gradient step
-      ∇U(prop_ω)
-      foreach(pvals, ∇qvals) do p, ∇q @. p = p - stepsize * ∇q * jac(∇q) / 2.0 end
-
-      # Unbound q
-      foreach(prop_qvals) do prop_q @. prop_q = unbound(prop_q) end
+    # Gradient step
+    ∇step()
+    # Unbound q
+    foreach(prop_qvals) do prop_q @. prop_q = unbound(prop_q) end
+    foreach(pvals, ∇qvals, prop_qvals) do p, ∇q, q 
+      @. p = p - κ * stepsize * ∇q * jac(q)
     end
   end
   # @assert false
@@ -45,15 +52,19 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
   # Make half a step for momentum at the end
   # any(notunit, q) && return current_q, false
   foreach(prop_qvals) do prop_q @. prop_q = bound(prop_q) end
-  foreach(pvals, ∇qvals) do p, ∇q @. p = p - stepsize * ∇q * jac(∇q) / 2.0 end
 
   # Evaluate the potential and kinetic energies at start and end
   current_U = U(ω)
   proposed_U = U(prop_ω)
   proposed_K = sum(map(p->sum(p.^2), pvals)) / 2.0
 
+  #@show current_U, proposed_U, current_K, proposed_K
   # Accept or reject
-  rand() < exp(current_U - proposed_U + current_K - proposed_K)
+  if log(rand()) < current_U - proposed_U + current_K - proposed_K
+    (proposed_U, true)
+  else
+    (current_U, false)
+  end
 end
 
 "Sample from `x | y == true` with Hamiltonian Monte Carlo"
@@ -80,7 +91,7 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{HMCFAST};
 
   accepted = 0
   for i = 1:n
-    wasaccepted = hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω,
+    p_, wasaccepted = hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω,
                           prop_ω, nsteps, stepsize, cb)
     if wasaccepted
       push!(ωsamples, deepcopy(prop_ω))
@@ -90,7 +101,7 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{HMCFAST};
       # QVALS need to reflect
       push!(ωsamples, deepcopy(ω))
     end
-    cb(RunData(prop_ω, accepted, 1.0, i), Outside)
+    cb(RunData(prop_ω, accepted, Flux.data(p_), i), Outside)
   end
   ωsamples
 end

@@ -68,6 +68,8 @@ include("statistics.jl")     # Mean, etc
 # Neural Network Stuff
 include("flux.jl")
 
+include("wow.jl")
+
 export mean,
        prob,
        rcd,
@@ -118,6 +120,15 @@ export mean,
        plotrv,
        default_cbs,
 
+       withkernel,
+
        # Gradient
-       gradient
+       gradient,
+
+       # Misc
+       ntranspose,
+
+       Outside,
+
+       MaybeRV
 end

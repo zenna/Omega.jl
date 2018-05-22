@@ -4,14 +4,14 @@ abstract type MI <: Algorithm end
 "Sample `ω | y == true` with Metropolis Hasting"
 function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{MI};
                    n = 1000,
-                   cb = default_cbs(n)) where {OT <: Omega}
+                   cb = default_cbs(n),
+                   hack = true) where {OT <: Omega}
   cb = runall(cb)
   ω = OmegaT()
   plast = epsilon(y(ω))
   qlast = 1.0
   ωsamples = OmegaT[]
   accepted = 0
-
   for i = 1:n
     ω_ = OmegaT()
     p_ = epsilon(y(ω_))
@@ -22,7 +22,7 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{MI};
       accepted += 1
     end
     push!(ωsamples, ω)
-    cb(RunData(ω, accepted, p_, i))
+    cb(RunData(ω, accepted, p_, i), Outside)
   end
   ωsamples
 end
