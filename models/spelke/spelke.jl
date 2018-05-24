@@ -52,19 +52,6 @@ end
 "Render scene into an image"
 render(scene, camera)::Image = scene
 
-function blocks(a, b)
-  # Check if object a blocks anchor of object b.
-  # If a is behind b then it cannot block it.
-  if (a.d >= b.d)
-    return 0
-  end
-  if (b.x >= a.x && (b.x+b.Δx) <= (a.x+a.Δx)) || (b.y >= a.y && (b.y+b.Δy) <= (a.y+a.Δy))
-    return 1
-  else
-    return 0
-  end
-end
-
 function blockedarea(a, b)
   # Compute area that a blocks in b
   # if a is farther away, it cannot block it.
@@ -84,37 +71,16 @@ function render(scene)
   # returns probability proportional to percentage of overlap.
   # But should be changed to be a learned thing.
   blockmatrix = [blockedarea(a, b) for a in scene.objects, b in scene.objects]
+  print(blockmatrix)
   objectids = Int[]
   for objid = 1:length(scene.objects)
-    if rand() >= sum(blockmatrix[objid, :])
+    if rand() >= sum(blockmatrix[:, objid])
       append!(objectids, objid)
     end
   end
   objects = [scene.objects[id] for id in objectids]
   return Scene(objects, scene.camera)
 end
-
-function oldrender(scene)
-  # Ignore camera for now.
-  # Identify all blocking areas.
-  # Does block a block block b?
-  blockmatrix = [blocks(a, b) for a in scene.objects, b in scene.objects]
-  # Iterate over all boxes. If they're on top of everything, render them.
-  # Otherwise do something
-  objectids = Int[]
-  for objid = 1:length(scene.objects)
-    if sum(blockmatrix[objid, :]) == 0
-      append!(objectids, objid)
-    end
-  end
-  # objects = map(1:length(objectids)) do i
-  #   scene.objects[objectids[i]]
-  # end
-  # objects = [scene.objects[objectids[i]] for i = 1:length(objectids)]
-  objects = [scene.objects[id] for id in objectids]
-  return Scene(objects,scene.camera)
-end
-lift(:render, 1)
 
 function accumprop(prop, video)
   props = Float64[]
@@ -136,9 +102,9 @@ function initscene(ω, data)
        normal(ω[@id][i], mean(accumprop(:y, data)), std(accumprop(:y, data))),
        normal(ω[@id][i], mean(accumprop(:Δx, data)), std(accumprop(:Δx, data))),
        normal(ω[@id][i], mean(accumprop(:Δy, data)), std(accumprop(:Δy, data))),
-       normal(ω[@id][i], 5.0, 0.5), # Speedies
-       normal(ω[@id][i], -3.0, 0.5),
-       uniform(ω[@id][i], [1.0, 2.0]))
+       normal(ω[@id][i], 5.0, 0.5), # Speedies on x
+       normal(ω[@id][i], -3.0, 0.5), # velocity on y
+       uniform(ω[@id][i], [1.0, 2.0])) # Depth, encoded as distance from camera.
        #normal(ω[@id][i], 0.0, 1.0),
        #normal(ω[@id][i], 0.0, 1.0))
   end
@@ -146,6 +112,7 @@ function initscene(ω, data)
                   normal(ω[@id], 0.0, 1.0),
                   640.0,
                   480.0)
+  @assert length(objects) == 3
   Scene(objects, camera)
 end
 
@@ -167,16 +134,16 @@ function move(ω, scene::Scene)
 end
 
 "Simulate `nsteps`"
-function video_(ω, scene::Scene = initscene(ω), nsteps = 1000)
+function video_(ω, scene::Scene = initscene(ω), nsteps = 1000, f = identity)
   trajectories = Scene[]
   for i = 1:nsteps
     scene = move(ω[i], scene)
-    push!(trajectories, render(scene))
+    push!(trajectories, f(scene))
   end
   trajectories
 end
 
-video_(ω, data::Vector, nsteps = 1000) = video_(ω, initscene(ω, data), nsteps)
+video_(ω, data::Vector, nsteps = 1000, f = identity) = video_(ω, initscene(ω, data), nsteps, f)
 
 ## GP model
 ## ========
@@ -297,15 +264,16 @@ datapath = joinpath(datadir(), "spelke", "data", "Balls_3_Clean_Diverge", "Balls
 function train()
   # datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.csv")
   # datapath = joinpath(datadir(), "spelke", "data", "Balls_2_DivergenceA", "Balls_2_DivergenceA_DetectedObjects.csv")
-  datapath = joinpath(datadir(), "spelke", "data", "Balls_3_Clean", "Balls_3_Clean_DetectedObjects.csv")
+  datapath = joinpath(datadir(), "spelke", "data", "Balls_3_Clean_Diverge", "Balls_3_Clean_Diverge_DetectedObjects.csv")
 
   data = CSV.read(datapath)
   nframes = length(unique(data[:frame]))
   frames = groupby(data, :frame)
   realvideo = map(Scene, frames)
-  video = iid(ω -> video_(ω, realvideo, nframes))
+  video = iid(ω -> video_(ω, realvideo, nframes, render))
+  latentvideo = iid(ω -> video_(ω, realvideo, nframes))
   rand(video)
-  samples = rand(video, video == realvideo, SSMH, n=10000);
+  samples = rand(latentvideo, video == realvideo, SSMH, n=1000);
   evalposterior(samples, realvideo, false, true)
   samples
 end
