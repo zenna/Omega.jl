@@ -1,3 +1,6 @@
 julia
 Distributions
+PDMats
 ProgressMeter
+Flux
+UnicodePlots
