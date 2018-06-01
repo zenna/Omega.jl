@@ -1,9 +1,3 @@
-import DataStructures: nil, cons, LinkedList
-## Linked List
-## ===========
-@inline append(a::LinkedList, b::Int) = cons(b, a)
-@inline base(::Type{LinkedList}, i) = cons(i, nil())
-
 ## Vector Indices
 ## ==============
 
@@ -32,5 +26,4 @@ const Paired = Int
 @inline combine(a::Paired, b::Paired) = pair(a, b)
 @inline base(::Type{Paired}, i::Int) = i
 
-Base.getindex(ω::NestedOmegaRandVar{O}, i::Int) where {O} = OmegaProj{O, Paired}(ω, pair(0, i))
 Base.getindex(ωπ::OmegaProj{O, Paired}, i::Int) where O = OmegaProj{O, Paired}(ωπ.ω, pair(ωπ.id, i))

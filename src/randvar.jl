@@ -42,9 +42,9 @@ end
 "Construct an i.i.d. of `X`"
 iid(f; T=infer_elemtype(f)) = RandVar{T}(f)
 
-"iid with arguments"
 # iid(f, args...; T=infer_elemtype(f, args...)) = RandVar{T}(ω -> f(ω, args...))
 
+"iid with arguments"
 iid(f, args...; T=infer_elemtype(f, args...)) = RandVar{T, true}(f, args)
 
 ## Printing

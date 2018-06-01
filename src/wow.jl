@@ -20,7 +20,7 @@ Base.:<(x::OK, y) = softlt(x.x, y)
 Base.Bool(x::SoftBool) = Bool(round(epsilon(x)))
 
 function Base.rand(ωπ::Mu.OmegaProj{Mu.SimpleOmega{Int64,Mu.OK},Int64}, ::Type{T}) where T
-  get!(()->OK(rand(Base.GLOBAL_RNG, T)), ωπ.ω.vals, ωπ.id)
+  get!(()->OK(rand(Random.GLOBAL_RNG, T)), ωπ.ω.vals, ωπ.id)
 end
 
 function Base.rand(ωπ::OmegaProj{O}, ::Type{T},  dims::Dims) where {T, I, V <: OK, O <: SimpleOmega{I, V}}

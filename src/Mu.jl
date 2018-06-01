@@ -20,12 +20,12 @@ include("omega/proj.jl")          # Sample Space
 include("randvar.jl")             # Random Variables
 
 ## Different Types of Omega
-include("omega/nested.jl")        # Sample Space
+# include("omega/nested.jl")        # Sample Space
 include("omega/simple.jl")        # Sample Space
-include("omega/countvec.jl")      # Sample Space
-include("omega/dirtyomega.jl")    # Sample Space
+# include("omega/countvec.jl")      # Sample Space
+# include("omega/dirtyomega.jl")    # Sample Space
 include("omega/id.jl")            # Pairing functions for omega ids
-include("omega/diffomega.jl")     # Differentiable Omega
+# include("omega/diffomega.jl")     # Differentiable Omega
 
 include("randvarapply.jl")    # Random Variables
 

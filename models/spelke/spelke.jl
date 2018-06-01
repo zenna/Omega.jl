@@ -8,6 +8,7 @@ using ArgParse
 include("distances.jl")
 include("evals.jl")
 
+
 lift(:(Base.getindex), 2)
 const Δxk = :x2
 const Δyk = :y2
@@ -106,7 +107,7 @@ function oldrender(scene)
     if sum(blockmatrix[objid, :]) == 0
       append!(objectids, objid)
     end
-  end
+  end 
   # objects = map(1:length(objectids)) do i
   #   scene.objects[objectids[i]]
   # end
@@ -250,6 +251,8 @@ end
 
 ## Visualization
 ## =============
+include("video.jl")
+
 "Four points (x, y) - corners of `box`"
 function corners(box)
   ((box.x, box.y),
@@ -294,7 +297,7 @@ end
 datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.csv")
 datapath = joinpath(datadir(), "spelke", "data", "Balls_3_Clean_Diverge", "Balls_3_Clean_Diverge_DetectedObjects.csv")
 
-function train()
+function train(n = 10000)
   # datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.csv")
   # datapath = joinpath(datadir(), "spelke", "data", "Balls_2_DivergenceA", "Balls_2_DivergenceA_DetectedObjects.csv")
   datapath = joinpath(datadir(), "spelke", "data", "Balls_3_Clean", "Balls_3_Clean_DetectedObjects.csv")
@@ -305,7 +308,7 @@ function train()
   realvideo = map(Scene, frames)
   video = iid(ω -> video_(ω, realvideo, nframes))
   rand(video)
-  samples = rand(video, video == realvideo, SSMH, n=10000);
+  samples = rand(video, video == realvideo, SSMH, n=n);
   evalposterior(samples, realvideo, false, true)
   samples
 end

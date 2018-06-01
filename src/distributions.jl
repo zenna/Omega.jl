@@ -1,5 +1,4 @@
 MaybeRV{T} = Union{T, AbstractRandVar{T}} where T
-Dims = UTuple{Int}
 
 "Gamma distribution"
 gammarv(ω::Omega, α::AbstractFloat, θ::AbstractFloat) = quantile(Gamma(α, θ), rand(ω))

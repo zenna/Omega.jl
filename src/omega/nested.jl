@@ -54,3 +54,5 @@ function (rv::RandVar{T, false})(ω::NestedOmega) where T
   args = map(a->apl(a, ω), rv.args)
   (rv.f)(args...)
 end
+
+Base.getindex(ω::NestedOmegaRandVar{O}, i::Int) where {O} = OmegaProj{O, Paired}(ω, pair(0, i))

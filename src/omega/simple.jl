@@ -64,7 +64,7 @@ end
 ## Rand
 ## ====
 function Base.rand(ωπ::OmegaProj{O}, ::Type{T}) where {T, I, O <: SimpleOmega{I, <:Real}}
-  get!(()->rand(Base.GLOBAL_RNG, T), ωπ.ω.vals, ωπ.id)
+  get!(()->rand(Random.GLOBAL_RNG, T), ωπ.ω.vals, ωπ.id)
 end
 
 function Base.rand(ωπ::OmegaProj{O}, ::Type{T},  dims::Dims) where {T, I, V, O <: SimpleOmega{I, V}}
@@ -72,21 +72,21 @@ function Base.rand(ωπ::OmegaProj{O}, ::Type{T},  dims::Dims) where {T, I, V, O
 end
 
 function Base.rand(ωπ::OmegaProj{O}, ::Type{T},  dims::Dims) where {T, I, A<:AbstractArray, O <: SimpleOmega{I, A}}
-  get!(()->rand(Base.GLOBAL_RNG, T, dims), ωπ.ω.vals, ωπ.id)
+  get!(()->rand(Random.GLOBAL_RNG, T, dims), ωπ.ω.vals, ωπ.id)
 end
 
 function Base.rand(ωπ::OmegaProj{O}, ::Type{T}) where {T, I, A<:AbstractArray, O <: SimpleOmega{I, A}}
-  val = get!(()->[rand(Base.GLOBAL_RNG, T)], ωπ.ω.vals, ωπ.id)
-  # val = get!(()->Float64[rand(Base.GLOBAL_RNG, T)], ωπ.ω.vals, ωπ.id)
+  val = get!(()->[rand(Random.GLOBAL_RNG, T)], ωπ.ω.vals, ωπ.id)
+  # val = get!(()->Float64[rand(Random.GLOBAL_RNG, T)], ωπ.ω.vals, ωπ.id)
   first(val)
 end
 
 function Base.rand(ωπ::OmegaProj{O}, ::Type{T},  dims::Dims) where {T, I, A<:Flux.TrackedArray, O <: SimpleOmega{I, A}}
-  get!(()->param(rand(Base.GLOBAL_RNG, T, dims)), ωπ.ω.vals, ωπ.id)
+  get!(()->param(rand(Random.GLOBAL_RNG, T, dims)), ωπ.ω.vals, ωπ.id)
 end
 
 function Base.rand(ωπ::OmegaProj{O}, ::Type{T}) where {T, I, A<:Flux.TrackedArray, O <: SimpleOmega{I, A}}
-  val = get!(()->param([rand(Base.GLOBAL_RNG, T)]), ωπ.ω.vals, ωπ.id)
+  val = get!(()->param([rand(Random.GLOBAL_RNG, T)]), ωπ.ω.vals, ωπ.id)
   first(val)
 end
 
@@ -103,7 +103,7 @@ function Base.rand(ωπ::OmegaProj{O}, ::Type{UInt32}) where {I, O <: SimpleOmeg
   if ωπ.id ∈ keys(ωπ.ω.vals)
     ωπ.ω.vals[ωπ.id]._UInt32::UInt32
   else
-    val = rand(Base.GLOBAL_RNG, UInt32)
+    val = rand(Random.GLOBAL_RNG, UInt32)
     ωπ.ω.vals[ωπ.id] = ValueTuple(0.0, 0.0, val)
     val
   end
@@ -113,7 +113,7 @@ function Base.rand(ωπ::OmegaProj{O}, ::Type{CO}) where {I, CO, O <: SimpleOmeg
   if ωπ.id ∈ keys(ωπ.ω.vals)
     return ωπ.ω.vals[ωπ.id]._Float64
   else
-    val = rand(Base.GLOBAL_RNG, CO)
+    val = rand(Random.GLOBAL_RNG, CO)
     ωπ.ω.vals[ωπ.id] = ValueTuple(val, Float32(0.0), UInt(0))
     return val
   end
@@ -135,6 +135,17 @@ function Base.merge!(sω1::SimpleOmega, sω2::SimpleOmega)
   end
   sω1
 end
+
+function projintersect!(ω_p::SimpleOmega, ω_s::SimpleOmega)
+  for k in keys(ω_p)
+    if k in keys(ω_s)
+      ω_p.vals[k] = ω_s.vals[k]
+    end
+  end
+  ω_p
+end
+
+projintersect!(ωπ1::OmegaProj, ωπ2::OmegaProj) = projintersect!(ωπ1.ω, ωπ2.ω)
 
 Base.merge!(ωπ1::OmegaProj{O}, ωπ2::OmegaProj{O}) where {O <: SimpleOmega} =
   merge!(ωπ1.ω, ωπ2.ω)
