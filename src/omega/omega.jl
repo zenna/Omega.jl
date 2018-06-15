@@ -1,4 +1,4 @@
-import Base.Random: Close1Open2, CloseOpen
+import Random: Close1Open2, CloseOpen
 
 const ωcounter = [0]
 "Unique dimension id"

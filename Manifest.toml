@@ -43,9 +43,9 @@ version = "0.1.0"
 
 [[Compat]]
 deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "IterativeEigensolvers", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "SuiteSparse", "Test", "UUIDs", "Unicode"]
-git-tree-sha1 = "2d63205c29efd9211fb2e10788c20587b4a5af5f"
+git-tree-sha1 = "4049fa166ff47bf2b9190eb4be0de478088fe0c9"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "0.65.1"
+version = "0.68.0"
 
 [[DataFlow]]
 deps = ["Juno", "Lazy", "MacroTools"]
@@ -107,11 +107,6 @@ git-tree-sha1 = "1c15726e82a01b42fc0f91e1220a99da6b8d7734"
 uuid = "f6369f11-7733-5829-9624-2563aa707210"
 version = "0.7.5"
 
-[[FunctionWrappers]]
-git-tree-sha1 = "451a665446e4f8f90e685f82a2d9bb6c3b0a7cf9"
-uuid = "069b7b12-0de2-55c6-9aab-29f3d0a68a2e"
-version = "0.1.0"
-
 [[GZip]]
 deps = ["Compat"]
 git-tree-sha1 = "9ddf213b14f864cbdd71d5b38f8910d7dad23469"
@@ -132,9 +127,9 @@ version = "0.4.1"
 
 [[Lazy]]
 deps = ["Compat", "MacroTools"]
-git-tree-sha1 = "1ab1e7afa2f93d713abbe79254776eb1b21640c7"
+git-tree-sha1 = "1dea2ef59fab543a5b1ce066b678dcdd70d21abf"
 uuid = "50d2b5c4-7a5e-59d5-8109-a42b560f39c0"
-version = "0.12.0"
+version = "0.12.1"
 
 [[LibGit2]]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
@@ -147,18 +142,18 @@ uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[MacroTools]]
 deps = ["Compat"]
-git-tree-sha1 = "6b89303a6f9dbdfbcaec5eb2d985582903a61474"
+git-tree-sha1 = "f5c87f9af1c1b0aea42080672dea169f936a83fb"
 uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
-version = "0.4.0"
+version = "0.4.1"
 
 [[Markdown]]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
 [[Media]]
-deps = ["MacroTools"]
-git-tree-sha1 = "1fe976a351890a936055114ce45aa27426821ebc"
+deps = ["MacroTools", "Test"]
+git-tree-sha1 = "9cc7fc9d0e3e7e4ecb1f1b81209f9dc626e893f1"
 uuid = "e89f7d12-3494-54d1-8411-f7d8b9ae1f27"
-version = "0.3.0"
+version = "0.4.0"
 
 [[Missings]]
 deps = ["Compat"]
@@ -170,10 +165,10 @@ version = "0.2.9"
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[NNlib]]
-deps = ["MacroTools", "Requires"]
-git-tree-sha1 = "b0955e896db00187b4bd40e2ee91c9f29f9b2b6c"
+deps = ["Libdl", "LinearAlgebra", "MacroTools", "Requires", "Test"]
+git-tree-sha1 = "83dd97789dcd7718ae4f62ac7104e575894b7368"
 uuid = "872c559c-99b0-510c-b3b7-b6c96a88d5cd"
-version = "0.3.0"
+version = "0.4.0"
 
 [[NaNMath]]
 git-tree-sha1 = "3b18ebac4cc5f22fe5af9b4aa63210ae4495507a"
@@ -216,15 +211,10 @@ uuid = "189a3867-3050-52da-a836-e630ba90ab69"
 version = "0.1.0"
 
 [[Requires]]
-git-tree-sha1 = "fc07f83ee89fdec5cf08886a61271fae8d964cf9"
+deps = ["Test"]
+git-tree-sha1 = "36e27b810e096ab501655e4b841b779cd9adaf33"
 uuid = "ae029012-a4dd-5104-9daa-d747884805df"
-version = "0.4.3"
-
-[[ReverseDiff]]
-deps = ["Compat", "DiffResults", "DiffRules", "ForwardDiff", "FunctionWrappers", "NaNMath", "SpecialFunctions", "StaticArrays"]
-git-tree-sha1 = "de10fa7359fd0919ab381dba34335f3960c8f612"
-uuid = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
-version = "0.2.0"
+version = "0.5.0"
 
 [[Rmath]]
 deps = ["BinDeps", "Compat", "Libdl"]
@@ -262,15 +252,15 @@ version = "0.1.0"
 
 [[SpecialFunctions]]
 deps = ["BinDeps", "Compat", "Libdl"]
-git-tree-sha1 = "a674e75798a737de67d6860b29a9e56a13d7639f"
+git-tree-sha1 = "56a9cf89d6d8f463370131a0345035bcadc1b7df"
 uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
-version = "0.4.0"
+version = "0.5.0"
 
 [[StaticArrays]]
-deps = ["Compat", "LinearAlgebra", "Random", "Test"]
-git-tree-sha1 = "6c0c5902c84cc4a5066052c9089eed5f5f2c794c"
+deps = ["Compat", "InteractiveUtils", "LinearAlgebra", "Random"]
+git-tree-sha1 = "a114d61f0ffe541c3ae2cddef4b44c844cebb4bf"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "0.7.0"
+version = "0.7.1"
 
 [[StatsBase]]
 deps = ["Compat", "DataStructures", "LinearAlgebra", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Test"]
