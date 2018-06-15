@@ -15,6 +15,7 @@ script:
   - julia -e 'Pkg.clone("https://github.com/zenna/Spec.jl")'
   - julia -e 'Pkg.add("UnicodePlots")'
   - julia -e 'Pkg.add("ForwardDiff")'
+  - julia -e 'Pkg.add("ReverseDiff")'
   - julia -e 'Pkg.add("Flux")'
   - julia -e 'Pkg.clone(pwd())'
   - julia -e 'Pkg.build("Mu")'
