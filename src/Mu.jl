@@ -7,6 +7,7 @@ using Distributions
 using PDMats
 using ProgressMeter
 using Spec
+using ReverseDiff
 # using Lens
 
 UTuple{T} = Tuple{Vararg{T, N}} where N
