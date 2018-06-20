@@ -1,4 +1,4 @@
-using Mu
+using Omega
 using MNIST
 using Flux
 
@@ -7,9 +7,9 @@ using Flux
 σ3(x) =  1.0 ./ (1.0 .+ exp.(-x))
 
 const batch_size = 1280
-Mu.lift(:(Flux.σ), 1)
-Mu.lift(:(Flux.softmax), 1)
-Mu.lift(:σ3, 1)
+Omega.lift(:(Flux.σ), 1)
+Omega.lift(:(Flux.softmax), 1)
+Omega.lift(:σ3, 1)
 
 "Infinite batch generator"
 function infinite_batches(data, batch_dim, batch_size, nelems = size(data, batch_dim))
@@ -52,14 +52,14 @@ function train(; trainkwargs...)
     batch_x = item[1]
     batch_y = float(Flux.onehotbatch(item[2], 0:9))
     predicate = f(batch_x) == batch_y 
-    predicate = Mu.randbool(Flux.crossentropy, f(batch_x), batch_y)
-    # predicate = Mu.randbool(Flux.binarycrossentropy, f(batch_x), batch_y)
+    predicate = Omega.randbool(Flux.crossentropy, f(batch_x), batch_y)
+    # predicate = Omega.randbool(Flux.binarycrossentropy, f(batch_x), batch_y)
     return predicate, state
   end
-  OmegaT = Mu.SimpleOmega{Int, Array}
-  # OmegaT = Mu.SimpleOmega{Int, Flux.TrackedArray}
-  samples = rand(w3, ygen, state, SGHMC; OmegaT=OmegaT, trainkwargs...)
-  # samples = w3(OmegaT())
+  ΩT = Omega.SimpleΩ{Int, Array}
+  # ΩT = Omega.SimpleΩ{Int, Flux.TrackedArray}
+  samples = rand(w3, ygen, state, SGHMC; ΩT=ΩT, trainkwargs...)
+  # samples = w3(ΩT())
   # @grab samples
   weights = samples
   # @grab weights

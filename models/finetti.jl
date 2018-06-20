@@ -31,5 +31,5 @@ end
 
 win = iid(win_, Float64) # FIXME: Why inferred type is void?
 
-win__ = Mu.rcd(win, bonus+dry_field+suspension) # FIXME, adding them to join
+win__ = Omega.rcd(win, bonus+dry_field+suspension) # FIXME, adding them to join
 means = mean(win__)

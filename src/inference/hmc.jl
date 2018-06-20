@@ -1,7 +1,7 @@
 "Hamiltonian Monte Carlo Sampling"
 abstract type HMC <: Algorithm end
 
-defaultomega(::Type{HMC}) = Mu.SimpleOmega{Int, Float64}
+defaultomega(::Type{HMC}) = Omega.SimpleΩ{Int, Float64}
 
 
 "Hamiltonian monte carlo with leapfrog integration: https://arxiv.org/pdf/1206.1901.pdf"
@@ -74,17 +74,17 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
 end
 
 "Sample from `x | y == true` with Hamiltonian Monte Carlo"
-function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{HMC};
+function Base.rand(ΩT::Type{OT}, y::RandVar, alg::Type{HMC};
                    n = 100,
                    nsteps = 10,
                    stepsize = 0.001,
-                   cb = default_cbs(n)) where {OT <: Omega}
+                   cb = default_cbs(n)) where {OT <: Ω}
   cb = runall(cb)
-  ω = OmegaT()
+  ω = ΩT()
   y(ω) # Initialize omega
   ωvec = linearize(ω)
 
-  ωsamples = OmegaT[]
+  ωsamples = ΩT[]
   U(ω) = -logepsilon(y(ω))
   U(ωvec::Vector) = U(unlinearize(ωvec, ω))
   ∇U(ωvec) = gradient(y, ω, ωvec)

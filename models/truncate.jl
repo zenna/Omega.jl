@@ -14,7 +14,7 @@ end
 function sample()
   x = normal(0.0, 1.0)
   αs = [0.1, 1.0, 10.0, 100.0]
-  kernels = Mu.kseα.(αs)
+  kernels = Omega.kseα.(αs)
   samples = truncate.(x, 0.0, 1.0, kernels; n = 100000)
 end
 

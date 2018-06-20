@@ -1,12 +1,13 @@
-__precompile__()
+# __precompile__()
 "Minimal Probabilistic Programming Langauge"
-module Mu
+module Omega
 
 using Flux
 using Distributions
 using PDMats
 using ProgressMeter
 using Spec
+import Base.Random
 # using Lens
 
 UTuple{T} = Tuple{Vararg{T, N}} where N

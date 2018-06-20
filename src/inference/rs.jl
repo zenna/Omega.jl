@@ -2,15 +2,15 @@
 abstract type RejectionSample <: Algorithm end
 
 "Sample from `x | y == true` with rejection sampling"
-function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{RejectionSample};
+function Base.rand(ΩT::Type{OT}, y::RandVar, alg::Type{RejectionSample};
                    n = 100,
-                   cb = default_cbs(n)) where {OT <: Omega}
+                   cb = default_cbs(n)) where {OT <: Ω}
   cb = runall(cb)
-  samples = OmegaT[]
+  samples = ΩT[]
   accepted = 1
   i = 1
   while accepted < n
-    ω = OmegaT()
+    ω = ΩT()
     if epsilon(y(ω)) == 1.0
       push!(samples, ω)
       accepted += 1

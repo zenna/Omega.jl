@@ -9,7 +9,7 @@ end
 
 "Construct globally unique id for indices for ω"
 macro id()
-  Mu.ωnew()
+  Omega.ωnew()
 end
 
 "Index of Probability Space"
@@ -22,11 +22,11 @@ const Ints = NTuple{N, Int} where N
 const RandVarId = Int
 
 "Probability Space indexed with values of type I"
-abstract type Omega{I} <: AbstractRNG end
+abstract type Ω{I} <: AbstractRNG end
 
 ## Rand
 ## ====
 RV = Union{Integer, Base.Random.FloatInterval}
-lookup(::Type{UInt32}) = UInt32, :_UInt32
-lookup(::Type{Close1Open2}) = Float64, :_Float64
-lookup(::Type{CloseOpen}) = Float64, :_Float64
+# lookup(::Type{UInt32}) = UInt32, :_UInt32
+# lookup(::Type{Close1Open2}) = Float64, :_Float64
+# lookup(::Type{CloseOpen}) = Float64, :_Float64

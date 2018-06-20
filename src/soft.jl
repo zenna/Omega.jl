@@ -111,12 +111,12 @@ const ueq = usofteq
 ## Lifts
 ## =====
 
-Mu.lift(:softeq, 2)
-Mu.lift(:usofteq, 2)
-Mu.lift(:usofteq, 3)
-Mu.lift(:softeq, 3)
-Mu.lift(:softgt, 2)
-Mu.lift(:softlt, 2)
+Omega.lift(:softeq, 2)
+Omega.lift(:usofteq, 2)
+Omega.lift(:usofteq, 3)
+Omega.lift(:softeq, 3)
+Omega.lift(:softgt, 2)
+Omega.lift(:softlt, 2)
 
 ## Show
 ## ====

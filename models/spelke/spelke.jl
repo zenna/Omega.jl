@@ -1,4 +1,4 @@
-using Mu
+using Omega
 using UnicodePlots
 using CSV
 using DataFrames
@@ -178,7 +178,7 @@ end
 
 "Gaussian Process Prior"
 function testgpprior()
-  w = SimpleOmega{Int, Array}()
+  w = SimpleΩ{Int, Array}()
   gpvideo = iid(gp_)
   samples = gpvideo(w)
   viz(samples)
@@ -207,12 +207,12 @@ end
   mean([Δ(a.x, b.x), Δ(a.y, b.y), Δ(a.Δx, b.Δx), Δ(a.Δy, b.Δy)])
 Δ(a::Scene, b::Scene) = surjection(a.objects, b.objects)
 
-function Mu.softeq(a::Array{<:Scene,1}, b::Array{<:Scene})
+function Omega.softeq(a::Array{<:Scene,1}, b::Array{<:Scene})
   dists = Δ.(a, b)
   d = mean(dists)
-  e = 1 - Mu.kse(d, 0.08)
+  e = 1 - Omega.kse(d, 0.08)
   eps = 1e-6
-  Mu.SoftBool(e + eps)
+  Omega.SoftBool(e + eps)
 end
 
 ## Visualization

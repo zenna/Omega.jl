@@ -20,8 +20,8 @@ lift(:ismale, 1)
 lift(:height, 1)
 lift(:age, 1)
 lift(:isrich, 1)
-Mu.lift(:Person, 4)
-Mu.lift(:σ, 1)
+Omega.lift(:Person, 4)
+Omega.lift(:σ, 1)
 
 
 person = Person(bernoulli(0.3),
@@ -48,7 +48,7 @@ man = Person(1.0,
 function isrich(w, person::Person)
   σ(person(w).height * θ[1](w) + person(w).age * θ[2](w) + person(w).ismale * θ[3](w))
 end
-# Mu.lift(:isrich, 1)
+# Omega.lift(:isrich, 1)
 
 ## Classifier
 ## ==========

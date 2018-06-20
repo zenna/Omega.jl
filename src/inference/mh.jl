@@ -4,13 +4,13 @@ abstract type MH <: Algorithm end
 "Sample from `x | y == true` with Metropolis Hasting"
 function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{MH};
                    n::Integer = 1000) where T
-  ω = DirtyOmega()
+  ω = DirtyΩ()
   plast = y(ω) |> epsilon
   qlast = 1.0
   samples = T[]
   accepted = 0.0
   @showprogress 1 "Running Chain" for i = 1:n
-    ω_ = DirtyOmega()
+    ω_ = DirtyΩ()
     p_ = y(ω_) |> epsilon
     ratio = p_ / plast
     if rand() < ratio

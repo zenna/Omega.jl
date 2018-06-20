@@ -13,7 +13,7 @@ end
 function infparams_(::Type{T}) where T
   Params{Symbol, Any}(Dict{Symbol, Any}(:n => uniform([1000, 10000, 50000, 100000])))
 end
-Mu.lift(:infparams_, 1)
+Omega.lift(:infparams_, 1)
 
 function runparams()
   φ = Params()
@@ -65,11 +65,11 @@ function infer(φ)
   end
 
   n = φ[:infalg][:infalgargs][:n]
-  pred = withkernel(Mu.kseα(φ[:α])) do
+  pred = withkernel(Omega.kseα(φ[:α])) do
     nointersect(scene) & (img == img_obs)
   end
   samples = rand(scene, pred, φ[:infalg][:infalg];
-                 cb = [Mu.default_cbs(n); Mu.throttle(saveimg, 30)],
+                 cb = [Omega.default_cbs(n); Omega.throttle(saveimg, 30)],
                  φ[:infalg][:infalgargs]...)
 
   # Save the scenes

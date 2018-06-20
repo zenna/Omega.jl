@@ -30,12 +30,12 @@ mm(π, μ, s) = sum([π[i] * normal(μ[i], s[i]) for i = 1:k])
 
 y = [mm(π, μ, s) for _ in y_obs]
 
-y_ = Mu.randarray(y)
+y_ = Omega.randarray(y)
 
 # Inference goal: conditional distribution of means given data
-samples = rand(Mu.randarray(μ), y_ == y_obs, MI, n=10000)
+samples = rand(Omega.randarray(μ), y_ == y_obs, MI, n=10000)
 @show [median(map(x->x[i], samples)) for i=1:k]
 
 
-samples_π = rand(Mu.randarray(π), y_ == y_obs, SSMH, n=10000)
+samples_π = rand(Omega.randarray(π), y_ == y_obs, SSMH, n=10000)
 @show [median(map(x->x[i], samples_π)) for i=1:k]

@@ -7,7 +7,7 @@ struct RandVar{T, Prim, F, TPL, I} <: AbstractRandVar{T} # Rename to PrimRandVar
   indeps::SetRandVar
 end
 
-function (rv::RandVar{T, true})(ω::SimpleOmega) where T
+function (rv::RandVar{T, true})(ω::SimpleΩ) where T
   caller_ = caller(rv, ω) # Find out which random variable is calling ω, could be none
   if owns(caller_, rv)  # If caller_
   end
@@ -44,7 +44,7 @@ E = ciid(D, A)  # shares D's A
 # Currnetly, if we add ids which accumulate into sequence of integers
 # X.f(ω[1][2][3]) == X.f(ω[1,2,3])
 # When we call rand(ω): this id is what is stored as the index in omega
-# And with that index we control Omega
+# And with that index we control Ω
 
 # Therefore if when we call A(ω) from within D, if we put on some unique id
 # A.f(ω[uniqueid]), then this will make an independent A

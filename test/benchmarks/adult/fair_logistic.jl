@@ -1,4 +1,4 @@
-using Mu
+using Omega
 # using ScikitLearn
 
 <<<<<<< HEAD
@@ -7,12 +7,12 @@ using Mu
 # include("./read_data.jl")
 =======
 @sk_import mixture: GaussianMixture
-Mu.defaultomega() = Mu.SimpleOmega{Int, Array}
+Omega.defaultomega() = Omega.SimpleΩ{Int, Array}
 
 include("./read_data.jl")
 σ(x) = one(x) / (one(x) + exp(-x))
 
-Mu.lift(:σ, 1)
+Omega.lift(:σ, 1)
 
 male_idx = 62
 female_idx = 63
@@ -70,13 +70,13 @@ f_covars = Array(f_clf["covariances_"])
 >>>>>>> origin/learn
 
 function rand_gaussian_mixture(weights, means, covars)
-    cat_var = Mu.categorical(weights)
+    cat_var = Omega.categorical(weights)
     compots = []
 
     for (mean, covar) in zip(means, covars)
-        push!(compots, Mu.mvnormal(mean, covar))
-        # logistic_arry = [Mu.logistic(mean[i],1.0) for i = 1:length(mean)]
-        # push!(compots, Mu.logistic(mean, randarray(logistic_arry)))
+        push!(compots, Omega.mvnormal(mean, covar))
+        # logistic_arry = [Omega.logistic(mean[i],1.0) for i = 1:length(mean)]
+        # push!(compots, Omega.logistic(mean, randarray(logistic_arry)))
     end
 
     function mixture(ω)

@@ -43,7 +43,7 @@ const IdMap = Dict{Int, Int}
 #   id::I
 # end
 
-# function (rv::ReplRandVar{T})(ω::Omega) where T  
+# function (rv::ReplRandVar{T})(ω::Ω) where T  
 #   RandVar{T, true, F, Tuple{}, Int}(f, (), ωnew()) # FIXME: HACK
 # end
 
@@ -66,14 +66,14 @@ const IdMap = Dict{Int, Int}
 
 # realiid(x::RandVar) = 3
 
-function (rv::RandVar{T, true})(ω::SimpleOmega) where T
+function (rv::RandVar{T, true})(ω::SimpleΩ) where T
   args = map(a->apl(a, ω), rv.args)
   (rv.f)(ω[rv.id], args...)
 end
 
 "Infer T from function `f: w -> T`"
 function infer_elemtype(f)
-  rt = Base.return_types(f, (Mu.DirtyOmega,))
+  rt = Base.return_types(f, (Omega.DirtyΩ,))
   @pre length(rt) == 1 "Could not infer unique return type"
   rt[1]
 end

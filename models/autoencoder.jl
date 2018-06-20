@@ -93,7 +93,7 @@ end
 function softeq(img_x::Img, img_y::Img)
   x = encoder_(img_x)
   y = encoder_(img_y) 
-  Mu.LogSoftBool(-(x - y).^2 |> sum)
+  Omega.LogSoftBool(-(x - y).^2 |> sum)
 end
 
 function generate_train_set(img, target, N=1000-1)
@@ -167,7 +167,7 @@ function alg_args(optimarg)
   end
 end
 
-Mu.lift(:alg_args, 1)
+Omega.lift(:alg_args, 1)
 
 "Optimization-specific parameters"
 function optimparams()

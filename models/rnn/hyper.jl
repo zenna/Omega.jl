@@ -1,7 +1,7 @@
 # Hyper Parameter search for Spelke inference
 using RunTools
-using Mu
-rnn_file = joinpath(Pkg.dir("Mu"), "models", "rnn", "rnn.jl")
+using Omega
+rnn_file = joinpath(Pkg.dir("Omega"), "models", "rnn", "rnn.jl")
 include(rnn_file)
 
 "Optimization-specific parameters"
@@ -24,7 +24,7 @@ end
 function infparams_(::Type{T}) where T
   Params{Symbol, Any}(Dict{Symbol, Any}(:hack => true))
 end
-Mu.lift(:infparams_, 1)
+Omega.lift(:infparams_, 1)
 
 function runparams()
   φ = Params()
@@ -70,10 +70,10 @@ end
 
 function infer(φ)
   display(φ)
-  y, obvglucose, sims = withkernel(Mu.kseα(φ[:α])) do
+  y, obvglucose, sims = withkernel(Omega.kseα(φ[:α])) do
     conditioned_model(; φ[:modelφ]...)
   end
-  simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y, 
+  simsω = rand(SimpleΩ{Vector{Int}, Flux.TrackedArray}, y, 
         φ[:infalg][:infalg]; φ[:infalg][:infalgargs]...)
   p, id_ = mindistance(simsω, sims[1], obvglucose, 2)
   display((p, id_))

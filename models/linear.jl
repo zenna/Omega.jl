@@ -1,7 +1,7 @@
 # Bayesian Linear Regression
 # ==========================
 
-using Mu
+using Omega
 
 # Generate fake data
 ndata = 10
@@ -26,4 +26,4 @@ testxdata = rand(10) * 10
 yprediction = linear(testxdata)
 
 # Inference
-samples = rand(θm, datacond == ydata, OmegaT=Mu.SimpleOmega{Int, Float64}, n = 10000)
+samples = rand(θm, datacond == ydata, ΩT=Omega.SimpleΩ{Int, Float64}, n = 10000)

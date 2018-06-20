@@ -1,4 +1,4 @@
-using Mu
+using Omega
 using Flux, Flux.Data.MNIST
 using Flux: onehotbatch, argmax, crossentropy, throttle
 using Base.Iterators: repeated
@@ -25,10 +25,10 @@ end
 
 m = iid(net)
 fx = m(X);
-ob = Mu.randbool(crossentropy, fx, Y)
+ob = Omega.randbool(crossentropy, fx, Y)
 
-OmegaT = Mu.SimpleOmega{Int, Array}
-rand(m, ob, HMC, OmegaT=OmegaT)
+ΩT = Omega.SimpleΩ{Int, Array}
+rand(m, ob, HMC, ΩT=ΩT)
 ## Testing
 ## ===========
 accuracy(x, y) = mean(argmax(m(x)) .== argmax(y))

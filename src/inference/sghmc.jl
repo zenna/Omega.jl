@@ -1,7 +1,7 @@
 "Stochastic Gradient Hamiltonian Monte Carlo Sampling"
 abstract type SGHMC <: Algorithm end
 
-defaultomega(::Type{SGHMC}) = Mu.SimpleOmega{Int, Float64}
+defaultomega(::Type{SGHMC}) = Omega.SimpleΩ{Int, Float64}
 
 "Stochastic Gradient Hamiltonian Monte Carlo with Langevin Dynamics Friction: https://arxiv.org/pdf/1402.4102.pdf"
 function sghmc(ygen, nsteps, stepsize, current_q::AbstractVector, ω, state)
@@ -47,17 +47,17 @@ function sghmc(ygen, nsteps, stepsize, current_q::AbstractVector, ω, state)
 end
 
 "Sample from `ω | y == true` with Stochastic Gradient Hamiltonian Monte Carlo"
-function Base.rand(OmegaT::Type{OT}, ygen, state, alg::Type{SGHMC};
+function Base.rand(ΩT::Type{OT}, ygen, state, alg::Type{SGHMC};
                    n=1000,
                    nsteps = 100,
                    stepsize = 0.001,
-                   cb = default_cbs(n)) where {OT <: Omega}
-  ω = OmegaT()
+                   cb = default_cbs(n)) where {OT <: Ω}
+  ω = ΩT()
   predicate, state = ygen(state)
   predicate(ω) # Initialize omega
   ωvec = linearize(ω) # UNNEC
 
-  # ωsamples = OmegaT[] # FIXME: preallocate (and use inbounds)
+  # ωsamples = ΩT[] # FIXME: preallocate (and use inbounds)
   ωsamples = [] # FIXME: preallocate (and use inbounds)
   accepted = 0
   m = div(n, 10)
@@ -80,8 +80,8 @@ function Base.rand(x::Union{RandVar, UTuple{<:RandVar}}, ygen, state, alg::Type{
                    n::Integer = 1000,
                    nsteps = 100,
                    stepsize = 0.001,
-                   OmegaT::OT = Mu.SimpleOmega{Int, Float64},
+                   ΩT::OT = Omega.SimpleΩ{Int, Float64},
                    cb = default_cbs(n)) where {OT}
-  map(x, rand(OmegaT, ygen, state, alg;
+  map(x, rand(ΩT, ygen, state, alg;
               n = n, nsteps = nsteps, stepsize = stepsize, cb = cb))
 end
