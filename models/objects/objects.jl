@@ -1,4 +1,4 @@
-using Mu
+using Omega
 using ImageView
 using RunTools
 import RayTrace: SimpleSphere, ListScene, rgbimg

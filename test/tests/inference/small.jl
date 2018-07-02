@@ -1,5 +1,5 @@
 # Set of small tests for all inference algorithms
-using Mu
+using Omega
 using UnicodePlots
 using Base.Test
 

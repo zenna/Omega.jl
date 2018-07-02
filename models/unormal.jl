@@ -1,4 +1,4 @@
-using Mu
+using Omega
 using UnicodePlots
 
 μ = normal(0.0, 1.0)

@@ -1,4 +1,4 @@
-using Mu
+using Omega
 import UnicodePlots
 
 fair_coin = bernoulli(0.5)

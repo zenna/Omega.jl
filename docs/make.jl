@@ -1,8 +1,8 @@
 using Documenter
-using Mu
+using Omega
 
 makedocs(
-  modules = [Mu],
+  modules = [Omega],
   authors = "Zenna Tavares, Javier Burroni, Edgar Minaysan, Rajesh Ragananthan, Armando Solar Lezama",
   format = :html,
   sitename = "jl",

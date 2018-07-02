@@ -1,4 +1,4 @@
-using Mu
+using Omega
 using Distributions
 using Base.Test
 

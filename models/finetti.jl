@@ -1,4 +1,4 @@
-using Mu
+using Omega
 
 suspension = bernoulli(0.6)
 dry_field = bernoulli(0.7)

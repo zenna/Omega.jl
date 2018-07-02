@@ -1,4 +1,4 @@
-using Mu
+using Omega
 
 "A Person"
 struct Person

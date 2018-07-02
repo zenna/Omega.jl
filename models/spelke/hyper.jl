@@ -1,6 +1,6 @@
 # Hyper Parameter search for Spelke inference
 using RunTools
-using Mu
+using Omega
 using CSV
 using DataFrames
 using TensorboardX

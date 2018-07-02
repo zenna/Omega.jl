@@ -1,4 +1,4 @@
-using Mu
+using Omega
 using Base.Test
 
 struct MyType

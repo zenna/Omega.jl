@@ -1,11 +1,11 @@
-import Mu: softeq
+import Omega: softeq
 using PyTorch
 using PyCall
 using ProgressMeter
 using UnicodePlots
 using RunTools
 
-invraytrace_file = joinpath(Pkg.dir("Mu"), "test", "benchmarks", "invraytrace.jl")
+invraytrace_file = joinpath(Pkg.dir("Omega"), "test", "benchmarks", "invraytrace.jl")
 include(invraytrace_file)
 
 # from https://github.com/L1aoXingyu/pytorch-beginner/blob/master/08-AutoEncoder/conv_autoencoder.py
