@@ -91,9 +91,9 @@ softlt(x::Real, y::Real, k = globalkernel()) = SoftBool(-k(bound_loss(x, -Inf, y
 ## Boolean Operators
 ## =================
 function Base.:&(x::SoftBool, y::SoftBool)
-  @show a = logepsilon(x)
-  @show b = logepsilon(y)
-  @show c = min(a, b)
+  a = logepsilon(x)
+  b = logepsilon(y)
+  c = min(a, b)
   SoftBool(c)
 end
 # Base.:&(x::SoftBool, y::SoftBool) = SoftBool(logepsilon(x) +  logepsilon(y))

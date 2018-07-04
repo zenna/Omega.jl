@@ -67,11 +67,18 @@ function F(ω, sex, age, capital_gain, capital_loss)
     # fairnessTarget(t < 0)
 end
 
-t(ω) = F(ω, popModel(ω)[1], popModel(ω)[2],popModel(ω)[3],popModel(ω)[4])
+isrich(ω) = F(ω, popModel(ω)[1], popModel(ω)[2], popModel(ω)[3], popModel(ω)[4])
+gender(ω) = popModel(ω)[1]
+age(ω) = popModel(ω)[2]
 
-rand(iid(popModel))
+isrich_var = iid(isrich, T = Bool)
+gender_var = iid(gender, T = Float64)
+age_var = iid(age, T = Float64)
 
-rand(iid(t))
+# three versions 
+
+# Version 1, fastest, but the fairness property is weaker (demographic parity)
+# m_isrich and f_isrich by construction version
 
 m_isrich_(ω) = F(ω, maleModel(ω)[1], maleModel(ω)[2], maleModel(ω)[3], maleModel(ω)[4])
 f_isrich_(ω) = F(ω, femaleModel(ω)[1], femaleModel(ω)[2], femaleModel(ω)[3], femaleModel(ω)[4])
@@ -81,4 +88,48 @@ f_isrich = iid(f_isrich_; T = Bool)
 
 fairness = prob(f_isrich ∥ (W,b,δ), 100) / prob(m_isrich ∥ (W,b,δ), 100) > 0.85
 
+# Version 2, second fastest, the fairness property is the strong version (equal opportunity). The conditions are party by construction
+# m_isrich_(ω) = F(ω, maleModel(ω)[1], maleModel(ω)[2], maleModel(ω)[3], maleModel(ω)[4])
+# f_isrich_(ω) = F(ω, femaleModel(ω)[1], femaleModel(ω)[2], femaleModel(ω)[3], femaleModel(ω)[4])
+
+# m_isrich = iid(m_isrich_; T = Bool)
+# f_isrich = iid(f_isrich_; T = Bool)
+
+# m_isrich_p = mean(m_isrich ∥ (W,b,δ))
+# f_isrich_p = mean(f_isrich ∥ (W,b,δ))
+
+# m_prob = rand(m_isrich_p, age_var > 18)
+# f_prob = rand(f_isrich_p, age_var > 18)
+
+# fairness =  f_prob / m_prob > 0.85
+
+# Version 3, slowest, equal opportunity
+
+# isrich_var_ = isrich_var ∥ (W,b,δ)
+
+# isrich_var_p = mean(isrich_var_)
+
+# m_prob = rand(isrich_var_p, (gender_var > 1) & (age_var > 18))
+# f_prob = rand(isrich_var_p, gender_var < 1 & age_var > 18)
+
+# fairness =  f_prob / m_prob > 0.85
+
+
+# get the conditional parameters
+
 W_samples = rand(W, fairness)
+
+b_samples = rand(b, fairness)
+
+δ_samples = rand(δ, fairness)
+
+# Inferred numbers using Version 1:
+# W: [0.0167768, -5.75041, -0.0414465]
+# b: +0.9273517081645495
+# δ: +-0.014763365168060606
+
+println("W: $(mean(W_samples))")
+
+println("b: +$(mean(b_samples))")
+
+println("δ: +$(mean(δ_samples))")
