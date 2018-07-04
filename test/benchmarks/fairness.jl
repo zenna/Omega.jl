@@ -86,7 +86,7 @@ f_isrich_(ω) = F(ω, femaleModel(ω)[1], femaleModel(ω)[2], femaleModel(ω)[3]
 m_isrich = iid(m_isrich_; T = Bool)
 f_isrich = iid(f_isrich_; T = Bool)
 
-fairness = (prob(f_isrich ∥ (W,b,δ), 100) / prob(m_isrich ∥ (W,b,δ), 100) > 0.85)
+fairness = (prob(f_isrich ∥ (W,b,δ), 1000) / prob(m_isrich ∥ (W,b,δ), 1000) > 0.85)
 
 # Version 2, second fastest, the fairness property is the strong version (equal opportunity). The conditions are party by construction
 # m_isrich_(ω) = F(ω, maleModel(ω)[1], maleModel(ω)[2], maleModel(ω)[3], maleModel(ω)[4])
