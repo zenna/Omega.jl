@@ -130,8 +130,8 @@ b_samples = sum([mean(rand(b, fairness)) for i=1:n])/n
 # b: +0.9273517081645495
 # δ: +-0.014763365168060606
 
-println("W: $(mean(W_samples))")
+println("W: $(W_samples)")
 
-println("b: +$(mean(b_samples))")
+println("b: +$(b_samples)")
 
-println("δ: +$(mean(δ_samples))")
+println("δ: +$(δ_samples)")
