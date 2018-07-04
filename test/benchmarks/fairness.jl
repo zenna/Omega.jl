@@ -86,7 +86,7 @@ f_isrich_(ω) = F(ω, femaleModel(ω)[1], femaleModel(ω)[2], femaleModel(ω)[3]
 m_isrich = iid(m_isrich_; T = Bool)
 f_isrich = iid(f_isrich_; T = Bool)
 
-fairness = prob(f_isrich ∥ (W,b,δ), 100) / prob(m_isrich ∥ (W,b,δ), 100) > 0.85
+fairness = (prob(f_isrich ∥ (W,b,δ), 100) / prob(m_isrich ∥ (W,b,δ), 100) > 0.85)
 
 # Version 2, second fastest, the fairness property is the strong version (equal opportunity). The conditions are party by construction
 # m_isrich_(ω) = F(ω, maleModel(ω)[1], maleModel(ω)[2], maleModel(ω)[3], maleModel(ω)[4])
@@ -117,11 +117,13 @@ fairness = prob(f_isrich ∥ (W,b,δ), 100) / prob(m_isrich ∥ (W,b,δ), 100) >
 
 # get the conditional parameters
 
-W_samples = rand(W, fairness)
+n = 1
 
-b_samples = rand(b, fairness)
+W_samples = sum([mean(rand(W, fairness)) for i=1:n])/n
 
-δ_samples = rand(δ, fairness)
+b_samples = sum([mean(rand(b, fairness)) for i=1:n])/n
+
+δ_samples = sum([mean(rand(δ, fairness)) for i=1:n])/n
 
 # Inferred numbers using Version 1:
 # W: [0.0167768, -5.75041, -0.0414465]
