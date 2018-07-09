@@ -60,10 +60,6 @@ b = normal(1.0003, 1.0)
 
 "Classifier: does person have same classification?"
 function F(ω, sex, age, capital_gain, capital_loss)
-    # W = [0.0006, -5.7363,  -0.0002]
-    # b = 1.0003
-    # δ = -0.0003
-
     N_age = (age - 17.0) / 62.0
     N_capital_gain = (capital_gain - 0.0) / 22040.0
     N_capital_loss = (capital_loss - 0.0) / 1258.0
@@ -97,12 +93,12 @@ function groupfair(nsamplesmean = 10000, thresh = 0.85)
     m_isrich = iid(m_isrich_; T = Bool)
     f_isrich = iid(f_isrich_; T = Bool) # FIX
     ratio = prob(f_isrich ∥ (W, b, δ), nsamplesmean) / prob(m_isrich ∥ (W, b, δ), nsamplesmean)
-    # fairness = ratio > thresh
+    fairness = ratio > thresh
 end
 
 "Version 2, second fastest, the fairness property is the strong version (equal opportunity).
 The conditions are party by construction"
-function equalopportunity()
+function equalopportunity1()
     m_isrich_(ω) = F(ω, maleModel(ω)[1], maleModel(ω)[2], maleModel(ω)[3], maleModel(ω)[4])
     f_isrich_(ω) = F(ω, femaleModel(ω)[1], femaleModel(ω)[2], femaleModel(ω)[3], femaleModel(ω)[4])
 
@@ -119,7 +115,7 @@ function equalopportunity()
 end
 
 "Version 3, slowest, equal opportunity"
-function  equalopportunity()
+function  equalopportunity2()
     isrich_var_ = isrich_var ∥ (W,b,δ)
 
     isrich_var_p = mean(isrich_var_)
@@ -133,10 +129,11 @@ end
 "Conditional parameters"
 function main(faircriteria = groupfair, n = 1)
     fairness = faircriteria()
+    W_samples, b_samples, δ_samples = rand((W, b, δ), fairness; n = 10)
 
-    W_samples = sum([mean(rand(W, fairness)) for i=1:n])/n
-    b_samples = sum([mean(rand(b, fairness)) for i=1:n])/n
-    δ_samples = sum([mean(rand(δ, fairness)) for i=1:n])/n
+    # W_samples = sum([mean(rand(W, fairness)) for i=1:n])/n
+    # b_samples = sum([mean(rand(b, fairness)) for i=1:n])/n
+    # δ_samples = sum([mean(rand(δ, fairness)) for i=1:n])/n
 
     # Inferred numbers using Version 1:
     # W: [0.0167768, -5.75041, -0.0414465]
