@@ -69,6 +69,9 @@ include("statistics.jl")     # Mean, etc
 # Neural Network Stuff
 include("flux.jl")
 
+# Divergence
+include("divergence.jl")
+
 include("wow.jl")
 
 export mean,
@@ -131,5 +134,10 @@ export mean,
 
        Outside,
 
-       MaybeRV
+       # Divergences
+       KLdivergence,
+
+       MaybeRV,
+
+       Ω
 end

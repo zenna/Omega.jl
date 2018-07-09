@@ -9,8 +9,9 @@ function mkrv(f, args::Tuple)
   elemtypes = map(elemtype, args)
   ms = methods(f, elemtypes)
   length(ms) =! 1 && throw(MethodError(f, elemtypes))
-  RT = first(Base.return_types(f, elemtypes))
-  RandVar{RT, false}(f, args)
+  RTS = Base.return_types(f, elemtypes)
+  isempty(RTS) && throw(ArgumentError("No return types"))
+  RandVar{first(RTS), false}(f, args)
 end
 
 # No Exists{T} yet https://github.com/JuliaLang/julia/issues/21026#issuecomment-306624369"
