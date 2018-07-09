@@ -1,31 +1,32 @@
 using Revise
 using Omega
 
+"Population model"
 function popModel_(ω, sex)
     # sex = step_dis_(ω, [(0,1,0.3307), (1,2,0.6693)])
     # sex = Omega.categorical(ω, [0.3307, 0.6693])
     # sex -= 0.5
     if sex < 1
-        capital_gain = normal(ω, 568.4105, 24248365.5428)
+        capital_gain = normal(ω[@id], 568.4105, sqrt(24248365.5428))
         if capital_gain < 7298.0000
-            age = normal(ω, 38.4208, 184.9151)
-            education_num = normal(ω, 10.0827, 6.5096)
-            capital_loss = normal(ω, 86.5949, 157731.9553)
+            age = normal(ω[@id], 38.4208, sqrt(184.9151))
+            education_num = normal(ω[@id], 10.0827, sqrt(6.5096))
+            capital_loss = normal(ω[@id], 86.5949, sqrt(157731.9553))
         else
-            age = normal(ω, 38.8125, 193.4918)
-            education_num = normal(ω, 10.1041, 6.1522)
-            capital_loss = normal(ω, 117.8083, 252612.0300)
+            age = normal(ω[@id], 38.8125, sqrt(193.4918))
+            education_num = normal(ω[@id], 10.1041, sqrt(6.1522))
+            capital_loss = normal(ω[@id], 117.8083, sqrt(252612.0300))
         end
     else
-        capital_gain = normal(ω, 1329.3700, 69327473.1006)
+        capital_gain = normal(ω[@id], 1329.3700, sqrt(69327473.1006))
         if capital_gain < 5178.0000
-            age = normal(ω, 38.6361, 187.2435)
-            education_num = normal(ω, 10.0817, 6.4841)
-            capital_loss = normal(ω, 87.0152, 161032.4157)
+            age = normal(ω[@id], 38.6361, sqrt(187.2435))
+            education_num = normal(ω[@id], 10.0817, sqrt(6.4841))
+            capital_loss = normal(ω[@id], 87.0152, sqrt(161032.4157))
         else
-            age = normal(ω, 38.2668, 187.2747)
-            education_num = normal(ω, 10.0974, 7.1793)
-            capital_loss = normal(ω, 101.7672, 189798.1926)
+            age = normal(ω[@id], 38.2668, sqrt(187.2747))
+            education_num = normal(ω[@id], 10.0974, sqrt(7.1793))
+            capital_loss = normal(ω[@id], 101.7672, sqrt(189798.1926))
         end
     end
 
@@ -34,11 +35,11 @@ function popModel_(ω, sex)
     end
     # sensitiveAttribute(sex < 1)
     # qualified(age > 18)
-    return (sex, age, education_num, capital_gain)
+    return (sex, age, capital_gain, capital_loss)
 end
 
 function popModel(ω)
-    sex = Omega.categorical(ω, [0.3307, 0.6693])
+    sex = Omega.categorical(ω[@id], [0.3307, 0.6693])
     sex -= 0.5
     return popModel_(ω,sex)
 end

@@ -39,7 +39,7 @@ function popModel_(ω, sex)
 end
 
 function popModel(ω)
-    sex = Omega.categorical(ω, [0.3307, 0.6693])
+    sex = Omega.categorical(ω[@id], [0.3307, 0.6693])
     sex -= 0.5
     return popModel_(ω,sex)
 end
@@ -94,7 +94,7 @@ function groupfair(nsamplesmean = 10000, thresh = 0.85)
     m_isrich = iid(m_isrich_; T = Bool)
     f_isrich = iid(f_isrich_; T = Bool) # FIX
     ratio = prob(f_isrich ∥ (W, b, δ), nsamplesmean) / prob(m_isrich ∥ (W, b, δ), nsamplesmean)
-    # fairness = ratio > thresh
+    fairness = ratio > thresh
 end
 
 "Version 2, second fastest, the fairness property is the strong version (equal opportunity).
@@ -129,20 +129,11 @@ end
 "Conditional parameters"
 function main(faircriteria = groupfair, n = 1)
     fairness = faircriteria()
-    W_samples, b_samples, δ_samples = rand((W, b, δ), fairness; n = 10)
+    W_samples, b_samples, δ_samples = rand((W, b, δ), fairness, RejectionSample, ; n = 2)
 
-    # W_samples = sum([mean(rand(W, fairness)) for i=1:n])/n
-    # b_samples = sum([mean(rand(b, fairness)) for i=1:n])/n
-    # δ_samples = sum([mean(rand(δ, fairness)) for i=1:n])/n
+    println("W: $(mean(W_samples))")
 
-    # Inferred numbers using Version 1:
-    # W: [0.0167768, -5.75041, -0.0414465]
-    # b: +0.9273517081645495
-    # δ: +-0.014763365168060606
+    println("b: +$(mean(b_samples))")
 
-    # println("W: $(W_samples)")
-
-    # println("b: +$(b_samples)")
-
-    # println("δ: +$(δ_samples)")
+    println("δ: +$(mean(δ_samples))")
 end
