@@ -86,32 +86,32 @@ age_var = iid(age, T = Float64)
 "Demographic fairness property
 m_isrich and f_isrich by construction version"
 function groupfair(nsamplesmean = 10000, thresh = 0.85)
-    m_isrich_(ω) = F(ω, maleModel(ω)[1], maleModel(ω)[2], maleModel(ω)[3], maleModel(ω)[4])
-    f_isrich_(ω) = F(ω, femaleModel(ω)[1], femaleModel(ω)[2], femaleModel(ω)[3], femaleModel(ω)[4])
+    m_attrs = iid(maleModel)
+    f_attrs = iid(femaleModel)
+    m_isrich_(ω) = F(ω, m_attrs(ω)...)
+    f_isrich_(ω) = F(ω, f_attrs(ω)...)
     
-    # @assert false
     m_isrich = iid(m_isrich_; T = Bool)
     f_isrich = iid(f_isrich_; T = Bool) # FIX
     ratio = prob(f_isrich ∥ (W, b, δ), nsamplesmean) / prob(m_isrich ∥ (W, b, δ), nsamplesmean)
-    fairness = ratio > thresh
+    # fairness = ratio > thresh
 end
 
 "Version 2, second fastest, the fairness property is the strong version (equal opportunity).
 The conditions are party by construction"
-function equalopportunity1()
-    m_isrich_(ω) = F(ω, maleModel(ω)[1], maleModel(ω)[2], maleModel(ω)[3], maleModel(ω)[4])
-    f_isrich_(ω) = F(ω, femaleModel(ω)[1], femaleModel(ω)[2], femaleModel(ω)[3], femaleModel(ω)[4])
+function equalopportunity1(nsamplesmean = 10000, thresh = 0.85)
+    m_attrs = iid(maleModel)
+    f_attrs = iid(femaleModel)
+    m_isrich_(ω) = F(ω, m_attrs(ω)...)
+    f_isrich_(ω) = F(ω, f_attrs(ω)...)
 
+    m_agevar = m_attrs[2]
+    f_agevar = f_attrs[2]
+    
     m_isrich = iid(m_isrich_; T = Bool)
-    f_isrich = iid(f_isrich_; T = Bool)
-
-    m_isrich_p = mean(m_isrich ∥ (W,b,δ))
-    f_isrich_p = mean(f_isrich ∥ (W,b,δ))
-
-    m_prob = rand(m_isrich_p, age_var > 18)
-    f_prob = rand(f_isrich_p, age_var > 18)
-
-    fairness =  f_prob / m_prob > 0.85
+    f_isrich = iid(f_isrich_; T = Bool) # FIX
+    ratio = prob(f_isrich ∥ (W, b, δ), nsamplesmean) / prob(m_isrich ∥ (W, b, δ), nsamplesmean)
+    fairness = (ratio > thresh) & (m_agevar > 18) & (f_agevar > 18)
 end
 
 "Version 3, slowest, equal opportunity"
@@ -140,9 +140,9 @@ function main(faircriteria = groupfair, n = 1)
     # b: +0.9273517081645495
     # δ: +-0.014763365168060606
 
-    println("W: $(W_samples)")
+    # println("W: $(W_samples)")
 
-    println("b: +$(b_samples)")
+    # println("b: +$(b_samples)")
 
-    println("δ: +$(δ_samples)")
+    # println("δ: +$(δ_samples)")
 end
