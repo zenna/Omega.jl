@@ -34,7 +34,7 @@ function popModel_(ω, sex)
     end
     # sensitiveAttribute(sex < 1)
     # qualified(age > 18)
-    return (sex, age, capital_gain, capital_loss)
+    return (sex, age, education_num, capital_gain)
 end
 
 function popModel(ω)
@@ -55,7 +55,7 @@ b_o1 = normal(-1.8079,1.0)
 W_o2 = randarray([normal(1.7044, 1.0), normal(-1.3880, 1.0)])
 b_o2 = normal(0.6830,1.0)
 
-function F(ω, sex, age, capital_gain, capital_loss)
+function F(ω, sex, age, education_num, capital_gain)
     N_age = ((age - 17.0) / 73.0  - 0.5) * 10 + 0.5
     N_education_num = ((education_num - 3.0) / 13.0  - 0.5) * 10 + 0.5
     N_capital_gain = ((capital_gain - 0.0) / 22040.0 - 0.5) * 10 + 0.5
@@ -79,60 +79,107 @@ function F(ω, sex, age, capital_gain, capital_loss)
 end
 
 # the activation of F
-function F_act(ω, age, capital_gain, capital_loss)
+function F_act(ω, sex, age, education_num, capital_gain)
     N_age = ((age - 17.0) / 73.0  - 0.5) * 10 + 0.5
     N_education_num = ((education_num - 3.0) / 13.0  - 0.5) * 10 + 0.5
     N_capital_gain = ((capital_gain - 0.0) / 22040.0 - 0.5) * 10 + 0.5
     h1 = W_h1[1](ω) * N_age +  W_h1[2](ω) * N_education_num +  W_h1[3](ω) * N_capital_gain +  b_h1(ω)
     if h1 < 0
         h1 = 0
-        act_h1 = 0
+        act_h1 = false
     else
-        act_h1 = 1
+        act_h1 = true
     end
     h2 = W_h2[1](ω) * N_age +  W_h2[2](ω) * N_education_num +  W_h2[3](ω) * N_capital_gain +  b_h2(ω)
     if h2 < 0
         h2 = 0
-        act_h2 = 0
+        act_h2 = false
     else
-        act_h2 = 1
+        act_h2 = true
     end
     o1 =  W_o1[1](ω) * h1 +  W_o1[2](ω) * h2 + b_o1(ω)
     if o1 < 0
         o1 = 0
-        act_o1 = 0
+        act_o1 = false
     else
-        act_o1 = 1
+        act_o1 = true
     end
     o2 =  W_o2[1](ω) * h1 + W_o2[2](ω) * h2 +  b_o2(ω)
     if o2 < 0
         o2 = 0
-        act_o2 = 0
+        act_o2 = false
     else
-        act_o2 = 1
+        act_o2 = true
     end
     return (act_h1, act_h2, act_o1, act_o2, o1 < o2)
 end
 
 # the gradient of F such that F changes the currrent output.
-function F_grad(ω, age, capital_gain, capital_loss)
+function F_grad(ω, sex, age, education_num, capital_gain)
     input_grad = [1.0, 1.0, 1.0]
     input_grad[1] *= 10.0/73.0
     input_grad[2] *= 10.0/13.0
     input_grad[3] *= 10.0/22040.0
 
-    (act_h1, act_h2, act_o1, act_o2, o1 < o2) = F_act(ω, age, capital_gain, capital_loss)
+    (act_h1, act_h2, act_o1, act_o2, result) = F_act(ω, sex, age, education_num, capital_gain)
 
     if act_h1
-        h1_grad = (input_grad[1] * W_h1[1], input_grad[2]*W_h1[2], input_grad[3]*W_h1[3])
+        h1_grad = input_grad .* W_h1(ω)
     else
         h1_grad = (0, 0, 0)
     end
 
     if act_h2
-        h2_grad = (input_grad[1] * W_h2[1], input_grad[2]*W_h2[2], input_grad[3]*W_h2[3])
+        h2_grad = input_grad[1] .* W_h2(ω)
     else
         h2_grad = (0, 0, 0)
     end
 
+    if act_o1
+        o1_grad = (h1_grad[1] * W_o1(ω)[1] + h2_grad[1] * W_o1(ω)[2],
+        h1_grad[2] * W_o1(ω)[1] + h2_grad[2] * W_o1(ω)[2],
+        h1_grad[3] * W_o1(ω)[1] + h2_grad[3] * W_o1(ω)[2])
+    else
+        o1_grad = (0, 0, 0)
+    end
+
+    if act_o2
+        o2_grad = (h1_grad[1] * W_o2(ω)[1] + h2_grad[1] * W_o2(ω)[2],
+        h1_grad[2] * W_o2(ω)[1] + h2_grad[2] * W_o2(ω)[2],
+        h1_grad[3] * W_o2(ω)[1] + h2_grad[3] * W_o2(ω)[2])
+    else
+        o2_grad = (0, 0, 0)
+    end
+
+    if result
+        return (0.0, o1_grad[1] - o2_grad[1], o1_grad[2] - o2_grad[2], o1_grad[3] - o2_grad[3])
+    end
+
+    return (0.0, o2_grad[1] - o1_grad[1], o2_grad[2] - o1_grad[2], o2_grad[3] - o1_grad[3])
 end
+
+# State stability. Here we use KL, following Zenna's idea. But is this right?
+ϵ = 0.1
+input(ω) = popModel(ω)
+output(ω) = F(ω, input(ω)[1], input(ω)[2], input(ω)[3], input(ω)[4])
+δ(ω) =  ϵ.*F_grad(ω, input(ω)[1], input(ω)[2], input(ω)[3], input(ω)[4])
+perturb_input(ω) = input(ω) .+ δ(ω)
+perturb_output(ω) = F(ω, perturb_input(ω)[1], perturb_input(ω)[2], perturb_input(ω)[3], perturb_input(ω)[4])
+
+output_ = iid(output)
+perturb_output_ = iid(perturb_output)
+
+# TODO: conditioning on KL draw samples of the parameters
+
+# Alternative: pointwise:
+class_same(ω) = (output(ω) == perturb_output(ω))
+class_same_ = iid(class_same; T= Bool)
+stability = prob(class_same_∥ (W_h1, b_h1, W_h2, b_h2, W_o1, b_o1, W_o2, b_o2)) > 0.8 # 80% points robust
+
+W_h1_samples = mean(rand(W_h1, stability))
+
+b_h1_samples = mean(rand(b, stability))
+
+println("W_h1: $(W_h1_samples)")
+
+println("b_h1: +$(b_h1_samples)")
