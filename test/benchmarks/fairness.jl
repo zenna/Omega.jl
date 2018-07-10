@@ -129,11 +129,9 @@ end
 "Conditional parameters"
 function main(faircriteria = groupfair, n = 1)
     fairness = faircriteria()
-    W_samples, b_samples, δ_samples = rand((W, b, δ), fairness, RejectionSample, ; n = 2)
+    samples = rand((W, b, δ), fairness, ; n = 10)
 
-    println("W: $(mean(W_samples))")
-
-    println("b: +$(mean(b_samples))")
-
-    println("δ: +$(mean(δ_samples))")
+    println("Samples: $(samples)")
 end
+
+main(equalopportunity1)
