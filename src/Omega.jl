@@ -70,7 +70,7 @@ include("statistics.jl")     # Mean, etc
 include("flux.jl")
 
 # Divergence
-# include("divergence.jl")
+include("divergence.jl")
 
 include("wow.jl")
 
@@ -135,7 +135,7 @@ export mean,
        Outside,
 
        # Divergences
-       # KLdivergence,
+       KLdivergence,
 
        MaybeRV,
 
