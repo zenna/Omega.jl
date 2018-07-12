@@ -206,14 +206,10 @@ function infer_robust(n=10, rjct_samp = false)
     class_same_ = iid(class_same; T= Bool)
     stability = prob(class_same_∥ params) > 0.99 # 99% points robust
 
-    W_h1_samples = mean(rand(W_h1, stability))
-
-    b_h1_samples = mean(rand(b_h1, stability))
-
     if !rjct_samp
         return rand(params, stability; n = n)
     end
-    return rand(params, stability, RejectSample; n = n)
+    return rand(params, stability, RejectionSample; n = n)
 end 
 
 function test_robustness(params)
@@ -223,17 +219,17 @@ function test_robustness(params)
     for i = 1:1000
         input = rand(pop)
         n_input = normalize(input...)
-        println(F_act(1.0, n_input...,params...))
-        println(n_input)
+        # println(F_act(1.0, n_input...,params...))
+        # println(n_input)
         output = F(1.0, n_input..., params)
-        println(output)
+        # println(output)
         δ = gen_attack(1.0, n_input..., params)
-        println(δ)
+        # println(δ)
         n_input1 = n_input .+ δ
-        println(n_input1)
-        println("act: $(F_act(1.0, n_input1...,params...))")
+        # println(n_input1)
+        # println("act: $(F_act(1.0, n_input1...,params...))")
         output1 = F(1.0, n_input1..., params)
-        println(output1)
+        # println(output1)
         robust_count += (output == output1)
     end
     return robust_count
@@ -244,20 +240,24 @@ function wrap(v)
     return f
 end
 
-# params = ((wrap(-0.2277), wrap(0.6434),wrap(2.3643)), 
-#         wrap(3.7146),
-#         (wrap(-0.0236), wrap(-3.3556), wrap(-1.8183)),
-#         wrap(-1.7810),
-#         (wrap(0.4865), wrap(1.0685)),
-#         wrap(-1.8079),
-#         (wrap(1.7044),wrap(-1.3880)),
-#         wrap(0.6830)
-#         )
+function wrap_param(p)
+    return [wrap.(p1) for p1 in p]
+end
+
+old_params = ((wrap(-0.2277), wrap(0.6434),wrap(2.3643)), 
+        wrap(3.7146),
+        (wrap(-0.0236), wrap(-3.3556), wrap(-1.8183)),
+        wrap(-1.7810),
+        (wrap(0.4865), wrap(1.0685)),
+        wrap(-1.8079),
+        (wrap(1.7044),wrap(-1.3880)),
+        wrap(0.6830)
+        )
 
 # test_robustness(params)
-
-params = infer_robust()
+# For some reason, if I pass n to rand with RejectionSample, it returns n-1 samples 
+params = infer_robust(2,true)
 
 for p in params
-    println(test_robustness(p))
+    println(test_robustness(wrap_param(p)))
 end
