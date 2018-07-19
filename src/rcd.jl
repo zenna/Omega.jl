@@ -1,4 +1,4 @@
-omegatype(::Type{OmegaProj{O, I}}) where {O, I} = O
+omegatype(::Type{ΩProj{O, I}}) where {O, I} = O
 
 """
 Random Conditional Distribution of `X` given `Y`

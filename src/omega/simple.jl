@@ -145,9 +145,9 @@ function projintersect!(ω_p::SimpleΩ, ω_s::SimpleΩ)
   ω_p
 end
 
-projintersect!(ωπ1::OmegaProj, ωπ2::OmegaProj) = projintersect!(ωπ1.ω, ωπ2.ω)
+projintersect!(ωπ1::Ω, ωπ2::Ω) = projintersect!(ωπ1.ω, ωπ2.ω)
 
-Base.merge!(ωπ1::OmegaProj{O}, ωπ2::OmegaProj{O}) where {O <: SimpleOmega} =
+Base.merge!(ωπ1::Ω{O}, ωπ2::Ω{O}) where {O <: SimpleΩ} =
   merge!(ωπ1.ω, ωπ2.ω)
 
 

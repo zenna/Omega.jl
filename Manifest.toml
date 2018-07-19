@@ -30,12 +30,6 @@ git-tree-sha1 = "94dac52c662ca793008fb689e3daf626b6139943"
 uuid = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
 version = "0.3.3"
 
-[[Calculus]]
-deps = ["Compat"]
-git-tree-sha1 = "2573aaad07cbbe21526e055bea3e995abc9e7c99"
-uuid = "49dc2e85-a5d0-5ad3-a950-438e2897f1b9"
-version = "0.4.0"
-
 [[ColorTypes]]
 deps = ["FixedPointNumbers", "Random", "Test"]
 git-tree-sha1 = "456524c5dc9af774533e4133f9989296053c5bdd"
@@ -88,12 +82,10 @@ version = "0.0.6"
 uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[Distributions]]
-deps = ["Calculus", "Compat", "PDMats", "QuadGK", "SpecialFunctions", "StatsBase", "StatsFuns"]
-git-tree-sha1 = "f5fc6e8bdd49e78bdc736efea40391e32d03bd5d"
-repo-rev = "aa/0.7"
-repo-url = "https://github.com/JuliaStats/Distributions.jl.git"
+deps = ["Distributed", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SpecialFunctions", "Statistics", "StatsBase", "StatsFuns", "Test"]
+git-tree-sha1 = "50791f3d943bebc7945eb76ced54a1fa316b9e74"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
-version = "0.16.1+"
+version = "0.16.1"
 
 [[FixedPointNumbers]]
 deps = ["Pkg", "Test"]
