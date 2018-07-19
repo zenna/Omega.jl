@@ -1,4 +1,4 @@
-using Mu
+using Omega
 using UnicodePlots
 using Base.Test
 

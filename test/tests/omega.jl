@@ -1,4 +1,4 @@
-using Mu
+using Omega
 
 function Y(rng, n)
   [normal(rng[@id], 0.0, 1.0) for i = 1:n]

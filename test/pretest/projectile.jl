@@ -1,4 +1,4 @@
-using Mu
+using Omega
 using Base.Test
 
 θ  = uniform(0.0, 2π)

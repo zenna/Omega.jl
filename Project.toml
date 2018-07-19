@@ -1,6 +1,6 @@
-authors = ["Zenna Tavares <zennatavares@gmail.com>"]
-name = "Mu"
+name = "Omega"
 uuid = "f05e9b56-6544-11e8-2dc8-1fe18f3ca5da"
+authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.1.0"
 
 [deps]

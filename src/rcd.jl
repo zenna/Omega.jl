@@ -1,6 +1,3 @@
-
-using ZenUtils
-
 omegatype(::Type{OmegaProj{O, I}}) where {O, I} = O
 
 """
@@ -11,7 +8,7 @@ rcd(X, Y) = ω -> X | Y = Y(ω)
 ``
 """
 function rcd(x::RandVar{T}, y::Union{RandVar, UTuple{RandVar}}) where T
-  function g(ω_s::T2) where {T2 <: Omega}
+  function g(ω_s::T2) where {T2 <: Ω}
     # @show T2
     o = omegatype(T2)
     ω_p = o()
@@ -20,7 +17,7 @@ function rcd(x::RandVar{T}, y::Union{RandVar, UTuple{RandVar}}) where T
     # @grab ω_
     # @grab ω1
     # @assert false
-    function h(ω2::Omega)
+    function h(ω2::Ω)
       merge!(ω2.ω, ω_p)
       x(ω2)
     end
@@ -32,18 +29,9 @@ end
 "`rcd`, x ∥ y"
 const ∥ = rcd
 
-"rcd(x, y)"
-struct RCDRandVar{O <: Omega, RVX <: AbstractRandVar, RVY <: AbstractRandVar}
-  x::RVX
-  y::RVY
-  ω::Omega
+""
+struct RCDRandVar{O <: Ω, RVX <: AbstractRandVar, RVY <: AbstractRandVar}
+  X::RVX
+  Y::RVY
+  ω::Ω
 end
-
-# function (rv::RCDRandVar)(ω::Omega)
-#   x.y(ω)
-#   resolve(x, y)
-# end
-
-# function resolve(x::RandVar, ω::Omega)
-  
-# end

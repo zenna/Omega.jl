@@ -1,4 +1,4 @@
-using Mu
+using Omega
 using Distributions
 
 "Generate a randoom argument"
@@ -35,7 +35,7 @@ evalexpr_(rng) = eval(randexpr(rng))
 evalexpr = iid(evalexpr_)
 
 exprs = rand(randexpr, evalexpr == 5.0;
-             OmegaT = Mu.SimpleOmega{Mu.Paired, Mu.ValueTuple})
+             ΩT = Omega.SimpleΩ{Omega.Paired, Omega.ValueTuple})
 
 
 xs = collect(0.00001:1.0:10.0)
@@ -48,5 +48,5 @@ function run()
   evalexpr = iid(fx, T=Vector{Float64})
 
   exprs = rand(randexpr, evalexpr == sin.(xs);
-              OmegaT = Mu.SimpleOmega{Mu.Paired, Mu.ValueTuple})
+              ΩT = Omega.SimpleΩ{Omega.Paired, Omega.ValueTuple})
 end

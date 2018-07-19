@@ -1,5 +1,3 @@
-using UnicodePlots
-
 "Inf found"
 struct InfError <: Exception end
 
@@ -121,11 +119,11 @@ end
 function tracecb(::Type{T}, t = identity) where T
   ωs = T[]
   allωs = Vector{T}[]
-  function f(qp, ::Type{Mu.Inside})
+  function f(qp, ::Type{Omega.Inside})
     push!(ωs, t(qp))
   end
 
-  function f(data, ::Type{Mu.Outside})
+  function f(data, ::Type{Omega.Outside})
     push!(allωs, copy(ωs))
     empty!(ωs)
   end
@@ -149,11 +147,11 @@ function stopnanorinf(data, stage::Type{Outside})
   if isnan(data.p)
     println("p is $(data.p)")
     throw(NaNError())
-    return Mu.Stop
+    return Omega.Stop
   elseif data.p == Inf
     println("p is $(data.p)")
     throw(InfError())
-    return Mu.Stop
+    return Omega.Stop
   end
 end
 

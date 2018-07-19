@@ -1,4 +1,4 @@
-using Mu
+using Omega
 using Flux
 using UnicodePlots
 using DataFrames
@@ -6,11 +6,11 @@ using CSV
 using Plots
 gr()
 
-Mu.defaultomega() = SimpleOmega{Vector{Int}, Array}
+Omega.defaultomega() = SimpleΩ{Vector{Int}, Array}
 
 δ = 0.1
 d(x, y) = (x - y)^2.0
-Mu.lift(:d, 2)
+Omega.lift(:d, 2)
 
 "Recurrent Neural Network"
 function rnn_(ω, f, nsteps, h1_size) 
@@ -58,10 +58,10 @@ end
 
 # function ok()
 #   ties = [d(meansims[i], meansims[j]) < δ for i = 1:npatients, j = 1:npatients if i != j]
-#   simulations = rand((sims...), (&)(ties...); OmegaT = Mu.defaultomega())
+#   simulations = rand((sims...), (&)(ties...); ΩT = Omega.defaultomega())
 
 #   d1, obvglucose = datacond2(data, sims[1], 3)
-#   simsω = rand(Mu.defaultomega, d1, HMC, n=1000000);
+#   simsω = rand(Omega.defaultomega, d1, HMC, n=1000000);
 # end
 function traces(data, i, measure = 807)
   people = groupby(data, :Id)
@@ -86,15 +86,15 @@ loaddata() = CSV.read(joinpath(ENV["DATADIR"], "mu", "glucosedata.csv"))
 function infer(nsteps = 20;n=1000, h1 = 10)
   y, obvglucose, sims = conditioned_model(nsteps = nsteps)
   # @assert false
-  simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y, HMCFAST, n=n, stepsize = 0.01)
-  # simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, y, HMCFAST, n=1000)
-  # simsω = rand(SimpleOmega{Vector{Int}, Flux.Array}, y, HMC, n=10000)
+  simsω = rand(SimpleΩ{Vector{Int}, Flux.TrackedArray}, y, HMCFAST, n=n, stepsize = 0.01)
+  # simsω = rand(SimpleΩ{Vector{Int}, Flux.TrackedArray}, y, HMCFAST, n=1000)
+  # simsω = rand(SimpleΩ{Vector{Int}, Flux.Array}, y, HMC, n=10000)
   simsω, obvglucose, sims
 end
 
 function infer_ties()
   data = loaddata()
-  sims, simsω, (obvglucose_3, obvglucose_4) = Mu.withkernel(Mu.kseα(200)) do
+  sims, simsω, (obvglucose_3, obvglucose_4) = Omega.withkernel(Omega.kseα(200)) do
     h1, h2 = 25, 25
     npatients = 5
     nsteps = 20
@@ -105,7 +105,7 @@ function infer_ties()
     y_4, obvglucose_4 = datacond(data, sims[4], 4, 1)
     δ = 0.001
     ties = [d(meansims[i], meansims[j]) < δ for i = 3:3, j = 1:npatients if i != j]
-    simsω = rand(SimpleOmega{Vector{Int}, Flux.TrackedArray}, (y_4 & y_3) & ((&)(ties...)), HMCFAST,
+    simsω = rand(SimpleΩ{Vector{Int}, Flux.TrackedArray}, (y_4 & y_3) & ((&)(ties...)), HMCFAST,
                   n=n, stepsize = 0.01);
     sims, simsω, (obvglucose_3, obvglucose_4)
   end

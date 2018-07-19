@@ -1,4 +1,4 @@
-applymany(ω::Omega, x) = map(xi->xi(ω), x)
+applymany(ω::Ω, x) = map(xi->xi(ω), x)
 
 "RandVar{Vector} from Vector{<:RandVar}"
 function randarray(x::Array{<:RandVar{T}, N}) where {T, N}

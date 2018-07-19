@@ -4,10 +4,10 @@ struct MemoizedRandVar{O, X}
   x::X
 end
 
-function mem(ω::Omega, ::Params)
+function mem(ω::Ω, ::Params)
 end
 
 ## TODO: Saving / loading.  Use BSON!
 
-save(ω::Omega, fname) = bson(fname, ω)
+save(ω::Ω, fname) = bson(fname, ω)
 

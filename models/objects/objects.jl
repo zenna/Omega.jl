@@ -1,4 +1,4 @@
-using Mu
+using Omega
 using ImageView
 using RunTools
 import RayTrace: SimpleSphere, ListScene, rgbimg
@@ -17,9 +17,9 @@ end
 render(x) = Img(RayTrace.render(x, 224, 224))
 rgbimg(x::Img) = rgbimg(x.img)
 
-Mu.lift(:(RayTrace.SimpleSphere), n=2)
-Mu.lift(:(RayTrace.ListScene), n=1)
-Mu.lift(:(render), n=1)
+Omega.lift(:(RayTrace.SimpleSphere), n=2)
+Omega.lift(:(RayTrace.ListScene), n=1)
+Omega.lift(:(render), n=1)
 
 nspheres = poisson(3)
 
@@ -112,9 +112,9 @@ function nointersect(s1::Sphere, s2::Sphere)
   d1 = d(s1, s2)
   d2 = (s1.radius + s2.radius)
   # d1 > d2
-  withkernel(Mu.kseα(10000)) do
+  withkernel(Omega.kseα(10000)) do
     @show a = d1 ⪆ d2
-    Mu.SoftBool(Mu.logepsilon(a))
+    Omega.SoftBool(Omega.logepsilon(a))
   end
 end
 
@@ -147,7 +147,7 @@ end
 const img_obs = render(observation_spheres())
 
 eucl(x, y) = sqrt(sum((x - y) .^ 2))
-function Mu.d(x::Img, y::Img)
+function Omega.d(x::Img, y::Img)
   xfeatures = squeezenet(expanddims(x.img))
   yfeatures = squeezenet(expanddims(y.img))
   ds = map(eucl, xfeatures, yfeatures)

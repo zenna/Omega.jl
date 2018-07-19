@@ -13,4 +13,4 @@ Base.cond(x::AbstractRandVar, y::RandVar{<:Bool}) = CondRandVar(x, y)
 # Base.rand(x::CondRandVar) = rand(x.x, x.y)
 
 # "`x(ω)`"
-# (x::CondRandVar)(ω::Omega) = x.y(ω) ? x.x(ω) : throw(ArgumentError("Invalid ω"))
+# (x::CondRandVar)(ω::Ω) = x.y(ω) ? x.x(ω) : throw(ArgumentError("Invalid ω"))

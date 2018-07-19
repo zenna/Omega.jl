@@ -5,11 +5,11 @@
 @inline append(a::Vector{Int}, b::Int) = vcat(a, Int[b])
 @inline base(::Type{Vector{Int}}, i::Int) = Int[i]
 
-Base.getindex(ωπ::OmegaProj{O, I}, i::I) where {O, I} = 
-  OmegaProj{O, I}(ωπ.ω, combine(ωπ.id, i))
+Base.getindex(ωπ::ΩProj{O, I}, i::I) where {O, I} = 
+  ΩProj{O, I}(ωπ.ω, combine(ωπ.id, i))
 
-Base.getindex(ωπ::OmegaProj{O, I}, i::SI) where {O, I, SI} = 
-  OmegaProj{O, I}(ωπ.ω, append(ωπ.id, i))
+Base.getindex(ωπ::ΩProj{O, I}, i::SI) where {O, I, SI} = 
+  ΩProj{O, I}(ωπ.ω, append(ωπ.id, i))
 
 ## Pairing Indices
 ## ===============
@@ -26,4 +26,4 @@ const Paired = Int
 @inline combine(a::Paired, b::Paired) = pair(a, b)
 @inline base(::Type{Paired}, i::Int) = i
 
-Base.getindex(ωπ::OmegaProj{O, Paired}, i::Int) where O = OmegaProj{O, Paired}(ωπ.ω, pair(ωπ.id, i))
+Base.getindex(ωπ::ΩProj{O, Paired}, i::Int) where O = ΩProj{O, Paired}(ωπ.ω, pair(ωπ.id, i))

@@ -1,5 +1,5 @@
 # Set of small tests for all inference algorithms
-using Mu
+using Omega
 using UnicodePlots
 using Base.Test
 
@@ -31,7 +31,7 @@ function simple2(ndim, ALG)
 end
 
 function testall()
-  for ALG in subtypes(Mu.Algorithm)
+  for ALG in subtypes(Omega.Algorithm)
     println("Testing $ALG")
     simple1(ALG)
   end

@@ -1,4 +1,4 @@
-using Mu
+using Omega
 import UnicodePlots
 
 weight = uniform([0.3, 0.5, 0.7])

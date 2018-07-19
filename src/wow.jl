@@ -1,4 +1,4 @@
-using Mu
+using Omega
 
 struct OK{T}
   x::T
@@ -19,11 +19,11 @@ Base.:<(x::OK, y) = softlt(x.x, y)
 
 Base.Bool(x::SoftBool) = Bool(round(epsilon(x)))
 
-function Base.rand(ωπ::Mu.OmegaProj{Mu.SimpleOmega{Int64,Mu.OK},Int64}, ::Type{T}) where T
-  get!(()->OK(rand(Random.GLOBAL_RNG, T)), ωπ.ω.vals, ωπ.id)
+function Base.rand(ωπ::Omega.ΩProj{Omega.SimpleΩ{Int64,Omega.OK},Int64}, ::Type{T}) where T
+  get!(()->OK(rand(Base.GLOBAL_RNG, T)), ωπ.ω.vals, ωπ.id)
 end
 
-function Base.rand(ωπ::OmegaProj{O}, ::Type{T},  dims::Dims) where {T, I, V <: OK, O <: SimpleOmega{I, V}}
+function Base.rand(ωπ::ΩProj{O}, ::Type{T},  dims::Dims) where {T, I, V <: OK, O <: SimpleΩ{I, V}}
   @show "hi"
   @show V
   @assert false "Not implemented (blocking to prevent silent errors)"
@@ -59,7 +59,7 @@ function testwow()
   X2 = iid(X2_)
 
 
-  ω = SimpleOmega{Int, OK}()
+  ω = SimpleΩ{Int, OK}()
 
   X(ω)
 

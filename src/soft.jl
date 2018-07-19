@@ -91,9 +91,9 @@ softlt(x::Real, y::Real, k = globalkernel()) = SoftBool(-k(bound_loss(x, -Inf, y
 ## Boolean Operators
 ## =================
 function Base.:&(x::SoftBool, y::SoftBool)
-  @show a = logepsilon(x)
-  @show b = logepsilon(y)
-  @show c = min(a, b)
+  a = logepsilon(x)
+  b = logepsilon(y)
+  c = min(a, b)
   SoftBool(c)
 end
 # Base.:&(x::SoftBool, y::SoftBool) = SoftBool(logepsilon(x) +  logepsilon(y))
@@ -111,12 +111,12 @@ const ueq = usofteq
 ## Lifts
 ## =====
 
-Mu.lift(:softeq, 2)
-Mu.lift(:usofteq, 2)
-Mu.lift(:usofteq, 3)
-Mu.lift(:softeq, 3)
-Mu.lift(:softgt, 2)
-Mu.lift(:softlt, 2)
+Omega.lift(:softeq, 2)
+Omega.lift(:usofteq, 2)
+Omega.lift(:usofteq, 3)
+Omega.lift(:softeq, 3)
+Omega.lift(:softgt, 2)
+Omega.lift(:softlt, 2)
 
 ## Show
 ## ====

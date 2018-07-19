@@ -1,30 +1,30 @@
-struct DirtyOmega <: Omega{Ints}
+struct DirtyΩ <: Ω{Ints}
   _Float64::Dict{Ints, Vector{Float64}}
   _Float32::Dict{Ints, Vector{Float32}}
   _UInt32::Dict{Ints, Vector{UInt32}}
   counts::Dict{Ints, Int}
 end
 
-DirtyOmega() =
-  DirtyOmega(Dict{Ints, Vector{Float64}}(),
+DirtyΩ() =
+  DirtyΩ(Dict{Ints, Vector{Float64}}(),
              Dict{Ints, Vector{Float32}}(),
              Dict{Ints, Vector{UInt32}}(),
              Dict{Ints, Vector{Int}}())
 
 append(is::Ints, i::Int) = tuple(is..., i)
-Base.getindex(ω::DirtyOmega, i::Id) = OmegaProj{DirtyOmega, Ints}(ω, (i,))
-Base.getindex(ωπ::OmegaProj{DirtyOmega}, i::Id) =
-  OmegaProj{DirtyOmega, Ints}(ωπ.ω, append(ωπ.id, i))
+Base.getindex(ω::DirtyΩ, i::Id) = ΩProj{DirtyΩ, Ints}(ω, (i,))
+Base.getindex(ωπ::ΩProj{DirtyΩ}, i::Id) =
+  ΩProj{DirtyΩ, Ints}(ωπ.ω, append(ωπ.id, i))
 
-increment!(ω::DirtyOmega) = ω.counter += 1
-resetcount(ω::DirtyOmega) = DirtyOmega(ω._Float64,
+increment!(ω::DirtyΩ) = ω.counter += 1
+resetcount(ω::DirtyΩ) = DirtyΩ(ω._Float64,
                                        ω._Float32,
                                        ω._UInt32,
                                        Dict{Ints, Int}())
-parent(ω::DirtyOmega) = resetcount(ω)
-parent(ωπ::OmegaProj{DirtyOmega}) = resetcount(ωπ.ω)
+parent(ω::DirtyΩ) = resetcount(ω)
+parent(ωπ::ΩProj{DirtyΩ}) = resetcount(ωπ.ω)
 
-@generated function closeopen(::Type{T}, ωπ::OmegaProj{DirtyOmega}) where T
+@generated function closeopen(::Type{T}, ωπ::ΩProj{DirtyΩ}) where T
   T2, T2Sym = lookup(T)
   quote
   if ωπ.id in keys(ωπ.ω.$T2Sym)

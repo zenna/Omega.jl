@@ -1,7 +1,7 @@
 "Flux based Hamiltonian Monte Carlo Sampling"
 abstract type HMCFAST <: Algorithm end
 
-defaultomega(::Type{HMCFAST}) = Mu.SimpleOmega{Int, Flux.TrackedArray}
+defaultomega(::Type{HMCFAST}) = Omega.SimpleΩ{Int, Flux.TrackedArray}
 
 """Hamiltonian monte carlo with leapfrog integration:
 https://arxiv.org/pdf/1206.1901.pdf"""
@@ -68,24 +68,24 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
 end
 
 "Sample from `x | y == true` with Hamiltonian Monte Carlo"
-function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{HMCFAST};
+function Base.rand(ΩT::Type{OT}, y::RandVar, alg::Type{HMCFAST};
                    n = 100,
                    nsteps = 10,
                    stepsize = 0.001,
-                   cb = default_cbs(n)) where {OT <: Omega}
+                   cb = default_cbs(n)) where {OT <: Ω}
   cb = runall(cb)
-  ω = OmegaT()        # Current Omega state of chain
+  ω = ΩT()        # Current Ω state of chain
   y(ω)                # Initialize omega
   qvals = [x.data for x in values(ω)]   # Values as a vector
   # @grab ω
 
-  prop_ω = deepcopy(ω)                          # Omega proposal
+  prop_ω = deepcopy(ω)                          # Ω proposal
   prop_qvals = [x.data for x in values(prop_ω)] # as vector
 
   p = deepcopy(ω)                     # Momentum, deepcopy but could just zero
   pvals = [x.data for x in values(p)] # as vector
   
-  ωsamples = OmegaT[] 
+  ωsamples = ΩT[] 
   U(ω) = -logepsilon(y(ω))
   ∇U(ω) = fluxgradient(y, ω)
 

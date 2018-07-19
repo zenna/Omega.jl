@@ -1,4 +1,4 @@
-using Mu
+using Omega
 using Plots
 using Distributions
 import UnicodePlots
@@ -14,7 +14,7 @@ end
 function sample(αs)
   x = normal(0.0, 1.0)
   y = normal(0.0, 1.0)
-  kernels = Mu.kseα.(αs)
+  kernels = Omega.kseα.(αs)
   samples = condequal.(x, y, kernels; n = 100000)
 end
 

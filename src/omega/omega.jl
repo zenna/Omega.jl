@@ -9,7 +9,7 @@ end
 
 "Construct globally unique id for indices for ω"
 macro id()
-  Mu.ωnew()
+  Omega.ωnew()
 end
 
 "Index of Probability Space"
@@ -22,7 +22,7 @@ const Ints = NTuple{N, Int} where N
 const RandVarId = Int
 
 "Probability Space indexed with values of type I"
-abstract type Omega{I} <: AbstractRNG end
+abstract type Ω{I} <: AbstractRNG end
 
 ## Rand
 ## ====
