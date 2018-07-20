@@ -10,7 +10,8 @@ using Spec
 import Random
 using ZenUtils
 using UnicodePlots
-
+using Cassette
+using Cassette: @overdub, @primitive, @context
 
 UTuple{T} = Tuple{Vararg{T, N}} where N
 
@@ -38,6 +39,7 @@ include("var.jl")
 include("rcd.jl")       # Random Conditional Distribution
 include("array.jl")     # Array primitives
 include("lift.jl")      # Lifting functions to RandVar domain
+include("pointwise.jl") # Lifting functions to RandVar domain (using Casette)
 
 # Inference
 include("algorithm.jl") # Algorithm abstract type

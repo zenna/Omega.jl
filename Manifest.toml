@@ -30,6 +30,18 @@ git-tree-sha1 = "94dac52c662ca793008fb689e3daf626b6139943"
 uuid = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
 version = "0.3.3"
 
+[[Cassette]]
+git-tree-sha1 = "37c32e9acb5d27bf9a486c57e0833bd941b0ab70"
+repo-rev = "master"
+repo-url = "https://github.com/jrevels/Cassette.jl"
+uuid = "59fb9612-49be-509a-8654-f972bbc0bdb2"
+version = "0.0.0"
+
+    [Cassette.deps]
+    LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+    Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+    Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
 [[ColorTypes]]
 deps = ["FixedPointNumbers", "Random", "Test"]
 git-tree-sha1 = "456524c5dc9af774533e4133f9989296053c5bdd"
@@ -223,7 +235,7 @@ version = "0.3.0"
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [[Spec]]
-git-tree-sha1 = "0a89d6bdc15b7b0a240e438957dcb0e4ef9bd450"
+git-tree-sha1 = "c28f4f72b9371d0c842167670cad7b8fb4c0e71b"
 repo-rev = "master"
 repo-url = "https://github.com/zenna/Spec.jl.git"
 uuid = "526a04b8-654b-11e8-1588-db2a414f95b5"

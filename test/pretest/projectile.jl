@@ -1,5 +1,5 @@
 using Omega
-using Base.Test
+using Base: Test
 
 θ  = uniform(0.0, 2π)
 v = normal(30.0, 1.0)

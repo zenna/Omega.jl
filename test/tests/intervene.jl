@@ -1,5 +1,5 @@
 using Omega
-using Base.Test
+using Base: Test
 
 x = uniform(0.0, 1.0)
 y = uniform(x, 1.0)

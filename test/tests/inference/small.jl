@@ -1,7 +1,7 @@
 # Set of small tests for all inference algorithms
 using Omega
 using UnicodePlots
-using Base.Test
+using Base: Test
 
 "Test extremnity of conditionining set"
 function simple1(ALG, v = 1.0)
