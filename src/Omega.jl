@@ -28,10 +28,10 @@ include("randvar.jl")             # Random Variables
 ## Different Types of Omega
 # include("omega/nested.jl")        # Sample Space
 include("omega/simple.jl")        # Sample Space
-# include("omega/countvec.jl")      # Sample Space
+include("omega/countvec.jl")      # Sample Space
 # include("omega/dirtyomega.jl")    # Sample Space
 include("omega/id.jl")            # Pairing functions for omega ids
-# include("omega/diffomega.jl")     # Differentiable Omega
+include("omega/diffomega.jl")     # Differentiable Omega
 
 include("randvarapply.jl")    # Random Variables
 
@@ -89,21 +89,23 @@ export mean,
        kse,
 
        # Distributions
+       bernoulli,
+       boolbernoulli,
+       betarv,
+       β,
+       categorical,
+       dirichlet,
+       exponential,
        gammarv,
        Γ,
+       inversegamma,
+       kumaraswamy,
+       logistic,
+       poisson,
        normal,
        mvnormal,
        uniform,
-       inversegamma,
-       dirichlet,
-       betarv,
-       bernoulli,
        rademacher,
-       poisson,
-       logistic,
-       exponential,
-       kumaraswamy,
-       boolbernoulli,
 
        # Do
        intervene,

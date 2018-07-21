@@ -31,7 +31,6 @@ end
 # FIXME: Type
 dirichlet(α::MaybeRV{T}, ωid::Id = ωid::Id=ωnew()) where T = RandVar{T, true}(dirichlet, (α,), ωid)
 
-
 "Rademacher distribution"
 rademacher(p::MaybeRV{T}, ωid::Id = ωnew()) where T = bernoulli(p, ωid::Id) * 2.0 - 1.0
 
@@ -61,8 +60,6 @@ uniform(a::MaybeRV{T}, ωid::Id=ωnew()) where {V, T <: Vector{V}} =
 "Discrete uniform distribution with range `range`"
 uniform(range::UnitRange{T}, ωid=ωnew()) where T =
   RandVar{T, true}(rand, (range,), ωid)
-
-
 
 "Normal Distribution with mean μ and variance σ"
 normalinvt(p, μ, σ) = quantile(Normal(μ, σ), p)

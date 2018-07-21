@@ -1,5 +1,5 @@
 using Omega
-using Base: Test
+using Test
 
 nflips = 10
 weight = Omega.betarv(2.0, 2.0)

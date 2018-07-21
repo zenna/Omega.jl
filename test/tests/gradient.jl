@@ -20,7 +20,7 @@ function testgrad2()
   # Gradient test
   ω = Omega.SimpleΩ{Int, Float64}()
   y(ω)
-  unpackcall(xs) = y(Omega.unlinearize(xs, ω)).epsilon
+  unpackcall(xs) = Omega.epsilon(y(Omega.unlinearize(xs, ω)))
   Omega.gradient(y, ω)
   ForwardDiff.gradient(unpackcall, [.3, .2])
 end

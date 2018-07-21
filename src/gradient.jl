@@ -1,5 +1,4 @@
 import ForwardDiff
-# import ReverseDiff
 using Flux
 
 "Gradient ∇Y()"
@@ -7,9 +6,7 @@ function gradient(Y::RandVar, ω::Ω, vals = linearize(ω))
   Y(ω)
   #@show Y(ω), ω, vals
   unpackcall(xs) = -logepsilon(Y(unlinearize(xs, ω)))
-  # ForwardDiff.gradient(unpackcall, vals)
-  # @assert false
-  ReverseDiff.gradient(unpackcall, vals)
+  ForwardDiff.gradient(unpackcall, vals)
 end
 
 function gradient(Y::RandVar, sω::SimpleΩ{I, V}, vals) where {I, V <: AbstractArray}

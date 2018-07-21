@@ -19,7 +19,7 @@ resetcount!(dω::DiffΩ) = foreach(resetcount!, values(dω.vals))
 DiffΩ{T, I}() where {T, I} = DiffΩ(Dict{I, CountVec{T}}())
 DiffΩ() = DiffΩ{Float64, Int}()
 
-lookupme(::Type{CloseOpen}) = Float64
+lookupme(::Type{Random.CloseOpen01}) = Float64
 
 Base.rand(T, ω::DiffΩ) = rand(T, ω[0])
 Base.rand(ω::DiffΩ, T) = rand(ω[0], T)

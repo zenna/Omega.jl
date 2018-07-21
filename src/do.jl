@@ -80,7 +80,7 @@ o = intervene(y, uniform(-10.0, -9.0))
 """
 function intervene(x1::RandVar{T}, x2::Union{RandVar{T}, T}) where T
   dointervene(y, _) = y
-  function dointervene(y::RandVar{T2, P}, seen::ObjectIdDict = ObjectIdDict()) where {T2, P}
+  function dointervene(y::RandVar{T2, P}, seen::IdDict{Any, Any} = IdDict{Any, Any}()) where {T2, P}
     if y ∈ keys(seen)
       return seen[y]
     end

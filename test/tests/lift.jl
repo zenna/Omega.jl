@@ -1,5 +1,5 @@
 using Omega
-using Base: Test
+using Test
 
 struct MyType
   x

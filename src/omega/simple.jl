@@ -90,6 +90,10 @@ function Base.rand(ωπ::ΩProj{O}, ::Type{T}) where {T, I, A<:Flux.TrackedArray
   first(val)
 end
 
+# rng_native_52(::Omega.ΩProj{Omega.SimpleΩ{Int64,Omega.ValueTuple},Int64})
+
+Random.rng_native_52(::Ω) = Random.rng_native_52(Random.GLOBAL_RNG)
+
 ## Value Type
 ## ==========
 

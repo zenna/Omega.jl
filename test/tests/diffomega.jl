@@ -1,5 +1,5 @@
 using Omega
-using Base: Test
+using Test
 
 function test1()
   a = [1.0, 2.0, 3.0]

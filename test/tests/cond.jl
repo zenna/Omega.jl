@@ -1,5 +1,5 @@
 using Omega
-using Base: Test
+using Test
 
 θ = uniform(0.0, 1.0)
 x = normal(θ, 1.0)

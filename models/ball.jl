@@ -1,6 +1,6 @@
 using Omega
 using Distributions
-using Base: Test
+using Test
 
 # colors of balls
 k = 5       

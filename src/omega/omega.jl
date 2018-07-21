@@ -1,5 +1,3 @@
-import Random: Close1Open2, CloseOpen
-
 const ωcounter = [0]
 "Unique dimension id"
 function ωnew()
