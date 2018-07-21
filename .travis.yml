@@ -12,11 +12,9 @@ notifications:
 env:
   - DOCUMENTER_DEBUG="true" CONDA_JL_VERSION="2" PYTHON=""
 script:
-  - julia -e 'Pkg.clone("https://github.com/zenna/Spec.jl")'
-  - julia -e 'Pkg.add("UnicodePlots")'
-  - julia -e 'Pkg.add("ForwardDiff")'
-  - julia -e 'Pkg.add("Flux")'
-  - julia -e 'Pkg.clone(pwd())'
+  - julia -e 'Pkg.add("https://github.com/zenna/Spec.jl")'
+  - julia -e 'Pkg.add("https://github.com/jrevels/Cassette.jl.git")'
+  - julia -e 'Pkg.add(pwd())'
   - julia -e 'Pkg.build("Omega")'
   - julia -e 'Pkg.test("Omega", coverage=true)'
 after_success:
