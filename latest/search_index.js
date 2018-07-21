@@ -49,35 +49,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "started.html#",
-    "page": "Getting started",
-    "title": "Getting started",
-    "category": "page",
-    "text": ""
-},
-
-{
-    "location": "started.html#Quick-start-1",
-    "page": "Getting started",
-    "title": "Quick start",
+    "location": "index.html#Index-1",
+    "page": "Home",
+    "title": "Index",
     "category": "section",
-    "text": "First import Omega:using OmegaFirst construct a probabilistic program, which in Omega is a Random Variable. The simplest way to do this is to compose primitive random variables μ = uniform(0.0, 1.0)μ is a uniformly distributed random variable. μ is not a sample, nor does it represent one, it is a value of type RandVar. To get a sample use randrand(μ)\n0.42770819318033215So far we haven\'t done anything that you couldn\'t do using the random number generators in Base or Distributions.jl. So, let\'s to dome conditioning. First we construct a new random variable which depends on μμ = uniform(0.0, 1.0)\nx = normal(μ, 1.0)x is a random variable.  We can sample from it:x = normal(μ, 1.0)\n0.9778179079436203Finally we can condition the random variables:samples = rand(μ, x == 30.0)samples is a set of samples from the conditional distribution of mu given that x==30.0"
-},
-
-{
-    "location": "inference.html#",
-    "page": "Inference",
-    "title": "Inference",
-    "category": "page",
     "text": ""
-},
-
-{
-    "location": "inference.html#Inference-1",
-    "page": "Inference",
-    "title": "Inference",
-    "category": "section",
-    "text": "Omega have several inference algorithms built in, and provides the mechanism to build your own."
 },
 
 {
@@ -98,18 +74,34 @@ var documenterSearchIndex = {"docs": [
 
 {
     "location": "model.html#",
-    "page": "model",
-    "title": "model",
+    "page": "Modeling",
+    "title": "Modeling",
     "category": "page",
     "text": "In Omega a probabilistic model is a collection of  random variable.The simplest random variable you can construct is the perhaps the standard uniformx1 = uniform(0.0, 1.0)x is a random variable not a sample. To construct another random variable x2, we do the same. x2 = uniform(0.0, 1.0)x1 and x2 are identically distributed and independent (i.i.d.)julia> rand((x1, x2))\n(0.5602978842341093, 0.9274576159629635)Omega comes with a large number of in-built distributions, and so to make complex probabilistic you can simply use these and compose them."
 },
 
 {
     "location": "model.html#Explicit-Style-1",
-    "page": "model",
+    "page": "Modeling",
     "title": "Explicit Style",
     "category": "section",
     "text": "The above style is convenient but it hides a lot of the machinery of what is going on. Omega, as well as all probabilistic programming languages, use programs to represent probability distributions However, there are several different probability distribution.Omega is distinct from other probabilistic programming langauges because it represents. In Omegax(\\omega) = \\omega(1)"
+},
+
+{
+    "location": "inference.html#",
+    "page": "Inference",
+    "title": "Inference",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "inference.html#Inference-1",
+    "page": "Inference",
+    "title": "Inference",
+    "category": "section",
+    "text": "Omega have several inference algorithms built in, and provides the mechanism to build your own."
 },
 
 {
@@ -174,6 +166,174 @@ var documenterSearchIndex = {"docs": [
     "title": "Causal Inference",
     "category": "section",
     "text": "Omega supports causal inference through the change function and higher-order causal inference through the random interventional distributionCausal inference is a topic of much confusion. If you are familiar with what "
+},
+
+{
+    "location": "distributions.html#",
+    "page": "Built-in Distributions",
+    "title": "Built-in Distributions",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "distributions.html#Built-In-Distributions-1",
+    "page": "Built-in Distributions",
+    "title": "Built In Distributions",
+    "category": "section",
+    "text": "Omega comes with a number of built in probability distributions."
+},
+
+{
+    "location": "distributions.html#Omega.bernoulli",
+    "page": "Built-in Distributions",
+    "title": "Omega.bernoulli",
+    "category": "function",
+    "text": "Bernoulli with weight p\n\n\n\n\n\n"
+},
+
+{
+    "location": "distributions.html#Omega.boolbernoulli",
+    "page": "Built-in Distributions",
+    "title": "Omega.boolbernoulli",
+    "category": "function",
+    "text": "Bool - valued Bernoulli distribution (as opposed to Float64 valued)\n\n\n\n\n\n"
+},
+
+{
+    "location": "distributions.html#Omega.betarv",
+    "page": "Built-in Distributions",
+    "title": "Omega.betarv",
+    "category": "function",
+    "text": "Beta distribution parameters α  and β\n\n\n\n\n\n"
+},
+
+{
+    "location": "distributions.html#Omega.β",
+    "page": "Built-in Distributions",
+    "title": "Omega.β",
+    "category": "function",
+    "text": "Beta distribution parameters α  and β\n\n\n\n\n\n"
+},
+
+{
+    "location": "distributions.html#Omega.categorical",
+    "page": "Built-in Distributions",
+    "title": "Omega.categorical",
+    "category": "function",
+    "text": "Categorical distribution with probability weight vector p\n\n\n\n\n\n"
+},
+
+{
+    "location": "distributions.html#Omega.dirichlet",
+    "page": "Built-in Distributions",
+    "title": "Omega.dirichlet",
+    "category": "function",
+    "text": "Dirichlet distribution\n\n\n\n\n\n"
+},
+
+{
+    "location": "distributions.html#Omega.exponential",
+    "page": "Built-in Distributions",
+    "title": "Omega.exponential",
+    "category": "function",
+    "text": "Exponential Distribution with λ\n\n\n\n\n\n"
+},
+
+{
+    "location": "distributions.html#Omega.gammarv",
+    "page": "Built-in Distributions",
+    "title": "Omega.gammarv",
+    "category": "function",
+    "text": "Gamma distribution\n\n\n\n\n\n"
+},
+
+{
+    "location": "distributions.html#Omega.Γ",
+    "page": "Built-in Distributions",
+    "title": "Omega.Γ",
+    "category": "function",
+    "text": "Gamma distribution\n\n\n\n\n\n"
+},
+
+{
+    "location": "distributions.html#Omega.inversegamma",
+    "page": "Built-in Distributions",
+    "title": "Omega.inversegamma",
+    "category": "function",
+    "text": "Inverse Gamma distribution\n\n\n\n\n\n"
+},
+
+{
+    "location": "distributions.html#Omega.kumaraswamy",
+    "page": "Built-in Distributions",
+    "title": "Omega.kumaraswamy",
+    "category": "function",
+    "text": "Kumaraswamy distribution, similar to beta but easier\n\n\n\n\n\n"
+},
+
+{
+    "location": "distributions.html#Omega.logistic",
+    "page": "Built-in Distributions",
+    "title": "Omega.logistic",
+    "category": "function",
+    "text": "Logistic Distribution\n\n\n\n\n\n"
+},
+
+{
+    "location": "distributions.html#Omega.poisson",
+    "page": "Built-in Distributions",
+    "title": "Omega.poisson",
+    "category": "function",
+    "text": "Poisson distribution with rate parameter λ\n\n\n\n\n\n"
+},
+
+{
+    "location": "distributions.html#Omega.normal",
+    "page": "Built-in Distributions",
+    "title": "Omega.normal",
+    "category": "function",
+    "text": "Normal Distribution with mean μ and variance σ\n\n\n\n\n\n"
+},
+
+{
+    "location": "distributions.html#Omega.mvnormal",
+    "page": "Built-in Distributions",
+    "title": "Omega.mvnormal",
+    "category": "function",
+    "text": "Multivariate Normal Distribution with mean vector μ and covariance Σ\n\n\n\n\n\n"
+},
+
+{
+    "location": "distributions.html#Omega.uniform",
+    "page": "Built-in Distributions",
+    "title": "Omega.uniform",
+    "category": "function",
+    "text": "Uniform distribution with lower bound a and upper bound b\n\n\n\n\n\nUniform sample from vector\n\n\n\n\n\nDiscrete uniform distribution with range range\n\n\n\n\n\n"
+},
+
+{
+    "location": "distributions.html#Omega.rademacher",
+    "page": "Built-in Distributions",
+    "title": "Omega.rademacher",
+    "category": "function",
+    "text": "Rademacher distribution\n\n\n\n\n\n"
+},
+
+{
+    "location": "distributions.html#Univariate-Distributions-1",
+    "page": "Built-in Distributions",
+    "title": "Univariate Distributions",
+    "category": "section",
+    "text": "bernoulli\nboolbernoulli\nbetarv\nβ\ncategorical\ndirichlet\nexponential\ngammarv\nΓ\ninversegamma\nkumaraswamy\nlogistic\npoisson\nnormal\nmvnormal\nuniform\nrademacher"
+},
+
+{
+    "location": "distributions.html#Multivariate-Distributions-1",
+    "page": "Built-in Distributions",
+    "title": "Multivariate Distributions",
+    "category": "section",
+    "text": "mvnormal"
 },
 
 {
