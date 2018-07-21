@@ -20,7 +20,7 @@ julia> rand(normal(0.0, 1.0))
 0.7625637212030862
 ```
 
-With that, see the [Tutorial](@basictutorial) for a run through of the main features of Omega. 
+With that, see the [Tutorial](basictutorial) for a run through of the main features of Omega. 
 
 ## Contribute
 
@@ -39,6 +39,8 @@ In addition, if you use the higher-order features, please cite the random condit
 ## Acknowledgements
 
 Omega leans heavily on the hard work of many packages and the Julia community as a whole, but in particular `Distributions.jl`, `Flux.jl`, and `Cassette.jl`.
+
+## Index
 
 ```@contents
 ```

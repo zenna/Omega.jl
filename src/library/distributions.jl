@@ -1,6 +1,6 @@
 MaybeRV{T} = Union{T, AbstractRandVar{T}} where T
 
-"Beta distribution"
+"Beta distribution parameters `α`  and `β`"
 betarv(ω::Ω, α::AbstractFloat, β::AbstractFloat) = quantile(Beta(α, β), rand(ω))
 betarv(α::MaybeRV{T}, β::MaybeRV{T}, ωid::Id=ωnew()) where T <: AbstractFloat = RandVar{T, true}(Omega.betarv, (α, β), ωid)
 const β = betarv
@@ -9,6 +9,7 @@ const β = betarv
 bernoulli(ω::Ω, p::AbstractFloat) = quantile(Bernoulli(p), rand(ω))
 bernoulli(p::MaybeRV{T}, ωid::Id = ωnew()) where T <: AbstractFloat = RandVar{Float64, true}(bernoulli, (p,), ωid)
 
+"Bool - valued Bernoulli distribution (as opposed to Float64 valued)"
 boolbernoulli(args...) = RandVar{SoftBool, false}(SoftBool, (bernoulli(args...),))
 
 "Gamma distribution"
@@ -61,8 +62,9 @@ uniform(a::MaybeRV{T}, ωid::Id=ωnew()) where {V, T <: Vector{V}} =
 uniform(range::UnitRange{T}, ωid=ωnew()) where T =
   RandVar{T, true}(rand, (range,), ωid)
 
-"Normal Distribution with mean μ and variance σ"
 normalinvt(p, μ, σ) = quantile(Normal(μ, σ), p)
+
+"Normal Distribution with mean μ and variance σ"
 normal(ω::Ω, μ, σ) = normalinvt(rand(ω), μ, σ)
 normal(ω::Ω, μ, σ, sz::Dims) = normalinvt.(rand(ω, sz), μ, σ)
 normal(μ::MaybeRV{T}, σ::MaybeRV{T}, ωid::Id = ωnew()) where T <: AbstractFloat =
@@ -75,6 +77,7 @@ normal(μ::MaybeRV{T}, σ::MaybeRV{T}, dims::MaybeRV{Dims{N}}, ωid::Id = ωnew(
 _rand!(rng::AbstractRNG, d::MvNormal, x::VecOrMat) = add!(unwhiten!(d.Σ, randn!(rng, x)), d.μ)
 
 mvchol(x, μ, Σ::PDMat) = Distributions.unwhiten(Σ, x) .+ μ
+
 "Multivariate Normal Distribution with mean vector `μ` and covariance `Σ`"
 mvnormal(ω::Ω, μ::Vector, Σ::PDMat) = mvchol(normal(ω, 0.0, 1.0, size(μ)), μ, Σ)
 # mvnormal(ω::Ω, μ, Σ) = rand(ω, MvNormal(μ, Σ))
@@ -92,13 +95,15 @@ logistic(μ::MaybeRV{T}, s::MaybeRV{T}, ωid::Id = ωnew()) where T =
 logistic(μ::MaybeRV{T}, s::MaybeRV{T}, dims::MaybeRV{Dims{N}}, ωid::Id = ωnew()) where {N, T} =
   RandVar{Array{T, N}, true}(logistic, (μ, s, dims), ωid)
 
+"Exponential Distribution with λ"
 exponential(ω::Ω, λ) = -log(1 - rand(ω)) / λ
 exponential(ω::Ω, λ, sz::Dims) = log.(1 - rand(ω, sz)) ./ λ
 exponential(λ::MaybeRV{T}, ωid::Id = ωnew()) where T = RandVar{T, true}(exponential, (λ,), ωid)
 exponential(λ::MaybeRV{T}, dims::MaybeRV{Dims{N}}, ωid::Id = ωnew()) where {N, T} = RandVar{T, true}(exponential, (λ, dims), ωid)
 
-"Kumaraswamy distribution, similar to beta but easier"
 kumaraswamyinvcdf(p, a, b) = (1 - (1 - p)^(1/b))^(1/a)
+
+"Kumaraswamy distribution, similar to beta but easier"
 kumaraswamy(ω::Ω, a, b) = kumaraswamyinvcdf(rand(ω), a, b)
 kumaraswamy(ω::Ω, a, b, dims::Dims) = kumaraswamyinvcdf.(rand(ω, dims), a, b)
 kumaraswamy(a::MaybeRV{T}, b::MaybeRV{T}, ωid::Id = ωnew()) where T =
