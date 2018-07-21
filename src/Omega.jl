@@ -109,6 +109,7 @@ export mean,
 
        # Do
        intervene,
+       change,
 
        # Algorithms
        RejectionSample,

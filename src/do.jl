@@ -2,13 +2,9 @@
 @context ChangeCtx
 
 @primitive function (x::RandVar)(ω::Ω) where {__CONTEXT__ <: ChangeCtx}
-  println("Overdubbed")
-  @show x.id
   rv = if x.id in keys(__context__.metadata)
-    @show "false"
     __context__.metadata[x.id]
   else
-    @show true
     x
   end
   args = Cassette.overdub(ChangeCtx(metadata = __context__.metadata), map, a->apl(a, ω), rv.args)
@@ -20,6 +16,9 @@ function change(θold::RandVar, θnew::RandVar, x::RandVar{T}) where T
   f = ω -> Cassette.overdub(ChangeCtx(metadata = Dict(θold.id => θnew)), x, ω)
   RandVar{T}(f)
 end
+
+"Change where `θconst` is not a randvar, but constant"
+change(θold, θconst, x) = change(θold, constant(θconst), x)
 
 function test()
   Θ = normal(0.0, 1.0)
