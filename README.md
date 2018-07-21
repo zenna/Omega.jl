@@ -140,93 +140,22 @@ observations = [true, true, true, false]
 weight_samples = rand(weight, coinflips == observations, RejectionSample)
 ```
 
-In this case, `rand<!-- 
-TODO: Describe Coin Model In English
-TODO: Show Corresponding Omega progromam
-- Demonstrate unconditional sampling with `rand`
-- Demonstrate pointwise application
-- Demonstrate Random Arrays -->
- takes
-- A random variable<!-- 
-TODO: Describe Coin Model In English
-TODO: Show Corresponding Omega progromam
-- Demonstrate unconditional sampling with `rand`
-- Demonstrate pointwise application
-- Demonstrate Random Arrays -->
-we want to sample from
-- A predicate (type<!-- 
-TODO: Describe Coin Model In English
-TODO: Show Corresponding Omega progromam
-- Demonstrate unconditional sampling with `rand`
-- Demonstrate pointwise application
-- Demonstrate Random Arrays -->
-`RandVar{Bool}`) that we want to condition on, i.e. assert that it is true
-- An inference algo<!-- 
-TODO: Describe Coin Model In English
-TODO: Show Corresponding Omega progromam
-- Demonstrate unconditional sampling with `rand`
-- Demonstrate pointwise application
-- Demonstrate Random Arrays -->
-ithm.  Here we use rejction sampling
 
-Plot a histogram of<!-- 
-TODO: Describe Coin Model In English
-TODO: Show Corresponding Omega progromam
-- Demonstrate unconditional sampling with `rand`
-- Demonstrate pointwise application
-- Demonstrate Random Arrays -->
-the weights like before:
+In this case, `rand` takes
+- A random variable we want to sample from
+- A predicate (type `RandVar{Bool}`) that we want to condition on, i.e. assert that it is true
+- An inference algorithm.  Here we use rejction sampling
+
+Plot a histogram of the weights like before:
 
 ```
-julia> UnicodePlots<!-- 
-TODO: Describe Coin Model In English
-TODO: Show Corresponding Omega progromam
-- Demonstrate unconditional sampling with `rand`
-- Demonstrate pointwise application
-- Demonstrate Random Arrays -->
-histogram(weight_samples)
-             ┌─────<!-- 
-TODO: Describe Coin Model In English
-TODO: Show Corresponding Omega progromam
-- Demonstrate unconditional sampling with `rand`
-- Demonstrate pointwise application
-- Demonstrate Random Arrays -->
-──────────────────────────────────┐ 
-   (0.1,0.2] │▇ 4  <!-- 
-TODO: Describe Coin Model In English
-TODO: Show Corresponding Omega progromam
-- Demonstrate unconditional sampling with `rand`
-- Demonstrate pointwise application
-- Demonstrate Random Arrays -->
-                                  │ 
-   (0.2,0.3] │▇▇▇ 2<!-- 
-TODO: Describe Coin Model In English
-TODO: Show Corresponding Omega progromam
-- Demonstrate unconditional sampling with `rand`
-- Demonstrate pointwise application
-- Demonstrate Random Arrays -->
-                                  │ 
-   (0.3,0.4] │▇▇▇▇▇<!-- 
-TODO: Describe Coin Model In English
-TODO: Show Corresponding Omega progromam
-- Demonstrate unconditional sampling with `rand`
-- Demonstrate pointwise application
-- Demonstrate Random Arrays -->
-▇▇▇▇▇ 69                          │ 
-   (0.4,0.5] │▇▇▇▇▇<!-- 
-TODO: Describe Coin Model In English
-TODO: Show Corresponding Omega progromam
-- Demonstrate unconditional sampling with `rand`
-- Demonstrate pointwise application
-- Demonstrate Random Arrays -->
-▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 147             │ 
-   (0.5,0.6] │▇▇▇▇▇<!-- 
-TODO: Describe Coin Model In English
-TODO: Show Corresponding Omega progromam
-- Demonstrate unconditional sampling with `rand`
-- Demonstrate pointwise application
-- Demonstrate Random Arrays -->
-▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 185       │ 
+julia> UnicodePlots.histogram(weight_samples)
+             ┌────────────────────────────────────────┐ 
+   (0.1,0.2] │▇ 4                                     │ 
+   (0.2,0.3] │▇▇▇ 22                                  │ 
+   (0.3,0.4] │▇▇▇▇▇▇▇▇▇▇▇ 69                          │ 
+   (0.4,0.5] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 147             │ 
+   (0.5,0.6] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 185       │ 
    (0.6,0.7] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 226 │ 
    (0.7,0.8] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 203     │ 
    (0.8,0.9] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 120                 │ 
