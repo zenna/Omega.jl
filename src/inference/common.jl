@@ -1,3 +1,5 @@
+abstract type Algorithm end
+
 "ω ∉ [0, 1]"
 notunit(ω) = ω > 1.0 || ω < 0.0
 

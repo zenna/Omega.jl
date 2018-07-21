@@ -37,17 +37,18 @@ include("randvarapply.jl")    # Random Variables
 include("var.jl")
 
 include("rcd.jl")       # Random Conditional Distribution
+include("rid.jl")       # Random Interventional Distribution
 include("array.jl")     # Array primitives
 include("lift.jl")      # Lifting functions to RandVar domain
 include("pointwise.jl") # Lifting functions to RandVar domain (using Casette)
 
 # Inference
-include("algorithm.jl") # Algorithm abstract type
+# include("algorithm.jl") # 
 include("soft.jl")      # Soft logic
 include("cond.jl")      # Conditional Random Variables
 
 # Inference Algorithms
-include("inference/common.jl")  # Common Inference Functions
+include("inference/common.jl")  # Algorithm abstract type, Common Inference Functions
 include("inference/callbacks.jl")  # Common Inference Functions
 include("inference/rand.jl")    # Sampling
 include("inference/rs.jl")      # Rejection Sampling
@@ -67,8 +68,8 @@ include("do.jl")        # Causal Reasoning
 include("gradient.jl")
 
 # Library
-include("distributions.jl")  # Primitive distributions
-include("statistics.jl")     # Mean, etc
+include("library/distributions.jl")  # Primitive distributions
+include("library/statistics.jl")     # Mean, etc
 
 # Neural Network Stuff
 include("flux.jl")

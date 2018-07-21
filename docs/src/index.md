@@ -22,6 +22,14 @@ julia> rand(normal(0.0, 1.0))
 
 With that, see the [Tutorial](@ref) for a run through of the main features of Omega. 
 
+## Contribute
+
+We want your contributions!
+
+- Probabilistic models
+- Contribute an inference procedure
+
+
 ## Citation
 
 If you use Omega, please cite Omega paper.
