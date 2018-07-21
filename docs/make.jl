@@ -21,7 +21,7 @@ makedocs(
 
 deploydocs(
   repo = "github.com/zenna/Omega.jl.git",
-  julia="0.7",
+  julia="nightly",
   deps=nothing,
   make=nothing,
   target="build",
