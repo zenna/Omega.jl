@@ -10,6 +10,12 @@ makedocs(
     "Home"=>"index.md",
     "Getting started"=>"started.md",
     "Inference"=>"inference.md",
+    "Basic Tutorial" => "basictutorial.md",
+    "model" => "model.md",
+    "Conditioning" => "conditioning.md",
+    "Higher Order Inference" => "higher.md",
+    "Causal Inference" => "causal.md",
+    "Contribution Guide" => "contrib.md",
   ]
 )
 

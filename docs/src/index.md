@@ -20,7 +20,7 @@ julia> rand(normal(0.0, 1.0))
 0.7625637212030862
 ```
 
-With that, see the [Tutorial](@ref) for a run through of the main features of Omega. 
+With that, see the [Tutorial](@basictutorial) for a run through of the main features of Omega. 
 
 ## Contribute
 
