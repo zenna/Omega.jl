@@ -1,5 +1,6 @@
 using Omega
 using UnicodePlots
+using Distributions
 
 function test()
   μ1 = bernoulli(0.5)

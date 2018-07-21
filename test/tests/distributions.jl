@@ -1,3 +1,4 @@
+using Omega
 
 function testw()
   w = Omega.SimpleΩ{Vector{Int}, Array{Float64, 3}}()
