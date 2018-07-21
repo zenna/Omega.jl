@@ -19,7 +19,7 @@ script:
   - julia -e 'using Pkg; Pkg.test("Omega", coverage=true)'
 after_success:
   - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
-  - julia -e 'using Pkg; Pkg.add("Documenter"); include(joinpath("docs", "make.jl")'
+  - julia -e 'using Pkg; Pkg.add("Documenter"); include(joinpath("docs", "make.jl"))'
 matrix:
   fast_finish: true
   allow_failures:

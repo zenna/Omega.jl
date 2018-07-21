@@ -2,6 +2,13 @@
 function Base.rand(x::Union{RandVar, UTuple{RandVar}}; ΩT::Type{T} = defaultomega()) where T <: Ω
   x(ΩT())
 end
+
+"Unconditional Sample from `x`"
+function Base.rand(x::Union{RandVar, UTuple{RandVar}}, n::Int; ΩT::Type{T} = defaultomega()) where T <: Ω
+  [x(ΩT()) for i = 1:n]
+end
+
+
 # const DefaultΩ = Omega.SimpleΩ{Omega.Paired, Omega.Float64}
 const DefaultΩ = Omega.SimpleΩ{Omega.Paired, Omega.ValueTuple}
 defaultomega() = DefaultΩ
