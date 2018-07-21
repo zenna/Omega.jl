@@ -109,13 +109,6 @@ function showprogress(n)
   end
 end
 
-"Construct callback that anneals temperature parameters"
-function anneal(α::Var...)
-  function (data, stage)
-    foreach(α -> α * 0.95, αs)
-  end
-end
-
 function tracecb(::Type{T}, t = identity) where T
   ωs = T[]
   allωs = Vector{T}[]

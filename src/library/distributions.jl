@@ -1,10 +1,21 @@
 MaybeRV{T} = Union{T, AbstractRandVar{T}} where T
 
+"Beta distribution"
+betarv(ω::Ω, α::AbstractFloat, β::AbstractFloat) = quantile(Beta(α, β), rand(ω))
+betarv(α::MaybeRV{T}, β::MaybeRV{T}, ωid::Id=ωnew()) where T <: AbstractFloat = RandVar{T, true}(Omega.betarv, (α, β), ωid)
+const β = betarv
+
+"Bernoulli with weight `p`"
+bernoulli(ω::Ω, p::AbstractFloat) = quantile(Bernoulli(p), rand(ω))
+bernoulli(p::MaybeRV{T}, ωid::Id = ωnew()) where T <: AbstractFloat = RandVar{Float64, true}(bernoulli, (p,), ωid)
+
+boolbernoulli(args...) = RandVar{SoftBool, false}(SoftBool, (bernoulli(args...),))
+
 "Gamma distribution"
 gammarv(ω::Ω, α::AbstractFloat, θ::AbstractFloat) = quantile(Gamma(α, θ), rand(ω))
 gammarv(α::MaybeRV{T}, θ::MaybeRV{T}, ωid::Id = ωnew()) where T <: Real =
   RandVar{T, true}(gammarv, (α, θ), ωid)
-Γ = gammarv
+const Γ = gammarv
 
 "Inverse Gamma distribution"
 inversegamma(ω::Ω, α, θ, ωi) = quantile(InverseGamma(α, θ), rand(ω))
@@ -20,15 +31,6 @@ end
 # FIXME: Type
 dirichlet(α::MaybeRV{T}, ωid::Id = ωid::Id=ωnew()) where T = RandVar{T, true}(dirichlet, (α,), ωid)
 
-"Beta distribution"
-betarv(ω::Ω, α::AbstractFloat, β::AbstractFloat) = quantile(Beta(α, β), rand(ω))
-betarv(α::MaybeRV{T}, β::MaybeRV{T}, ωid::Id=ωnew()) where T <: AbstractFloat = RandVar{T, true}(Omega.betarv, (α, β), ωid)
-
-"Bernoulli with weight `p`"
-bernoulli(ω::Ω, p::AbstractFloat) = quantile(Bernoulli(p), rand(ω))
-bernoulli(p::MaybeRV{T}, ωid::Id = ωnew()) where T <: AbstractFloat = RandVar{Float64, true}(bernoulli, (p,), ωid)
-
-boolbernoulli(args...) = RandVar{SoftBool, false}(SoftBool, (bernoulli(args...),))
 
 "Rademacher distribution"
 rademacher(p::MaybeRV{T}, ωid::Id = ωnew()) where T = bernoulli(p, ωid::Id) * 2.0 - 1.0

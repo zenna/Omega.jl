@@ -31,7 +31,7 @@ uuid = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
 version = "0.3.3"
 
 [[Cassette]]
-git-tree-sha1 = "37c32e9acb5d27bf9a486c57e0833bd941b0ab70"
+git-tree-sha1 = "8fc89358d1136a48394f4a9418bce99fa7150cda"
 repo-rev = "master"
 repo-url = "https://github.com/jrevels/Cassette.jl"
 uuid = "59fb9612-49be-509a-8654-f972bbc0bdb2"
@@ -61,16 +61,16 @@ uuid = "bbf7d656-a473-5ed7-a52c-81e309532950"
 version = "0.2.0"
 
 [[Compat]]
-deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Test", "UUIDs", "Unicode"]
-git-tree-sha1 = "eb98811a03884748e0e7fc0ceb6849f3bb727ffd"
+deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Statistics", "Test", "UUIDs", "Unicode"]
+git-tree-sha1 = "c478aec93ea90bb99c307a92df17a76131bf275f"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "0.70.0"
+version = "1.0.0"
 
 [[DataStructures]]
 deps = ["InteractiveUtils", "REPL", "Random", "Serialization", "Test"]
-git-tree-sha1 = "ef6f313c82fd80ab75ab3f784353b6c65ebcaacf"
+git-tree-sha1 = "a591110d3ac12c9b4d0cec163fcf234baed7f5ac"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.9.0"
+version = "0.10.0"
 
 [[Dates]]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"

@@ -1,5 +1,5 @@
 # __precompile__()
-"Minimal Probabilistic Programming Langauge"
+"A Hihger-Order Probabilistic Programming Langauge"
 module Omega
 
 using Flux
@@ -8,6 +8,8 @@ using PDMats
 using ProgressMeter
 using Spec
 import Random
+import Statistics
+using Random: AbstractRNG
 using ZenUtils
 using UnicodePlots
 using Cassette
@@ -33,17 +35,16 @@ include("omega/id.jl")            # Pairing functions for omega ids
 
 include("randvarapply.jl")    # Random Variables
 
-# Var
-include("var.jl")
+# Higher Order Inferene
+include("higher/rcd.jl")       # Random Conditional Distribution
+include("higher/rid.jl")       # Random Interventional Distribution
 
-include("rcd.jl")       # Random Conditional Distribution
-include("rid.jl")       # Random Interventional Distribution
-include("array.jl")     # Array primitives
-include("lift.jl")      # Lifting functions to RandVar domain
-include("pointwise.jl") # Lifting functions to RandVar domain (using Casette)
+# Lifted random variable operatiosn
+include("lift/array.jl")     # Array primitives
+include("lift/lift.jl")      # Lifting functions to RandVar domain
+include("lift/pointwise.jl") # Lifting functions to RandVar domain (using Casette)
 
 # Inference
-# include("algorithm.jl") # 
 include("soft.jl")      # Soft logic
 include("cond.jl")      # Conditional Random Variables
 
@@ -58,9 +59,6 @@ include("inference/hmc.jl")     # Hamiltonian Monte Carlo
 include("inference/hmcfast.jl") # Faster Hamiltonian Monte Carlo
 include("inference/sghmc.jl")   # Stochastic Gradient Hamiltonian Monte Carlo
 
-include("inference/cgan.jl")    # Conditional GAN inference
-include("inference/spen.jl")    # Structured Predicton Energy Networks
-
 # Causal Inference
 include("do.jl")        # Causal Reasoning
 
@@ -73,9 +71,6 @@ include("library/statistics.jl")     # Mean, etc
 
 # Neural Network Stuff
 include("flux.jl")
-
-# Divergence
-# include("divergence.jl")
 
 include("wow.jl")
 

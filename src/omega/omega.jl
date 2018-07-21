@@ -26,7 +26,7 @@ abstract type Ω{I} <: AbstractRNG end
 
 ## Rand
 ## ====
-RV = Union{Integer, Base.Random.FloatInterval}
+RV = Union{Integer, Random.FloatInterval}
 # lookup(::Type{UInt32}) = UInt32, :_UInt32
 # lookup(::Type{Close1Open2}) = Float64, :_Float64
 # lookup(::Type{CloseOpen}) = Float64, :_Float64
