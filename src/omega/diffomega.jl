@@ -1,35 +1,35 @@
-"Differentiable Omega"
-struct DiffOmega{T <: Real, I} <: Omega{I}
+"Differentiable Ω"
+struct DiffΩ{T <: Real, I} <: Ω{I}
   vals::Dict{I, CountVec{T}}
 end
 
-function Base.copy(dω::DiffOmega{T, I}) where {T, I}
-  DiffOmega{T, I}(Dict{I, CountVec{T}}(k => copy(v) for (k, v) in dω.vals))
+function Base.copy(dω::DiffΩ{T, I}) where {T, I}
+  DiffΩ{T, I}(Dict{I, CountVec{T}}(k => copy(v) for (k, v) in dω.vals))
 end
 
-function resetcount(dω::DiffOmega{T, I}) where {T, I}
-  DiffOmega{T, I}(Dict{I, CountVec{T}}(k => resetcount(v) for (k, v) in dω.vals))
+function resetcount(dω::DiffΩ{T, I}) where {T, I}
+  DiffΩ{T, I}(Dict{I, CountVec{T}}(k => resetcount(v) for (k, v) in dω.vals))
 end
 
-resetcount!(dω::DiffOmega) = foreach(resetcount!, values(dω.vals))
+resetcount!(dω::DiffΩ) = foreach(resetcount!, values(dω.vals))
 
 ## Rand
 ## ====
 
-DiffOmega{T, I}() where {T, I} = DiffOmega(Dict{I, CountVec{T}}())
-DiffOmega() = DiffOmega{Float64, Int}()
+DiffΩ{T, I}() where {T, I} = DiffΩ(Dict{I, CountVec{T}}())
+DiffΩ() = DiffΩ{Float64, Int}()
 
-lookupme(::Type{CloseOpen}) = Float64
+lookupme(::Type{Random.CloseOpen01}) = Float64
 
-Base.rand(T, ω::DiffOmega) = rand(T, ω[0])
-Base.rand(ω::DiffOmega, T) = rand(ω[0], T)
+Base.rand(T, ω::DiffΩ) = rand(T, ω[0])
+Base.rand(ω::DiffΩ, T) = rand(ω[0], T)
 
-function Base.rand(::Type{T}, ωπ::OmegaProj{O}) where {T, T2, O <: DiffOmega{T2}}
+function Base.rand(::Type{T}, ωπ::ΩProj{O}) where {T, T2, O <: DiffΩ{T2}}
   @assert false
   closeopen(lookupme(T), ωπ)
 end
 
-function closeopen(::Type{T}, ωπ::OmegaProj{O}) where {T, T2, O <: DiffOmega{T2}}
+function closeopen(::Type{T}, ωπ::ΩProj{O}) where {T, T2, O <: DiffΩ{T2}}
   T3 = lookupme(T)
   dω = ωπ.ω.vals[ωπ.ω.id]
   cvec = get!(CountVec{T3}, dω.vals, ωπ.id)
@@ -39,8 +39,8 @@ end
 ## Conversions
 ## ===========
 
-"Flatten `DiffOmega` into Vector"
-function linearize(dω::DiffOmega{T}) where T
+"Flatten `DiffΩ` into Vector"
+function linearize(dω::DiffΩ{T}) where T
   vals = T[]
   for i in sort(collect(keys(dω.vals)))
     vals = vcat(vals, dω.vals[i].data)
@@ -48,9 +48,9 @@ function linearize(dω::DiffOmega{T}) where T
   vals
 end
 
-"Convert Vector to `DiffOmega``"
-function unlinearize(xs::Vector{T1}, dω1::DiffOmega{T2, Int}) where {T1, T2}
-  dω = DiffOmega{T1, Int}()
+"Convert Vector to `DiffΩ``"
+function unlinearize(xs::Vector{T1}, dω1::DiffΩ{T2, Int}) where {T1, T2}
+  dω = DiffΩ{T1, Int}()
   lb = 1
   for i in sort(collect(keys(dω1.vals)))
     ub = lb + length(dω1.vals[i].data) - 1

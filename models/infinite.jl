@@ -1,4 +1,4 @@
-using Mu
+using Omega
 
 k = poisson(5)
 

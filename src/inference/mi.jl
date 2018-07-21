@@ -2,18 +2,18 @@
 abstract type MI <: Algorithm end
 
 "Sample `ω | y == true` with Metropolis Hasting"
-function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{MI};
+function Base.rand(ΩT::Type{OT}, y::RandVar, alg::Type{MI};
                    n = 1000,
-                   cb = default_cbs(n)) where {OT <: Omega}
+                   cb = default_cbs(n),
+                   hack = true) where {OT <: Ω}
   cb = runall(cb)
-  ω = OmegaT()
+  ω = ΩT()
   plast = epsilon(y(ω))
   qlast = 1.0
-  ωsamples = OmegaT[]
+  ωsamples = ΩT[]
   accepted = 0
-
   for i = 1:n
-    ω_ = OmegaT()
+    ω_ = ΩT()
     p_ = epsilon(y(ω_))
     ratio = p_ / plast
     if rand() < ratio
@@ -29,8 +29,8 @@ end
 
 # "Sample from `x | y == true` with Metropolis Hasting"
 # function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{MI};
-#                    n::Integer = 1000, OmegaT::OT = DefaultOmega) where {T, OT}
-#   map(x, rand(OmegaT, y, alg, n=n))
+#                    n::Integer = 1000, ΩT::OT = DefaultΩ) where {T, OT}
+#   map(x, rand(ΩT, y, alg, n=n))
 # end
 
 Base.rand(x::Union{RandVar, UTuple{RandVar}}, y::RandVar; kwargs...) = rand(x, y, MI; kwargs...)

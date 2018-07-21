@@ -1,5 +1,5 @@
-using Mu
-using Base.Test
+using Omega
+using Test
 
 x = uniform(0.0, 1.0)
 y = uniform(x, 1.0)

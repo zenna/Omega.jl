@@ -1,5 +1,5 @@
-using Mu
-using Base.Test
+using Omega
+using Test
 
 θ  = uniform(0.0, 2π)
 v = normal(30.0, 1.0)

@@ -1,4 +1,4 @@
-using Mu
+using Omega
 using UnicodePlots
 
 function test_ssmc_1()
@@ -14,8 +14,8 @@ test_ssmc_1()
 function test_ssmc_2()
   x = logistic(1.0, 2.0, (2, 3, 4))
   y = sum(x)
-  OmegaT = Mu.SimpleOmega{Int, Array{Float64, 3}}
-  rand(x, y == 5.0, MI; OmegaT=OmegaT)
+  ΩT = Omega.SimpleΩ{Int, Array{Float64, 3}}
+  rand(x, y == 5.0, MI; ΩT=ΩT)
 end
 
 test_ssmc_2()

@@ -1,5 +1,3 @@
-using UnicodePlots
-
 "Inf found"
 struct InfError <: Exception end
 
@@ -44,14 +42,23 @@ handlesignal(::Type{Stop}) = throw(InterruptException)
 function plotp()
   alldata = Float64[]
   ys = Int[]
+  maxseen = -Inf
+  minseen = Inf
   
   innerplotp(data, stage) = nothing # Do nothing in other stages
   function innerplotp(data, stage::Type{Outside})
     push!(alldata, data.p)
     push!(ys, data.i)
-    @show alldata
     if !isempty(alldata)
       println(lineplot(ys, alldata, title="Time vs p"))
+    end
+    if data.p > maxseen
+      maxseen = data.p
+      print_with_color(:light_blue, "\nNew max at id $(data.i): $(data.p)\n")
+    end
+    if data.p < minseen
+      minseen = data.p
+      print_with_color(:light_blue, "\nNew min at id $(data.i): $(data.p)\n")
     end
   end
 end
@@ -102,21 +109,14 @@ function showprogress(n)
   end
 end
 
-"Construct callback that anneals temperature parameters"
-function anneal(α::Var...)
-  function (data, stage)
-    foreach(α -> α * 0.95, αs)
-  end
-end
-
 function tracecb(::Type{T}, t = identity) where T
   ωs = T[]
   allωs = Vector{T}[]
-  function f(qp, ::Type{Mu.Inside})
+  function f(qp, ::Type{Omega.Inside})
     push!(ωs, t(qp))
   end
 
-  function f(data, ::Type{Mu.Outside})
+  function f(data, ::Type{Omega.Outside})
     push!(allωs, copy(ωs))
     empty!(ωs)
   end
@@ -140,11 +140,11 @@ function stopnanorinf(data, stage::Type{Outside})
   if isnan(data.p)
     println("p is $(data.p)")
     throw(NaNError())
-    return Mu.Stop
+    return Omega.Stop
   elseif data.p == Inf
     println("p is $(data.p)")
     throw(InfError())
-    return Mu.Stop
+    return Omega.Stop
   end
 end
 
@@ -161,7 +161,7 @@ as much as it can, without ever going more than once per `wait` duration;
 but if you'd like to disable the execution on the leading edge, pass
 `leading=false`. To enable execution on the trailing edge, ditto.
 """
-function throttle(f, timeout; leading=true, trailing=false) # From Flux (thanks!)
+function throttle(f, timeout; leading = true, trailing = false) # From Flux (thanks!)
   cooldown = true
   later = nothing
   result = nothing
@@ -182,6 +182,8 @@ function throttle(f, timeout; leading=true, trailing=false) # From Flux (thanks!
           later()
           later = nothing
         end
+      catch e
+        rethrow(e)
       finally
         cooldown = true
       end
@@ -193,8 +195,23 @@ function throttle(f, timeout; leading=true, trailing=false) # From Flux (thanks!
   end
 end
 
+"Higher order function that makes a callback run just once every n"
+function everyn(callback, n::Integer)
+  function everyncb(data, stage)
+    if data.i % n == 0
+      callback(data, stage)
+    end
+  end
+  return everyncb
+end
+
 "Defautlt callbacks"
-default_cbs(n) = [throttle(plotp(), 1.0),
+default_cbs(n) = [throttle(plotp(), 0.1),
                   showprogress(n),
                   throttle(printstats, 1.0),
                   stopnanorinf]
+
+# default_cbs(n) = [plotp(),
+#                   showprogress(n),
+#                   printstats,
+#                   stopnanorinf]

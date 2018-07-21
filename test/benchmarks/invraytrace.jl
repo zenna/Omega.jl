@@ -1,4 +1,4 @@
-using Mu
+using Omega
 using ImageView
 import RayTrace: SimpleSphere, ListScene, rgbimg
 import RayTrace: FancySphere, Vec3
@@ -11,9 +11,9 @@ end
 render(x) = Img(RayTrace.render(x))
 rgbimg(x::Img) = rgbimg(x.img)
 
-Mu.lift(:(RayTrace.SimpleSphere), n=2)
-Mu.lift(:(RayTrace.ListScene), n=1)
-Mu.lift(:(render), n=1)
+Omega.lift(:(RayTrace.SimpleSphere), n=2)
+Omega.lift(:(RayTrace.ListScene), n=1)
+Omega.lift(:(render), n=1)
 
 nspheres = poisson(3)
 
@@ -59,6 +59,6 @@ end
 img_obs = render(example_spheres())
 function compute_posterior()
   rand(scene, img == img_obs, HMC,
-                       n=1, OmegaT = Mu.SimpleOmega{Int, Float64},
+                       n=1, ΩT = Omega.SimpleΩ{Int, Float64},
                        nsteps=1)
 end

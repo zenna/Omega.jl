@@ -1,12 +1,12 @@
 # Quick start
 
-First import Mu:
+First import Omega:
 
 ```julia
-using Mu
+using Omega
 ```
 
-First construct a probabilistic program, which in Mu is a Random Variable.
+First construct a probabilistic program, which in Omega is a Random Variable.
 The simplest way to do this is to compose primitive random variables 
 
 ```julia

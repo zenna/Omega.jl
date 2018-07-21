@@ -1,10 +1,11 @@
+using Omega
 
 function testw()
-  w = Mu.SimpleOmega{Vector{Int}, Array{Float64, 3}}()
+  w = Omega.SimpleΩ{Vector{Int}, Array{Float64, 3}}()
   x = logistic(2.0, 2.0, (1, 2, 3))
   x(w)
-  w = Mu.SimpleOmega{Vector{Int}, Array{Float64, 1}}()
-  x = Mu.logistic(rand(2), rand(2))
+  w = Omega.SimpleΩ{Vector{Int}, Array{Float64, 1}}()
+  x = Omega.logistic(rand(2), rand(2))
   x(w)
 end
 

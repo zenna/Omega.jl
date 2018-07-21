@@ -1,23 +1,24 @@
 "Single Site MH"
 abstract type SSMH <: Algorithm end
 
-function update_random(sω::SimpleOmega)
+function update_random(sω::SimpleΩ)
   k = rand(1:length(sω))
   filtered = Iterators.filter(sω.vals |> keys |> enumerate) do x
     x[1] != k end
-  SimpleOmega(Dict(k => sω.vals[k] for (i, k) in filtered))
+  SimpleΩ(Dict(k => sω.vals[k] for (i, k) in filtered))
 end
 
 "Sample from `x | y == true` with Single Site Metropolis Hasting"
-function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{SSMH};
+function Base.rand(ΩT::Type{OT}, y::RandVar, alg::Type{SSMH};
                    n::Integer = 1000,
-                   cb = default_cbs(n)) where {OT <: Omega}
+                   cb = default_cbs(n),
+                   hack = true) where {OT <: Ω}
   cb = runall(cb)
-  ω = OmegaT()
+  ω = ΩT()
   plast = y(ω) |> logepsilon
   qlast = 1.0
   samples = []
-  accepted = 1
+  accepted = 0
   for i = 1:n
     ω_ = if isempty(ω)
       ω
@@ -32,7 +33,7 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{SSMH};
       accepted += 1
     end
     push!(samples, ω)
-    cb(RunData(ω, accepted, p_, i), Outside)
+    cb(RunData(ω, accepted, plast, i), Outside)
   end
   samples
 end

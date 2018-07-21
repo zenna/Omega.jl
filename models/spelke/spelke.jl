@@ -1,23 +1,35 @@
-using Mu
+using Omega
 using UnicodePlots
 using CSV
 using DataFrames
 using RunTools
 using ArgParse
-# using Stats
 
 include("distances.jl")
+include("evals.jl")
+
 
 lift(:(Base.getindex), 2)
 const Δxk = :x2
 const Δyk = :y2
 
-struct Object{T}
+abstract type AbstractObject end
+
+struct ShallowObject{T} <: AbstractObject
   x::T
   y::T
   Δx::T
   Δy::T
-  # label
+end
+
+struct Object{T} <: AbstractObject
+  x::T
+  y::T
+  Δx::T
+  Δy::T
+  vx::T
+  vy::T
+  d::T
 end
 
 "View port into scene"
@@ -41,22 +53,34 @@ end
 "Render scene into an image"
 render(scene, camera)::Image = scene
 
-nboxes = poisson(5) + 1
-
-"Scene at frame t=0"
-function initscene(ω)
-  # objects = map(1:nboxes(ω)) do i
-  objects = map(1:3) do i
-    Object(uniform(ω[@id][i], 0.0, 1.0),
-           uniform(ω[@id][i], 0.0, 1.0),
-           uniform(ω[@id][i], 10.0, 300.0),
-           uniform(ω[@id][i], 10.0, 400.0))
+function blockedarea(a, b)
+  # Compute area that a blocks in b
+  # if a is farther away, it cannot block it.
+  if (a.d >= b.d)
+    return 0
   end
-  camera = Camera(uniform(ω[@id], 0.0, 1.0),
-                  uniform(ω[@id], 0.0, 1.0),
-                  640.0,
-                  480.0)
-  Scene(objects, camera)
+  # Otherwise compute intersecting rectangle.
+  interwidth = minimum([a.x + a.Δx, b.x + b.Δx]) - maximum([a.x, b.x])
+  interheight = minimum([a.y, b.y]) - maximum([a.y + a.Δy, b.y + b.Δy])
+  interarea = interwidth * interheight
+  barea = b.Δx * b.Δy
+  return interarea/barea
+end
+
+function render(scene)
+  # Better rendering function that computes overlap, and
+  # returns probability proportional to percentage of overlap.
+  # But should be changed to be a learned thing.
+  blockmatrix = [blockedarea(a, b) for a in scene.objects, b in scene.objects]
+  print(blockmatrix)
+  objectids = Int[]
+  for objid = 1:length(scene.objects)
+    if rand() >= sum(blockmatrix[:, objid])
+      append!(objectids, objid)
+    end
+  end
+  objects = [scene.objects[id] for id in objectids]
+  return Scene(objects, scene.camera)
 end
 
 function accumprop(prop, video)
@@ -65,31 +89,44 @@ function accumprop(prop, video)
     push!(props, getfield(object, prop))
   end
   props
-end 
+end
+
+#nboxes = poisson(3) + 1
+#nboxes = poisson(1) + 3
+nboxes = 3
+#nboxes(ω)
 
 "Scene at frame t=0"
 function initscene(ω, data)
-  # objects = map(1:nboxes(ω)) do i
-    objects = map(1:3) do i
+  objects = map(1:nboxes) do i
     Object(normal(ω[@id][i], mean(accumprop(:x, data)), std(accumprop(:x, data))),
-           normal(ω[@id][i], mean(accumprop(:y, data)), std(accumprop(:y, data))),
-           normal(ω[@id][i], mean(accumprop(:Δx, data)), std(accumprop(:Δx, data))),
-           normal(ω[@id][i], mean(accumprop(:Δy, data)), std(accumprop(:Δy, data))))
+       normal(ω[@id][i], mean(accumprop(:y, data)), std(accumprop(:y, data))),
+       normal(ω[@id][i], mean(accumprop(:Δx, data)), std(accumprop(:Δx, data))),
+       normal(ω[@id][i], mean(accumprop(:Δy, data)), std(accumprop(:Δy, data))),
+       normal(ω[@id][i], 5.0, 0.5), # Speedies on x
+       normal(ω[@id][i], -3.0, 0.5), # velocity on y
+       uniform(ω[@id][i], [1.0, 2.0])) # Depth, encoded as distance from camera.
+       #normal(ω[@id][i], 0.0, 1.0),
+       #normal(ω[@id][i], 0.0, 1.0))
   end
   camera = Camera(normal(ω[@id], 0.0, 1.0),
                   normal(ω[@id], 0.0, 1.0),
                   640.0,
                   480.0)
+  @assert length(objects) == 3
   Scene(objects, camera)
 end
 
 
 "Shift an object by adding gaussian perturbation to x, y, Δx, Δy"
 function move(ω, object::Object)
-  Object(object.x + normal(ω[@id], 0.0, 2.0),
-         object.y + normal(ω[@id], 0.0, 2.0),
-         object.Δx + normal(ω[@id], 0.0, 2.0),
-         object.Δy + normal(ω[@id], 0.0, 2.0))
+  Object(object.x + object.vx,
+         object.y + object.vy,
+         object.Δx,
+         object.Δy,
+         object.vx,
+         object.vy,
+         object.d)
 end
 
 "Move entire all objects in scene"
@@ -98,16 +135,16 @@ function move(ω, scene::Scene)
 end
 
 "Simulate `nsteps`"
-function video_(ω, scene::Scene = initscene(ω), nsteps = 1000)
+function video_(ω, scene::Scene = initscene(ω), nsteps = 1000, f = identity)
   trajectories = Scene[]
   for i = 1:nsteps
     scene = move(ω[i], scene)
-    push!(trajectories, scene)
+    push!(trajectories, f(scene))
   end
   trajectories
 end
 
-video_(ω, data::Vector, nsteps = 1000) = video_(ω, initscene(ω, data), nsteps)
+video_(ω, data::Vector, nsteps = 1000, f = identity) = video_(ω, initscene(ω, data), nsteps, f)
 
 ## GP model
 ## ========
@@ -121,14 +158,17 @@ using PDMats
 "Gaussian Process Random Variable"
 function gp_(ω)
   trajectories = Scene[]
-  objects = map(1:nboxes(ω)) do i
+  objects = map(1:nboxes) do i
     x = mvnormal(ω[@id][i][1], zeros(t), Σ)
     y = mvnormal(ω[@id][i][2], zeros(t), Σ)
     # Δx = mvnormal(ω[@id][i][3], zeros(t), Σ)
     # Δy = mvnormal(ω[@id][i][4], zeros(t), Σ)
-    Δx = 30.0
-    Δy = 30.0
-    Object.(x, y, Δx, Δy)
+    Δx = 50.0
+    Δy = 50.0
+    # Whatever for now.
+    vx = 0
+    vy = 0
+    Object.(x, y, Δx, Δy, vx, vy)
     # @grab x
   end
   #@grab objects
@@ -139,7 +179,7 @@ end
 
 "Gaussian Process Prior"
 function testgpprior()
-  w = SimpleOmega{Int, Array}()
+  w = SimpleΩ{Int, Array}()
   gpvideo = iid(gp_)
   samples = gpvideo(w)
   viz(samples)
@@ -157,26 +197,29 @@ function Scene(df::AbstractDataFrame)
     y = row[:y]
     dy = row[Δyk]
     Δy = abs(dy - y)
-    Object(float(x), float(y), float(Δx), float(Δy))
+    ShallowObject(float(x), float(y), float(Δx), float(Δy))
   end
   camera = Camera(0.0, 0.0, 640.0, 480.0)
   Scene(objects, camera)
 end
 
 Δ(a::Real, b::Real) = sqrt((a - b)^2)
-Δ(a::Object, b::Object) =
+Δ(a::AbstractObject, b::AbstractObject) =
   mean([Δ(a.x, b.x), Δ(a.y, b.y), Δ(a.Δx, b.Δx), Δ(a.Δy, b.Δy)])
 Δ(a::Scene, b::Scene) = surjection(a.objects, b.objects)
 
-function Mu.softeq(a::Array{<:Scene,1}, b::Array{<:Scene})
+function Omega.softeq(a::Array{<:Scene,1}, b::Array{<:Scene})
   dists = Δ.(a, b)
   d = mean(dists)
-  e = log(1 - Mu.kse(d, 0.138))
-  Mu.LogSoftBool(e)
+  e = 1 - Omega.kse(d, 0.08)
+  eps = 1e-6
+  Omega.SoftBool(e + eps)
 end
 
 ## Visualization
 ## =============
+include("video.jl")
+
 "Four points (x, y) - corners of `box`"
 function corners(box)
   ((box.x, box.y),
@@ -218,20 +261,27 @@ end
 
 ## Run
 ## ===
+datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.csv")
+datapath = joinpath(datadir(), "spelke", "data", "Balls_3_Clean_Diverge", "Balls_3_Clean_Diverge_DetectedObjects.csv")
 
-function train()
+function train(n = 10000)
   # datapath = joinpath(datadir(), "spelke", "TwoBalls", "TwoBalls_DetectedObjects.csv")
   # datapath = joinpath(datadir(), "spelke", "data", "Balls_2_DivergenceA", "Balls_2_DivergenceA_DetectedObjects.csv")
-  datapath = joinpath(datadir(), "spelke", "data", "Balls_3_Clean", "Balls_3_Clean_DetectedObjects.csv")
+  datapath = joinpath(datadir(), "spelke", "data", "Balls_3_Clean_Diverge", "Balls_3_Clean_Diverge_DetectedObjects.csv")
 
   data = CSV.read(datapath)
   nframes = length(unique(data[:frame]))
   frames = groupby(data, :frame)
   realvideo = map(Scene, frames)
-  video = iid(ω -> video_(ω, realvideo, nframes))
+  video = iid(ω -> video_(ω, realvideo, nframes, render))
+  latentvideo = iid(ω -> video_(ω, realvideo, nframes))
   rand(video)
-  samples = rand(video, video == realvideo, HMC, n=200);
-  viz(samples[end])
+<<<<<<< HEAD
+  samples = rand(video, video == realvideo, SSMH, n=n);
+=======
+  samples = rand(latentvideo, video == realvideo, SSMH, n=1000);
+>>>>>>> rcd
+  evalposterior(samples, realvideo, false, true)
   samples
 end
 

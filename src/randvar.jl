@@ -34,17 +34,18 @@ apply(f, xs...) = f(xs...)
 "Infer T from function `f: w -> T`"
 function infer_elemtype(f, args...)
   argtypes = map(typeof, args)
-  rt = Base.return_types(f, (Mu.DirtyOmega,argtypes...))
+  rt = Base.return_types(f, (defaultomega(), argtypes...))
   @pre length(rt) == 1 "Could not infer unique return type"
   rt[1]
 end
 
+
 "Construct an i.i.d. of `X`"
 iid(f; T=infer_elemtype(f)) = RandVar{T}(f)
 
-"iid with arguments"
 # iid(f, args...; T=infer_elemtype(f, args...)) = RandVar{T}(ω -> f(ω, args...))
 
+"iid with arguments"
 iid(f, args...; T=infer_elemtype(f, args...)) = RandVar{T, true}(f, args)
 
 ## Printing

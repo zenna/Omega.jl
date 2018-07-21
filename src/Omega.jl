@@ -1,13 +1,19 @@
-__precompile__()
-"Minimal Probabilistic Programming Langauge"
-module Mu
+# __precompile__()
+"A Hihger-Order Probabilistic Programming Langauge"
+module Omega
 
 using Flux
 using Distributions
 using PDMats
 using ProgressMeter
 using Spec
-# using Lens
+import Random
+import Statistics
+using Random: AbstractRNG
+using ZenUtils
+using UnicodePlots
+using Cassette
+using Cassette: @overdub, @primitive, @context
 
 UTuple{T} = Tuple{Vararg{T, N}} where N
 
@@ -20,29 +26,30 @@ include("omega/proj.jl")          # Sample Space
 include("randvar.jl")             # Random Variables
 
 ## Different Types of Omega
-include("omega/nested.jl")        # Sample Space
+# include("omega/nested.jl")        # Sample Space
 include("omega/simple.jl")        # Sample Space
 include("omega/countvec.jl")      # Sample Space
-include("omega/dirtyomega.jl")    # Sample Space
+# include("omega/dirtyomega.jl")    # Sample Space
 include("omega/id.jl")            # Pairing functions for omega ids
 include("omega/diffomega.jl")     # Differentiable Omega
 
 include("randvarapply.jl")    # Random Variables
 
-# Var
-include("var.jl")
+# Higher Order Inferene
+include("higher/rcd.jl")       # Random Conditional Distribution
+include("higher/rid.jl")       # Random Interventional Distribution
 
-include("rcd.jl")       # Random Conditional Distribution
-include("array.jl")     # Array primitives
-include("lift.jl")      # Lifting functions to RandVar domain
+# Lifted random variable operatiosn
+include("lift/array.jl")     # Array primitives
+include("lift/lift.jl")      # Lifting functions to RandVar domain
+include("lift/pointwise.jl") # Lifting functions to RandVar domain (using Casette)
 
 # Inference
-include("algorithm.jl") # Algorithm abstract type
 include("soft.jl")      # Soft logic
 include("cond.jl")      # Conditional Random Variables
 
 # Inference Algorithms
-include("inference/common.jl")  # Common Inference Functions
+include("inference/common.jl")  # Algorithm abstract type, Common Inference Functions
 include("inference/callbacks.jl")  # Common Inference Functions
 include("inference/rand.jl")    # Sampling
 include("inference/rs.jl")      # Rejection Sampling
@@ -52,9 +59,6 @@ include("inference/hmc.jl")     # Hamiltonian Monte Carlo
 include("inference/hmcfast.jl") # Faster Hamiltonian Monte Carlo
 include("inference/sghmc.jl")   # Stochastic Gradient Hamiltonian Monte Carlo
 
-include("inference/cgan.jl")    # Conditional GAN inference
-include("inference/spen.jl")    # Structured Predicton Energy Networks
-
 # Causal Inference
 include("do.jl")        # Causal Reasoning
 
@@ -62,11 +66,13 @@ include("do.jl")        # Causal Reasoning
 include("gradient.jl")
 
 # Library
-include("distributions.jl")  # Primitive distributions
-include("statistics.jl")     # Mean, etc
+include("library/distributions.jl")  # Primitive distributions
+include("library/statistics.jl")     # Mean, etc
 
 # Neural Network Stuff
 include("flux.jl")
+
+include("wow.jl")
 
 export mean,
        prob,
@@ -83,21 +89,23 @@ export mean,
        kse,
 
        # Distributions
+       bernoulli,
+       boolbernoulli,
+       betarv,
+       β,
+       categorical,
+       dirichlet,
+       exponential,
        gammarv,
        Γ,
+       inversegamma,
+       kumaraswamy,
+       logistic,
+       poisson,
        normal,
        mvnormal,
        uniform,
-       inversegamma,
-       dirichlet,
-       betarv,
-       bernoulli,
        rademacher,
-       poisson,
-       logistic,
-       exponential,
-       kumaraswamy,
-       boolbernoulli,
 
        # Do
        intervene,
@@ -118,6 +126,20 @@ export mean,
        plotrv,
        default_cbs,
 
+       withkernel,
+
        # Gradient
-       gradient
+       gradient,
+
+       # Misc
+       ntranspose,
+
+       Outside,
+
+       # Divergences
+    #    KLdivergence,
+
+       MaybeRV,
+
+       Ω
 end

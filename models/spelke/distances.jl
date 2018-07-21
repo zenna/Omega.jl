@@ -18,7 +18,7 @@ function speedysurjection(s1, s2, Δ = Δ)
   # Compute all pairwise so its more efficient.
   dm = [Δ(i,j) for i in dom, j in rng]
   #println(dm)
-  # Build function that minimizes everything.
+  # Be greedy: build best function.
   myfunction = [findmin(dm[t,:]) for t = 1:size(dm,1)]
   effectiverange = unique(map(tpl -> tpl[2], myfunction))
   issurjective = length(effectiverange) == length(rng)
@@ -67,18 +67,18 @@ function surjection(s1, s2, Δ = Δ)
     dom = s1
     rng = s2
   end
-
+  # Compute all pairwise so its more efficient.
+  dm = [Δ(i,j) for i in dom, j in rng]
   # Cycle through all surjections
-  distance = NaN
+  distance = Inf
   Surj = ones(length(dom))
   continue_ = true
-
   while continue_
     # Step 1: check if function is a surjection
     if length(unique(Surj)) == length(rng)
       # Step 2: compute distance and replace if necessary
-      surjdist = sum([Δ(dom[x],rng[floor(Int,Surj[x])]) for x in range(1,length(dom))])
-      if (surjdist < distance) | isnan(distance)
+      surjdist = sum([dm[x,floor(Int,Surj[x])] for x in 1:length(dom)])
+      if (surjdist < distance)
         distance = surjdist
       end
     end
