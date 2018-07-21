@@ -13,10 +13,21 @@ Minimal but flexible probabilistic programming language
 
 # Quick start
 
-First import Omega:
+## Install
+
+Omega is built in Julia 0.7 but not yet in the official Julia Package repository.  You can still easily install it from a Julia repl with:
 
 ```julia
-using Omega
+(v0.7) pkg> add https://github.com/zenna/Omega.jl.git
+```
+
+Check Omega is working and gives reasonable results with: 
+
+```julia
+julia> using Omega
+
+julia> rand(normal(0.0, 1.0))
+0.7625637212030862
 ```
 
 ## Basic Tutorial
