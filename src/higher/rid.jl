@@ -4,6 +4,10 @@ struct RID{T, Trest, RV1 <: RandVar{T, Trest}, RV2 <: RandVar, OM <: Ω} <: Abst
   ω::OM
 end
 
+# function distribution(x::RID)
+#   # TODO
+# end
+
 (rv::RID)(ω::Ω) = change(rv.θ, rv.θ(rv.ω), rv.x)(ω)
 
 "Random interentional distribution `x ∥ change(θ)`"

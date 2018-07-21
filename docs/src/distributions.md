@@ -10,7 +10,7 @@ boolbernoulli
 betarv
 β
 categorical
-dirichlet
+constant
 exponential
 gammarv
 Γ
@@ -28,4 +28,5 @@ rademacher
 
 ```@docs
 mvnormal
+dirichlet
 ```
