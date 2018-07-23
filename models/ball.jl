@@ -11,7 +11,7 @@ function y_(ω)
   [Omega.categorical(ω[@id][i], weights(ω[@id][i])) for i = 1:n_obs]
 end
 
-y = iid(y_, Vector{Float64})
+y = ciid(y_, Vector{Float64})
 
 function ccount(samples, k)
   counts = zeros(k)

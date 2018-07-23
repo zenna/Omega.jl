@@ -46,10 +46,10 @@ function model(nsteps, h1_size=10, h2_size=30)
   end
 
   # Create one network per person
-  fs = [iid(F_, i) for i = 1:npatients]
+  fs = [ciid(F_, i) for i = 1:npatients]
 
   # Create one simulation RandVar for each patient
-  sims = [iid(rnn_, f, nsteps, h1_size) for f in fs]
+  sims = [ciid(rnn_, f, nsteps, h1_size) for f in fs]
 
   # Take average over time
   meansims = mean.(sims)

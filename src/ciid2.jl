@@ -78,7 +78,7 @@ function infer_elemtype(f)
 end
 
 "Construct an i.i.d. of `X`"
-iid(f, T=infer_elemtype(f)) = RandVar{T}(f)
+ciid(f, T=infer_elemtype(f)) = RandVar{T}(f)
 
 ## Printing
 ## ========

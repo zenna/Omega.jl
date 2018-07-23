@@ -10,7 +10,7 @@ function coin_(ω)
   bernoulli(ω[@id], modified_weight)
 end
 
-coin = iid(coin_, Float64)
+coin = ciid(coin_, Float64)
 
 coinrcd1 = rcd(coin, fair_coin)
 means1 = mean(coinrcd1)

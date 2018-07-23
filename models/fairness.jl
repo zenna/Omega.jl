@@ -77,22 +77,22 @@ isrich(ω) = F(ω, popModel(ω)[1], popModel(ω)[2], popModel(ω)[3], popModel(�
 gender(ω) = popModel(ω)[1]
 age(ω) = popModel(ω)[2]
 
-isrich_var = iid(isrich, T = Bool)
-gender_var = iid(gender, T = Float64)
-age_var = iid(age, T = Float64)
+isrich_var = ciid(isrich, T = Bool)
+gender_var = ciid(gender, T = Float64)
+age_var = ciid(age, T = Float64)
 
 # Three versions of fairness
 
 "Demographic fairness property
 m_isrich and f_isrich by construction version"
 function groupfair(nsamplesmean = 10000, thresh = 0.85)
-    m_attrs = iid(maleModel)
-    f_attrs = iid(femaleModel)
+    m_attrs = ciid(maleModel)
+    f_attrs = ciid(femaleModel)
     m_isrich_(ω) = F(ω, m_attrs(ω)...)
     f_isrich_(ω) = F(ω, f_attrs(ω)...)
     
-    m_isrich = iid(m_isrich_; T = Bool)
-    f_isrich = iid(f_isrich_; T = Bool) # FIX
+    m_isrich = ciid(m_isrich_; T = Bool)
+    f_isrich = ciid(f_isrich_; T = Bool) # FIX
     ratio = prob(f_isrich ∥ (W, b, δ), nsamplesmean) / prob(m_isrich ∥ (W, b, δ), nsamplesmean)
     fairness = ratio > thresh
 end
@@ -100,16 +100,16 @@ end
 "Version 2, second fastest, the fairness property is the strong version (equal opportunity).
 The conditions are party by construction"
 function equalopportunity1(nsamplesmean = 10000, thresh = 0.85)
-    m_attrs = iid(maleModel)
-    f_attrs = iid(femaleModel)
+    m_attrs = ciid(maleModel)
+    f_attrs = ciid(femaleModel)
     m_isrich_(ω) = F(ω, m_attrs(ω)...)
     f_isrich_(ω) = F(ω, f_attrs(ω)...)
 
     m_agevar = m_attrs[2]
     f_agevar = f_attrs[2]
     
-    m_isrich = iid(m_isrich_; T = Bool)
-    f_isrich = iid(f_isrich_; T = Bool) # FIX
+    m_isrich = ciid(m_isrich_; T = Bool)
+    f_isrich = ciid(f_isrich_; T = Bool) # FIX
     ratio = prob(f_isrich ∥ (W, b, δ), nsamplesmean) / prob(m_isrich ∥ (W, b, δ), nsamplesmean)
     fairness = (ratio > thresh) & (m_agevar > 18) & (f_agevar > 18)
 end

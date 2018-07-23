@@ -8,5 +8,5 @@ function components(ω)
   vcat(a, b)
 end
 
-c = iid(components, Vector{Float64})
+c = ciid(components, Vector{Float64})
 rand(c, sum(c) == 1.0)

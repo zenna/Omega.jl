@@ -89,7 +89,7 @@ export mean,
        @lift,
        lift,
        @id,
-       iid,
+       ciid,
        kse,
 
        # Distributions

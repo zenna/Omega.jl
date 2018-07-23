@@ -157,14 +157,14 @@ end
 expanddims(x) = reshape(x, size(x)..., 1)
 
 function main()
-  scene = iid(scene_)     # Random Variable of scenes
+  scene = ciid(scene_)     # Random Variable of scenes
   img = render(scene)     # Random Variable over images
   # samples = rand(scene, nointersect(scene) & (img == img_obs), HMCFAST)
   samples = rand(scene, isequidistant(scene), HMC, n=10000)
 end
 
 function main2()
-  scene = iid(scene_)     # Random Variable of scenes
+  scene = ciid(scene_)     # Random Variable of scenes
   img = render(scene)     # Random Variable over images
   samples = rand(scene, nointersect(scene) & (img == img_obs), SSMH)
 end

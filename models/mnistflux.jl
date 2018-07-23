@@ -23,7 +23,7 @@ function net(ω)
     softmax)
 end
 
-m = iid(net)
+m = ciid(net)
 fx = m(X);
 ob = Omega.randbool(crossentropy, fx, Y)
 

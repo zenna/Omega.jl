@@ -30,9 +30,9 @@ function wrap_(rng, weight = 0.5)
   expr = randexpr_(rng, weight)
   :(x -> $(expr))
 end 
-randexpr = iid(randexpr_)
+randexpr = ciid(randexpr_)
 evalexpr_(rng) = eval(randexpr(rng))
-evalexpr = iid(evalexpr_)
+evalexpr = ciid(evalexpr_)
 
 exprs = rand(randexpr, evalexpr == 5.0;
              ΩT = Omega.SimpleΩ{Omega.Paired, Omega.ValueTuple})
@@ -43,9 +43,9 @@ fx(rng) = map(x -> Base.invokelatest(eval(wrap_(rng)), x), xs)
 data = sin.(0.00001:1.0:10.0)
 
 function run()
-  randexpr = iid(randexpr_)
+  randexpr = ciid(randexpr_)
   evalexpr_(rng) = eval(randexpr(rng))
-  evalexpr = iid(fx, T=Vector{Float64})
+  evalexpr = ciid(fx, T=Vector{Float64})
 
   exprs = rand(randexpr, evalexpr == sin.(xs);
               ΩT = Omega.SimpleΩ{Omega.Paired, Omega.ValueTuple})

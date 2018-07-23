@@ -95,7 +95,7 @@ function infer(φ)
   nframes = length(unique(data[:frame]))
   frames = groupby(data, :frame)
   realvideo = map(Scene, frames)
-  video = iid(ω -> video_(ω, realvideo, nframes))
+  video = ciid(ω -> video_(ω, realvideo, nframes))
   rand(video)
 
   ## Tensorboard

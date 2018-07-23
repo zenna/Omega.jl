@@ -14,7 +14,7 @@ function coin_(ω)
   Bool(bernoulli(ω, weight))
 end
 
-coin = iid(coin_)
+coin = ciid(coin_)
 coinrcd = coin ∥ (faircoin, headsbiased)
 probdist = prob(coinrcd, 100000)
 nsamples = 100

@@ -87,10 +87,10 @@ function rand_gaussian_mixture(weights, means, covars)
 end
 
 m_pop_ = rand_gaussian_mixture(m_weights, m_means, m_covars)
-m_pop = iid(m_pop_)
+m_pop = ciid(m_pop_)
 
 f_pop_ = rand_gaussian_mixture(f_weights, f_means, f_covars)
-f_pop = iid(f_pop_)
+f_pop = ciid(f_pop_)
 
 # define the classifier
 W = randarray([normal(0.0, 1.0) for i = 1:num_features])
@@ -115,10 +115,10 @@ end
 m_isrich_(ω) = linear_model(ω, m_pop_, W, b)
 f_isrich_(ω) = linear_model(ω, f_pop_, W, b)
 
-m_isrich = iid(m_isrich_; T = Bool)
-f_isrich = iid(f_isrich_; T = Bool)
+m_isrich = ciid(m_isrich_; T = Bool)
+f_isrich = ciid(f_isrich_; T = Bool)
 
-isrich2(data) = iid(linear_model2, data, W, b)
+isrich2(data) = ciid(linear_model2, data, W, b)
 
 train_data_Y_bin = [train_data_Y[2,i] > train_data_Y[1,i] for i = 1 : size(train_data_Y)[2]]
 

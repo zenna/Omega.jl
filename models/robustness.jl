@@ -196,14 +196,14 @@ function infer_robust(n=10, rjct_samp = false)
     perturb_input(ω) = normal_input(ω) .+ δ(ω)
     perturb_output(ω) = F(ω, perturb_input(ω)..., params)
 
-    output_ = iid(output)
-    perturb_output_ = iid(perturb_output)
+    output_ = ciid(output)
+    perturb_output_ = ciid(perturb_output)
 
     # TODO: conditioning on KL draw samples of the parameters
 
     # Alternative: pointwise:
     class_same(ω) = (output(ω) == perturb_output(ω))
-    class_same_ = iid(class_same; T= Bool)
+    class_same_ = ciid(class_same; T= Bool)
     stability = prob(class_same_∥ params) > 0.99 # 99% points robust
 
     if !rjct_samp
@@ -215,7 +215,7 @@ end
 function test_robustness(params)
     #draw 100 samples
     robust_count = 0
-    pop = iid(popModel)
+    pop = ciid(popModel)
     for i = 1:1000
         input = rand(pop)
         n_input = normalize(input...)

@@ -180,7 +180,7 @@ end
 "Gaussian Process Prior"
 function testgpprior()
   w = SimpleΩ{Int, Array}()
-  gpvideo = iid(gp_)
+  gpvideo = ciid(gp_)
   samples = gpvideo(w)
   viz(samples)
 end
@@ -273,8 +273,8 @@ function train(n = 10000)
   nframes = length(unique(data[:frame]))
   frames = groupby(data, :frame)
   realvideo = map(Scene, frames)
-  video = iid(ω -> video_(ω, realvideo, nframes, render))
-  latentvideo = iid(ω -> video_(ω, realvideo, nframes))
+  video = ciid(ω -> video_(ω, realvideo, nframes, render))
+  latentvideo = ciid(ω -> video_(ω, realvideo, nframes))
   rand(video)
 <<<<<<< HEAD
   samples = rand(video, video == realvideo, SSMH, n=n);

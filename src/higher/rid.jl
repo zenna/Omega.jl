@@ -11,4 +11,4 @@ end
 (rv::RID)(ω::Ω) = change(rv.θ, rv.θ(rv.ω), rv.x)(ω)
 
 "Random interentional distribution `x ∥ change(θ)`"
-rid(x, θ) = iid(ω -> RID(x, θ, ω))
+rid(x, θ) = ciid(ω -> RID(x, θ, ω))
