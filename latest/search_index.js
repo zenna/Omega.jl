@@ -69,7 +69,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Basic Tutorial",
     "title": "Basic Tutorial",
     "category": "section",
-    "text": "In this tutorial we will run through the basics of creating a model and conditioning it.First let\'s load Omega:using OmegaNext, create a beta-bernoulli distribution. This means, our prior belief about the weight of the coin is beta distributed. A beta distribution is useful because it is continuous and bounded between 0 and 1. weight = betarv(2.0, 2.0)Draw a 10000 samples from weight using randbeta_samples = rand(weight, 10000)Let\'s see what this distribution looks like using UnicodePlots.  If you don\'t hae it installed alreay install with:(v0.7) pkg> add UnicodePlotsTo visualize the distribution, plot a histogram of the samples.julia> UnicodePlots.histogram(beta_samples)             ┌────────────────────────────────────────┐ \n   (0.0,0.1] │▇▇▇▇▇▇ 279                              │ \n   (0.1,0.2] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 727                   │ \n   (0.2,0.3] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1218       │ \n   (0.3,0.4] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1354    │ \n   (0.4,0.5] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1482 │ \n   (0.5,0.6] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1426  │ \n   (0.6,0.7] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1406   │ \n   (0.7,0.8] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1124         │ \n   (0.8,0.9] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 702                    │ \n   (0.9,1.0] │▇▇▇▇▇▇ 282                              │ \n             └────────────────────────────────────────┘The distribution is symmetric around 0.5 but there is nonzero probability that the weight could be anything between 0 and 1.So far we have not done anything we couldn\'t do with Distributions.jl.We will create a model representing four flips of the coin. Since a coin can be heads or tales, the appropriate distribution is the bernouli distribution:nflips = 4\ncoinflips_ = [bernoulli(weight) for i = 1:nflips]Take note that the weight is the random variable defined previously.coinflips is a normal Julia array of Random Variables (RandVars). For reasons we will elaborate in later sections, it will be useful to have an Array-valued RandVar (instead of an Array of RandVar).One way to do this (there are several ways discuseed later), is to use the function randarraycoinflips = randarray(coinflips)coinflips is a RandVar and hence we can sample from it with randjulia> rand(coinflips)\n4-element Array{Float64,1}:\n 0.0\n 0.0\n 0.0\n 0.0\n\njulia> rand(coinflips)\n4-element Array{Float64,1}:\n 0.0\n 1.0\n 0.0\n 0.0\n\njulia> rand(coinflips)\n4-element Array{Float64,1}:\n 1.0\n 1.0\n 1.0\n 1.0Now we can condition the model. We want to find the conditional distribution over the weight of the coin given some observations.First we create some fake data, and then use rand to draw conditional samples:observations = [true, true, true, false]\nweight_samples = rand(weight, coinflips == observations, RejectionSample)In this case, rand takesA random variable we want to sample from\nA predicate (type RandVar{Bool}) that we want to condition on, i.e. assert that it is true\nAn inference algorithm.  Here we use rejction samplingPlot a histogram of the weights like before:julia> UnicodePlots.histogram(weight_samples)\n             ┌────────────────────────────────────────┐ \n   (0.1,0.2] │▇ 4                                     │ \n   (0.2,0.3] │▇▇▇ 22                                  │ \n   (0.3,0.4] │▇▇▇▇▇▇▇▇▇▇▇ 69                          │ \n   (0.4,0.5] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 147             │ \n   (0.5,0.6] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 185       │ \n   (0.6,0.7] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 226 │ \n   (0.7,0.8] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 203     │ \n   (0.8,0.9] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 120                 │ \n   (0.9,1.0] │▇▇▇▇ 23                                 │ \n             └────────────────────────────────────────┘ \nObserve that our belief about the weight has now changed. We are more convinced the coin is biased towards heads (true) <!–  TODO: Describe Coin Model In English TODO: Show Corresponding Omega progromamDemonstrate unconditional sampling with rand\nDemonstrate pointwise application\nDemonstrate Random Arrays –>"
+    "text": "In this tutorial we will run through the basics of creating a model and conditioning it.First let\'s load Omega:using OmegaNext, create a beta-bernoulli distribution. This means, our prior belief about the weight of the coin is beta distributed. A beta distribution is useful because it is continuous and bounded between 0 and 1. weight = betarv(2.0, 2.0)Draw a 10000 samples from weight using randbeta_samples = rand(weight, 10000)Let\'s see what this distribution looks like using UnicodePlots.  If you don\'t hae it installed alreay install with:(v0.7) pkg> add UnicodePlotsTo visualize the distribution, plot a histogram of the samples.julia> UnicodePlots.histogram(beta_samples)             ┌────────────────────────────────────────┐ \n   (0.0,0.1] │▇▇▇▇▇▇ 279                              │ \n   (0.1,0.2] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 727                   │ \n   (0.2,0.3] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1218       │ \n   (0.3,0.4] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1354    │ \n   (0.4,0.5] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1482 │ \n   (0.5,0.6] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1426  │ \n   (0.6,0.7] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1406   │ \n   (0.7,0.8] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1124         │ \n   (0.8,0.9] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 702                    │ \n   (0.9,1.0] │▇▇▇▇▇▇ 282                              │ \n             └────────────────────────────────────────┘The distribution is symmetric around 0.5 but there is nonzero probability that the weight could be anything between 0 and 1.So far we have not done anything we couldn\'t do with Distributions.jl.We will create a model representing four flips of the coin. Since a coin can be heads or tales, the appropriate distribution is the bernouli distribution:nflips = 4\ncoinflips_ = [bernoulli(weight) for i = 1:nflips]Take note that the weight is the random variable defined previously.coinflips is a normal Julia array of Random Variables (RandVars). For reasons we will elaborate in later sections, it will be useful to have an Array-valued RandVar (instead of an Array of RandVar).One way to do this (there are several ways discuseed later), is to use the function randarraycoinflips = randarray(coinflips)coinflips is a RandVar and hence we can sample from it with randjulia> rand(coinflips)\n4-element Array{Float64,1}:\n 0.0\n 0.0\n 0.0\n 0.0\n\njulia> rand(coinflips)\n4-element Array{Float64,1}:\n 0.0\n 1.0\n 0.0\n 0.0\n\njulia> rand(coinflips)\n4-element Array{Float64,1}:\n 1.0\n 1.0\n 1.0\n 1.0Now we can condition the model. We want to find the conditional distribution over the weight of the coin given some observations.First we create some fake data, and then use rand to draw conditional samples:observations = [true, true, true, false]\nweight_samples = rand(weight, coinflips == observations, RejectionSample)In this case, rand takesA random variable we want to sample from\nA predicate (type RandVar{Bool}) that we want to condition on, i.e. assert that it is true\nAn inference algorithm.  Here we use rejction samplingPlot a histogram of the weights like before:julia> UnicodePlots.histogram(weight_samples)\n             ┌────────────────────────────────────────┐ \n   (0.1,0.2] │▇ 4                                     │ \n   (0.2,0.3] │▇▇▇ 22                                  │ \n   (0.3,0.4] │▇▇▇▇▇▇▇▇▇▇▇ 69                          │ \n   (0.4,0.5] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 147             │ \n   (0.5,0.6] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 185       │ \n   (0.6,0.7] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 226 │ \n   (0.7,0.8] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 203     │ \n   (0.8,0.9] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 120                 │ \n   (0.9,1.0] │▇▇▇▇ 23                                 │ \n             └────────────────────────────────────────┘ \nObserve that our belief about the weight has now changed. We are more convinced the coin is biased towards heads (true)"
 },
 
 {
@@ -102,6 +102,78 @@ var documenterSearchIndex = {"docs": [
     "title": "Inference",
     "category": "section",
     "text": "Omega have several inference algorithms built in, and provides the mechanism to build your own."
+},
+
+{
+    "location": "inference.html#Describe-cond-1",
+    "page": "Inference",
+    "title": "Describe cond",
+    "category": "section",
+    "text": ""
+},
+
+{
+    "location": "inference.html#Describe-Rand-1",
+    "page": "Inference",
+    "title": "Describe Rand",
+    "category": "section",
+    "text": ""
+},
+
+{
+    "location": "inference.html#Describe-distributional-functions-1",
+    "page": "Inference",
+    "title": "Describe distributional functions",
+    "category": "section",
+    "text": ""
+},
+
+{
+    "location": "soft.html#",
+    "page": "Soft Execution",
+    "title": "Soft Execution",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "soft.html#Soft-Execution-1",
+    "page": "Soft Execution",
+    "title": "Soft Execution",
+    "category": "section",
+    "text": "In Omega you condition on predicates. A predicate is any function whose domain is the Boolean. These are sometimes called indicator functions, or characteristic functions. In particular, in Omega we condition on Bool valued random variables:x = normal(0.0, 1.0)\ny = x == 1.0\nrand(y)From this perspective, conditioning means to solve a constraint. It can be difficult to solve these constraints exactly, and so Omega can soften constraints to make inference more tractable.There are two ways to make soft constraints.  The first way is explicitly:julia> x = normal(0.0, 1.0)\njulia> y = x ≊ 1.0\njulia> rand(y)\nϵ:-47439.72956833765These soft kernels have the formMATH HEREwithkernelOmega has a number of built-in kernels:kse"
+},
+
+{
+    "location": "soft.html#Soft-Function-Application-1",
+    "page": "Soft Execution",
+    "title": "Soft Function Application",
+    "category": "section",
+    "text": "There are a couple of drawbacks from explicitly using soft constraints in the model:We have changed the model for what is a problem of inference\nOften we may be using pre-existing code and not be able to easily replace all the constraints with soft constraintsOmega has an experimental feature which automatically does soft execution of a normal predicate.  Soft application relies on ejulia> g(x::Real)::Bool = x > 0.5\njulia> softapply(g, 0.3)\nϵ:-2000.0This feature is experimental because Cassette is waiting on a number of compiler optimizations to make this efficient."
+},
+
+{
+    "location": "inferencealgorithms.html#",
+    "page": "Inference",
+    "title": "Inference",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "inferencealgorithms.html#Built-in-Inference-Algorithms-1",
+    "page": "Inference",
+    "title": "Built-in Inference Algorithms",
+    "category": "section",
+    "text": "Omega comes with a number of built in inference algorithms. You can of course develop your own"
+},
+
+{
+    "location": "inferencealgorithms.html#Conditional-Sampling-1",
+    "page": "Inference",
+    "title": "Conditional Sampling",
+    "category": "section",
+    "text": "Conditional sampling is done with rand and the algorithm are selected RejectionSample\nMI\nSSMH\nHMC\nSGHMC\nHMCFAST"
 },
 
 {
@@ -181,143 +253,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Built-in Distributions",
     "title": "Built In Distributions",
     "category": "section",
-    "text": "Omega comes with a number of built in probability distributions."
-},
-
-{
-    "location": "distributions.html#Omega.bernoulli",
-    "page": "Built-in Distributions",
-    "title": "Omega.bernoulli",
-    "category": "function",
-    "text": "Bernoulli with weight p\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.boolbernoulli",
-    "page": "Built-in Distributions",
-    "title": "Omega.boolbernoulli",
-    "category": "function",
-    "text": "Bool - valued Bernoulli distribution (as opposed to Float64 valued)\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.betarv",
-    "page": "Built-in Distributions",
-    "title": "Omega.betarv",
-    "category": "function",
-    "text": "Beta distribution parameters α  and β\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.β",
-    "page": "Built-in Distributions",
-    "title": "Omega.β",
-    "category": "function",
-    "text": "Beta distribution parameters α  and β\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.categorical",
-    "page": "Built-in Distributions",
-    "title": "Omega.categorical",
-    "category": "function",
-    "text": "Categorical distribution with probability weight vector p\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.dirichlet",
-    "page": "Built-in Distributions",
-    "title": "Omega.dirichlet",
-    "category": "function",
-    "text": "Dirichlet distribution\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.exponential",
-    "page": "Built-in Distributions",
-    "title": "Omega.exponential",
-    "category": "function",
-    "text": "Exponential Distribution with λ\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.gammarv",
-    "page": "Built-in Distributions",
-    "title": "Omega.gammarv",
-    "category": "function",
-    "text": "Gamma distribution\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.Γ",
-    "page": "Built-in Distributions",
-    "title": "Omega.Γ",
-    "category": "function",
-    "text": "Gamma distribution\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.inversegamma",
-    "page": "Built-in Distributions",
-    "title": "Omega.inversegamma",
-    "category": "function",
-    "text": "Inverse Gamma distribution\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.kumaraswamy",
-    "page": "Built-in Distributions",
-    "title": "Omega.kumaraswamy",
-    "category": "function",
-    "text": "Kumaraswamy distribution, similar to beta but easier\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.logistic",
-    "page": "Built-in Distributions",
-    "title": "Omega.logistic",
-    "category": "function",
-    "text": "Logistic Distribution\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.poisson",
-    "page": "Built-in Distributions",
-    "title": "Omega.poisson",
-    "category": "function",
-    "text": "Poisson distribution with rate parameter λ\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.normal",
-    "page": "Built-in Distributions",
-    "title": "Omega.normal",
-    "category": "function",
-    "text": "Normal Distribution with mean μ and variance σ\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.mvnormal",
-    "page": "Built-in Distributions",
-    "title": "Omega.mvnormal",
-    "category": "function",
-    "text": "Multivariate Normal Distribution with mean vector μ and covariance Σ\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.uniform",
-    "page": "Built-in Distributions",
-    "title": "Omega.uniform",
-    "category": "function",
-    "text": "Uniform distribution with lower bound a and upper bound b\n\n\n\n\n\nUniform sample from vector\n\n\n\n\n\nDiscrete uniform distribution with range range\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.rademacher",
-    "page": "Built-in Distributions",
-    "title": "Omega.rademacher",
-    "category": "function",
-    "text": "Rademacher distribution\n\n\n\n\n\n"
+    "text": "Omega comes with a number of built-in probability distributions."
 },
 
 {
@@ -325,7 +261,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Built-in Distributions",
     "title": "Univariate Distributions",
     "category": "section",
-    "text": "bernoulli\nboolbernoulli\nbetarv\nβ\ncategorical\ndirichlet\nexponential\ngammarv\nΓ\ninversegamma\nkumaraswamy\nlogistic\npoisson\nnormal\nmvnormal\nuniform\nrademacher"
+    "text": "bernoulli\nboolbernoulli\nbetarv\nβ\ncategorical\nconstant\nexponential\ngammarv\nΓ\ninversegamma\nkumaraswamy\nlogistic\npoisson\nnormal\nmvnormal\nuniform\nrademacher"
 },
 
 {
@@ -333,7 +269,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Built-in Distributions",
     "title": "Multivariate Distributions",
     "category": "section",
-    "text": "mvnormal"
+    "text": "mvnormal\ndirichlet"
 },
 
 {
