@@ -12,6 +12,9 @@ bernoulli(p::MaybeRV{T}, ωid::Id = ωnew()) where T <: AbstractFloat = RandVar{
 "Bool - valued Bernoulli distribution (as opposed to Float64 valued)"
 boolbernoulli(args...) = RandVar{SoftBool, false}(SoftBool, (bernoulli(args...),))
 
+"Constant Random Variable"
+constant(x::T, ωid::Id = ωnew()) where T = RandVar{T, true}(ω -> x, (), ωid)
+
 "Gamma distribution"
 gammarv(ω::Ω, α::AbstractFloat, θ::AbstractFloat) = quantile(Gamma(α, θ), rand(ω))
 gammarv(α::MaybeRV{T}, θ::MaybeRV{T}, ωid::Id = ωnew()) where T <: Real =

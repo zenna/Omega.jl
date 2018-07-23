@@ -1,6 +1,8 @@
 "Stochastic Gradient Hamiltonian Monte Carlo Sampling"
 abstract type SGHMC <: Algorithm end
 
+isapproximate(::Type{<:Algorithm}) = true
+
 defaultomega(::Type{SGHMC}) = Omega.SimpleΩ{Int, Float64}
 
 "Stochastic Gradient Hamiltonian Monte Carlo with Langevin Dynamics Friction: https://arxiv.org/pdf/1402.4102.pdf"

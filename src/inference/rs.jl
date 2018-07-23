@@ -1,6 +1,8 @@
 "Rejection Sampling"
 abstract type RejectionSample <: Algorithm end
 
+isapproximate(::Type{RejectionSample}) = false
+
 "Sample from `x | y == true` with rejection sampling"
 function Base.rand(ΩT::Type{OT}, y::RandVar, alg::Type{RejectionSample};
                    n = 100,
@@ -11,7 +13,7 @@ function Base.rand(ΩT::Type{OT}, y::RandVar, alg::Type{RejectionSample};
   i = 1
   while accepted < n
     ω = ΩT()
-    if epsilon(y(ω)) == 1.0
+    if Bool(y(ω))
       push!(samples, ω)
       accepted += 1
       cb(RunData(ω, accepted, 0.0, accepted), Outside)

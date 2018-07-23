@@ -8,7 +8,6 @@ function Base.rand(x::Union{RandVar, UTuple{RandVar}}, n::Int; ΩT::Type{T} = de
   [x(ΩT()) for i = 1:n]
 end
 
-
 # const DefaultΩ = Omega.SimpleΩ{Omega.Paired, Omega.Float64}
 const DefaultΩ = Omega.SimpleΩ{Omega.Paired, Omega.ValueTuple}
 defaultomega() = DefaultΩ

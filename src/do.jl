@@ -2,13 +2,9 @@
 @context ChangeCtx
 
 @primitive function (x::RandVar)(ω::Ω) where {__CONTEXT__ <: ChangeCtx}
-  println("Overdubbed")
-  @show x.id
   rv = if x.id in keys(__context__.metadata)
-    @show "false"
     __context__.metadata[x.id]
   else
-    @show true
     x
   end
   args = Cassette.overdub(ChangeCtx(metadata = __context__.metadata), map, a->apl(a, ω), rv.args)
@@ -21,44 +17,8 @@ function change(θold::RandVar, θnew::RandVar, x::RandVar{T}) where T
   RandVar{T}(f)
 end
 
-function test()
-  Θ = normal(0.0, 1.0)
-  x = normal(Θ, 1.0)
-  @show Θ.id
-  @show x.id
-  dox = change(Θ, normal(100.0, 1.0), x)
-  rand(dox)
-end
-
-# passdata = []
-# @context PassCtx
-# mypass = Cassette.@pass (ctx, sig, cinfo) -> (push!(passdata, (ctx = ctx, sig = sig, cinfo = cinfo)); cinfo)
-# Θ = normal(0.0, 1.0)
-# X = normal(Θ, 1.0)
-# Cassette.overdub(PassCtx(pass=mypass), rand, X)
-
-# Test nested
-# @context Ctx1
-
-# @prehook (f::Any)(args...) where {__CONTEXT__ <: Ctx1} = println("In Ctx1")
-
-# g(x) = @overdub(Ctx1(), sin(1))
-
-# @context Ctx2
-
-# @prehook (f::Any)(args...) where {__CONTEXT__ <: Ctx2} = println("In Ctx2")
-
-# @overdub(Ctx2(), g(3))
-
-# h(x) = g(x)
-
-# Q1 Can we differentiate X by type?
-# - No because randvars with same type maybe different rvs
-# - if we  added Id then maybe we could
-# I need to override the behaviour of X
-# If I could override the behaviour of thetaold(omega) from within X then
-# if i did it by type it would clash with anyhting of the same type, which is wrong
-# 
+"Change where `θconst` is not a randvar, but constant"
+change(θold, θconst, x) = change(θold, constant(θconst), x)
 
 
 """

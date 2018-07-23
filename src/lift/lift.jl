@@ -60,7 +60,13 @@ fnms = [:(Base.:-),
         :(Base.:|),
         :(Base.:sqrt),
         :(Base.:abs),
-        :(Base.getindex)]
+        :(Base.getindex),
+        :(Base.:(==)),
+        :(Base.:>),
+        :(Base.:>=),
+        :(Base.:<=),
+        :(Base.:<),
+        ]
 
 Base.:^(x1::Omega.AbstractRandVar{T}, x2::Integer) where T = RandVar{T, false}(^, (x1, x2))
 macro lift(fnm::Union{Symbol, Expr}, n::Integer)
@@ -79,24 +85,3 @@ const MAXN = 4
 for fnm in fnms, i = 1:MAXN
   lift(fnm, i)
 end
-
-## Custom Lifts
-## ============
-
-Base.:(==)(x::AbstractRandVar, y) = softeq(x, y)
-  # RandVar{Bool, false}(softeq, (x, y))
-
-Base.:(==)(x, y::AbstractRandVar) = softeq(x, y)
-  # RandVar{Bool, false}(softeq, (x, y))
-
-Base.:(==)(x::AbstractRandVar, y::AbstractRandVar) = softeq(x, y)
-  # RandVar{Bool, false}(softeq, (x, y))
-
-
-Base.:(>)(x::AbstractRandVar, y) = softgt(x, y)
-Base.:(>)(x, y::AbstractRandVar) = softgt(x, y)
-Base.:(>)(x::AbstractRandVar, y::AbstractRandVar) = softgt(x, y)
-
-Base.:(<)(x::AbstractRandVar, y) = softlt(x, y)
-Base.:(<)(x, y::AbstractRandVar) = softlt(x, y)
-Base.:(<)(x::AbstractRandVar, y::AbstractRandVar) = softgt(x, y)

@@ -1,6 +1,7 @@
 "Hamiltonian Monte Carlo Sampling"
 abstract type HMC <: Algorithm end
 
+isapproximate(::Type{HMC}) = true
 defaultomega(::Type{HMC}) = Omega.SimpleΩ{Int, Float64}
 
 

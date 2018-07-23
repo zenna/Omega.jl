@@ -133,9 +133,3 @@ julia> UnicodePlots.histogram(weight_samples)
 
 Observe that our belief about the weight has now changed.
 We are more convinced the coin is biased towards heads (`true`)
-<!-- 
-TODO: Describe Coin Model In English
-TODO: Show Corresponding Omega progromam
-- Demonstrate unconditional sampling with `rand`
-- Demonstrate pointwise application
-- Demonstrate Random Arrays -->

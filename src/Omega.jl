@@ -1,5 +1,5 @@
 # __precompile__()
-"A Hihger-Order Probabilistic Programming Langauge"
+"A Causal, Hihger-Order Probabilistic Programming Langauge"
 module Omega
 
 using Flux
@@ -45,7 +45,11 @@ include("lift/lift.jl")      # Lifting functions to RandVar domain
 include("lift/pointwise.jl") # Lifting functions to RandVar domain (using Casette)
 
 # Inference
-include("soft.jl")      # Soft logic
+include("soft/kernels.jl")       # Soft logic
+include("soft/soft.jl")          # Soft logic
+include("soft/softapply.jl")          # Soft Interpretation
+
+# Conditioning
 include("cond.jl")      # Conditional Random Variables
 
 # Inference Algorithms
@@ -72,8 +76,6 @@ include("library/statistics.jl")     # Mean, etc
 # Neural Network Stuff
 include("flux.jl")
 
-include("wow.jl")
-
 export mean,
        prob,
        rcd,
@@ -81,6 +83,7 @@ export mean,
        softeq,
        ≊,
        ⪆,
+       ⪅,
        randarray,
        @lift,
        lift,
@@ -109,6 +112,7 @@ export mean,
 
        # Do
        intervene,
+       change,
 
        # Algorithms
        RejectionSample,
@@ -119,14 +123,17 @@ export mean,
        HMCFAST,
 
        # Omegas
-       Omega,
-       SimpleOmega,
+       Ω,
+       SimpleΩ,
 
        throttle,
        plotrv,
        default_cbs,
 
        withkernel,
+
+       # Soft
+       softapply,
 
        # Gradient
        gradient,
@@ -136,10 +143,6 @@ export mean,
 
        Outside,
 
-       # Divergences
-    #    KLdivergence,
+       MaybeRV
 
-       MaybeRV,
-
-       Ω
 end

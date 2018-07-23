@@ -11,6 +11,8 @@ makedocs(
     "Basic Tutorial" => "basictutorial.md",
     "Modeling" => "model.md",
     "Inference"=>"inference.md",
+    "Soft Execution"=>"soft.md",
+    "Inference"=>"inferencealgorithms.md",
     "Conditioning" => "conditioning.md",
     "Higher Order Inference" => "higher.md",
     "Causal Inference" => "causal.md",

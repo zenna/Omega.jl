@@ -1,4 +1,6 @@
 using Flux
+
+"Dense network layer"
 function Flux.Dense(ω::Omega.Ω, in::Integer, out::Integer, σ = identity;
                     initW = (ω, dims) -> logistic(ω, 0.0, 0.1, dims),
                     initb = (ω, dims) -> logistic(ω, 0.0, 0.1, dims))

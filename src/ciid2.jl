@@ -3,7 +3,6 @@ abstract type AbstractRandVar{T} end  # FIXME : Rename to RandVar
 
 # Base.getindex(rng::AbstractRNG, ::Int64) = rng 
 
-
 "Random Variable `ω ↦ T`"
 struct RandVar{T, Prim, F, TPL, I} <: AbstractRandVar{T} # Rename to PrimRandVar or PrimRv
   f::F      # Function (generally Callable)

@@ -1,19 +1,14 @@
-
-# Random interventional distribution
-# UTuple{}
-# ConcreteRandVar = RandVar{T, Prim, F, TPL, I}
-
-struct RID{RV1 <: RandVar, RV2 <: RandVar, OM <: Ω}
+struct RID{T, Trest, RV1 <: RandVar{T, Trest}, RV2 <: RandVar, OM <: Ω} <: AbstractRandVar{T}
   x::RV1
   θ::RV2
   ω::OM
 end
 
-# function rid(x, θ)
-
+# function distribution(x::RID)
+#   # TODO
 # end
 
-# function change(θ)
-# end
+(rv::RID)(ω::Ω) = change(rv.θ, rv.θ(rv.ω), rv.x)(ω)
 
-# x ∥ change(θ)
+"Random interentional distribution `x ∥ change(θ)`"
+rid(x, θ) = iid(ω -> RID(x, θ, ω))
