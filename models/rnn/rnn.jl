@@ -6,7 +6,7 @@ using CSV
 using Plots
 gr()
 
-Omega.defaultomega() = SimpleΩ{Vector{Int}, Array}
+Omega.defΩ() = SimpleΩ{Vector{Int}, Array}
 
 δ = 0.1
 d(x, y) = (x - y)^2.0
@@ -58,10 +58,10 @@ end
 
 # function ok()
 #   ties = [d(meansims[i], meansims[j]) < δ for i = 1:npatients, j = 1:npatients if i != j]
-#   simulations = rand((sims...), (&)(ties...); ΩT = Omega.defaultomega())
+#   simulations = rand((sims...), (&)(ties...); ΩT = Omega.defΩ())
 
 #   d1, obvglucose = datacond2(data, sims[1], 3)
-#   simsω = rand(Omega.defaultomega, d1, HMC, n=1000000);
+#   simsω = rand(Omega.defΩ, d1, HMC, n=1000000);
 # end
 function traces(data, i, measure = 807)
   people = groupby(data, :Id)

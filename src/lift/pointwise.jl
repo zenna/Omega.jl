@@ -7,6 +7,9 @@ Cassette.@primitive (op::Any)(f::RandVar, g::RandVar) where {__CONTEXT__ <: PntC
 Cassette.@primitive tuple(f::RandVar) where {__CONTEXT__ <: PntCtx} =
   Omega.mkrv(tuple, (f,))
 
+Cassette.@primitive (op::Any)(x::RandVar) where {__CONTEXT__ <: PntCtx} =
+  Omega.mkrv(op, (x,))
+
 """Do `thunk` with pointwise style
 
 ```

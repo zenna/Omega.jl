@@ -3,7 +3,7 @@ abstract type SGHMC <: Algorithm end
 
 isapproximate(::Type{<:Algorithm}) = true
 
-defaultomega(::Type{SGHMC}) = Omega.SimpleΩ{Int, Float64}
+defΩ(::Type{SGHMC}) = Omega.SimpleΩ{Int, Float64}
 
 "Stochastic Gradient Hamiltonian Monte Carlo with Langevin Dynamics Friction: https://arxiv.org/pdf/1402.4102.pdf"
 function sghmc(ygen, nsteps, stepsize, current_q::AbstractVector, ω, state)

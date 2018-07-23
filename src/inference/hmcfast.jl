@@ -2,7 +2,7 @@
 abstract type HMCFAST <: Algorithm end
 
 isapproximate(::Type{HMCFAST}) = true
-defaultomega(::Type{HMCFAST}) = Omega.SimpleΩ{Int, Flux.TrackedArray}
+defΩ(::Type{HMCFAST}) = Omega.SimpleΩ{Int, Flux.TrackedArray}
 
 """Hamiltonian monte carlo with leapfrog integration:
 https://arxiv.org/pdf/1206.1901.pdf"""

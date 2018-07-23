@@ -52,7 +52,7 @@ function testcb(;ALG = HMC, n = 1000, kwargs...)
   rand(μ, y, ALG; n = n, cb = cb, kwargs...)
   qpdata = cbdata[2]
   plt = plot()
-  ucontours(y, x.id, μ.id, Omega.defaultomega(HMC)(), plt = plt)
+  ucontours(y, x.id, μ.id, Omega.defΩ(HMC)(), plt = plt)
   print(plottraces(qpdata, plt))
   qpdata, plt
 end
@@ -69,7 +69,7 @@ function testcb2(;kwargs...)
   rand(μ, y, HMC; n = n, cb = cb, kwargs...)
   qpdata = cbdata[2]
   plt = plot()
-  ucontours(y, x.id, μ.id, Omega.defaultomega(HMC)(), plt = plt)
+  ucontours(y, x.id, μ.id, Omega.defΩ(HMC)(), plt = plt)
   plottraces(qpdata, plt)
   qpdata, plt
 end

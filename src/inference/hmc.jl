@@ -2,7 +2,7 @@
 abstract type HMC <: Algorithm end
 
 isapproximate(::Type{HMC}) = true
-defaultomega(::Type{HMC}) = Omega.SimpleΩ{Int, Float64}
+defΩ(::Type{HMC}) = Omega.SimpleΩ{Int, Float64}
 
 
 "Hamiltonian monte carlo with leapfrog integration: https://arxiv.org/pdf/1206.1901.pdf"

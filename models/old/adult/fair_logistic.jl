@@ -7,7 +7,7 @@ using Omega
 # include("./read_data.jl")
 =======
 @sk_import mixture: GaussianMixture
-Omega.defaultomega() = Omega.SimpleΩ{Int, Array}
+Omega.defΩ() = Omega.SimpleΩ{Int, Array}
 
 include("./read_data.jl")
 σ(x) = one(x) / (one(x) + exp(-x))
