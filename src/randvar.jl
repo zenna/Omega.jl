@@ -5,8 +5,8 @@ abstract type AbstractRandVar{T} end  # FIXME : Rename to RandVar
 
 struct RandVar{T, Prim, F, TPL, I} <: AbstractRandVar{T} # Rename to PrimRandVar or PrimRv
   f::F      # Function (generally Callable)
-  args::TPL
-  id::I
+  args::TPL # Arguments
+  id::I     # Its id
 end
 
 function RandVar{T, Prim}(f::F, args::TPL, id::I) where {T, Prim, F, TPL, I}
@@ -14,7 +14,7 @@ function RandVar{T, Prim}(f::F, args::TPL, id::I) where {T, Prim, F, TPL, I}
 end
 
 function RandVar{T, Prim}(f::F, args::TPL) where {T, Prim, F, TPL}
-  RandVar{T, Prim, F, TPL, Int}(f, args, 0) # FIXME: HACK
+  RandVar{T, Prim, F, TPL, Int}(f, args, ωnew()) # FIXME: HACK
 end
 
 function RandVar{T}(f::F) where {T, F}

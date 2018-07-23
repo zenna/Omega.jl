@@ -65,10 +65,11 @@ struct SoftBool{ET <: Real}
 end
 @invariant 0 <= epsilon(b::SoftBool) <= 1
 
-
 epsilon(x::SoftBool) = x.logepsilon |> exp
 
 logepsilon(x::SoftBool) = x.logepsilon
+
+Base.convert(::Type{Bool}, x::SoftBool) = epsilon(x) == 1.0
 
 ## (In)Equalities
 ## ==============

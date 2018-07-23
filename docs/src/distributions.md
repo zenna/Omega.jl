@@ -1,6 +1,6 @@
 # Built In Distributions
 
-Omega comes with a number of built in probability distributions.
+Omega comes with a number of built-in probability distributions.
 
 ## Univariate Distributions
 

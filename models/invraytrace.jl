@@ -7,7 +7,6 @@ struct Img
   img::Array{Float64,3}
 end
 
-
 render(x) = Img(RayTrace.render(x))
 rgbimg(x::Img) = rgbimg(x.img)
 

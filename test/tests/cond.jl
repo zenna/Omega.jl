@@ -1,6 +1,16 @@
 using Omega
 using Test
 
-θ = uniform(0.0, 1.0)
-x = normal(θ, 1.0)
-# rand(cond(θ, x == 2.0))
+function testcond()
+  x = normal(0.0, 1.0)
+  x_ = cond(x, x < 1.0)
+  x_samples = rand(x_)
+  x_samples = filter(s -> s != nothing, x_samples)
+  @test maximum(x_samples) < 1.0
+  x__ = cond(x_, x > -1.0)
+  x__samples = rand(x__)
+  x__samples = filter(s -> s != nothing, x__samples)
+  @test minimum(x__samples) > -1.0
+end
+
+testcond()

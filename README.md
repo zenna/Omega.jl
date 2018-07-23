@@ -4,7 +4,7 @@
 
 [![codecov.io](http://codecov.io/github/zenna/Omega.jl/coverage.svg?branch=master)](http://codecov.io/github/zenna/Omega.jl?branch=master)
 
-Minimal but flexible probabilistic programming language
+Probabilistic programming in Julia
 
 # Documentation
 
