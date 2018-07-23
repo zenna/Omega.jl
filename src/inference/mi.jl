@@ -1,6 +1,8 @@
 "Metropolized Independent Sampling"
 abstract type MI <: Algorithm end
 
+isapproximate(::Type{MI}) = true
+
 "Sample `ω | y == true` with Metropolis Hasting"
 function Base.rand(ΩT::Type{OT}, y::RandVar, alg::Type{MI};
                    n = 1000,

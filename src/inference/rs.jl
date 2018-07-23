@@ -1,6 +1,8 @@
 "Rejection Sampling"
 abstract type RejectionSample <: Algorithm end
 
+isapproximate(::Type{RejectionSample}) = false
+
 "Sample from `x | y == true` with rejection sampling"
 function Base.rand(ΩT::Type{OT}, y::RandVar, alg::Type{RejectionSample};
                    n = 100,

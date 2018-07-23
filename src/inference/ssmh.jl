@@ -1,6 +1,8 @@
 "Single Site MH"
 abstract type SSMH <: Algorithm end
 
+isapproximate(::Type{SSMH}) = true
+
 function update_random(sω::SimpleΩ)
   k = rand(1:length(sω))
   filtered = Iterators.filter(sω.vals |> keys |> enumerate) do x

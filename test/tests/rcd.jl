@@ -28,10 +28,10 @@ function testbeta()
   β = uniform(0.001, 5.0)
   b = betarv(α, β)
   brcd = b ∥ (α, β)
-  samples = rand((α, β), mean(brcd) == 0.5, SSMH)
+  samples = rand((α, β), mean(brcd) ≊ 0.5, SSMH; n = 100)
   s = Distributions.Beta(rand(samples)...); plotbeta(s)
   s = Distributions.Beta(rand(samples)...); plotbeta(s)
-  samples2 = rand((α, β), mean(brcd) == α, SSMH)  
+  samples2 = rand((α, β), mean(brcd) ≊ α, SSMH; n = 100)  
 end
 
 testbeta()

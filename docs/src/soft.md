@@ -46,7 +46,10 @@ There are a couple of drawbacks from explicitly using soft constraints in the mo
 Omega has an experimental feature which automatically does soft execution of a normal predicate.  Soft application relies on e
 
 ```julia
-f(x::Real) = x > 0.5
-softapply(f, 0.3)
+julia> g(x::Real)::Bool = x > 0.5
+julia> softapply(g, 0.3)
+ϵ:-2000.0
 ```
+
+This feature is experimental because Cassette is waiting on a number of compiler optimizations to make this efficient.
 
