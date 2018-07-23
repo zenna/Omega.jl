@@ -18,16 +18,17 @@ end
 
 softtest()
 
-function softtest2()
+function softtest2(ω = 0.39)
   g(x::Bool) = x & x
   function f(ω)
     if Bool(ω > 0.35)
-        g(ω > 0.5)
+      baba = ω > 0.5
+      # @show typeof(baba)
+      g(baba)
     else
       2ω <= 0.2
     end
   end
-  ω = 0.3
   softapply(f, ω)
 end
 
