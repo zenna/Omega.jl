@@ -20,11 +20,15 @@ struct SoftBool{ET <: Real}
 end
 @invariant 0 <= epsilon(b::SoftBool) <= 1
 
+"Error in [0, 1]"
 epsilon(x::SoftBool) = x.logepsilon |> exp
 
+"Log error"
 logepsilon(x::SoftBool) = x.logepsilon
 
 Base.convert(::Type{Bool}, x::SoftBool) = epsilon(x) == 1.0
+SoftBool(::Type{Val{true}}) = SoftBool(0.0)
+SoftBool(::Type{Val{false}}) = SoftBool(-Inf)
 
 ## (In)Equalities
 ## ==============

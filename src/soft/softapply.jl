@@ -26,10 +26,10 @@ Cassette.@primitive Base.:<(x, y) where {__CONTEXT__ <: SoftExCtx} = soften(<, _
 Cassette.@primitive Base.:<=(x, y) where {__CONTEXT__ <: SoftExCtx} = soften(<=, __context__, x, y)
 # Cassette.@primitive Base.:(==)(x, y) where {__CONTEXT__ <: SoftExCtx} = soften(==, __context__, x, y)
 
-Cassette.@primitive Base.:!(x::Bool) where {__CONTEXT__ <: SoftExCtx} = soften(!, __context__, x)
+Cassette.@primitive Base.:!(x::Cassette.Tagged) where {__CONTEXT__ <: SoftExCtx} = softboolop(!, __context__, x)
 Cassette.@primitive Base.:&(x::Cassette.Tagged, y::Cassette.Tagged) where {__CONTEXT__ <: SoftExCtx} = softboolop(&, __context__, x, y)
-Cassette.@primitive Base.:|(x, y) where {__CONTEXT__ <: SoftExCtx} = soften(|, __context__, x, y)
-Cassette.@primitive Base.:⊻(x, y) where {__CONTEXT__ <: SoftExCtx} = soften(⊻, __context__, x, y)
+Cassette.@primitive Base.:|(x::Cassette.Tagged, y::Cassette.Tagged) where {__CONTEXT__ <: SoftExCtx} = softboolop(|, __context__, x, y)
+Cassette.@primitive Base.:⊻(x::Cassette.Tagged, y::Cassette.Tagged) where {__CONTEXT__ <: SoftExCtx} = soften(⊻, __context__, x, y)
 
 function softapply(f, args...)
   ctx = Cassette.withtagfor(SoftExCtx(), f)

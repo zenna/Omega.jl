@@ -44,13 +44,14 @@ include("lift/array.jl")     # Array primitives
 include("lift/lift.jl")      # Lifting functions to RandVar domain
 include("lift/pointwise.jl") # Lifting functions to RandVar domain (using Casette)
 
-# Inference
-include("soft/kernels.jl")       # Soft logic
-include("soft/soft.jl")          # Soft logic
-include("soft/softapply.jl")          # Soft Interpretation
-
 # Conditioning
 include("cond.jl")      # Conditional Random Variables
+
+# Soft Inference
+include("soft/kernels.jl")       # Kernels
+include("soft/soft.jl")          # Soft logic
+include("soft/softapply.jl")     # Soft Interpretation
+include("soft/trackerror.jl")    # Tracking error
 
 # Inference Algorithms
 include("inference/common.jl")  # Algorithm abstract type, Common Inference Functions
