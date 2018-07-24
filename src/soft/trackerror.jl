@@ -9,8 +9,8 @@ conjoinerror!(sbw, yω::SoftBool) = sbw.sb &= yω
 
 # FIXME PRIMITIVE STOPS EXECUTION
 
-@primitive function condf(ω, x, y) where {__CONTEXT__ <: TrackErrorCtx{SoftBoolWrapper{Float64}}}
-  conjoinerror!(__context__.metadata, y(ω))
+function Cassette.execute(ctx::TrackErrorCtx, ::typeof(condf), ω, x, y)
+  conjoinerror!(ctx.metadata, y(ω))
   x(ω)
 end
 

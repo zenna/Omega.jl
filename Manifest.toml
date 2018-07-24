@@ -31,8 +31,8 @@ uuid = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
 version = "0.3.3"
 
 [[Cassette]]
-git-tree-sha1 = "8fc89358d1136a48394f4a9418bce99fa7150cda"
-repo-rev = "master"
+git-tree-sha1 = "163f1593c841287b556daf3407f6a5dd4544c688"
+repo-rev = "8e770a608c38142ee76b45bbf1037e4bf8b4fce6"
 repo-url = "https://github.com/jrevels/Cassette.jl"
 uuid = "59fb9612-49be-509a-8654-f972bbc0bdb2"
 version = "0.0.0"
@@ -114,10 +114,10 @@ uuid = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 version = "0.5.3+"
 
 [[ForwardDiff]]
-deps = ["CommonSubexpressions", "Compat", "DiffResults", "DiffRules", "NaNMath", "SpecialFunctions", "StaticArrays"]
-git-tree-sha1 = "1c15726e82a01b42fc0f91e1220a99da6b8d7734"
+deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "InteractiveUtils", "LinearAlgebra", "NaNMath", "Random", "SparseArrays", "SpecialFunctions", "StaticArrays", "Test"]
+git-tree-sha1 = "91bd8f3deb78e5d03b5c05c3613f135e5c300252"
 uuid = "f6369f11-7733-5829-9624-2563aa707210"
-version = "0.7.5"
+version = "0.8.0"
 
 [[GZip]]
 deps = ["Compat"]

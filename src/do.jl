@@ -1,7 +1,7 @@
 
 @context ChangeCtx
 
-@primitive function (x::RandVar)(ω::Ω) where {__CONTEXT__ <: ChangeCtx}
+function Cassette.execute(::ChangeCtx, x::RandVar, ω::Ω)
   rv = if x.id in keys(__context__.metadata)
     __context__.metadata[x.id]
   else

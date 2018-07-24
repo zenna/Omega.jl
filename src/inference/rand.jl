@@ -14,3 +14,6 @@ end
 
 Base.rand(x::RandVar, y::RandVar, n; kwargs...) = rand(cond(x, y), n; kwargs...)
 Base.rand(x::RandVar, y::RandVar; kwargs...) = rand(cond(x, y); kwargs...)
+
+Base.rand(x::UTuple{RandVar}, n::Integer; kwargs...) = rand(randtuple(x), n; kwargs...)
+Base.rand(x::UTuple{RandVar}; kwargs...) = rand(randtuple(x); kwargs...)

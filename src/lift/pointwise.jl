@@ -1,14 +1,14 @@
-Cassette.@context PntCtx
+Cassette.@context PwCtx
 
-Cassette.@primitive (op::Any)(f::RandVar, g::RandVar) where {__CONTEXT__ <: PntCtx} =
-  Omega.mkrv(op, (f, g))
-  # RandVar(x -> op(f(x), g(x)))
-  
-Cassette.@primitive tuple(f::RandVar) where {__CONTEXT__ <: PntCtx} =
-  Omega.mkrv(tuple, (f,))
+# Cassette.execute(::SinCtx, ::Typ(sin), x) = cos(x)
+Cassette.execute(::PwCtx, op, f, g) = Omega.mkrv(op, (f, g))
+Cassette.execute(::PwCtx, op, f) = Omega.mkrv(op, (f,))
 
-Cassette.@primitive (op::Any)(x::RandVar) where {__CONTEXT__ <: PntCtx} =
-  Omega.mkrv(op, (x,))
+# Cassette.@primitive tuple(f::RandVar) where {__CONTEXT__ <: PwCtx} =
+#   Omega.mkrv(tuple, (f,))
+
+# Cassette.@primitive (op::Any)(x::RandVar) where {__CONTEXT__ <: PwCtx} =
+#   Omega.mkrv(op, (x,))
 
 """Do `thunk` with pointwise style
 
@@ -29,5 +29,6 @@ julia> rand(q)
 ```
 """
 function pw(thunk)
-  Cassette.@overdub(PntCtx(), thunk())
+  Cassette.overdub(PwCtx(), thunk)
 end
+

@@ -12,8 +12,8 @@ import Statistics
 using Random: AbstractRNG
 using ZenUtils
 using UnicodePlots
-using Cassette
-using Cassette: @overdub, @primitive, @context
+import Cassette
+using Cassette: @context
 
 UTuple{T} = Tuple{Vararg{T, N}} where N
 
@@ -22,7 +22,7 @@ include("util/misc.jl")
 
 # Core
 include("omega/omega.jl")         # Sample Space
-include("omega/proj.jl")          # Sample Space
+include("omega/proj.jl")          # Sample Space Projection
 include("randvar.jl")             # Random Variables
 
 ## Different Types of Omega
@@ -33,39 +33,39 @@ include("omega/countvec.jl")      # Sample Space
 include("omega/id.jl")            # Pairing functions for omega ids
 include("omega/diffomega.jl")     # Differentiable Omega
 
-include("randvarapply.jl")    # Random Variables
+include("randvarapply.jl")        # Random Variables
 
 # Higher Order Inferene
-include("higher/rcd.jl")       # Random Conditional Distribution
-include("higher/rid.jl")       # Random Interventional Distribution
+include("higher/rcd.jl")          # Random Conditional Distribution
+include("higher/rid.jl")          # Random Interventional Distribution
 
 # Lifted random variable operatiosn
-include("lift/array.jl")     # Array primitives
-include("lift/lift.jl")      # Lifting functions to RandVar domain
-include("lift/pointwise.jl") # Lifting functions to RandVar domain (using Casette)
+include("lift/array.jl")          # Array primitives
+include("lift/lift.jl")           # Lifting functions to RandVar domain
+include("lift/pointwise.jl")      # Lifting functions to RandVar domain (using Casette)
 
 # Conditioning
-include("cond.jl")      # Conditional Random Variables
+include("cond.jl")                # Conditional Random Variables
 
 # Soft Inference
-include("soft/kernels.jl")       # Kernels
-include("soft/soft.jl")          # Soft logic
-include("soft/softapply.jl")     # Soft Interpretation
-include("soft/trackerror.jl")    # Tracking error
+include("soft/kernels.jl")        # Kernels
+include("soft/soft.jl")           # Soft logic
+include("soft/softapply.jl")      # Soft Interpretation
+include("soft/trackerror.jl")     # Tracking error
 
 # Inference Algorithms
-include("inference/common.jl")  # Algorithm abstract type, Common Inference Functions
-include("inference/callbacks.jl")  # Common Inference Functions
-include("inference/rand.jl")    # Sampling
-include("inference/rs.jl")      # Rejection Sampling
-include("inference/mi.jl")      # Metropolized Independent Sampling
-include("inference/ssmh.jl")    # Single Site Metropolis Hastings
-include("inference/hmc.jl")     # Hamiltonian Monte Carlo
-include("inference/hmcfast.jl") # Faster Hamiltonian Monte Carlo
-include("inference/sghmc.jl")   # Stochastic Gradient Hamiltonian Monte Carlo
+include("inference/common.jl")    # Algorithm abstract type, Common Inference Functions
+include("inference/callbacks.jl") # Common Inference Functions
+include("inference/rand.jl")      # Sampling
+include("inference/rs.jl")        # Rejection Sampling
+include("inference/mi.jl")        # Metropolized Independent Sampling
+include("inference/ssmh.jl")      # Single Site Metropolis Hastings
+include("inference/hmc.jl")       # Hamiltonian Monte Carlo
+include("inference/hmcfast.jl")   # Faster Hamiltonian Monte Carlo
+include("inference/sghmc.jl")     # Stochastic Gradient Hamiltonian Monte Carlo
 
 # Causal Inference
-include("do.jl")        # Causal Reasoning
+include("do.jl")                  # Causal Reasoning
 
 # Gradient
 include("gradient.jl")
@@ -122,6 +122,10 @@ export mean,
        HMC,
        SGHMC,
        HMCFAST,
+
+
+       # Pointwise
+       pw,
 
        # Omegas
        Ω,
