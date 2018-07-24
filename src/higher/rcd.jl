@@ -1,5 +1,7 @@
 omegatype(::Type{ΩProj{O, I}}) where {O, I} = O
 
+rcd(x, y) = ω -> cond(x, y == y(ω))
+
 """
 Random Conditional Distribution of `X` given `Y`
 
@@ -27,11 +29,4 @@ function rcd(x::RandVar{T}, y::Union{RandVar, UTuple{RandVar}}) where T
 end
 
 "`rcd`, x ∥ y"
-const ∥ = rcd
-
-""
-struct RCDRandVar{O <: Ω, RVX <: AbstractRandVar, RVY <: AbstractRandVar}
-  X::RVX
-  Y::RVY
-  ω::Ω
-end
+x ∥ y = rcd(x, y)

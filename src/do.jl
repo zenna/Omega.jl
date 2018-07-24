@@ -66,3 +66,6 @@ function intervene(x1, x2, model::RandVar...)
   o = intervene(x1, x2)
   map(o, model)
 end
+
+## Notatiosn
+x ← Θ = intervene(x, y)
