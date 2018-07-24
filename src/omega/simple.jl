@@ -19,46 +19,24 @@ SimpleΩ{I, V}() where {I, V} = SimpleΩ{I, V}(Dict{I, V}())
 Base.values(sω::SimpleΩ) = values(sω.vals)
 Base.keys(sω::SimpleΩ) = keys(sω.vals)
 
-"Linearize ω into flat vector"
-function linearaize end
-
-"Inverse of `linearize`, structure vector into ω"
-function unlinearize end
-
-linearize(sω::SimpleΩ{I, V}) where {I, V <: Real} = collect(values(sω.vals))
-
-function linearize(sω::SimpleΩ{I, V}) where {I, V <: AbstractArray}
-  # warn("Are keys in order?")
-  # vcat((view(a, :) for a in values(sω.vals))...)
-  vcat((a[:] for a in values(sω.vals))...)
-end
-
-function unlinearize(ωvec, sω::SimpleΩ{I, V}, f=identity) where {I, V <: AbstractArray}
-  # warn("Are keys in order?")
-  vcat((view(a, :) for a in values(sω.vals))...)
-  lb = 1
-  d = similar(sω.vals)
-  pairs = []
-  for (k, v) in sω.vals
-    sz = size(v)
-    ub = lb + prod(sz) - 1
-    # subωvec = @view ωvec[lb:ub]
-    subωvec = ωvec[lb:ub]
-    lb = ub + 1
-    v = reshape(subωvec, sz)
-    push!(pairs, Pair(k, v))
-    # d[k] = v
-  end
-  SimpleΩ{I, V}(Dict(pairs...))
-end
-
-function unlinearize(ωvec, sω::SimpleΩ{I, V}) where {I, V <: Real}
-  # Keys not sorted, might be wrong
-  SimpleΩ(Dict(k => ωvec[i] for (i, k) in enumerate(keys(sω.vals))))
-end
+## Projection
+## ==========
 
 function Base.getindex(sω::SO, i::Int) where {I, SO <: SimpleΩ{<:I}}
   ΩProj{SO, I}(sω, base(I, i))
+end
+
+## Random Variable Application
+## ===========================
+
+function (rv::RandVar{T, true})(ω::SimpleΩ) where T
+  args = map(a->apl(a, ω), rv.args)
+  (rv.f)(ω[rv.id], args...)
+end
+
+function (rv::RandVar{T, false})(ω::SimpleΩ) where T
+  args = map(a->apl(a, ω), rv.args)
+  (rv.f)(args...)
 end
 
 ## Rand
@@ -123,15 +101,8 @@ function Base.rand(ωπ::ΩProj{O}, ::Type{CO}) where {I, CO, O <: SimpleΩ{I, V
   end
 end
 
-function (rv::RandVar{T, true})(ω::SimpleΩ) where T
-  args = map(a->apl(a, ω), rv.args)
-  (rv.f)(ω[rv.id], args...)
-end
-
-function (rv::RandVar{T, false})(ω::SimpleΩ) where T
-  args = map(a->apl(a, ω), rv.args)
-  (rv.f)(args...)
-end
+## Merging
+## =======
 
 function Base.merge!(sω1::SimpleΩ, sω2::SimpleΩ)
   for (k, v) in sω2.vals
@@ -154,6 +125,46 @@ projintersect!(ωπ1::Ω, ωπ2::Ω) = projintersect!(ωπ1.ω, ωπ2.ω)
 Base.merge!(ωπ1::Ω{O}, ωπ2::Ω{O}) where {O <: SimpleΩ} =
   merge!(ωπ1.ω, ωπ2.ω)
 
-
 Base.isempty(sω::SimpleΩ) = isempty(sω.vals)
 Base.length(sω::SimpleΩ) = length(sω.vals)
+
+## Linearlization
+## ==============
+
+"Linearize ω into flat vector"
+function linearize end
+
+"Inverse of `linearize`, structure vector into ω"
+function unlinearize end
+
+linearize(sω::SimpleΩ{I, V}) where {I, V <: Real} = collect(values(sω.vals))
+
+function linearize(sω::SimpleΩ{I, V}) where {I, V <: AbstractArray}
+  # warn("Are keys in order?")
+  # vcat((view(a, :) for a in values(sω.vals))...)
+  vcat((a[:] for a in values(sω.vals))...)
+end
+
+function unlinearize(ωvec, sω::SimpleΩ{I, V}, f=identity) where {I, V <: AbstractArray}
+  # warn("Are keys in order?")
+  vcat((view(a, :) for a in values(sω.vals))...)
+  lb = 1
+  d = similar(sω.vals)
+  pairs = []
+  for (k, v) in sω.vals
+    sz = size(v)
+    ub = lb + prod(sz) - 1
+    # subωvec = @view ωvec[lb:ub]
+    subωvec = ωvec[lb:ub]
+    lb = ub + 1
+    v = reshape(subωvec, sz)
+    push!(pairs, Pair(k, v))
+    # d[k] = v
+  end
+  SimpleΩ{I, V}(Dict(pairs...))
+end
+
+function unlinearize(ωvec, sω::SimpleΩ{I, V}) where {I, V <: Real}
+  # Keys not sorted, might be wrong
+  SimpleΩ(Dict(k => ωvec[i] for (i, k) in enumerate(keys(sω.vals))))
+end

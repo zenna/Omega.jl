@@ -1,8 +1,8 @@
 Cassette.@context PwCtx
 
 # Cassette.execute(::SinCtx, ::Typ(sin), x) = cos(x)
-Cassette.execute(::PwCtx, op, f, g) = Omega.mkrv(op, (f, g))
-Cassette.execute(::PwCtx, op, f) = Omega.mkrv(op, (f,))
+Cassette.execute(::PwCtx, op, f::RandVar, g::RandVar) = Omega.mkrv(op, (f, g))
+Cassette.execute(::PwCtx, op, f::RandVar) = Omega.mkrv(op, (f,))
 
 # Cassette.@primitive tuple(f::RandVar) where {__CONTEXT__ <: PwCtx} =
 #   Omega.mkrv(tuple, (f,))

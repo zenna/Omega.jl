@@ -33,7 +33,7 @@ function Base.rand(x::RandVar{T},
                    ΩT::Type{OT},
                    cb = donothing) where {T, OT}
   cb = runall(cb)
-  samples = T[]
+  samples = []
   accepted = 0
   i = 1
   while accepted < n

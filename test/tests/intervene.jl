@@ -25,9 +25,10 @@ end
 function changetest()
   Θ = normal(0.0, 1.0)
   x = normal(Θ, 1.0)
-  @show Θ.id
-  @show x.id
-  dox = change(Θ, normal(100.0, 1.0), x)
-  rand(dox)
+  θnew = normal(100.0, 1.0)
+  xnew = change(Θ, θnew, x)
+  @test isapprox(mean(rand(xnew, 1000)), 100, atol=1.0)
+  xnewnew = change(θnew, normal(200.0, 1.0), xnew)
+  @test isapprox(mean(rand(xnewnew, 1000)), 200, atol=1.0)
 end
 

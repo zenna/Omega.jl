@@ -4,7 +4,6 @@ using Flux
 
 # σ3(x) =  ones(x) ./ (ones(x) .+ exp.(-x))
 σ3(x) =  1.0 ./ (1.0 .+ exp.(-x))
-σ3(x) =  1.0 ./ (1.0 .+ exp.(-x))
 
 const batch_size = 1280
 Omega.lift(:(Flux.σ), 1)
@@ -87,3 +86,7 @@ function test(; trainkwargs...)
 end
 
 test(; n=500, nsteps=10, stepsize=0.001)
+
+function smalltest()
+
+end

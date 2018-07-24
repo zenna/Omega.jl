@@ -39,7 +39,6 @@ function infer_elemtype(f, args...)
   rt[1]
 end
 
-
 "Construct an i.i.d. of `X`"
 ciid(f; T=infer_elemtype(f)) = RandVar{T}(f)
 

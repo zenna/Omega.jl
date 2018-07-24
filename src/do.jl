@@ -1,25 +1,32 @@
 
 @context ChangeCtx
 
-function Cassette.execute(::ChangeCtx, x::RandVar, ω::Ω)
-  rv = if x.id in keys(__context__.metadata)
-    __context__.metadata[x.id]
+# function Cassette.execute(::ChangeCtx, x::RandVar, ω::Ω)
+#   rv = if x.id in keys(__context__.metadata)
+#     __context__.metadata[x.id]
+#   else
+#     x
+#   end
+#   args = Cassette.overdub(ChangeCtx(metadata = __context__.metadata), map, a->apl(a, ω), rv.args)
+#   Cassette.overdub(ChangeCtx(metadata = __context__.metadata), rv.f, ω[rv.id], args...)
+# end
+
+function Cassette.execute(ctx::ChangeCtx, x::RandVar, ω::Ω)
+  if ctx.metadata.id === x.id
+    return ctx.metadata.x(ω)
   else
-    x
+    return Cassette.RecurseInstead()
   end
-  args = Cassette.overdub(ChangeCtx(metadata = __context__.metadata), map, a->apl(a, ω), rv.args)
-  Cassette.overdub(ChangeCtx(metadata = __context__.metadata), rv.f, ω[rv.id], args...)
 end
 
 "Causal Intervention: Set `θold` to `θnew` in `x`"
 function change(θold::RandVar, θnew::RandVar, x::RandVar{T}) where T
-  f = ω -> Cassette.overdub(ChangeCtx(metadata = Dict(θold.id => θnew)), x, ω)
+  f = ω -> Cassette.overdub(ChangeCtx(metadata = (id = θold.id, x = θnew)), x, ω)
   RandVar{T}(f)
 end
 
 "Change where `θconst` is not a randvar, but constant"
 change(θold, θconst, x) = change(θold, constant(θconst), x)
-
 
 """
 Causal intervention: set `x1` to `x2`
