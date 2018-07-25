@@ -14,11 +14,11 @@ function RandVar{T, Prim}(f::F, args::TPL, id::I) where {T, Prim, F, TPL, I}
 end
 
 function RandVar{T, Prim}(f::F, args::TPL) where {T, Prim, F, TPL}
-  RandVar{T, Prim, F, TPL, Int}(f, args, ωnew()) # FIXME: HACK
+  RandVar{T, Prim, F, TPL, Int}(f, args, uid()) # FIXME: HACK
 end
 
 function RandVar{T}(f::F) where {T, F}
-  RandVar{T, true, F, Tuple{}, Int}(f, (), ωnew()) # FIXME: HACK
+  RandVar{T, true, F, Tuple{}, Int}(f, (), uid()) # FIXME: HACK
 end
 
 function Base.copy(x::RandVar{T}) where T

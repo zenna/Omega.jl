@@ -1,14 +1,14 @@
 "Probability Space indexed with values of type I"
 abstract type Ω{I} <: AbstractRNG end
 
-const ωcounter = Counter(0)
+const uidcounter = Counter(0)
 
-"Unique dimension id"
-ωnew() = (global ωcounter; increment(ωcounter))
+"Unique id"
+uid() = (global uidcounter; increment(uidcounter))
 
 "Construct globally unique id for indices for ω"
 macro id()
-  Omega.ωnew()
+  Omega.uid()
 end
 
 "Index of Probability Space"
