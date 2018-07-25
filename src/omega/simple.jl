@@ -31,7 +31,7 @@ end
 
 function (rv::RandVar{T, true})(ω::SimpleΩ) where T
   args = map(a->apl(a, ω), rv.args)
-  (rv.f)(ω[rv.id], args...)
+  (rv.f)(ω[rv.id][1], args...)
 end
 
 function (rv::RandVar{T, false})(ω::SimpleΩ) where T
@@ -42,7 +42,9 @@ end
 ## Rand
 ## ====
 function Base.rand(ωπ::ΩProj{O}, ::Type{T}) where {T, I, O <: SimpleΩ{I, <:Real}}
-  get!(()->rand(Base.GLOBAL_RNG, T), ωπ.ω.vals, ωπ.id)
+  res = get!(()->rand(Base.GLOBAL_RNG, T), ωπ.ω.vals, ωπ.id)
+  increment!(ωπ)
+  res
 end
 
 function Base.rand(ωπ::ΩProj{O}, ::Type{T},  dims::Dims) where {T, I, V, O <: SimpleΩ{I, V}}
@@ -50,27 +52,37 @@ function Base.rand(ωπ::ΩProj{O}, ::Type{T},  dims::Dims) where {T, I, V, O <:
 end
 
 function Base.rand(ωπ::ΩProj{O}, ::Type{T},  dims::Dims) where {T, I, A<:AbstractArray, O <: SimpleΩ{I, A}}
-  get!(()->rand(Base.GLOBAL_RNG, T, dims), ωπ.ω.vals, ωπ.id)
+  res = get!(()->rand(Base.GLOBAL_RNG, T, dims), ωπ.ω.vals, ωπ.id)
+  increment!(ωπ)
+  res
 end
 
 function Base.rand(ωπ::ΩProj{O}, ::Type{T}) where {T, I, A<:AbstractArray, O <: SimpleΩ{I, A}}
   val = get!(()->[rand(Base.GLOBAL_RNG, T)], ωπ.ω.vals, ωπ.id)
   # val = get!(()->Float64[rand(Base.GLOBAL_RNG, T)], ωπ.ω.vals, ωπ.id)
+  increment!(ωπ)
   first(val)
 end
 
 function Base.rand(ωπ::ΩProj{O}, ::Type{T},  dims::Dims) where {T, I, A<:Flux.TrackedArray, O <: SimpleΩ{I, A}}
-  get!(()->param(rand(Base.GLOBAL_RNG, T, dims)), ωπ.ω.vals, ωπ.id)
+  res = get!(()->param(rand(Base.GLOBAL_RNG, T, dims)), ωπ.ω.vals, ωπ.id)
+  increment!(ωπ)
+  res
 end
 
 function Base.rand(ωπ::ΩProj{O}, ::Type{T}) where {T, I, A<:Flux.TrackedArray, O <: SimpleΩ{I, A}}
   val = get!(()->param([rand(Base.GLOBAL_RNG, T)]), ωπ.ω.vals, ωπ.id)
+  increment!(ωπ)
   first(val)
 end
 
 # rng_native_52(::Omega.ΩProj{Omega.SimpleΩ{Int64,Omega.ValueTuple},Int64})
 
-Random.rng_native_52(::Ω) = Random.rng_native_52(Random.GLOBAL_RNG)
+# function Random.rng_native_52(ωπ::ΩProj)
+#   res = get!(()->Random.rng_native_52(Random.GLOBAL_RNG), ωπ.ω.vals, ωπ.id)
+#   increment!(ωπ)
+#   res
+# end
 
 ## Value Type
 ## ==========
@@ -81,25 +93,56 @@ struct ValueTuple
   _UInt32::UInt32
 end
 
+Random.rng_native_52(ω::Ω) = Random.rng_native_52(Random.GLOBAL_RNG)
+
+# function Random.rng_native_52(ωπ::ΩProj{O}) where {I, O <: SimpleΩ{I, ValueTuple}}
+#   res = if ωπ.id ∈ keys(ωπ.ω.vals)
+#     ωπ.ω.vals[ωπ.id]._Float64::Float64
+#   else
+#     @show val = Random.rng_native_52(Random.GLOBAL_RNG)
+#     ωπ.ω.vals[ωπ.id] = ValueTuple(val, Float32(0.0), UInt(0))
+#     val
+#   end
+#   increment!(ωπ)
+#   res
+# end
+
 function Base.rand(ωπ::ΩProj{O}, ::Type{UInt32}) where {I, O <: SimpleΩ{I, ValueTuple}}
-  if ωπ.id ∈ keys(ωπ.ω.vals)
+  res = if ωπ.id ∈ keys(ωπ.ω.vals)
     ωπ.ω.vals[ωπ.id]._UInt32::UInt32
   else
     val = rand(Random.GLOBAL_RNG, UInt32)
     ωπ.ω.vals[ωπ.id] = ValueTuple(0.0, 0.0, val)
     val
   end
+  increment!(ωπ)
+  res
 end
 
 function Base.rand(ωπ::ΩProj{O}, ::Type{CO}) where {I, CO, O <: SimpleΩ{I, ValueTuple}}
-  if ωπ.id ∈ keys(ωπ.ω.vals)
-    return ωπ.ω.vals[ωπ.id]._Float64
+  res = if ωπ.id ∈ keys(ωπ.ω.vals)
+    ωπ.ω.vals[ωπ.id]._Float64
   else
     val = rand(Random.GLOBAL_RNG, CO)
     ωπ.ω.vals[ωπ.id] = ValueTuple(val, Float32(0.0), UInt(0))
-    return val
+    val
   end
+  increment!(ωπ)
+  res
 end
+
+function Base.rand(ωπ::ΩProj{O}, fi::Random.FloatInterval{Float64}) where {I, O <: SimpleΩ{I, ValueTuple}}
+  res = if ωπ.id ∈ keys(ωπ.ω.vals)
+    ωπ.ω.vals[ωπ.id]._Float64
+  else
+    val = rand(Random.GLOBAL_RNG, fi)
+    ωπ.ω.vals[ωπ.id] = ValueTuple(val, zero(Float32), zero(UInt))
+    val
+  end
+  increment!(ωπ)
+  res
+end
+
 
 ## Merging
 ## =======

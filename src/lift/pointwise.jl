@@ -1,6 +1,5 @@
 Cassette.@context PwCtx
 
-# Cassette.execute(::SinCtx, ::Typ(sin), x) = cos(x)
 Cassette.execute(::PwCtx, op, f::RandVar, g::RandVar) = Omega.mkrv(op, (f, g))
 Cassette.execute(::PwCtx, op, f::RandVar) = Omega.mkrv(op, (f,))
 

@@ -11,6 +11,13 @@ Base.getindex(ωπ::ΩProj{O, I}, i::I) where {O, I} =
 Base.getindex(ωπ::ΩProj{O, I}, i::SI) where {O, I, SI} = 
   ΩProj{O, I}(ωπ.ω, append(ωπ.id, i))
 
+increment!(a::Vector{Int}) = a[end] += 1
+function increment(a::Vector{Int})
+  b = copy(a)
+  b[end] += 1
+  b
+end
+
 ## Pairing Indices
 ## ===============
 const Paired = Int

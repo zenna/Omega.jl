@@ -1,5 +1,7 @@
 "Projection of `ω` onto compoment `id`"
-struct ΩProj{O, I} <: Ω{I}
+mutable struct ΩProj{O, I} <: Ω{I}
   ω::O
   id::I
 end
+
+increment!(ωπ::ΩProj) = ωπ.id = increment(ωπ.id)
