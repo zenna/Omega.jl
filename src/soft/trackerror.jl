@@ -16,11 +16,21 @@ Error{T} = Union{
   Tuple{SoftBoolWrapper, T},
 }
 
-condf((ω::TaggedΩ{I, E}), x, y) where E <: Error = (conjoinerror!(ω.err, y(ω)); x(ω))
+# function condf(ω::TaggedΩ{I, E}, x, y) where E <: Error
+#   @show "do we get hereo?"
+#   conjoinerror!(ω.err, y(ω))
+#   x(ω)
+# end
+
+function condf(tω::TaggedΩ, x, y)
+  res = y(tω)
+  conjoinerror!(tω.tags.sbw, res)
+  x(tω)
+end
 
 function trackerrorapply(x, ω)  
   sbw = SoftBoolWrapper(SoftBool(Val{true}))
-  ω_ = TaggedΩ(ω, sbw)
+  ω_ = TaggedΩ(ω, (sbw = sbw,))
   fx = x(ω_)
   (fx, sbw.sb)
 end

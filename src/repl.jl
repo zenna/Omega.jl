@@ -13,9 +13,9 @@ Scoped{T} = Union{
   Tuple{Scope, T},
 }
 
-function (x::RandVar)(ω::TaggedΩ{I, E}) where E <: Scoped
+function (x::RandVar)(tω::TaggedΩ{I, E}) where E <: Scoped
   if ω.tag.scope.id === x.id
-    return ω.tag.scope.rv(ω)
+    return ω.tag.scope.rv(tω)
   else
     return x(ω)
   end
@@ -23,12 +23,12 @@ end
 
 function addscope(ω, θold, θnew, x)
   scope = Scope(θold.id, θnew)
-  ω_ = tag(ω, (scope = scope))
+  ω_ = tag(ω, (scope = scope,))
   x(ω_)
 end
 
 "Causal Intervention: Set `θold` to `θnew` in `x`"
-function force(θold::RandVar, θnew::RandVar, x::RandVar{T}) where T
+function replace(x::RandVar{T}, (θold, θnew)::Pair{T1, T2}) where {T1 <: RandVar, T2 <: RandVar}
   RandVar{T}(ω -> addscope(ω, θold, θnew, x))
 end
 
@@ -49,37 +49,11 @@ z = uniform(y, 1.0)
 o = intervene(y, uniform(-10.0, -9.0))
 ```
 """
-function intervene(x1::RandVar{T}, x2::Union{RandVar{T}, T}) where T
-  dointervene(y, _) = y
-  function dointervene(y::RandVar{T2, P}, seen::IdDict{Any, Any} = IdDict{Any, Any}()) where {T2, P}
-    if y ∈ keys(seen)
-      return seen[y]
-    end
-    args = map(y.args) do arg
-      if arg === x1
-        x2
-      else
-        dointervene(arg, seen)
-      end
-    end
-    answer = if all(args .=== y.args)
-      y
-    else
-      RandVar{T2, P}(y.f, args)
-    end
-    seen[y] = answer
-  end
-end
 
-intervene(x1, x2, y::RandVar) = intervene(x1, x2)(y)
-
-function intervene(x1, x2, model::RandVar...)
-  o = intervene(x1, x2)
-  map(o, model)
-end
-
-## Notatiosn
-x ← Θ = intervene(x, y)
+# function repl(x1, x2, model::RandVar...)
+#   o = repl(x1, x2)
+#   repl(o, model)
+# end
 
 ## Cassette Powered Intervention
 ## =============================

@@ -1,12 +1,14 @@
 struct TaggedΩ{I, T, ΩT, N} <: Ω{I}
-  ω::ΩT
-  tag::NamedTuple{N, T}
+  taggedω::ΩT
+  tags::NamedTuple{N, T}
 end
 
+TaggedΩ(ω::ΩT, tags::NamedTuple{N, T}) where {N, I, T, ΩT <: Ω{I}} = TaggedΩ{I, T, ΩT, N}(ω, tags)
+
 tag(ω::Ω, tag) = TaggedΩ(ω, tag)
-tag(ω::TaggedΩ, tag) = TaggedΩ(ω.ω, merge(ω.tag, tag))
+tag(ω::TaggedΩ, tag) = TaggedΩ(ω.taggedω, merge(ω.tags, tag))
 
-Base.values(tω::TaggedΩ) = values(tω.ω)
-Base.keys(tω::TaggedΩ) = keys(tω.ω)
-
-Base.getindex(tω::TaggedΩ, i) = TaggedΩ(getindex(tω.ω, i))
+Base.getindex(tω::TaggedΩ, i) = TaggedΩ(getindex(tω.taggedω, i), tω.tags)
+Base.rand(tω::TaggedΩ, args...) = rand(tω.taggedω, args...)
+Base.rand(tω::TaggedΩ, dims::Integer...) = rand(tω.taggedω, dims...)
+parentω(tω::TaggedΩ) = TaggedΩ(parentω(tω), tω.tags)

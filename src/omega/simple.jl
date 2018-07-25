@@ -21,22 +21,8 @@ Base.keys(sω::SimpleΩ) = keys(sω.vals)
 
 ## Projection
 ## ==========
-
 function Base.getindex(sω::SO, i::Int) where {I, SO <: SimpleΩ{<:I}}
   ΩProj{SO, I}(sω, base(I, i))
-end
-
-## Random Variable Application
-## ===========================
-
-function (rv::RandVar{T, true})(ω::SimpleΩ) where T
-  args = map(a->apl(a, ω), rv.args)
-  (rv.f)(ω[rv.id][1], args...)
-end
-
-function (rv::RandVar{T, false})(ω::SimpleΩ) where T
-  args = map(a->apl(a, ω), rv.args)
-  (rv.f)(args...)
 end
 
 ## Rand
@@ -142,7 +128,6 @@ function Base.rand(ωπ::ΩProj{O}, fi::Random.FloatInterval{Float64}) where {I,
   increment!(ωπ)
   res
 end
-
 
 ## Merging
 ## =======
