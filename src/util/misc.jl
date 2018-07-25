@@ -11,3 +11,12 @@ x_, y_ = ntranspose(samples)
 ```
 """
 ntranspose(xs) = [[x[i] for x in xs] for i = 1:length(xs[1])]
+
+"Counter"
+mutable struct Counter
+  count::Int
+end
+Counter() = Counter(0)
+
+"Increment counter"
+increment(c::Counter) = x::Int = c.count += 1

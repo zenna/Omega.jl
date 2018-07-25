@@ -7,22 +7,22 @@ end
 conjoinerror!(sbw::SoftBoolWrapper, y::Nothing) = nothing
 conjoinerror!(sbw::SoftBoolWrapper, yω::SoftBool) = sbw.sb &= yω
 
-## Hacked Tracking
-## ===============
+## Tagged Omega Tracking
+## =====================
 
-struct ErrorTagged{I, ΩT, E} <: Ω{I}
-  ω::ΩT
-  err::E
-  ErrorTagged(ω::Ω{I}, err) = ErrorTagged{I}(ω, err)
-end
+Error{T} = Union{
+  Tuple{SoftBoolWrapper},
+  Tuple{T, SoftBoolWrapper},
+  Tuple{SoftBoolWrapper, T},
+}
 
-condf(ω::ErrorTagged, x, y) = (conjoinerror!(ω.err, y(ω)); x(ω))
+condf((ω::TaggedΩ{I, E}), x, y) where E <: Error = (conjoinerror!(ω.err, y(ω)); x(ω))
 
 function trackerrorapply(x, ω)  
   sbw = SoftBoolWrapper(SoftBool(Val{true}))
-  ω_ = Omega.ErrorTagged{Int, typeof(ω), typeof(sbw)}(ω, sbw)
+  ω_ = TaggedΩ(ω, sbw)
   fx = x(ω_)
-  @show (fx, sbw.sb)
+  (fx, sbw.sb)
 end
 
 ## Casette Powered Tracking

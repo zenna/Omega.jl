@@ -23,6 +23,7 @@ include("util/misc.jl")
 # Core
 include("omega/omega.jl")         # Sample Space
 include("omega/proj.jl")          # Sample Space Projection
+include("omega/tagged.jl")        # Space space tagged with metadata
 include("randvar.jl")             # Random Variables
 
 ## Different Types of Omega

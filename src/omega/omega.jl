@@ -1,9 +1,10 @@
-const ωcounter = [0]
+"Probability Space indexed with values of type I"
+abstract type Ω{I} <: AbstractRNG end
+
+const ωcounter = Counter(0)
+
 "Unique dimension id"
-function ωnew()
-  global ωcounter
-  x::Int = ωcounter[1] += 1
-end
+ωnew() = (global ωcounter; increment(ωcounter))
 
 "Construct globally unique id for indices for ω"
 macro id()
@@ -18,9 +19,6 @@ const Ints = NTuple{N, Int} where N
 
 "Id of a random variable"
 const RandVarId = Int
-
-"Probability Space indexed with values of type I"
-abstract type Ω{I} <: AbstractRNG end
 
 ## Rand
 ## ====
