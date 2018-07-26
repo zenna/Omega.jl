@@ -17,8 +17,6 @@ using Cassette: @context
 
 UTuple{T} = Tuple{Vararg{T, N}} where N
 
-
-tester = 30.0
 # Util
 include("util/misc.jl")
 
@@ -69,7 +67,7 @@ include("inference/hmcfast.jl")   # Faster Hamiltonian Monte Carlo
 include("inference/sghmc.jl")     # Stochastic Gradient Hamiltonian Monte Carlo
 
 # Causal Inference
-include("repl.jl")                  # Causal Reasoning
+include("replace.jl")                  # Causal Reasoning
 
 # Gradient
 include("gradient.jl")

@@ -13,12 +13,21 @@ Scoped{T} = Union{
   Tuple{Scope, T},
 }
 
-function (x::RandVar)(tω::TaggedΩ{I, E}) where E <: Scoped
+function (x::RandVar)(tω::TaggedΩ{I, E}) where {I, E <: Scoped}
+  @show "hello"
+  @assert false
   if ω.tag.scope.id === x.id
     return ω.tag.scope.rv(tω)
   else
     return x(ω)
   end
+  # This will recurse forever
+end
+
+function (x::RandVar{T, true})(tω::TaggedΩ{I, E}) where {T, I, E <: Scoped}
+end
+
+function (x::RandVar{T, false})(tω::TaggedΩ{I, E}) where {T, I, E <: Scoped}
 end
 
 function addscope(ω, θold, θnew, x)
@@ -28,27 +37,27 @@ function addscope(ω, θold, θnew, x)
 end
 
 "Causal Intervention: Set `θold` to `θnew` in `x`"
-function replace(x::RandVar{T}, (θold, θnew)::Pair{T1, T2}) where {T1 <: RandVar, T2 <: RandVar}
+function Base.replace(x::RandVar{T}, (θold, θnew)::Pair{T1, T2}) where {T, T1 <: RandVar, T2 <: RandVar}
   RandVar{T}(ω -> addscope(ω, θold, θnew, x))
 end
 
-"""
-Causal intervention: set `x1` to `x2`
+# """
+# Causal intervention: set `x1` to `x2`
 
-`intervene` is equivalent to `do` in do-calculus
+# `intervene` is equivalent to `do` in do-calculus
 
-## Returns
-operator(xold::RandVar{T}) -> xnew::RandVar{T}
-where 
+# ## Returns
+# operator(xold::RandVar{T}) -> xnew::RandVar{T}
+# where 
 
-jldoctest
-```
-x = uniform(0.0, 1.0)
-y = uniform(x, 1.0)
-z = uniform(y, 1.0)
-o = intervene(y, uniform(-10.0, -9.0))
-```
-"""
+# jldoctest
+# ```
+# x = uniform(0.0, 1.0)
+# y = uniform(x, 1.0)
+# z = uniform(y, 1.0)
+# o = intervene(y, uniform(-10.0, -9.0))
+# ```
+# """
 
 # function repl(x1, x2, model::RandVar...)
 #   o = repl(x1, x2)
