@@ -26,6 +26,7 @@ struct TaggedΩ{I, TAG, ΩT} <: Ω{I}
 end
 
 # 0.7 TaggedΩ(ω::ΩT, tags::Tag) where {N, I, T, ΩT <: Ω{I}} = TaggedΩ{I, TAG, ΩT}(ω, tags)
+TaggedΩ(ω::ΩT, tags::TAG) where {I, TAG, ΩT <: Ω{I}} = TaggedΩ{I, TAG, ΩT}(ω, tags)
 
 tag(ω::Ω, tag) = TaggedΩ(ω, tag)
 tag(ω::TaggedΩ, tag) = TaggedΩ(ω.taggedω, merge(ω.tags, tag))
