@@ -1,7 +1,7 @@
 "Probability Space indexed with values of type I"
 abstract type Ω{I} <: AbstractRNG end
 
-abstract type ΩWOW{I} <: AbstractRNG end
+abstract type ΩWOW{I} <: Ω{I} end
 
 const uidcounter = Counter(0)
 

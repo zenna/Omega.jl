@@ -4,7 +4,13 @@ apl(x::AbstractRandVar, ω::Ω) = x(ω)
 ## Random Variable Application
 ## ===========================
 
-function (rv::RandVar{T, true})(ω::Ω) where T
+Zerox{I, T, ΩT} = Union{ΩWOW, TaggedΩ{I, T, ΩT}} where {ΩT <: ΩWOW}
+
+function g(rv::RandVar{T, true}, ω::Zerox) where T
+  @assert false
+end
+
+function (rv::RandVar{T, true})(ω::Zerox) where T
   # @assert false
   args = map(a->apl(a, ω), rv.args)
   (rv.f)(ω[rv.id][1], args...)
@@ -20,7 +26,10 @@ end
 (rv::RandVar{T, false})(πω::ΩProj) where T = rv(parentω(πω))
 (rv::RandVar{T, true})(πω::ΩProj) where T = rv(parentω(πω))
 
+## Tagged
+
 (rv::RandVar)(tω::TaggedΩ{I, T, ΩT}) where {I, T, ΩT <: ΩProj}  =  rv(TaggedΩ(parentω(tω.taggedω), tω.tags))
+
 (rv::RandVar{R, false})(tω::TaggedΩ{I, T, ΩT}) where {R, F, I, T, ΩT <: ΩProj}  =  rv(TaggedΩ(parentω(tω.taggedω), tω.tags))
 (rv::RandVar{R, true})(tω::TaggedΩ{I, T, ΩT}) where {R, F, I, T, ΩT <: ΩProj}  =  rv(TaggedΩ(parentω(tω.taggedω), tω.tags))
 

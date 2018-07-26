@@ -52,4 +52,4 @@ ciid(f, args...; T=infer_elemtype(f, args...)) = RandVar{T, true}(f, args)
 name(x) = x
 name(rv::RandVar) = string(rv.f)
 Base.show(io::IO, rv::RandVar{T}) where T=
-  print(io, "$(name(rv))($(join(map(name, rv.args), ", ")))::$T")
+  print(io, "$(rv.id):$(name(rv))($(join(map(name, rv.args), ", ")))::$T")
