@@ -9,7 +9,7 @@ Fast SimpleΩ
   (i) Memory intensive
   (ii) Will give wrong results if not indexed corretly
 """
-struct SimpleΩ{I, V} <: Ω{I}
+struct SimpleΩ{I, V} <: ΩWOW{I}
   vals::Dict{I, V}
 end
 
