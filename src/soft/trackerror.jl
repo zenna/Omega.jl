@@ -28,9 +28,14 @@ function condf(tω::TaggedΩ, x, y)
   x(tω)
 end
 
-function trackerrorapply(x, ω)  
-  sbw = SoftBoolWrapper(SoftBool(Val{true}))
+function tagerror(ω, sb::SoftBool = SoftBool(Val{true}))
+  sbw = SoftBoolWrapper(sb)
   ω_ = TaggedΩ(ω, (sbw = sbw,))
+  ω_, sbw
+end
+
+function trackerrorapply(x, ω)  
+  ω_, sbw = tagerror(ω)
   fx = x(ω_)
   (fx, sbw.sb)
 end

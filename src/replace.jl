@@ -13,21 +13,24 @@ Scoped{T} = Union{
   Tuple{Scope, T},
 }
 
-function (x::RandVar)(tω::TaggedΩ{I, E}) where {I, E <: Scoped}
-  @show "hello"
-  @assert false
-  if ω.tag.scope.id === x.id
-    return ω.tag.scope.rv(tω)
+function (rv::RandVar{T, true})(tω::TaggedΩ{I, E, ΩT}) where {T, I, E <: Scoped, ΩT <: ΩWOW}
+  # @show "hello"
+  @show rv.id, tω.tags.scope
+  if tω.tags.scope.id === rv.id
+    return tω.tags.scope.rv(tω)
   else
-    return x(ω)
+    args = map(a->apl(a, tω), rv.args)
+    (rv.f)(tω[rv.id][1], args...)
   end
-  # This will recurse forever
 end
 
-function (x::RandVar{T, true})(tω::TaggedΩ{I, E}) where {T, I, E <: Scoped}
-end
-
-function (x::RandVar{T, false})(tω::TaggedΩ{I, E}) where {T, I, E <: Scoped}
+function (rv::RandVar{T, false})(tω::TaggedΩ{I, E, ΩT}) where {T, I, E <: Scoped, ΩT <: ΩWOW}
+  if tω.tags.scope.id === rv.id
+    return tω.tags.scope.rv(tω)
+  else
+    args = map(a->apl(a, tω), rv.args)
+    (rv.f)(args...)
+  end
 end
 
 function addscope(ω, θold, θnew, x)
@@ -40,29 +43,6 @@ end
 function Base.replace(x::RandVar{T}, (θold, θnew)::Pair{T1, T2}) where {T, T1 <: RandVar, T2 <: RandVar}
   RandVar{T}(ω -> addscope(ω, θold, θnew, x))
 end
-
-# """
-# Causal intervention: set `x1` to `x2`
-
-# `intervene` is equivalent to `do` in do-calculus
-
-# ## Returns
-# operator(xold::RandVar{T}) -> xnew::RandVar{T}
-# where 
-
-# jldoctest
-# ```
-# x = uniform(0.0, 1.0)
-# y = uniform(x, 1.0)
-# z = uniform(y, 1.0)
-# o = intervene(y, uniform(-10.0, -9.0))
-# ```
-# """
-
-# function repl(x1, x2, model::RandVar...)
-#   o = repl(x1, x2)
-#   repl(o, model)
-# end
 
 ## Cassette Powered Intervention
 ## =============================
