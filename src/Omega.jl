@@ -123,6 +123,8 @@ export mean,
        SGHMC,
        HMCFAST,
 
+       SoftBool,
+
        # Omegas
        Ω,
        SimpleΩ,

@@ -90,7 +90,7 @@ function Base.rand(y::RandVar,
   pvals = [x.data for x in values(p)] # as vector
   
   ωsamples = ΩT[] 
-  U(ω) = -logepsilon(trackerrorapply(x, ω))
+  U(ω) = -logepsilon(indomain(y, ω))
   ∇U(ω) = fluxgradient(y, ω)
 
   accepted = 0

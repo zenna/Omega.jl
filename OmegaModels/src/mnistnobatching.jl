@@ -3,7 +3,7 @@ using Omega
 using Flux, Flux.Data.MNIST
 using Flux: onehotbatch, argmax, crossentropy, throttle
 
-const nimages = 100
+const nimages = 3000
 const imgs = MNIST.images()[1:nimages]
 # Stack images into one large batch
 const X = hcat(float.(reshape.(imgs, :))...) # |> gpu
@@ -18,15 +18,23 @@ function net_(ω)
     softmax)
 end
 
+lift(:(Omega.SoftBool), 1)
+lift(:(Flux.crossentropy), 2)
+
 "Bayesian Multi Layer Percetron"
 function mlp(; n = 10, alg = HMCFAST, randkargs...)
-  @grab net = ciid(net_; T=Flux.Chain)
+  net = ciid(net_; T=Flux.Chain)
   prediction = net(X)
-  loss = pw(() -> crossentropy(prediction, Y))
-  @grab sb = pw(() -> Omega.SoftBool(loss))
-  # @grab error = Omega.randbool(crossentropy, sb, Y)
+  loss = crossentropy(prediction, Y)
+  sb = Omega.SoftBool(loss)
   nets = rand(net, sb, n; alg = alg, randkargs...)
 end
+
+# Problem1.
+# Using cross entropy as SoftBool when it is not actually a softbool, which is invalid
+# in particular when aded with true itill become true
+
+# 
 
 # The problem is that net has no conditions,
 # so HMC is asking for conditions, it gets back true effectively,
