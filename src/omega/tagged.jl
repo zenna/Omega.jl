@@ -1,9 +1,31 @@
-struct TaggedΩ{I, T, ΩT, N} <: Ω{I}
-  taggedω::ΩT
-  tags::NamedTuple{N, T}
+abstract type Tag end
+
+struct ErrorTag{E} <: Tag
+  sbw::E
 end
 
-TaggedΩ(ω::ΩT, tags::NamedTuple{N, T}) where {N, I, T, ΩT <: Ω{I}} = TaggedΩ{I, T, ΩT, N}(ω, tags)
+struct IdMap{RV}
+  id::Int
+  rv::RV
+end
+
+struct ScopeTag{ID <: IdMap} <: Tag
+  scope::ID
+end
+
+struct HybridTag{ID <: IdMap, E} <: Tag
+  scope::ID
+  sbw::E
+end
+
+# Tag = NamedTuple{N, T}
+
+struct TaggedΩ{I, TAG, ΩT} <: Ω{I}
+  taggedω::ΩT
+  tags::TAG
+end
+
+# 0.7 TaggedΩ(ω::ΩT, tags::Tag) where {N, I, T, ΩT <: Ω{I}} = TaggedΩ{I, TAG, ΩT}(ω, tags)
 
 tag(ω::Ω, tag) = TaggedΩ(ω, tag)
 tag(ω::TaggedΩ, tag) = TaggedΩ(ω.taggedω, merge(ω.tags, tag))

@@ -1,13 +1,16 @@
 
 ## Common
-mutable struct SoftBoolWrapper{ET <: Real}
-  sb::SoftBool{ET}
+mutable struct SoftBoolWrapper
+  sb::SoftBool
 end
+
+# mutable struct SoftBoolWrapper{ET <: Real}
+#   sb::SoftBool{ET}
+# end
 
 conjoinerror!(sbw::SoftBoolWrapper, y::Nothing) = nothing
 conjoinerror!(sbw::SoftBoolWrapper, yω::SoftBool) = sbw.sb &= yω
 conjoinerror!(sbw::SoftBoolWrapper, yω::Bool) = conjoinerror!(sbw, SoftBool(log(yω)))
-
 ## Tagged Omega Tracking
 ## =====================
 
@@ -31,27 +34,16 @@ end
 
 function tagerror(ω, sb::SoftBool = SoftBool(Val{true}))
   sbw = SoftBoolWrapper(sb)
-  ω_ = TaggedΩ(ω, (sbw = sbw,))
+  ω_ = TaggedΩ(ω, ErrorTag(sbw))
   ω_, sbw
 end
 
+"Is `ω` in the domain of `x`?"
 function trackerrorapply(x, ω)  
   ω_, sbw = tagerror(ω)
   fx = x(ω_)
   (fx, sbw.sb)
 end
 
-## Casette Powered Tracking
-## ========================
-Cassette.@context TrackErrorCtx
-
-function Cassette.execute(ctx::TrackErrorCtx, ::typeof(condf), ω, x, y)
-  conjoinerror!(ctx.metadata, Cassette.overdub(ctx, y, ω))
-  Cassette.overdub(ctx, x, ω)
-end
-
-function casettetrackerrorapply(f, args...)
-  sbw = SoftBoolWrapper(SoftBool(Val{true}))
-  fx = Cassette.overdub(TrackErrorCtx(metadata=sbw), f, args...)
-  (fx, sbw.sb)
-end
+"Is `ω` in the domain of `x`?"
+indomain(x, ω) = trackerrorapply(x, ω)[2]

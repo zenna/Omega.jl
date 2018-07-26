@@ -1,21 +1,21 @@
 ## Distributional Functions
 ## ========================
 "Expectation of `x`"
-Statistics.mean(x::AbstractRandVar{<:Real}, n=10000) = sum((rand(x) for i = 1:n)) / n
-Statistics.mean(x::AbstractRandVar{T}, n=10000) where {T <: RandVar{<:Real}} =
+Base.mean(x::AbstractRandVar{<:Real}, n=10000) = sum((rand(x) for i = 1:n)) / n
+Base.mean(x::AbstractRandVar{T}, n=10000) where {T <: RandVar{<:Real}} =
   RandVar{Float64, false}(mean, (x, n), 0)
 
 "Sample variance (using `n` samples)"
-function Statistics.var(x::AbstractRandVar{<:Real}, n=10000)
+function Base.var(x::AbstractRandVar{<:Real}, n=10000)
   var([rand(x) for i = 1:n])
 end
 
 "Sample variance (using `n` samples)"
-function Statistics.var(x::AbstractRandVar{T}, n=10000) where {T <: RandVar{<:Real}}
+function Base.var(x::AbstractRandVar{T}, n=10000) where {T <: RandVar{<:Real}}
   RandVar{Float64, false}(var, (x, n))
 end
 
-Statistics.mean(xs::AbstractRandVar{<:Array}) = RandVar{Float64, false}(mean, (xs,))
+Base.mean(xs::AbstractRandVar{<:Array}) = RandVar{Float64, false}(mean, (xs,))
 
 prob(x::RandVar{T}, n) where {T <: Bool} = mean(x, n)
 prob(x::RandVar{T}, n = 10000) where { T<: RandVar{Bool}} = RandVar{Float64, false}(prob, (x, n), 0)

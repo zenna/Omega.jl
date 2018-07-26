@@ -24,10 +24,12 @@ end
 Omega.lift(:ccount, 2)
 
 # Observations
-y_obs = zeros(k)
-y_obs[2] = n_obs
+function ball()
+  y_obs = zeros(k)
+  y_obs[2] = n_obs
 
-c = ccount(y, k)
-samples = rand(weights, c == y_obs)
-meds = [median(map(x->x[i], samples)) for i = 1:k]
-@test findmax(meds)[2] == 2
+  c = ccount(y, k)
+  samples = rand(weights, c == y_obs)
+  meds = [median(map(x->x[i], samples)) for i = 1:k]
+  @test findmax(meds)[2] == 2
+end

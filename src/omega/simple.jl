@@ -79,7 +79,8 @@ struct ValueTuple
   _UInt32::UInt32
 end
 
-Random.rng_native_52(ω::Ω) = Random.rng_native_52(Random.GLOBAL_RNG)
+# If julia 0.7
+# Random.rng_native_52(ω::Ω) = Random.rng_native_52(Random.GLOBAL_RNG)
 
 # function Random.rng_native_52(ωπ::ΩProj{O}) where {I, O <: SimpleΩ{I, ValueTuple}}
 #   res = if ωπ.id ∈ keys(ωπ.ω.vals)
@@ -117,17 +118,18 @@ function Base.rand(ωπ::ΩProj{O}, ::Type{CO}) where {I, CO, O <: SimpleΩ{I, V
   res
 end
 
-function Base.rand(ωπ::ΩProj{O}, fi::Random.FloatInterval{Float64}) where {I, O <: SimpleΩ{I, ValueTuple}}
-  res = if ωπ.id ∈ keys(ωπ.ω.vals)
-    ωπ.ω.vals[ωπ.id]._Float64
-  else
-    val = rand(Random.GLOBAL_RNG, fi)
-    ωπ.ω.vals[ωπ.id] = ValueTuple(val, zero(Float32), zero(UInt))
-    val
-  end
-  increment!(ωπ)
-  res
-end
+# 0.7
+# function Base.rand(ωπ::ΩProj{O}, fi::Random.FloatInterval{Float64}) where {I, O <: SimpleΩ{I, ValueTuple}}
+#   res = if ωπ.id ∈ keys(ωπ.ω.vals)
+#     ωπ.ω.vals[ωπ.id]._Float64
+#   else
+#     val = rand(Random.GLOBAL_RNG, fi)
+#     ωπ.ω.vals[ωπ.id] = ValueTuple(val, zero(Float32), zero(UInt))
+#     val
+#   end
+#   increment!(ωπ)
+#   res
+# end
 
 ## Merging
 ## =======

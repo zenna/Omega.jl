@@ -7,13 +7,13 @@ using Distributions
 using PDMats
 using ProgressMeter
 using Spec
-import Random
-import Statistics
-using Random: AbstractRNG
+import Base.Random
+# import Statistics
+import Base.Random: AbstractRNG
 using ZenUtils
 using UnicodePlots
-import Cassette
-using Cassette: @context
+using Compat
+
 
 UTuple{T} = Tuple{Vararg{T, N}} where N
 
@@ -31,7 +31,7 @@ include("omega/simple.jl")        # Sample Space
 include("omega/countvec.jl")      # Sample Space
 # include("omega/dirtyomega.jl")    # Sample Space
 include("omega/id.jl")            # Pairing functions for omega ids
-include("omega/diffomega.jl")     # Differentiable Omega
+# include("omega/diffomega.jl")     # Differentiable Omega
 
 # RandVar
 include("randvar/randvar.jl")             # Random Variables
@@ -44,7 +44,6 @@ include("higher/rid.jl")          # Random Interventional Distribution
 # Lifted random variable operatiosn
 include("lift/array.jl")          # Array primitives
 include("lift/lift.jl")           # Lifting functions to RandVar domain
-include("lift/pointwise.jl")      # Lifting functions to RandVar domain (using Casette)
 
 # Conditioning
 include("cond.jl")                # Conditional Random Variables
@@ -52,7 +51,6 @@ include("cond.jl")                # Conditional Random Variables
 # Soft Inference
 include("soft/kernels.jl")        # Kernels
 include("soft/soft.jl")           # Soft logic
-include("soft/softapply.jl")      # Soft Interpretation
 include("soft/trackerror.jl")     # Tracking error
 
 # Inference Algorithms
@@ -125,10 +123,6 @@ export mean,
        SGHMC,
        HMCFAST,
 
-
-       # Pointwise
-       pw,
-
        # Omegas
        Ω,
        SimpleΩ,
@@ -140,7 +134,7 @@ export mean,
        withkernel,
 
        # Soft
-       softapply,
+       indomain,
 
        # Gradient
        gradient,
