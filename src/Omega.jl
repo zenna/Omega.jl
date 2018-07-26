@@ -150,6 +150,8 @@ export mean,
 
        Outside,
 
-       MaybeRV
+       MaybeRV,
+
+       cond
 
 end

@@ -11,4 +11,6 @@ tag(ω::TaggedΩ, tag) = TaggedΩ(ω.taggedω, merge(ω.tags, tag))
 Base.getindex(tω::TaggedΩ, i) = TaggedΩ(getindex(tω.taggedω, i), tω.tags)
 Base.rand(tω::TaggedΩ, args...) = rand(tω.taggedω, args...)
 Base.rand(tω::TaggedΩ, dims::Integer...) = rand(tω.taggedω, dims...)
+Base.rand(tω::Omega.TaggedΩ, dims::Dims) = rand(tω.taggedω, dims)
+
 parentω(tω::TaggedΩ) = TaggedΩ(parentω(tω), tω.tags)

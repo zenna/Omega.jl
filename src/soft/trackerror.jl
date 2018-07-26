@@ -6,6 +6,7 @@ end
 
 conjoinerror!(sbw::SoftBoolWrapper, y::Nothing) = nothing
 conjoinerror!(sbw::SoftBoolWrapper, yω::SoftBool) = sbw.sb &= yω
+conjoinerror!(sbw::SoftBoolWrapper, yω::Bool) = conjoinerror!(sbw, SoftBool(log(yω)))
 
 ## Tagged Omega Tracking
 ## =====================

@@ -1,6 +1,7 @@
 Cassette.@context PwCtx
 
 Cassette.execute(::PwCtx, op, f::RandVar, g::RandVar) = Omega.mkrv(op, (f, g))
+Cassette.execute(::PwCtx, op, f::RandVar, g) = Omega.mkrv(op, (f, g))
 Cassette.execute(::PwCtx, op, f::RandVar) = Omega.mkrv(op, (f,))
 
 # Cassette.@primitive tuple(f::RandVar) where {__CONTEXT__ <: PwCtx} =

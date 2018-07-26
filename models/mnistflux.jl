@@ -3,18 +3,13 @@ using Flux, Flux.Data.MNIST
 using Flux: onehotbatch, argmax, crossentropy, throttle
 using Base.Iterators: repeated
 
-imgs = MNIST.images()
+const imgs = MNIST.images()
 # Stack images into one large batch
-X = hcat(float.(reshape.(imgs, :))...) |> gpu
+const X = hcat(float.(reshape.(imgs, :))...) # |> gpu
 
-labels = MNIST.labels()
+const labels = MNIST.labels()
 # One-hot-encode the labels
-Y = onehotbatch(labels, 0:9) |> gpu
-
-m = Chain(
-  Dense(28^2, 32, relu),
-  Dense(32, 10),
-  softmax) |> gpu
+const Y = onehotbatch(labels, 0:9) # |> gpu
 
 function net(ω)
   Chain(
@@ -23,26 +18,28 @@ function net(ω)
     softmax)
 end
 
-m = ciid(net)
-fx = m(X);
-ob = Omega.randbool(crossentropy, fx, Y)
+function train()
+  m = ciid(net)
+  fx = m(X);
+  ob = Omega.randbool(crossentropy, fx, Y)
 
-ΩT = Omega.SimpleΩ{Int, Array}
-rand(m, ob, HMC, ΩT=ΩT)
-## Testing
-## ===========
-accuracy(x, y) = mean(argmax(m(x)) .== argmax(y))
+  ΩT = Omega.SimpleΩ{Int, Array}
+  rand(m, ob, HMC, ΩT=ΩT)
+  ## Testing
+  ## ===========
+  accuracy(x, y) = mean(argmax(m(x)) .== argmax(y))
 
-dataset = repeated((X, Y), 200)
-evalcb = () -> @show(loss(X, Y))
-opt = ADAM(params(m))
+  dataset = repeated((X, Y), 200)
+  evalcb = () -> @show(loss(X, Y))
+  opt = ADAM(params(m))
 
-Flux.train!(loss, dataset, opt, cb = throttle(evalcb, 10))
+  Flux.train!(loss, dataset, opt, cb = throttle(evalcb, 10))
 
-accuracy(X, Y)
+  accuracy(X, Y)
 
-# Test set accuracy
-tX = hcat(float.(reshape.(MNIST.images(:test), :))...) |> gpu
-tY = onehotbatch(MNIST.labels(:test), 0:9) |> gpu
+  # Test set accuracy
+  tX = hcat(float.(reshape.(MNIST.images(:test), :))...) # |> gpu
+  tY = onehotbatch(MNIST.labels(:test), 0:9) # |> gpu
 
-accuracy(tX, tY)
+  accuracy(tX, tY)
+end

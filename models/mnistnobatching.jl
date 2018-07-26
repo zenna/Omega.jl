@@ -1,20 +1,31 @@
+using ZenUtils
 using Omega
-using MNIST
-using Flux
+using Flux, Flux.Data.MNIST
+using Flux: onehotbatch, argmax, crossentropy, throttle
+using Base.Iterators: repeated
 
-σ3(x) =  1.0 ./ (1.0 .+ exp.(-x))
-const train_x, train_y = MNIST.traindata()
+const imgs = MNIST.images()
+# Stack images into one large batch
+const X = hcat(float.(reshape.(imgs, :))...) # |> gpu
 
-Omega.lift(:(Flux.σ), 1)
-Omega.lift(:(Flux.softmax), 1)
-Omega.lift(:σ3, 1)
+const labels = MNIST.labels()
+
+# One-hot-encode the labels
+const Y = onehotbatch(labels, 0:9) # |> gpu
+
+function net_(ω)
+  Chain(
+    Dense(ω[@id], 28^2, 32, relu),
+    Dense(ω[@id], 32, 10),
+    softmax)
+end
 
 "Bayesian Multi Layer Percetron"
-function mlp(;n = 10, alg = HMCFAST, ΩT = Omega.SimpleΩ{Int, Array}, randkargs...)
-  nin = MNIST.NROWS * MNIST.NCOLS
-  nout = 10
-  net = ciid(Dense, nin, nout, σ3)
-  prediction = net(train_x)
-  error = prediction == train_y
-  nets = rand(net, error; randkargs...)
+function mlp(;n = 10, alg = HMCFAST, randkargs...)
+  @grab net = ciid(net_; T=Flux.Chain)
+  prediction = net(X)
+  loss = pw(() -> crossentropy(prediction, Y))
+  @grab sb = pw(() -> Omega.SoftBool(loss))
+  # @grab error = Omega.randbool(crossentropy, sb, Y)
+  nets = rand(net, sb, n; alg = alg, randkargs...)
 end
