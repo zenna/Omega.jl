@@ -1,4 +1,4 @@
-# __precompile__()
+__precompile__()
 "A Causal, Hihger-Order Probabilistic Programming Langauge"
 module Omega
 

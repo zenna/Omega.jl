@@ -30,8 +30,8 @@ end
 
 (rv::RandVar)(tω::TaggedΩ{I, T, ΩT}) where {I, T, ΩT <: ΩProj}  =  rv(TaggedΩ(parentω(tω.taggedω), tω.tags))
 
-(rv::RandVar{R, false})(tω::TaggedΩ{I, T, ΩT}) where {R, F, I, T, ΩT <: ΩProj}  =  rv(TaggedΩ(parentω(tω.taggedω), tω.tags))
-(rv::RandVar{R, true})(tω::TaggedΩ{I, T, ΩT}) where {R, F, I, T, ΩT <: ΩProj}  =  rv(TaggedΩ(parentω(tω.taggedω), tω.tags))
+(rv::RandVar{R, false})(tω::TaggedΩ{I, T, ΩT}) where {R, I, T, ΩT <: ΩProj}  =  rv(TaggedΩ(parentω(tω.taggedω), tω.tags))
+(rv::RandVar{R, true})(tω::TaggedΩ{I, T, ΩT}) where {R, I, T, ΩT <: ΩProj}  =  rv(TaggedΩ(parentω(tω.taggedω), tω.tags))
 
 "X((w1, w2,...,)"
 (rv::NTuple{N, RandVar})(ω::Ω) where N = applymany(rv, ω)

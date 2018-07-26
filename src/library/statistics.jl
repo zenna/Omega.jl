@@ -24,10 +24,13 @@ lift(:prob, 1)
 ## Specializations
 ## ===============
 
-```jldoctest
+"""
+Prob 
+```
 julia> Mu.prob(bernoulli(0.3))
 0.3
 ```
+"""
 function prob(x::RandVar{T, Prim, typeof(bernoulli), Tuple{R}}) where {T, Prim, R <: Real}
   x.args[1]
 end
