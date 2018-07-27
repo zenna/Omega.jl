@@ -4,6 +4,7 @@ const HMCFAST = HMCFASTAlg()
 isapproximate(::HMCFASTAlg) = true
 defΩ(::Type{HMCFASTAlg}) = Omega.SimpleΩ{Vector{Int}, Flux.TrackedArray}
 defΩ(::HMCFASTAlg) = Omega.SimpleΩ{Vector{Int}, Flux.TrackedArray}
+defcb(::HMCFASTAlg) = default_cbs()
 # defcb = default_cbs(n)
 
 """Hamiltonian monte carlo with leapfrog integration:
@@ -73,9 +74,10 @@ end
 function Base.rand(y::RandVar,
                    n::Integer,
                    alg::HMCFASTAlg,
-                   ΩT::Type{OT},
-                   cb;
+                   ΩT::Type{OT};
+                   cb = default_cbs(n * takeevery),
                    nsteps = 10,
+                   takeevery = 1,
                    stepsize = 0.001) where {OT <: Ω}
   cb = runall(cb)
   ω = ΩT()        # Current Ω state of chain
@@ -94,16 +96,16 @@ function Base.rand(y::RandVar,
   ∇U(ω) = fluxgradient(y, ω)
 
   accepted = 0
-  for i = 1:n
+  for i = 1:n*takeevery
     p_, wasaccepted = hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω,
                           prop_ω, nsteps, stepsize, cb)
     if wasaccepted
-      push!(ωsamples, deepcopy(prop_ω))
+      i % takeevery == 0 && push!(ωsamples, deepcopy(prop_ω))
       accepted += 1
       foreach(qvals, prop_qvals) do q, prop_q @. q = prop_q  end
     else
       # QVALS need to reflect
-      push!(ωsamples, deepcopy(ω))
+      i % takeevery == 0 && push!(ωsamples, deepcopy(ω))
     end
     cb(RunData(prop_ω, accepted, Flux.data(p_), i), Outside)
   end

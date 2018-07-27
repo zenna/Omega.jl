@@ -30,7 +30,7 @@ isapproximate(::RejectionSampleAlg) = false
 function Base.rand(x::RandVar{T},
                    n::Integer,
                    alg::RejectionSampleAlg,
-                   ΩT::Type{OT},
+                   ΩT::Type{OT};
                    cb = donothing) where {T, OT}
   cb = runall(cb)
   samples = []

@@ -3,13 +3,13 @@ defΩ(args...) = Omega.SimpleΩ{Vector{Int}, Omega.ValueTuple}
 defcb(args...) = donothing
 
 "Sample `n` from `x`"
-function Base.rand(x::RandVar, n::Integer; alg::Algorithm =  defalg(x), cb = defcb(alg), ΩT = defΩ(alg))
-  rand(x, n, alg, ΩT, cb)
+function Base.rand(x::RandVar, n::Integer; alg::Algorithm =  defalg(x), ΩT = defΩ(alg), kwargs...)
+  rand(x, n, alg, ΩT; kwargs...)
 end
 
 "Sample 1 from `x`"
-function Base.rand(x::RandVar; alg::Algorithm = defalg(x), cb = defcb(alg), ΩT = defΩ(alg))
-  first(rand(x, 1, alg, ΩT, cb))
+function Base.rand(x::RandVar; alg::Algorithm = defalg(x), ΩT = defΩ(alg), kwargs...)
+  first(rand(x, 1, alg, ΩT, kwargs...))
 end
 
 Base.rand(x::RandVar, y::RandVar, n; kwargs...) = rand(cond(x, y), n; kwargs...)

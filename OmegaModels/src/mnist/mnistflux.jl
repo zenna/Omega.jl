@@ -17,18 +17,25 @@ function net_(ω)
     Dense(ω[@id], 32, 10),
     softmax)
 end
+const net = ciid(net_; T=Flux.Chain)
 
 lift(:(Omega.SoftBool), 1)
 lift(:(Flux.crossentropy), 2)
 
 "Bayesian Multi Layer Percetron"
 function mlp(; n = 10, alg = HMCFAST, randkargs...)
-  net = ciid(net_; T=Flux.Chain)
-  prediction = net(X)
-  loss = crossentropy(prediction, Y)
-  sb = Omega.SoftBool(loss)
+  @grab prediction = net(X)
+  @grab loss = -crossentropy(prediction, Y)
+  @grab sb = Omega.SoftBool(loss)
   nets = rand(net, sb, n; alg = alg, randkargs...)
 end
+
+# Testing
+
+accuracy(ω, x, y) = mean(argmax(net(ω)(x)) .== argmax(y))
+
+const tX = hcat(float.(reshape.(MNIST.images(:test), :))...) |> gpu
+const tY = onehotbatch(MNIST.labels(:test), 0:9) |> gpu
 
 # Problem1.
 # Using cross entropy as SoftBool when it is not actually a softbool, which is invalid

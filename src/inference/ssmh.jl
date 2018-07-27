@@ -45,8 +45,8 @@ end
 function Base.rand(x::RandVar{T},
                    n::Integer,
                    alg::SSMHAlg,
-                   ΩT::Type{OT},
-                   cb;
+                   ΩT::Type{OT};
+                   cb = donothing,
                    hack = true) where {T, OT <: Ω}
   cb = runall(cb)
   ω = ΩT()
