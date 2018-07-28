@@ -31,8 +31,8 @@ uuid = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
 version = "0.3.3"
 
 [[Cassette]]
-git-tree-sha1 = "163f1593c841287b556daf3407f6a5dd4544c688"
-repo-rev = "8e770a608c38142ee76b45bbf1037e4bf8b4fce6"
+git-tree-sha1 = "532eead1de484cf2357583358a02661529028f60"
+repo-rev = "master"
 repo-url = "https://github.com/jrevels/Cassette.jl"
 uuid = "59fb9612-49be-509a-8654-f972bbc0bdb2"
 version = "0.0.0"

@@ -1,11 +1,7 @@
 
 ## Tagged Omega Intervention
 ## =========================
-"Mapping from random variable to random variable which replaces it in interved model"
-struct Scope{RV}
-  id::Int
-  rv::RV
-end
+
 
 Scoped{T} = Union{
   Tuple{Scope},
