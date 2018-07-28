@@ -9,9 +9,9 @@ Scoped{T} = Union{
   Tuple{Scope, T},
 }
 
-function (rv::RandVar{T, true})(tω::TaggedΩ{I, E, ΩT}) where {T, I, E <: Scoped, ΩT <: ΩWOW}
-  # @show "hello"
-  @show rv.id, tω.tags.scope
+function (rv::RandVar{T, true})(tω::TaggedΩ{I, E, ΩT}) where {T, I, E <: Union{ScopeTag, HybridTag}, ΩT <: ΩWOW}
+  # # @show "hello"
+  # @show rv.id, tω.tags.scope
   if tω.tags.scope.id === rv.id
     return tω.tags.scope.rv(tω)
   else
@@ -20,7 +20,8 @@ function (rv::RandVar{T, true})(tω::TaggedΩ{I, E, ΩT}) where {T, I, E <: Scop
   end
 end
 
-function (rv::RandVar{T, false})(tω::TaggedΩ{I, E, ΩT}) where {T, I, E <: Scoped, ΩT <: ΩWOW}
+function (rv::RandVar{T, false})(tω::TaggedΩ{I, E, ΩT}) where {T, I, E <: Union{ScopeTag, HybridTag}, ΩT <: ΩWOW}
+  @show "here many"
   if tω.tags.scope.id === rv.id
     return tω.tags.scope.rv(tω)
   else
