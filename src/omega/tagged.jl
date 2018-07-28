@@ -6,8 +6,9 @@ end
 
 "Mapping from random variable to random variable which replaces it in interved model"
 struct Scope{RV}
-  id::Int
-  rv::RV
+  idmap::Dict{Int, RV}
+  # id::Int
+  # rv::RV
 end
 
 struct ScopeTag{ID <: Scope} <: Tag
@@ -21,7 +22,7 @@ end
 
 # Tag = NamedTuple{N, T}
 
-struct TaggedΩ{I, TAG, ΩT} <: Ω{I}
+struct TaggedΩ{I, TAG <: Tag, ΩT} <: Ω{I}
   taggedω::ΩT
   tags::TAG
 end
