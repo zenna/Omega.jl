@@ -17,6 +17,12 @@ function Base.rand(ωπ::ΩProj, T)
   res
 end
 
+function Base.rand(ωπ::ΩProj, ::Type{T}) where T
+  res = resolve(ωπ.ω, ωπ.id, T) 
+  increment!(ωπ)
+  res
+end
+
 
 ## Projection
 ## ==========

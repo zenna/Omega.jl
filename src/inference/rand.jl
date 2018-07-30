@@ -1,5 +1,5 @@
 defalg(args...) = SSMH
-defΩ(args...) = Omega.SimpleΩ{Vector{Int}, Any}
+defΩ(args...) = Omega.SimpleΩ{Vector{Int}, Float64}
 defcb(args...) = donothing
 
 "Sample `n` from `x`"
