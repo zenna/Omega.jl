@@ -107,7 +107,7 @@ version = "0.5.1"
 
 [[Flux]]
 deps = ["AbstractTrees", "Adapt", "Colors", "DiffRules", "ForwardDiff", "GZip", "LinearAlgebra", "MacroTools", "NNlib", "NaNMath", "Reexport", "Requires", "SpecialFunctions", "StatsBase", "ZipFile"]
-git-tree-sha1 = "66e769fd696b420560baa980405e9d63f5133414"
+git-tree-sha1 = "3793a8fe2a10669981f9ce460c9c32c5d4fe304e"
 repo-rev = "julia-0.7"
 repo-url = "https://github.com/FluxML/Flux.jl.git"
 uuid = "587475ba-b771-5e3f-ad9e-33799f191a9c"

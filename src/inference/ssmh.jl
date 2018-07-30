@@ -4,11 +4,11 @@ const SSMH = SSMHAlg()
 
 isapproximate(::SSMHAlg) = true
 
-function update_random(sω::SimpleΩ)
+function update_random(sω::SO)  where {SO <: SimpleΩ}
   k = rand(1:length(sω))
   filtered = Iterators.filter(sω.vals |> keys |> enumerate) do x
     x[1] != k end
-  SimpleΩ(Dict(k => sω.vals[k] for (i, k) in filtered))
+  SO(Dict(k => sω.vals[k] for (i, k) in filtered))
 end
 
 # "Sample from `x | y == true` with Single Site Metropolis Hasting"
