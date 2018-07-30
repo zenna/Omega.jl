@@ -19,12 +19,6 @@ SimpleΩ{I, V}() where {I, V} = SimpleΩ{I, V}(Dict{I, V}())
 Base.values(sω::SimpleΩ) = values(sω.vals)
 Base.keys(sω::SimpleΩ) = keys(sω.vals)
 
-## Projection
-## ==========
-function Base.getindex(sω::SO, i::Int) where {I, SO <: SimpleΩ{<:I}}
-  ΩProj{SO, I}(sω, base(I, i))
-end
-
 ## Rand
 ## ====
 function Base.rand(ωπ::ΩProj{O}, ::Type{T}) where {T, I, O <: SimpleΩ{I, <:Real}}

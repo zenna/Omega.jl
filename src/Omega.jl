@@ -26,16 +26,14 @@ include("omega/proj.jl")          # Sample Space Projection
 include("omega/tagged.jl")        # Space space tagged with metadata
 
 ## Different Types of Omega
-# include("omega/nested.jl")        # Sample Space
+include("omega/common.jl")
 include("omega/simple.jl")        # Sample Space
-include("omega/countvec.jl")      # Sample Space
 # include("omega/dirtyomega.jl")    # Sample Space
 include("omega/id.jl")            # Pairing functions for omega ids
-# include("omega/diffomega.jl")     # Differentiable Omega
 
 # RandVar
 include("randvar/randvar.jl")             # Random Variables
-include("randvar/randvarapply.jl")        # Random Variables
+include("randvar/randvarapply.jl")        # Random Variabl  es
 
 # Higher Order Inferene
 include("higher/rcd.jl")          # Random Conditional Distribution
@@ -65,7 +63,7 @@ include("inference/hmcfast.jl")   # Faster Hamiltonian Monte Carlo
 include("inference/sghmc.jl")     # Stochastic Gradient Hamiltonian Monte Carlo
 
 # Causal Inference
-include("replace.jl")                  # Causal Reasoning
+include("replace.jl")             # Causal Reasoning
 
 # Gradient
 include("gradient.jl")

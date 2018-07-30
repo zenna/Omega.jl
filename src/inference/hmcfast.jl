@@ -75,9 +75,9 @@ function Base.rand(y::RandVar,
                    n::Integer,
                    alg::HMCFASTAlg,
                    ΩT::Type{OT};
-                   cb = default_cbs(n * takeevery),
-                   nsteps = 10,
                    takeevery = 1,
+                   nsteps = 10,
+                   cb = default_cbs(n * takeevery),
                    stepsize = 0.001) where {OT <: Ω}
   cb = runall(cb)
   ω = ΩT()        # Current Ω state of chain

@@ -27,7 +27,7 @@ lift(:prob, 1)
 """
 Prob 
 ```
-julia> Mu.prob(bernoulli(0.3))
+julia> Omega.prob(bernoulli(0.3))
 0.3
 ```
 """
