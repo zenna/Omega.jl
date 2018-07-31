@@ -85,3 +85,7 @@ const MAXN = 4
 for fnm in fnms, i = 1:MAXN
   lift(fnm, i)
 end
+
+# wowlift(f::Function, args...) =  mkrv(f, args::Tuple)
+
+lift(f::Function) = g(args...) = mkrv(f, args)

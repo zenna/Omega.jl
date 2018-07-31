@@ -11,6 +11,13 @@ function parentω(ωπ::ΩProj)
   ωπ.ω
 end
 
+function Base.rand(ωπ::ΩProj, dims::Dims)
+  res = resolve(ωπ.ω, ωπ.id, dims) 
+  increment!(ωπ)
+  res
+end
+
+
 function Base.rand(ωπ::ΩProj, T)
   res = resolve(ωπ.ω, ωπ.id, T) 
   increment!(ωπ)
@@ -29,3 +36,4 @@ end
 function Base.getindex(sω::SO, i::Int) where {I, SO <: ΩWOW{I}}
   ΩProj{SO, I}(sω, base(I, i))
 end
+

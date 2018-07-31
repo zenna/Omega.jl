@@ -1,7 +1,5 @@
-"Random Variable"
+"Random Variable: a function `Ω -> T`"
 abstract type AbstractRandVar{T} end  # FIXME : Rename to RandVar
-
-# Base.getindex(rng::AbstractRNG, ::Int64) = rng
 
 struct RandVar{T, Prim, F, TPL, I} <: AbstractRandVar{T} # Rename to PrimRandVar or PrimRv
   f::F      # Function (generally Callable)
@@ -14,11 +12,11 @@ function RandVar{T, Prim}(f::F, args::TPL, id::I) where {T, Prim, F, TPL, I}
 end
 
 function RandVar{T, Prim}(f::F, args::TPL) where {T, Prim, F, TPL}
-  RandVar{T, Prim, F, TPL, Int}(f, args, uid()) # FIXME: HACK
+  RandVar{T, Prim, F, TPL, Int}(f, args, uid())
 end
 
 function RandVar{T}(f::F) where {T, F}
-  RandVar{T, true, F, Tuple{}, Int}(f, (), uid()) # FIXME: HACK
+  RandVar{T, true, F, Tuple{}, Int}(f, (), uid())
 end
 
 function Base.copy(x::RandVar{T}) where T
@@ -26,7 +24,7 @@ function Base.copy(x::RandVar{T}) where T
 end
 
 apply(f, xs...) = f(xs...)
-# FIXME this looze type
+# FIXME this loose type
 (rv::RandVar)(xs...) = RandVar{Any, false}(apply, (rv, xs...))
 
 ## I.I.D
@@ -39,7 +37,7 @@ function infer_elemtype(f, args...)
   rt[1]
 end
 
-"Construct an i.i.d. of `X`"
+"Construct an c.i.i.d. of `X`"
 ciid(f; T=infer_elemtype(f)) = RandVar{T}(f)
 
 # ciid(f, args...; T=infer_elemtype(f, args...)) = RandVar{T}(ω -> f(ω, args...))

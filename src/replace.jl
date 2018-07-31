@@ -25,14 +25,16 @@ function addscope(ω, pairs::Dict{Int, RV}, x) where {RV <: RandVar}
   x(ω_)
 end
 
-function addscope(ω, pairs::Dict{RV1, RV2}, x) where {RV1 <: RandVar, RV2 <: RandVar}
-  addscope(ω, Dict(k.id => v for (k, v) in pairs), x)
-end
+## Conversion
+mcv(x::RandVar) = x
+mcv(x) = constant(x)
+upconv(x::Dict{RV}) where RV = Dict(k.id => mcv(v) for (k, v) in x)
+upconv(pairs::Pair...) = Dict(k.id => mcv(v) for (k, v) in pairs)
+upconv(pair) = Dict(pair.first.id => mcv(pair.second))
 
 "Causal Intervention: Set `θold` to `θnew` in `x`"
-Base.replace(x::RandVar, pair::Pair) = replace(x, Dict(pair.first.id => pair.second))
-
-"Causal Intervention: Set `θold` to `θnew` in `x`"
-function Base.replace(x::RandVar{T}, pairs::Dict{RV, RV}) where {T, RV <: RandVar}
-  RandVar{T}(ω -> addscope(ω, pairs, x))
+function Base.replace(x::RandVar{T}, tochange::Union{Dict, Pair}...) where T
+  let d = upconv(tochange...)
+    RandVar{T}(ω -> addscope(ω, d, x))
+  end
 end

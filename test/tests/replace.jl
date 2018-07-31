@@ -36,3 +36,19 @@ function testreplace2()
 end
 
 testreplace2()
+
+function replaceconst()
+  μ = uniform(1.0, 2.0)
+  σ = uniform(1.0, 2.0)
+  x = normal(μ, σ)
+  xnew = replace(x, σ => μ)
+  rand(xnew)
+  xnew = replace(x, σ => 3.432)
+  rand(xnew)
+  xnew = replace(x, μ => 3.432, σ => 21.2)
+  rand(xnew)
+  # xnew = replace(x, Dict(μ => 3.432, σ => 21.2))
+  # rand(xnew)
+end
+
+replaceconst()
