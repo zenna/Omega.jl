@@ -27,4 +27,12 @@ rademacher
 mvnormal
 dirichlet
 ```
+## Describe distributional functions
 
+Omega comes with some functions which summarize an entire distribution.
+Most of these are inherited from [Distributions.jl](https://github.com/JuliaStats/Distributions.jl)
+
+```@docs
+mean
+prob
+```
