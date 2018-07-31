@@ -5,7 +5,7 @@ os:
   - linux
   - osx
 julia:
-  # - 0.7
+  - 0.7
   - nightly
 notifications:
   email: false
@@ -23,5 +23,5 @@ after_success:
   - julia -e 'using Pkg; Pkg.add("Documenter"); include(joinpath("docs", "make.jl"))'
 matrix:
   fast_finish: true
-  # allow_failures:
-  #   - julia: nightly
+  allow_failures:
+    - julia: nightly
