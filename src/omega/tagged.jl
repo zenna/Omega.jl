@@ -7,9 +7,8 @@ end
 "Mapping from random variable to random variable which replaces it in interved model"
 struct Scope{RV}
   idmap::Dict{Int, RV}
-  # id::Int
-  # rv::RV
 end
+Base.merge(scope1::Scope, scope2::Scope) = Scope(merge(scope1.idmap, scope2.idmap))
 
 struct ScopeTag{ID <: Scope} <: Tag
   scope::ID
@@ -38,6 +37,12 @@ mergetags(etag::ErrorTag, stag::ScopeTag) =
 
 mergetags(stag::ScopeTag, etag::ErrorTag) = 
   HybridTag(stag.scope, etag.sbw)
+
+mergetags(stag1::ScopeTag, stag2::ScopeTag) = 
+  ScopeTag(merge(stag1.scope, stag2.scope))
+
+mergetags(htag::HybridTag, stag::ScopeTag) = 
+  HybridTag(merge(htag.scope, stag.scope), htag.sbw)
 
 function tag(ω::TaggedΩ, tags)
   TaggedΩ(ω.taggedω, mergetags(ω.tags, tags))
