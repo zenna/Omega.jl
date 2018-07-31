@@ -2,7 +2,7 @@
 struct HMCAlg <: Algorithm end
 const HMC = HMCAlg()
 isapproximate(::HMCAlg) = true
-defΩ(::HMCAlg) = Omega.SimpleΩ{Int, Float64}
+defΩ(::HMCAlg) = Omega.SimpleΩ{Vector{Int}, Float64}
 
 "Hamiltonian monte carlo with leapfrog integration: https://arxiv.org/pdf/1206.1901.pdf"
 function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
@@ -99,5 +99,5 @@ function Base.rand(y::RandVar,
     end
     cb(RunData(ω_, accepted, p_, i), Outside)
   end
-  ωsamples
+  [applywoerror.(y, ω_) for ω_ in ωsamples]
 end

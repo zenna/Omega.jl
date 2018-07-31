@@ -13,13 +13,15 @@ function Base.rand(y::RandVar,
                    hack = true) where {OT <: Ω}
   cb = runall(cb)
   ω = ΩT()
-  plast = epsilon(y(ω))
+  xω_, sb = trackerrorapply(y, ω)
+  plast = epsilon(sb)
   qlast = 1.0
   ωsamples = ΩT[]
   accepted = 0
   for i = 1:n
     ω_ = ΩT()
-    p_ = epsilon(y(ω_))
+    xω_, sb = trackerrorapply(y, ω_)
+    p_ = epsilon(sb)
     ratio = p_ / plast
     if rand() < ratio
       ω = ω_
@@ -29,5 +31,5 @@ function Base.rand(y::RandVar,
     push!(ωsamples, ω)
     cb(RunData(ω, accepted, p_, i), Outside)
   end
-  ωsamples
+  [applywoerror.(y, ω_) for ω_ in ωsamples]
 end

@@ -7,7 +7,7 @@ using Test
 function simple(ALG, op, v = 1.0)
   μ = normal(0.0, 1.0)
   x = normal(μ, 1.0)
-  samples = rand(μ, op(x, v), ALG, n = 10)
+  samples = rand(μ, op(x, v), 10; alg = ALG)
 end
 
 function testall()

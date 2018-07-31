@@ -47,3 +47,6 @@ end
 
 "Is `ω` in the domain of `x`?"
 indomain(x, ω) = trackerrorapply(x, ω)[2]
+
+"Is `ω` in the domain of `x`?"
+applywoerror(x, ω) = trackerrorapply(x, ω)[1]
