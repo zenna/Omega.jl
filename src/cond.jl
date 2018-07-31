@@ -3,8 +3,10 @@ condf(ω, x, y) = Bool(y(ω)) ? x(ω) : nothing
 
 """Condition random variable `x` with random predicate RandVar{Bool}
 
+```julia
 x = normal(0.0, 1.0)
 x_ = cond(x, x > 0)
+```
 """
 cond(x::RandVar{T}, y::RandVar) where T = RandVar{T}(ω -> condf(ω, x, y))
 

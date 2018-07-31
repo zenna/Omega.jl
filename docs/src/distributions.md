@@ -8,18 +8,15 @@ Omega comes with a number of built-in probability distributions.
 bernoulli
 boolbernoulli
 betarv
-β
 categorical
 constant
 exponential
 gammarv
-Γ
 inversegamma
 kumaraswamy
 logistic
 poisson
 normal
-mvnormal
 uniform
 rademacher
 ```
@@ -30,3 +27,4 @@ rademacher
 mvnormal
 dirichlet
 ```
+

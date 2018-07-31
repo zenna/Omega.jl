@@ -1,5 +1,7 @@
 "Metropolized Independent Sampling"
 struct MIAlg <: Algorithm end
+
+"Metropolized Independent Sampling"
 const MI = MIAlg()
 
 isapproximate(::MIAlg) = true

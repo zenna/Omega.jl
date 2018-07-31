@@ -1,6 +1,6 @@
 MaybeRV{T} = Union{T, AbstractRandVar{T}} where T
 
-"Beta distribution parameters `α`  and `β`"
+"Beta distribution (alias β) parameters `α`  and `β`"
 betarv(ω::Ω, α::AbstractFloat, β::AbstractFloat) = quantile(Beta(α, β), rand(ω))
 betarv(α::MaybeRV{T}, β::MaybeRV{T}, ωid::Id=uid()) where T <: AbstractFloat = RandVar{T, true}(Omega.betarv, (α, β), ωid)
 const β = betarv
@@ -15,7 +15,7 @@ boolbernoulli(args...) = RandVar{SoftBool, false}(SoftBool, (bernoulli(args...),
 "Constant Random Variable"
 constant(x::T, ωid::Id = uid()) where T = RandVar{T, true}(ω -> x, (), ωid)
 
-"Gamma distribution"
+"Gamma distribution (alias Γ)"
 gammarv(ω::Ω, α::AbstractFloat, θ::AbstractFloat) = quantile(Gamma(α, θ), rand(ω))
 gammarv(α::MaybeRV{T}, θ::MaybeRV{T}, ωid::Id = uid()) where T <: Real =
   RandVar{T, true}(gammarv, (α, θ), ωid)

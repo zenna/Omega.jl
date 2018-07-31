@@ -110,6 +110,7 @@ export mean,
        mvnormal,
        uniform,
        rademacher,
+       constant,
 
        # Causal
        replace,

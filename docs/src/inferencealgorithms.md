@@ -7,7 +7,7 @@ You can of course develop your own
 
 Conditional sampling is done with `rand` and the algorithm are selected 
 
-```@doc
+```@docs
 RejectionSample
 MI
 SSMH

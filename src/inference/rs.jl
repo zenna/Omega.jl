@@ -1,5 +1,7 @@
 "Rejection Sampling"
 struct RejectionSampleAlg <: Algorithm end
+
+"Rejection Sampling"
 const RejectionSample = RejectionSampleAlg()
 
 isapproximate(::RejectionSampleAlg) = false

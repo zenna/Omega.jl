@@ -33,7 +33,7 @@ withkernel
 
 Omega has a number of built-in kernels:
 
-```@doc
+```@docs
 kse
 ```
 

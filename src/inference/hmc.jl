@@ -1,5 +1,7 @@
 "Hamiltonian Monte Carlo Sampling"
 struct HMCAlg <: Algorithm end
+
+"Hamiltonian Monte Carlo Sampling"
 const HMC = HMCAlg()
 isapproximate(::HMCAlg) = true
 defΩ(::HMCAlg) = Omega.SimpleΩ{Vector{Int}, Float64}

@@ -1,5 +1,7 @@
 "Single Site Metropolis Hastings"
 struct SSMHAlg <: Algorithm end
+
+"Single Site Metropolis Hastings"
 const SSMH = SSMHAlg()
 
 isapproximate(::SSMHAlg) = true

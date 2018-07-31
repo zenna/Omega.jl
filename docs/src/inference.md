@@ -27,7 +27,7 @@ rand(weight, x == 0)
 `rand(x, y)` is simply a shorter way of saying `rand(cond(x, y))`.
 That is, the mechanism for inference in Omega is conditioning random variables:
 
-```@doc
+```@docs
 cond
 ```
 
@@ -65,17 +65,3 @@ Omega automatically propagates the conditions from `weight` and `height` onto `b
 
 `rand((bmi, weight, height), alg = Rejection))`
 
-
-## Describe distributional functions
-
-Omega comes with some functions which summarize an entire distribution.
-Most of these are inherited from [Distributions.jl](https://github.com/JuliaStats/Distributions.jl)
-
-```@doc
-mean
-prob
-maximum
-minimum
-islowerbounded
-isupperbounded
-```
