@@ -12,4 +12,4 @@ end
 #   as, bs
 # end
 
-# rand(iid(X))
+# rand(ciid(X))

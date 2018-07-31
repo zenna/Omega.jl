@@ -1,13 +1,16 @@
-const ωcounter = [0]
-"Unique dimension id"
-function ωnew()
-  global ωcounter
-  x::Int = ωcounter[1] += 1
-end
+"Probability Space indexed with values of type I"
+abstract type Ω{I} <: AbstractRNG end
+
+abstract type ΩWOW{I} <: Ω{I} end
+
+const uidcounter = Counter(0)
+
+"Unique id"
+uid() = (global uidcounter; increment(uidcounter))
 
 "Construct globally unique id for indices for ω"
 macro id()
-  Omega.ωnew()
+  Omega.uid()
 end
 
 "Index of Probability Space"
@@ -18,9 +21,6 @@ const Ints = NTuple{N, Int} where N
 
 "Id of a random variable"
 const RandVarId = Int
-
-"Probability Space indexed with values of type I"
-abstract type Ω{I} <: AbstractRNG end
 
 ## Rand
 ## ====

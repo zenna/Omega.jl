@@ -33,7 +33,7 @@ function liftesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
   end
 end
 
-function lift(fnm::Union{Expr, Symbol}, n::Integer; mod::Module=@__MODULE__())
+function lift(fnm::Union{Expr, Symbol}, n::Integer; mod::Module=@compat @__MODULE__())
   combs = rvcombinations(n)
   for comb in combs
     Core.eval(mod, liftnoesc(fnm, comb))
@@ -85,3 +85,7 @@ const MAXN = 4
 for fnm in fnms, i = 1:MAXN
   lift(fnm, i)
 end
+
+# wowlift(f::Function, args...) =  mkrv(f, args::Tuple)
+
+lift(f::Function) = g(args...) = mkrv(f, args)

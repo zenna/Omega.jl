@@ -34,3 +34,18 @@ In Omega
 ```julia
 x(\omega) = \omega(1)
 ```
+
+## Independent Random Variables
+
+Use `iid(x)` to create a random variabel that is identical in distribution to `x` but but independent.
+
+## Conditionally Independent Random Variables
+
+Use `ciid(x)` to create a random variable that is identical in distributio to `x` but conditionally independent given its parents.
+
+```julia
+μ = uniform(0.0, 1.0)
+y1 = normal(μ, 1.0)
+y2 = ciid(y1)
+rand((y1, y2))
+```

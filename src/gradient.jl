@@ -4,8 +4,7 @@ using Flux
 "Gradient ∇Y()"
 function gradient(Y::RandVar, ω::Ω, vals = linearize(ω))
   Y(ω)
-  #@show Y(ω), ω, vals
-  unpackcall(xs) = -logepsilon(Y(unlinearize(xs, ω)))
+  unpackcall(xs) = -logepsilon(indomain(Y, unlinearize(xs, ω)))
   ForwardDiff.gradient(unpackcall, vals)
 end
 
@@ -35,6 +34,6 @@ function gradient(Y::RandVar, sω::SimpleΩ{I, V}, vals) where {I, V <: Abstract
 end
 
 function fluxgradient(Y::RandVar, sω::SimpleΩ{I, V}) where {I, V <: AbstractArray}
-  l = -logepsilon(Y(sω))
+  l = -logepsilon(indomain(Y, sω))
   Flux.back!(l)
 end

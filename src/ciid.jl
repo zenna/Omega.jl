@@ -31,10 +31,10 @@ end
 A = poisson(5)
 B(ω) = A(ω) + 10.0  
 C(ω) = B(ω) + A(ω)
-D = iid(C)  # i.i.d of C
+D = ciid(C)  # i.i.d of C
 E = ciid(D, A)  # shares D's A
 
-# Problem 1 How to make D iid
+# Problem 1 How to make D ciid
 # Conceptually I would (i) make a copy of C, and go through it and replace
 # The i.d. of A in copy(C) with a new id.
 # I can't do this in reality because I don't have access to A in C

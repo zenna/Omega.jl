@@ -7,13 +7,13 @@ using Test
 function simple(ALG, op, v = 1.0)
   μ = normal(0.0, 1.0)
   x = normal(μ, 1.0)
-  samples = rand(μ, op(x, v), ALG, n = 10)
+  samples = rand(μ, op(x, v), 10; alg = ALG)
 end
 
 function testall()
   algs = [HMC, SSMH, MI, HMCFAST] # FIXME: subtypes(Omega.Algorithm))
   for ALG in filter(Omega.isapproximate, algs), op in [⪅, ⪆, ≊]
-    println("Testing $ALG")
+    println("Testing $ALG on $op")
     simple(ALG, op)
   end
 end

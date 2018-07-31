@@ -5,7 +5,7 @@ function testgrad()
   μ = uniform(0.0, 1.0)
   x = normal(μ, 1.0)
   y = x ≊ 1.0
-  ω = Omega.SimpleΩ{Int, Float64}()
+  ω = Omega.SimpleΩ{Vector{Int}, Float64}()
   y(ω)
   Omega.gradient(y, ω)
 end
@@ -18,7 +18,7 @@ function testgrad2()
   samples = y = x ≊ 3.0
 
   # Gradient test
-  ω = Omega.SimpleΩ{Int, Float64}()
+  ω = Omega.SimpleΩ{Vector{Int}, Float64}()
   y(ω)
   unpackcall(xs) = Omega.epsilon(y(Omega.unlinearize(xs, ω)))
   Omega.gradient(y, ω)

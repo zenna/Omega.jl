@@ -22,7 +22,7 @@ function RandVar{T, Prim}(f::F, args::TPL) where {T, Prim, F, TPL}
 end
 
 function RandVar{T}(f::F) where {T, F}
-  RandVar{T, true, F, Tuple{}, Int}(f, (), ωnew()) # FIXME: HACK
+  RandVar{T, true, F, Tuple{}, Int}(f, (), uid()) # FIXME: HACK
 end
 
 function Base.copy(x::RandVar{T}) where T
@@ -43,7 +43,7 @@ const IdMap = Dict{Int, Int}
 # end
 
 # function (rv::ReplRandVar{T})(ω::Ω) where T  
-#   RandVar{T, true, F, Tuple{}, Int}(f, (), ωnew()) # FIXME: HACK
+#   RandVar{T, true, F, Tuple{}, Int}(f, (), uid()) # FIXME: HACK
 # end
 
 # M"`RandVar` identically distributed to `x`, conditionally independent given `y`"
@@ -78,7 +78,7 @@ function infer_elemtype(f)
 end
 
 "Construct an i.i.d. of `X`"
-iid(f, T=infer_elemtype(f)) = RandVar{T}(f)
+ciid(f, T=infer_elemtype(f)) = RandVar{T}(f)
 
 ## Printing
 ## ========

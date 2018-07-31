@@ -1,5 +1,5 @@
-# __precompile__()
-"A Causal, Hihger-Order Probabilistic Programming Langauge"
+__precompile__()
+"A Library for Causal and Higher-Order Probabilistic Programming"
 module Omega
 
 using Flux
@@ -7,71 +7,70 @@ using Distributions
 using PDMats
 using ProgressMeter
 using Spec
-import Random
-import Statistics
-using Random: AbstractRNG
+import Base.Random
+# import Statistics
+import Base.Random: AbstractRNG
 using ZenUtils
 using UnicodePlots
-using Cassette
-using Cassette: @overdub, @primitive, @context
-
-UTuple{T} = Tuple{Vararg{T, N}} where N
+using Compat
 
 # Util
 include("util/misc.jl")
 
 # Core
 include("omega/omega.jl")         # Sample Space
-include("omega/proj.jl")          # Sample Space
-include("randvar.jl")             # Random Variables
+include("omega/proj.jl")          # Sample Space Projection
+include("omega/tagged.jl")        # Space space Tagged with metadata
 
 ## Different Types of Omega
-# include("omega/nested.jl")        # Sample Space
-include("omega/simple.jl")        # Sample Space
-include("omega/countvec.jl")      # Sample Space
-# include("omega/dirtyomega.jl")    # Sample Space
+include("omega/simple.jl")        # Simple Ω
+# include("omega/dirtyomega.jl")  # Sample Space
 include("omega/id.jl")            # Pairing functions for omega ids
-include("omega/diffomega.jl")     # Differentiable Omega
 
-include("randvarapply.jl")    # Random Variables
+# RandVar
+include("randvar/randvar.jl")             # Random variables
+include("randvar/randvarapply.jl")        # Random variable application to ω::Ω
 
-# Higher Order Inferene
-include("higher/rcd.jl")       # Random Conditional Distribution
-include("higher/rid.jl")       # Random Interventional Distribution
+# i.i.d.
+# include("iid/iid.jl")           # i.i.d. RandVars
+include("iid/ciid.jl")            # Conditionally i.i.d. RandVars
+
+# Higher-Order Inference
+include("higher/rcd.jl")          # Random Conditional Distribution
+include("higher/rid.jl")          # Random Interventional Distribution
 
 # Lifted random variable operatiosn
-include("lift/array.jl")     # Array primitives
-include("lift/lift.jl")      # Lifting functions to RandVar domain
-include("lift/pointwise.jl") # Lifting functions to RandVar domain (using Casette)
-
-# Inference
-include("soft/kernels.jl")       # Soft logic
-include("soft/soft.jl")          # Soft logic
-include("soft/softapply.jl")          # Soft Interpretation
+include("lift/array.jl")          # Array primitives
+include("lift/lift.jl")           # Lifting functions to RandVar domain
 
 # Conditioning
-include("cond.jl")      # Conditional Random Variables
+include("cond.jl")                # Conditional random variables
+
+# Soft Inference
+include("soft/kernels.jl")        # Kernels
+include("soft/soft.jl")           # Soft logic
+include("soft/trackerror.jl")     # Tracking error
 
 # Inference Algorithms
-include("inference/common.jl")  # Algorithm abstract type, Common Inference Functions
-include("inference/callbacks.jl")  # Common Inference Functions
-include("inference/rand.jl")    # Sampling
-include("inference/rs.jl")      # Rejection Sampling
-include("inference/mi.jl")      # Metropolized Independent Sampling
-include("inference/ssmh.jl")    # Single Site Metropolis Hastings
-include("inference/hmc.jl")     # Hamiltonian Monte Carlo
-include("inference/hmcfast.jl") # Faster Hamiltonian Monte Carlo
-include("inference/sghmc.jl")   # Stochastic Gradient Hamiltonian Monte Carlo
+include("inference/common.jl")    # Algorithm abstract type, Common Inference Functions
+include("inference/callbacks.jl") # Common Inference Functions
+include("inference/rand.jl")      # Sampling
+include("inference/rs.jl")        # Rejection Sampling
+include("inference/mi.jl")        # Metropolized Independent Sampling
+include("inference/ssmh.jl")      # Single Site Metropolis Hastings
+include("inference/hmc.jl")       # Hamiltonian Monte Carlo
+include("inference/hmcfast.jl")   # Faster Hamiltonian Monte Carlo
+include("inference/sghmc.jl")     # Stochastic Gradient Hamiltonian Monte Carlo
 
 # Causal Inference
-include("do.jl")        # Causal Reasoning
+include("replace.jl")             # Causal Interventions
 
 # Gradient
 include("gradient.jl")
 
 # Library
 include("library/distributions.jl")  # Primitive distributions
-include("library/statistics.jl")     # Mean, etc
+include("library/statistics.jl")     # Distributional properties: mean, variance, etc
 
 # Neural Network Stuff
 include("flux.jl")
@@ -81,6 +80,8 @@ export mean,
        rcd,
        ∥,
        softeq,
+       softlt,
+       softgt,
        ≊,
        ⪆,
        ⪅,
@@ -88,7 +89,7 @@ export mean,
        @lift,
        lift,
        @id,
-       iid,
+       ciid,
        kse,
 
        # Distributions
@@ -110,9 +111,8 @@ export mean,
        uniform,
        rademacher,
 
-       # Do
-       intervene,
-       change,
+       # Causal
+       replace,
 
        # Algorithms
        RejectionSample,
@@ -121,6 +121,8 @@ export mean,
        HMC,
        SGHMC,
        HMCFAST,
+
+       SoftBool,
 
        # Omegas
        Ω,
@@ -133,7 +135,7 @@ export mean,
        withkernel,
 
        # Soft
-       softapply,
+       indomain,
 
        # Gradient
        gradient,
@@ -143,6 +145,8 @@ export mean,
 
        Outside,
 
-       MaybeRV
+       MaybeRV,
+
+       cond
 
 end

@@ -31,7 +31,7 @@ uuid = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
 version = "0.3.3"
 
 [[Cassette]]
-git-tree-sha1 = "8fc89358d1136a48394f4a9418bce99fa7150cda"
+git-tree-sha1 = "532eead1de484cf2357583358a02661529028f60"
 repo-rev = "master"
 repo-url = "https://github.com/jrevels/Cassette.jl"
 uuid = "59fb9612-49be-509a-8654-f972bbc0bdb2"
@@ -107,17 +107,17 @@ version = "0.5.1"
 
 [[Flux]]
 deps = ["AbstractTrees", "Adapt", "Colors", "DiffRules", "ForwardDiff", "GZip", "LinearAlgebra", "MacroTools", "NNlib", "NaNMath", "Reexport", "Requires", "SpecialFunctions", "StatsBase", "ZipFile"]
-git-tree-sha1 = "66e769fd696b420560baa980405e9d63f5133414"
+git-tree-sha1 = "3793a8fe2a10669981f9ce460c9c32c5d4fe304e"
 repo-rev = "julia-0.7"
 repo-url = "https://github.com/FluxML/Flux.jl.git"
 uuid = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 version = "0.5.3+"
 
 [[ForwardDiff]]
-deps = ["CommonSubexpressions", "Compat", "DiffResults", "DiffRules", "NaNMath", "SpecialFunctions", "StaticArrays"]
-git-tree-sha1 = "1c15726e82a01b42fc0f91e1220a99da6b8d7734"
+deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "InteractiveUtils", "LinearAlgebra", "NaNMath", "Random", "SparseArrays", "SpecialFunctions", "StaticArrays", "Test"]
+git-tree-sha1 = "91bd8f3deb78e5d03b5c05c3613f135e5c300252"
 uuid = "f6369f11-7733-5829-9624-2563aa707210"
-version = "0.7.5"
+version = "0.8.0"
 
 [[GZip]]
 deps = ["Compat"]

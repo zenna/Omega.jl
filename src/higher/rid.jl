@@ -8,7 +8,7 @@ end
 #   # TODO
 # end
 
-(rv::RID)(ω::Ω) = change(rv.θ, rv.θ(rv.ω), rv.x)(ω)
+(rv::RID)(ω::Ω) = replace(rv.x, rv.θ => rv.θ(rv.ω))(ω)
 
 "Random interentional distribution `x ∥ change(θ)`"
-rid(x, θ) = iid(ω -> RID(x, θ, ω))
+rid(x, θ) = ciid(ω -> RID(x, θ, ω))

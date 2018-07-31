@@ -1,0 +1,9 @@
+name = "OmegaRemix"
+uuid = "b211d362-90dd-11e8-2d46-67ad4949f092"
+authors = ["Zenna Tavares <zennatavares@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+Cassette = "59fb9612-49be-509a-8654-f972bbc0bdb2"
+Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
+Spec = "526a04b8-654b-11e8-1588-db2a414f95b5"

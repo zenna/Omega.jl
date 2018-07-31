@@ -1,22 +1,27 @@
 "Metropolized Independent Sampling"
-abstract type MI <: Algorithm end
+struct MIAlg <: Algorithm end
+const MI = MIAlg()
 
-isapproximate(::Type{MI}) = true
+isapproximate(::MIAlg) = true
 
 "Sample `ω | y == true` with Metropolis Hasting"
-function Base.rand(ΩT::Type{OT}, y::RandVar, alg::Type{MI};
-                   n = 1000,
+function Base.rand(y::RandVar,
+                   n,
+                   alg::MIAlg,
+                   ΩT::Type{OT};
                    cb = default_cbs(n),
                    hack = true) where {OT <: Ω}
   cb = runall(cb)
   ω = ΩT()
-  plast = epsilon(y(ω))
+  xω_, sb = trackerrorapply(y, ω)
+  plast = epsilon(sb)
   qlast = 1.0
   ωsamples = ΩT[]
   accepted = 0
   for i = 1:n
     ω_ = ΩT()
-    p_ = epsilon(y(ω_))
+    xω_, sb = trackerrorapply(y, ω_)
+    p_ = epsilon(sb)
     ratio = p_ / plast
     if rand() < ratio
       ω = ω_
@@ -26,13 +31,5 @@ function Base.rand(ΩT::Type{OT}, y::RandVar, alg::Type{MI};
     push!(ωsamples, ω)
     cb(RunData(ω, accepted, p_, i), Outside)
   end
-  ωsamples
+  [applywoerror.(y, ω_) for ω_ in ωsamples]
 end
-
-# "Sample from `x | y == true` with Metropolis Hasting"
-# function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{MI};
-#                    n::Integer = 1000, ΩT::OT = DefaultΩ) where {T, OT}
-#   map(x, rand(ΩT, y, alg, n=n))
-# end
-
-Base.rand(x::Union{RandVar, UTuple{RandVar}}, y::RandVar; kwargs...) = rand(x, y, MI; kwargs...)

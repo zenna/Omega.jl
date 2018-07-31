@@ -8,27 +8,28 @@ First let's load Omega:
 using Omega
 ```
 
-Next, create a beta-bernoulli distribution.
-This means, our prior belief about the weight of the coin is [beta](https://en.wikipedia.org/wiki/Beta_distribution) distributed.
+We will model our belief about a coin after observing a number of tosses.
+
+Use a prior belief about the weight of the coin is [beta](https://en.wikipedia.org/wiki/Beta_distribution) distributed.
 A beta distribution is useful because it is continuous and bounded between 0 and 1. 
 
 ```julia
 weight = betarv(2.0, 2.0)
 ```
 
-Draw a 10000 samples from `weight` using `rand`
+Draw a 10000 samples from `weight` using `rand`:
 
 ```julia
 beta_samples = rand(weight, 10000)
 ```
 
-Let's see what this distribution looks like using UnicodePlots.  If you don't hae it installed alreay install with:
+Let's see what this distribution looks like using UnicodePlots.  If you don't have it installed already install with:
 
 ```julia
 (v0.7) pkg> add UnicodePlots
 ```
 
-To visualize the distribution, plot a histogram of the samples.
+To visualize the distribution, plot a histogram of the samples:
 
 ```julia
 julia> UnicodePlots.histogram(beta_samples)
@@ -49,7 +50,7 @@ julia> UnicodePlots.histogram(beta_samples)
              └────────────────────────────────────────┘
 ```
 
-The distribution is symmetric around 0.5 but there is nonzero probability that the weight could be anything between 0 and 1.
+The distribution is symmetric around 0.5 but there is nonzero probability on all values between 0 and 1.
 
 So far we have not done anything we couldn't do with `Distributions.jl`.
 

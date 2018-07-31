@@ -7,9 +7,8 @@ Fast SimpleΩ
 - Hence easy to sample from
 - Unique index for each rand value and hence:
   (i) Memory intensive
-  (ii) Will give wrong results if not indexed corretly
 """
-struct SimpleΩ{I, V} <: Ω{I}
+struct SimpleΩ{I, V} <: ΩWOW{I}
   vals::Dict{I, V}
 end
 
@@ -19,8 +18,100 @@ SimpleΩ{I, V}() where {I, V} = SimpleΩ{I, V}(Dict{I, V}())
 Base.values(sω::SimpleΩ) = values(sω.vals)
 Base.keys(sω::SimpleΩ) = keys(sω.vals)
 
+## Resolve
+## =======
+@inline function resolve(ω::SimpleΩ{I}, id::I, T) where {I}
+  get!(()->rand(Base.GLOBAL_RNG, T), ω.vals, id)
+end
+
+@inline function resolve(ω::SimpleΩ{I}, id::I, ::Type{T}, dims::Dims) where {I, T}
+  get!(()->rand(Base.GLOBAL_RNG, T, dims), ω.vals, id)
+end
+
+@inline function resolve(ωπ::SimpleΩ{I, A}, ::Type{T}) where {T, I, A<:AbstractArray}
+  val = get!(()->[rand(Base.GLOBAL_RNG, T)], ωπ.ω.vals, ωπ.id)
+  first(val)
+end
+
+@inline function resolve(ω::SimpleΩ{I, A}, id::I, ::Type{T},  dims::Dims) where {T, I, A<:Flux.TrackedArray}
+  get!(()->Flux.param(rand(Base.GLOBAL_RNG, T, dims)), ω.vals, id)
+end
+
+@inline function resolve(ω::SimpleΩ{I, A}, id::I, ::Type{T}) where {T, I, A<:Flux.TrackedArray}
+  val = get!(()->Flux.param([rand(Base.GLOBAL_RNG, T)]), ω.vals, id)
+  first(val)
+end
+
+## Version Specfici
+## ================
+
+if v"0.6" <= VERSION < v"0.7-"
+  rettype(::Type{Base.Random.CloseOpen}) = Float64
+end
+
+if VERSION > v"0.7-"
+  Random.rng_native_52(ω::Ω) = Random.rng_native_52(Random.GLOBAL_RNG)
+end
+
+#   function Random.rng_native_52(ωπ::ΩProj{O}) where {I, O <: SimpleΩ{I, ValueTuple}}
+#     res = if ωπ.id ∈ keys(ωπ.ω.vals)
+#       ωπ.ω.vals[ωπ.id]._Float64::Float64
+#     else
+#       @show val = Random.rng_native_52(Random.GLOBAL_RNG)
+#       ωπ.ω.vals[ωπ.id] = ValueTuple(val, Float32(0.0), UInt(0))
+#       val
+#     end
+#     increment!(ωπ)
+#     res
+#   end
+# end
+
+
+# 0.7
+# function Base.rand(ωπ::ΩProj{O}, fi::Random.FloatInterval{Float64}) where {I, O <: SimpleΩ{I, ValueTuple}}
+#   res = if ωπ.id ∈ keys(ωπ.ω.vals)
+#     ωπ.ω.vals[ωπ.id]._Float64
+#   else
+#     val = rand(Random.GLOBAL_RNG, fi)
+#     ωπ.ω.vals[ωπ.id] = ValueTuple(val, zero(Float32), zero(UInt))
+#     val
+#   end
+#   increment!(ωπ)
+#   res
+# end
+
+## Merging
+## =======
+
+function Base.merge!(sω1::SimpleΩ, sω2::SimpleΩ)
+  for (k, v) in sω2.vals
+    sω1.vals[k] = v
+  end
+  sω1
+end
+
+function projintersect!(ω_p::SimpleΩ, ω_s::SimpleΩ)
+  for k in keys(ω_p)
+    if k in keys(ω_s)
+      ω_p.vals[k] = ω_s.vals[k]
+    end
+  end
+  ω_p
+end
+
+projintersect!(ωπ1::Ω, ωπ2::Ω) = projintersect!(ωπ1.ω, ωπ2.ω)
+
+Base.merge!(ωπ1::Ω{O}, ωπ2::Ω{O}) where {O <: SimpleΩ} =
+  merge!(ωπ1.ω, ωπ2.ω)
+
+Base.isempty(sω::SimpleΩ) = isempty(sω.vals)
+Base.length(sω::SimpleΩ) = length(sω.vals)
+
+## Linearlization
+## ==============
+
 "Linearize ω into flat vector"
-function linearaize end
+function linearize end
 
 "Inverse of `linearize`, structure vector into ω"
 function unlinearize end
@@ -56,104 +147,3 @@ function unlinearize(ωvec, sω::SimpleΩ{I, V}) where {I, V <: Real}
   # Keys not sorted, might be wrong
   SimpleΩ(Dict(k => ωvec[i] for (i, k) in enumerate(keys(sω.vals))))
 end
-
-function Base.getindex(sω::SO, i::Int) where {I, SO <: SimpleΩ{<:I}}
-  ΩProj{SO, I}(sω, base(I, i))
-end
-
-## Rand
-## ====
-function Base.rand(ωπ::ΩProj{O}, ::Type{T}) where {T, I, O <: SimpleΩ{I, <:Real}}
-  get!(()->rand(Base.GLOBAL_RNG, T), ωπ.ω.vals, ωπ.id)
-end
-
-function Base.rand(ωπ::ΩProj{O}, ::Type{T},  dims::Dims) where {T, I, V, O <: SimpleΩ{I, V}}
-  @assert false "Not implemented (blocking to prevent silent errors)"
-end
-
-function Base.rand(ωπ::ΩProj{O}, ::Type{T},  dims::Dims) where {T, I, A<:AbstractArray, O <: SimpleΩ{I, A}}
-  get!(()->rand(Base.GLOBAL_RNG, T, dims), ωπ.ω.vals, ωπ.id)
-end
-
-function Base.rand(ωπ::ΩProj{O}, ::Type{T}) where {T, I, A<:AbstractArray, O <: SimpleΩ{I, A}}
-  val = get!(()->[rand(Base.GLOBAL_RNG, T)], ωπ.ω.vals, ωπ.id)
-  # val = get!(()->Float64[rand(Base.GLOBAL_RNG, T)], ωπ.ω.vals, ωπ.id)
-  first(val)
-end
-
-function Base.rand(ωπ::ΩProj{O}, ::Type{T},  dims::Dims) where {T, I, A<:Flux.TrackedArray, O <: SimpleΩ{I, A}}
-  get!(()->param(rand(Base.GLOBAL_RNG, T, dims)), ωπ.ω.vals, ωπ.id)
-end
-
-function Base.rand(ωπ::ΩProj{O}, ::Type{T}) where {T, I, A<:Flux.TrackedArray, O <: SimpleΩ{I, A}}
-  val = get!(()->param([rand(Base.GLOBAL_RNG, T)]), ωπ.ω.vals, ωπ.id)
-  first(val)
-end
-
-# rng_native_52(::Omega.ΩProj{Omega.SimpleΩ{Int64,Omega.ValueTuple},Int64})
-
-Random.rng_native_52(::Ω) = Random.rng_native_52(Random.GLOBAL_RNG)
-
-## Value Type
-## ==========
-
-struct ValueTuple
-  _Float64::Float64
-  _Float32::Float32
-  _UInt32::UInt32
-end
-
-function Base.rand(ωπ::ΩProj{O}, ::Type{UInt32}) where {I, O <: SimpleΩ{I, ValueTuple}}
-  if ωπ.id ∈ keys(ωπ.ω.vals)
-    ωπ.ω.vals[ωπ.id]._UInt32::UInt32
-  else
-    val = rand(Random.GLOBAL_RNG, UInt32)
-    ωπ.ω.vals[ωπ.id] = ValueTuple(0.0, 0.0, val)
-    val
-  end
-end
-
-function Base.rand(ωπ::ΩProj{O}, ::Type{CO}) where {I, CO, O <: SimpleΩ{I, ValueTuple}}
-  if ωπ.id ∈ keys(ωπ.ω.vals)
-    return ωπ.ω.vals[ωπ.id]._Float64
-  else
-    val = rand(Random.GLOBAL_RNG, CO)
-    ωπ.ω.vals[ωπ.id] = ValueTuple(val, Float32(0.0), UInt(0))
-    return val
-  end
-end
-
-function (rv::RandVar{T, true})(ω::SimpleΩ) where T
-  args = map(a->apl(a, ω), rv.args)
-  (rv.f)(ω[rv.id], args...)
-end
-
-function (rv::RandVar{T, false})(ω::SimpleΩ) where T
-  args = map(a->apl(a, ω), rv.args)
-  (rv.f)(args...)
-end
-
-function Base.merge!(sω1::SimpleΩ, sω2::SimpleΩ)
-  for (k, v) in sω2.vals
-    sω1.vals[k] = v
-  end
-  sω1
-end
-
-function projintersect!(ω_p::SimpleΩ, ω_s::SimpleΩ)
-  for k in keys(ω_p)
-    if k in keys(ω_s)
-      ω_p.vals[k] = ω_s.vals[k]
-    end
-  end
-  ω_p
-end
-
-projintersect!(ωπ1::Ω, ωπ2::Ω) = projintersect!(ωπ1.ω, ωπ2.ω)
-
-Base.merge!(ωπ1::Ω{O}, ωπ2::Ω{O}) where {O <: SimpleΩ} =
-  merge!(ωπ1.ω, ωπ2.ω)
-
-
-Base.isempty(sω::SimpleΩ) = isempty(sω.vals)
-Base.length(sω::SimpleΩ) = length(sω.vals)
