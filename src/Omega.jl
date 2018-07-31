@@ -1,5 +1,5 @@
 __precompile__()
-"A Causal, Hihger-Order Probabilistic Programming Langauge"
+"A Library for Causal and Higher-Order Probabilistic Programming"
 module Omega
 
 using Flux
@@ -14,27 +14,28 @@ using ZenUtils
 using UnicodePlots
 using Compat
 
-
-UTuple{T} = Tuple{Vararg{T, N}} where N
-
 # Util
 include("util/misc.jl")
 
 # Core
 include("omega/omega.jl")         # Sample Space
 include("omega/proj.jl")          # Sample Space Projection
-include("omega/tagged.jl")        # Space space tagged with metadata
+include("omega/tagged.jl")        # Space space Tagged with metadata
 
 ## Different Types of Omega
-include("omega/simple.jl")        # Simple Sample Space
+include("omega/simple.jl")        # Simple Ω
 # include("omega/dirtyomega.jl")  # Sample Space
 include("omega/id.jl")            # Pairing functions for omega ids
 
 # RandVar
-include("randvar/randvar.jl")             # Random Variables
-include("randvar/randvarapply.jl")        # Random Variabl  es
+include("randvar/randvar.jl")             # Random variables
+include("randvar/randvarapply.jl")        # Random variable application to ω::Ω
 
-# Higher Order Inferene
+# i.i.d.
+# include("iid/iid.jl")           # i.i.d. RandVars
+include("iid/ciid.jl")            # Conditionally i.i.d. RandVars
+
+# Higher-Order Inference
 include("higher/rcd.jl")          # Random Conditional Distribution
 include("higher/rid.jl")          # Random Interventional Distribution
 
@@ -43,7 +44,7 @@ include("lift/array.jl")          # Array primitives
 include("lift/lift.jl")           # Lifting functions to RandVar domain
 
 # Conditioning
-include("cond.jl")                # Conditional Random Variables
+include("cond.jl")                # Conditional random variables
 
 # Soft Inference
 include("soft/kernels.jl")        # Kernels
@@ -62,14 +63,14 @@ include("inference/hmcfast.jl")   # Faster Hamiltonian Monte Carlo
 include("inference/sghmc.jl")     # Stochastic Gradient Hamiltonian Monte Carlo
 
 # Causal Inference
-include("replace.jl")             # Causal Reasoning
+include("replace.jl")             # Causal Interventions
 
 # Gradient
 include("gradient.jl")
 
 # Library
 include("library/distributions.jl")  # Primitive distributions
-include("library/statistics.jl")     # Mean, etc
+include("library/statistics.jl")     # Distributional properties: mean, variance, etc
 
 # Neural Network Stuff
 include("flux.jl")
@@ -79,6 +80,8 @@ export mean,
        rcd,
        ∥,
        softeq,
+       softlt,
+       softgt,
        ≊,
        ⪆,
        ⪅,
@@ -109,8 +112,7 @@ export mean,
        rademacher,
 
        # Causal
-       repl,
-       ←,
+       replace,
 
        # Algorithms
        RejectionSample,

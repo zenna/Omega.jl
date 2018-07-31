@@ -13,7 +13,7 @@ end
 function testall()
   algs = [HMC, SSMH, MI, HMCFAST] # FIXME: subtypes(Omega.Algorithm))
   for ALG in filter(Omega.isapproximate, algs), op in [⪅, ⪆, ≊]
-    println("Testing $ALG")
+    println("Testing $ALG on $op")
     simple(ALG, op)
   end
 end

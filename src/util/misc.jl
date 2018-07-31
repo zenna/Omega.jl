@@ -20,3 +20,5 @@ Counter() = Counter(0)
 
 "Increment counter"
 increment(c::Counter) = x::Int = c.count += 1
+
+UTuple{T} = Tuple{Vararg{T, N}} where N

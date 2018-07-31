@@ -17,7 +17,6 @@ function Base.rand(ωπ::ΩProj, dims::Dims)
   res
 end
 
-
 function Base.rand(ωπ::ΩProj, T)
   res = resolve(ωπ.ω, ωπ.id, T) 
   increment!(ωπ)

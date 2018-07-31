@@ -53,3 +53,7 @@ mean(diffsamples)
 ## In what scenarios would it still be hotter after turning on the AC and closing the window?
 rand((timeofday, outside_temp, inside_temp, thermostat),
       thermostatnew - thermostat > 0.0, 10, alg = RejectionSample)
+
+## Problematic
+## If I observe the thermostat to be high, does this make it more likely that it is midday?
+mean(cond(timeofday == :afternoon, thermostat > 29.0)) - mean(timeofday == :afternoon)

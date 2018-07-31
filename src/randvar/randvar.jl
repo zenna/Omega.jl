@@ -27,8 +27,6 @@ apply(f, xs...) = f(xs...)
 # FIXME this loose type
 (rv::RandVar)(xs...) = RandVar{Any, false}(apply, (rv, xs...))
 
-## I.I.D
-## =====
 "Infer T from function `f: w -> T`"
 function infer_elemtype(f, args...)
   argtypes = map(typeof, args)
@@ -36,14 +34,6 @@ function infer_elemtype(f, args...)
   @pre length(rt) == 1 "Could not infer unique return type"
   rt[1]
 end
-
-"Construct an c.i.i.d. of `X`"
-ciid(f; T=infer_elemtype(f)) = RandVar{T}(f)
-
-# ciid(f, args...; T=infer_elemtype(f, args...)) = RandVar{T}(ω -> f(ω, args...))
-
-"ciid with arguments"
-ciid(f, args...; T=infer_elemtype(f, args...)) = RandVar{T, true}(f, args)
 
 ## Printing
 ## ========

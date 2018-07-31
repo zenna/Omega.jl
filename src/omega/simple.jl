@@ -38,7 +38,8 @@ end
 end
 
 @inline function resolve(ω::SimpleΩ{I, A}, id::I, ::Type{T}) where {T, I, A<:Flux.TrackedArray}
-  get!(()->Flux.param([rand(Base.GLOBAL_RNG, T)]), ω.vals, id)
+  val = get!(()->Flux.param([rand(Base.GLOBAL_RNG, T)]), ω.vals, id)
+  first(val)
 end
 
 ## Version Specfici
