@@ -1,6 +1,5 @@
 using Omega
 using UnicodePlots
-using Cassette
 
 function softtest()
   x = normal(0.0, 1.0)
