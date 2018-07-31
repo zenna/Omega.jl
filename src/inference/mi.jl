@@ -1,11 +1,14 @@
 "Metropolized Independent Sampling"
-abstract type MI <: Algorithm end
+struct MIAlg <: Algorithm end
+const MI = MIAlg()
 
-isapproximate(::Type{MI}) = true
+isapproximate(::MIAlg) = true
 
 "Sample `ω | y == true` with Metropolis Hasting"
-function Base.rand(ΩT::Type{OT}, y::RandVar, alg::Type{MI};
-                   n = 1000,
+function Base.rand(y::RandVar,
+                   n,
+                   alg::MIAlg,
+                   ΩT::Type{OT};
                    cb = default_cbs(n),
                    hack = true) where {OT <: Ω}
   cb = runall(cb)
@@ -28,11 +31,3 @@ function Base.rand(ΩT::Type{OT}, y::RandVar, alg::Type{MI};
   end
   ωsamples
 end
-
-# "Sample from `x | y == true` with Metropolis Hasting"
-# function Base.rand(x::RandVar{T}, y::RandVar{Bool}, alg::Type{MI};
-#                    n::Integer = 1000, ΩT::OT = DefaultΩ) where {T, OT}
-#   map(x, rand(ΩT, y, alg, n=n))
-# end
-
-Base.rand(x::Union{RandVar, UTuple{RandVar}}, y::RandVar; kwargs...) = rand(x, y, MI; kwargs...)

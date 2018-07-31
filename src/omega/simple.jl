@@ -33,12 +33,12 @@ end
   first(val)
 end
 
-@inline function resolve(ωπ::SimpleΩ{I, A}, ::Type{T},  dims::Dims) where {T, I, A<:Flux.TrackedArray}
-  get!(()->param(rand(Base.GLOBAL_RNG, T, dims)), ωπ.ω.vals, ωπ.id)
+@inline function resolve(ω::SimpleΩ{I, A}, id::I, ::Type{T},  dims::Dims) where {T, I, A<:Flux.TrackedArray}
+  get!(()->Flux.param(rand(Base.GLOBAL_RNG, T, dims)), ω.vals, id)
 end
 
-@inline function resolve(ωπ::SimpleΩ{I, A}, ::Type{T}) where {T, I, A<:Flux.TrackedArray}
-  get!(()->param([rand(Base.GLOBAL_RNG, T)]), ωπ.ω.vals, ωπ.id)
+@inline function resolve(ω::SimpleΩ{I, A}, id::I, ::Type{T}) where {T, I, A<:Flux.TrackedArray}
+  get!(()->Flux.param([rand(Base.GLOBAL_RNG, T)]), ω.vals, id)
 end
 
 ## Version Specfici

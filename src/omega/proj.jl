@@ -12,7 +12,7 @@ function parentω(ωπ::ΩProj)
 end
 
 function Base.rand(ωπ::ΩProj, dims::Dims)
-  res = resolve(ωπ.ω, ωπ.id, dims) 
+  res = resolve(ωπ.ω, ωπ.id, Float64, dims) 
   increment!(ωπ)
   res
 end

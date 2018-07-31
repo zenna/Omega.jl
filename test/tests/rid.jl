@@ -13,3 +13,5 @@ function testrid()
   θ_approx = mean([x_(Omega.defΩ()()) for i = 1:nsamples])
   @test isapprox(θ_approx, θ_; atol = 0.01)
 end
+
+testrid()
