@@ -16,6 +16,7 @@ script:
   - julia -e 'using Pkg; Pkg.update()'
   - julia -e 'using Pkg; Pkg.resolve()'
   - julia -e 'using Pkg; Pkg.build("Omega")'
+  - julia -e 'using Pkg; Pkg.add("Test")`
   - julia --depwarn=no -e 'using Pkg; Pkg.test("Omega", coverage=true)'
 after_success:
   - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
