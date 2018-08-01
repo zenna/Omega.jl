@@ -17,6 +17,7 @@ makedocs(
     "Higher Order Inference" => "higher.md",
     "Causal Inference" => "causal.md",
     "Built-in Distributions" => "distributions.md",
+    "Omega" => "omega.md",
     "Contribution Guide" => "contrib.md",
   ]
 )
