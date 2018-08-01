@@ -11,6 +11,12 @@ function parentω(ωπ::ΩProj)
   ωπ.ω
 end
 
+function Base.rand(ωπ::ΩProj, arr::Array)
+  res = resolve(ωπ.ω, ωπ.id, arr) 
+  increment!(ωπ)
+  res
+end
+
 function Base.rand(ωπ::ΩProj, dims::Dims)
   res = resolve(ωπ.ω, ωπ.id, Float64, dims) 
   increment!(ωπ)
