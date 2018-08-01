@@ -14,7 +14,7 @@ end
 
 "Default is no argument params"
 function infparams_(::Any)
-  Params{Symbol, Any}(Dict{Symbol, Any}(:n => uniform([2, 3])))
+  Params{Symbol, Any}(Dict{Symbol, Any}(:n => uniform([100, 200])))
 end
 Omega.lift(:infparams_, 1)
 
@@ -61,15 +61,16 @@ function infer(φ)
   nets = infer(net, error; φ[:infalg][:infalgargs]...)
 
   # Save the scenes
-  path = joinpath(φ[:logdir], "nets.bson")
-  BSON.bson(path, nets=nets)
   
   accs = [accuracy(net, tX, tY) for net in nets]
   @show mean(accs)
   @show accs[end]
-
+  
   # Show accuracy
   println(UnicodePlots.lineplot(accs))
+  
+  path = joinpath(φ[:logdir], "nets.bson")
+  BSON.bson(path, nets=nets)
 end
 
 main() = RunTools.control(infer, paramsamples())
