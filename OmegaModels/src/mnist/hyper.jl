@@ -61,7 +61,7 @@ function infer(φ)
   nets = infer(net, error; φ[:infalg][:infalgargs]...)
 
   # Save the scenes
-  
+  tX, tY = testdata()
   accs = [accuracy(net, tX, tY) for net in nets]
   @show mean(accs)
   @show accs[end]
