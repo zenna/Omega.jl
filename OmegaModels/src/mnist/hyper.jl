@@ -6,7 +6,7 @@ include("mnistflux.jl")
 "Optimization-specific parameters"
 function infparams()
   φ = Params()
-  φ[:infalg] = SSMH
+  φ[:infalg] = HMCFAST
   φ[:infalgargs] = infparams_(φ[:infalg])
   φ
 end
@@ -23,7 +23,7 @@ function runparams()
   φ[:loadchain] = false
   φ[:loadnet] = false
 
-  φ[:name] = "rnn test"
+  φ[:name] = "mnist test"
   φ[:runname] = randrunname()
   φ[:tags] = ["test", "mnist"]
   φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])   # LOGDIR is required for sim to save
@@ -55,28 +55,32 @@ end
 
 
 function infer(φ)
-  scene = ciid(scene_)     # Random Variable of scenes
-  img = render(scene)     # Random Variable over images
+  # scene = ciid(scene_)     # Random Variable of scenes
+  # img = render(scene)     # Random Variable over images
 
-  "Save images"
-  function saveimg(data, stage::Type{Outside})
-    imgpath = joinpath(φ[:logdir], "final$(data.i).png")
-    img_ = map(Images.clamp01nan, rgbimg(img(data.ω)))
+  # "Save images"
+  # function saveimg(data, stage::Type{Outside})
+  #   imgpath = joinpath(φ[:logdir], "final$(data.i).png")
+  #   img_ = map(Images.clamp01nan, rgbimg(img(data.ω)))
     
-    FileIO.save(imgpath, rgbimg(img_))
-  end
+  #   FileIO.save(imgpath, rgbimg(img_))
+  # end
 
-  n = φ[:infalg][:infalgargs][:n]
-  pred = withkernel(Omega.kseα(φ[:α])) do
-    nointersect(scene) & (img == img_obs)
-  end
-  samples = rand(scene, pred, φ[:infalg][:infalg];
-                 cb = [Omega.default_cbs(n); Omega.throttle(saveimg, 30)],
-                 φ[:infalg][:infalgargs]...)
+  # n = φ[:infalg][:infalgargs][:n]
+  # pred = withkernel(Omega.kseα(φ[:α])) do
+  #   nointersect(scene) & (img == img_obs)
+  # end
+  # samples = rand(scene, pred, φ[:infalg][:infalg];
+  #                cb = [Omega.default_cbs(n); Omega.throttle(saveimg, 30)],
+  #                φ[:infalg][:infalgargs]...)
+  X, Y = data()
+  net = ciid(net_; T = Flux.Chain)
+  error = loss(X, Y, net)
+  nets = infer(net, error; φ[:infalg][:infalgargs]...)
 
   # Save the scenes
-  path = joinpath(φ[:logdir], "omegas.bson")
-  BSON.bson(path, omegas=samples)
+  # path = joinpath(φ[:logdir], "nets.bson")
+  # BSON.bson(path, omegas=samples)
 end
 
 main() = RunTools.control(infer, paramsamples())

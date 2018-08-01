@@ -3,7 +3,7 @@ using Omega
 
 makedocs(
   modules = [Omega],
-  authors = "Zenna Tavares, Javier Burroni, Edgar Minaysan, Rajesh Ragananthan, Armando Solar Lezama",
+  authors = "Zenna Tavares, Javier Burroni, Edgar Minaysan, Rajesh Ragananthan, Armando Solar-Lezama",
   format = :html,
   sitename = "Omega.jl",
   pages = [
@@ -12,11 +12,11 @@ makedocs(
     "Modeling" => "model.md",
     "Inference"=>"inference.md",
     "Soft Execution"=>"soft.md",
-    "Inference"=>"inferencealgorithms.md",
     "Conditioning" => "conditioning.md",
-    "Higher Order Inference" => "higher.md",
     "Causal Inference" => "causal.md",
+    "Higher Order Inference" => "higher.md",
     "Built-in Distributions" => "distributions.md",
+    "Built-in Inference Algorithms"=>"inferencealgorithms.md",
     "Contribution Guide" => "contrib.md",
   ]
 )
