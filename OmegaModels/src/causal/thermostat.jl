@@ -1,9 +1,11 @@
-# Causal Model
+# Causal Modeling of time of day, ac, window, and thermostat
 using Omega
 
 timeofday = uniform([:morning, :afternoon, :evening])
 is_window_open = bernoulli(0.5)
-is_ac_on = bernoulli(0.3)
+
+"Turn off the a.c. when the window is closed!"
+is_ac_on = ciid(rng -> Bool(is_window_open(rng)) ? false : bernoulli(rng, 0.5))
 
 function outside_temp_(rng)
   if timeofday(rng) == :morning
@@ -54,6 +56,12 @@ mean(diffsamples)
 rand((timeofday, outside_temp, inside_temp, thermostat),
       thermostatnew - thermostat > 0.0, 10, alg = RejectionSample)
 
+## What if we opened the window and turned the AC on (logical inconsistency w.r.t to original model)
+thermostatimpossible = replace(thermostat, is_ac_on => 1.0, is_window_open => 1.0)
+diffsamplesimpossible = rand(thermostatimpossible - thermostat, 10000, alg = RejectionSample)
+UnicodePlots.histogram([diffsamplesimpossible...])
+mean(diffsamplesimpossible)
+      
 ## Problematic
 ## If I observe the thermostat to be high, does this make it more likely that it is midday?
 mean(cond(timeofday == :afternoon, thermostat > 29.0)) - mean(timeofday == :afternoon)
