@@ -1,6 +1,13 @@
 using RunTools
 using UnicodePlots
+using JLD2
 include("mnistflux.jl")
+
+# Fix the saving
+# Parameterize by nsteps
+# Take every
+# step_size
+# Loss function
 
 ## Params
 ## ======
@@ -69,8 +76,8 @@ function infer(φ)
   # Show accuracy
   println(UnicodePlots.lineplot(accs))
   
-  path = joinpath(φ[:logdir], "nets.bson")
-  BSON.bson(path, nets=nets)
+  path = joinpath(φ[:logdir], "nets.jld2")
+  @save path nets
 end
 
 main() = RunTools.control(infer, paramsamples())
