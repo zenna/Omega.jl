@@ -10,13 +10,13 @@ makedocs(
     "Home"=>"index.md",
     "Basic Tutorial" => "basictutorial.md",
     "Modeling" => "model.md",
-    "Inference"=>"inference.md",
+    "Conditional Inference"=>"inference.md",
     "Soft Execution"=>"soft.md",
-    "Conditioning" => "conditioning.md",
     "Causal Inference" => "causal.md",
     "Higher Order Inference" => "higher.md",
     "Built-in Distributions" => "distributions.md",
     "Built-in Inference Algorithms"=>"inferencealgorithms.md",
+    "Cheat Sheet" => "cheatsheet.md",
     "Contribution Guide" => "contrib.md",
   ]
 )

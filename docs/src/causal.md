@@ -8,6 +8,10 @@ Causal inference is a topic of much confusion, we recommend this [blog post](htt
 The `replace` operator models an interention to a model.
 It changes the model.
 
+```@docs
+replace
+```
+
 In Omega we use the syntax:
 
 ```julia
