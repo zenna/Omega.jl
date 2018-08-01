@@ -2,7 +2,7 @@
 
 In this tutorial we will run through the basics of creating a model and conditioning it.
 
-First let's load Omega:
+First load Omega:
 
 ```julia
 using Omega
@@ -10,12 +10,13 @@ using Omega
 
 We will model our belief about a coin after observing a number of tosses.
 
-Use a prior belief about the weight of the coin is [beta](https://en.wikipedia.org/wiki/Beta_distribution) distributed.
-A beta distribution is useful because it is continuous and bounded between 0 and 1. 
+Model the coin as a bernoulli distribution.  The weight of a bernoulli determines the probability it comes up true (which represents heads). Use a [beta distribution](https://en.wikipedia.org/wiki/Beta_distribution) to represent our prior belief weight of the coin.
 
 ```julia
-weight = betarv(2.0, 2.0)
+weight = β(2.0, 2.0)
 ```
+
+A beta distribution is appropriate here because it is bounded between 0 and 1. 
 
 Draw a 10000 samples from `weight` using `rand`:
 
@@ -50,11 +51,12 @@ julia> UnicodePlots.histogram(beta_samples)
              └────────────────────────────────────────┘
 ```
 
-The distribution is symmetric around 0.5 but there is nonzero probability on all values between 0 and 1.
+The distribution is symmetric around 0.5 and has support over the the interval [0, 1].
 
 So far we have not done anything we couldn't do with `Distributions.jl`.
+A primary distinction between a package like `Distribution.jl`, is that `Omega.jl` allows you to __condition__ probability distributions.
 
-We will create a model representing four flips of the coin.
+Create a model representing four flips of the coin.
 Since a coin can be heads or tales, the appropriate distribution is the [bernouli distribution](https://en.wikipedia.org/wiki/Bernoulli_distribution):
 
 
@@ -63,7 +65,7 @@ nflips = 4
 coinflips_ = [bernoulli(weight) for i = 1:nflips]
 ```
 
-Take note that the `weight` is the random variable defined previously.
+Take note that `weight` is the random variable defined previously.
 
 `coinflips` is a normal Julia array of Random Variables (`RandVar`s).
 For reasons we will elaborate in later sections, it will be useful to have an `Array`-valued `RandVar` (instead of an `Array` of `RandVar`).
@@ -71,7 +73,7 @@ For reasons we will elaborate in later sections, it will be useful to have an `A
 One way to do this (there are several ways discuseed later), is to use the function `randarray`
 
 ```julia
-coinflips = randarray(coinflips)
+coinflips = randarray(coinflips_)
 ```
 
 `coinflips` is a `RandVar` and hence we can sample from it with `rand`
@@ -102,17 +104,23 @@ julia> rand(coinflips)
 Now we can condition the model.
 We want to find the conditional distribution over the weight of the coin given some observations.
 
-First we create some fake data, and then use `rand` to draw conditional samples:
-
+First create some fake data
 ```julia
 observations = [true, true, true, false]
-weight_samples = rand(weight, coinflips == observations, RejectionSample)
 ```
+
+and then use `rand` to draw conditional samples:
+
+```julia
+weight_samples = rand(weight, coinflips == observations, 10, RejectionSample)
+```
+
+`weight_samples` is a set of `10` samples from the conditional (sometimes called posterior) distribution of `weight` condition on the fact that coinflips == observations.
 
 In this case, `rand` takes
 - A random variable we want to sample from
 - A predicate (type `RandVar{Bool}`) that we want to condition on, i.e. assert that it is true
-- An inference algorithm.  Here we use rejction sampling
+- An inference algorithm.  Here we use rejection sampling
 
 Plot a histogram of the weights like before:
 
@@ -133,4 +141,4 @@ julia> UnicodePlots.histogram(weight_samples)
 ```
 
 Observe that our belief about the weight has now changed.
-We are more convinced the coin is biased towards heads (`true`)
+We are more convinced the coin is biased towards heads (`true`).

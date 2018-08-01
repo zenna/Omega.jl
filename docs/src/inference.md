@@ -6,6 +6,10 @@ Omega have several inference algorithms built in, and provides the mechanism to 
 
 If you have a random variable `x` and a Boolean-valued random variable `y`, to sample from a conditional distribution use `rand(x,y)`.
 
+```@docs
+Omega.rand
+```
+
 For example:
 
 ```julia

@@ -53,4 +53,3 @@ accuracy(net, x, y) = mean(argmax(net(x)) .== argmax(y))
 
 # nets = main()
 # const tX, tY = testdata()
-# accuracy(nets[end], tX, tY)

@@ -30,18 +30,6 @@ git-tree-sha1 = "94dac52c662ca793008fb689e3daf626b6139943"
 uuid = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
 version = "0.3.3"
 
-[[Cassette]]
-git-tree-sha1 = "532eead1de484cf2357583358a02661529028f60"
-repo-rev = "master"
-repo-url = "https://github.com/jrevels/Cassette.jl"
-uuid = "59fb9612-49be-509a-8654-f972bbc0bdb2"
-version = "0.0.0"
-
-    [Cassette.deps]
-    LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-    Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
-    Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
 [[ColorTypes]]
 deps = ["FixedPointNumbers", "Random", "Test"]
 git-tree-sha1 = "456524c5dc9af774533e4133f9989296053c5bdd"
@@ -237,7 +225,7 @@ uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 [[Spec]]
 git-tree-sha1 = "c28f4f72b9371d0c842167670cad7b8fb4c0e71b"
 repo-rev = "master"
-repo-url = "https://github.com/zenna/Spec.jl.git"
+repo-url = "https://github.com/zenna/Spec.jl"
 uuid = "526a04b8-654b-11e8-1588-db2a414f95b5"
 version = "0.1.0"
 
@@ -294,9 +282,9 @@ version = "0.2.6"
 
 [[ZenUtils]]
 deps = ["Spec"]
-git-tree-sha1 = "7bf341a675c1bafedb4b1d87704e40e127caeba5"
-repo-rev = "7"
-repo-url = "https://github.com/zenna/ZenUtils.jl.git"
+git-tree-sha1 = "9f39f7ff4a4f97fb40d21fc84764d977e5b0bcac"
+repo-rev = "master"
+repo-url = "https://github.com/zenna/ZenUtils.jl"
 uuid = "8c7a6496-654a-11e8-0e4c-c7dc3dc823b6"
 version = "0.1.0"
 

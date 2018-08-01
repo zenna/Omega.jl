@@ -1,19 +1,27 @@
 using RunTools
+using UnicodePlots
+using JLD2
 include("mnistflux.jl")
+
+# Fix the saving
+# Parameterize by nsteps
+# Take every
+# step_size
+# Loss function
 
 ## Params
 ## ======
 "Optimization-specific parameters"
 function infparams()
   φ = Params()
-  φ[:infalg] = SSMH
+  φ[:infalg] = HMCFAST
   φ[:infalgargs] = infparams_(φ[:infalg])
   φ
 end
 
 "Default is no argument params"
-function infparams_(::Type{T}) where T
-  Params{Symbol, Any}(Dict{Symbol, Any}(:n => uniform([1000, 10000, 50000, 100000])))
+function infparams_(::Any)
+  Params{Symbol, Any}(Dict{Symbol, Any}(:n => uniform([100, 200])))
 end
 Omega.lift(:infparams_, 1)
 
@@ -23,7 +31,7 @@ function runparams()
   φ[:loadchain] = false
   φ[:loadnet] = false
 
-  φ[:name] = "rnn test"
+  φ[:name] = "mnist test"
   φ[:runname] = randrunname()
   φ[:tags] = ["test", "mnist"]
   φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])   # LOGDIR is required for sim to save
@@ -53,36 +61,29 @@ function enumparams()
   [Params()]
 end
 
-
 function infer(φ)
-  scene = ciid(scene_)     # Random Variable of scenes
-  img = render(scene)     # Random Variable over images
-
-  "Save images"
-  function saveimg(data, stage::Type{Outside})
-    imgpath = joinpath(φ[:logdir], "final$(data.i).png")
-    img_ = map(Images.clamp01nan, rgbimg(img(data.ω)))
-    
-    FileIO.save(imgpath, rgbimg(img_))
-  end
-
-  n = φ[:infalg][:infalgargs][:n]
-  pred = withkernel(Omega.kseα(φ[:α])) do
-    nointersect(scene) & (img == img_obs)
-  end
-  samples = rand(scene, pred, φ[:infalg][:infalg];
-                 cb = [Omega.default_cbs(n); Omega.throttle(saveimg, 30)],
-                 φ[:infalg][:infalgargs]...)
+  X, Y = data()
+  net = ciid(net_; T = Flux.Chain)
+  error = loss(X, Y, net)
+  nets = infer(net, error; φ[:infalg][:infalgargs]...)
 
   # Save the scenes
-  path = joinpath(φ[:logdir], "omegas.bson")
-  BSON.bson(path, omegas=samples)
+  tX, tY = testdata()
+  accs = [accuracy(net, tX, tY) for net in nets]
+  @show mean(accs)
+  @show accs[end]
+  
+  # Show accuracy
+  println(UnicodePlots.lineplot(accs))
+  
+  path = joinpath(φ[:logdir], "nets.jld2")
+  @save path nets
 end
 
 main() = RunTools.control(infer, paramsamples())
 
-
 function testhyper()
-  params = paramsamples()
-    
+  infer(first(paramsamples()))    
 end
+
+main()
