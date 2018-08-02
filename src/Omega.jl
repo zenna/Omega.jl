@@ -148,6 +148,8 @@ export mean,
 
        MaybeRV,
 
+       isconstant,
+
        cond
 
 end

@@ -27,6 +27,35 @@ apply(f, xs...) = f(xs...)
 # FIXME this loose type
 (rv::RandVar)(xs...) = RandVar{Any, false}(apply, (rv, xs...))
 
+"""Is `x` a constant random variable, i.e. x(ω) = c ∀ ω ∈ Ω?
+
+Determining constancy is intractable (and likely undecidable) in general.
+if `isconstant(x)` is true then `x` is constant, but if `isconstant(x)` is false,
+`x` may still be constant, but we have failed to determine it.
+
+```jldoctest
+x1 = constant(0.3)
+isconstant(x1)
+
+x2 = ciid(ω -> 0.3)
+isconstant(x2)
+
+x3 = ciid(ω -> rand(ω))
+isconstant(x3)
+
+# False Negative
+x3 = ciid(ω -> rand(ω) > 0.5 ? 0.3 : 0.3)
+isconstant(x3)
+```
+"""
+function isconstant(x, ΩT = defΩ(x))
+  # This implementation assumes that ΩT is lazy, more general solution would wrap
+  # ω of any type and intercept rand(ω) 
+  ω = ΩT()
+  x(ω)
+  isempty(ω)
+end
+
 "Infer T from function `f: w -> T`"
 function infer_elemtype(f, args...)
   argtypes = map(typeof, args)
