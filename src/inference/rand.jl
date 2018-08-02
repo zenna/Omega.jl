@@ -1,18 +1,22 @@
-"Unconditional Sample from `x`"
-function Base.rand(x::Union{RandVar, UTuple{RandVar}}; OmegaT::Type{T} = defaultomega()) where T <: Omega
-  x(OmegaT())
-end
-# const DefaultOmega = Mu.SimpleOmega{Mu.Paired, Mu.Float64}
-const DefaultOmega = Mu.SimpleOmega{Mu.Paired, Mu.ValueTuple}
-defaultomega() = DefaultOmega
+defalg(args...) = SSMH
+defΩ(args...) = Omega.SimpleΩ{Vector{Int}, Any}
+defcb(args...) = donothing
 
-defaultomega(::Type{ALG}) where ALG = DefaultOmega
-
-"Sample from `x | y == true` with Metropolis Hasting"
-function Base.rand(x::Union{RandVar, UTuple{RandVar}}, y, alg::Type{ALG};
-                   n::Integer = 1000,
-                   OmegaT::OT = defaultomega(ALG),
-                   cb = default_cbs(n),
-                   kwargs...) where {ALG, OT}
-  map(x, rand(OmegaT, y, alg; n = n, cb = cb, kwargs...))
+"Sample `n` from `x`"
+function Base.rand(x::RandVar, n::Integer; alg::Algorithm =  defalg(x), ΩT = defΩ(alg), kwargs...)
+  rand(x, n, alg, ΩT; kwargs...)
 end
+
+"Sample 1 from `x`"
+function Base.rand(x::RandVar; alg::Algorithm = defalg(x), ΩT = defΩ(alg), kwargs...)
+  first(rand(x, 1, alg, ΩT; kwargs...))
+end
+
+Base.rand(x::RandVar, y::RandVar, n; kwargs...) = rand(cond(x, y), n; kwargs...)
+Base.rand(x::RandVar, y::RandVar; kwargs...) = rand(cond(x, y); kwargs...)
+
+Base.rand(x::UTuple{RandVar}, n::Integer; kwargs...) = rand(randtuple(x), n; kwargs...)
+Base.rand(x::UTuple{RandVar}; kwargs...) = rand(randtuple(x); kwargs...)
+
+Base.rand(x::UTuple{RandVar}, y::RandVar, n::Integer; kwargs...) = rand(randtuple(x), y, n; kwargs...)
+Base.rand(x::UTuple{RandVar}, y::RandVar; kwargs...) = rand(randtuple(x), y; kwargs...)

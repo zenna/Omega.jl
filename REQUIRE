@@ -1,3 +1,6 @@
-julia
+julia 0.6
+Flux
 Distributions
+PDMats
 ProgressMeter
+Spec

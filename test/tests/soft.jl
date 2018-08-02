@@ -1,16 +1,18 @@
-using Mu
+using Omega
 using UnicodePlots
 
-function test()
+function softtest()
   x = normal(0.0, 1.0)
   y = normal(0.0, 1.0)
-  coldsamples = withkernel(Mu.kseα(10.0)) do
-    rand((x, y), x == y)
+  coldsamples = withkernel(Omega.kseα(10.0)) do
+    rand((x, y), x ≊ y, 1000)
   end
   print(UnicodePlots.densityplot(ntranspose(coldsamples)...))
 
-  hotsamples = withkernel(Mu.kseα(0.01)) do
-    rand((x, y), x == y)
+  hotsamples = withkernel(Omega.kseα(0.01)) do
+    rand((x, y), x ≊ y, 1000)
   end
   print(UnicodePlots.densityplot(ntranspose(hotsamples)...))
 end
+
+softtest()

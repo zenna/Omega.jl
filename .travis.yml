@@ -5,13 +5,14 @@ os:
   - linux
   - osx
 julia:
-  - 0.6
+  - 0.7
   - nightly
 notifications:
   email: false
 env:
   - DOCUMENTER_DEBUG="true" CONDA_JL_VERSION="2" PYTHON=""
 script:
+<<<<<<< HEAD
   - julia -e 'Pkg.clone("https://github.com/zenna/Spec.jl")'
   - julia -e 'Pkg.add("UnicodePlots")'
   - julia -e 'Pkg.add("ForwardDiff")'
@@ -20,10 +21,17 @@ script:
   - julia -e 'Pkg.clone(pwd())'
   - julia -e 'Pkg.build("Mu")'
   - julia -e 'Pkg.test("Mu", coverage=true)'
+=======
+  - julia -e 'using Pkg; Pkg.activate(pwd())'
+  - julia -e 'using Pkg; Pkg.update()'
+  - julia -e 'using Pkg; Pkg.resolve()'
+  - julia -e 'using Pkg; Pkg.build("Omega")'
+  - julia -e 'using Pkg; Pkg.add("Test")'
+  - julia --depwarn=no -e 'using Pkg; Pkg.test("Omega", coverage=true)'
+>>>>>>> master
 after_success:
-  - julia -e 'cd(Pkg.dir("Mu")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
-  - julia -e 'Pkg.add("Documenter")'
-  - julia -e 'cd(Pkg.dir("Mu")); include(joinpath("docs", "make.jl"))'
+  - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
+  - julia -e 'using Pkg; Pkg.add("Documenter"); include(joinpath("docs", "make.jl"))'
 matrix:
   fast_finish: true
   allow_failures:

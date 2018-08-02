@@ -1,8 +1,10 @@
 "Hamiltonian Monte Carlo Sampling"
-abstract type HMC <: Algorithm end
+struct HMCAlg <: Algorithm end
 
-defaultomega(::Type{HMC}) = Mu.SimpleOmega{Int, Float64}
-
+"Hamiltonian Monte Carlo Sampling"
+const HMC = HMCAlg()
+isapproximate(::HMCAlg) = true
+defΩ(::HMCAlg) = Omega.SimpleΩ{Vector{Int}, Float64}
 
 "Hamiltonian monte carlo with leapfrog integration: https://arxiv.org/pdf/1206.1901.pdf"
 function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
@@ -11,8 +13,6 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
   p = randn(length(q))
   # p = [0.2, 0.2]
   current_p = p
-
-  
 
   # Make a half step for momentum at beginning
   # Rejects proposals outside domain TODO: Something smarter
@@ -74,18 +74,20 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
 end
 
 "Sample from `x | y == true` with Hamiltonian Monte Carlo"
-function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{HMC};
-                   n = 100,
+function Base.rand(y::RandVar,
+                   n::Integer,
+                   alg::HMCAlg,
+                   ΩT::Type{OT};
                    nsteps = 10,
                    stepsize = 0.001,
-                   cb = default_cbs(n)) where {OT <: Omega}
+                   cb = default_cbs(n)) where {OT <: Ω}
   cb = runall(cb)
-  ω = OmegaT()
+  ω = ΩT()
   y(ω) # Initialize omega
   ωvec = linearize(ω)
 
-  ωsamples = OmegaT[]
-  U(ω) = -logepsilon(y(ω))
+  ωsamples = ΩT[]
+  U(ω) = -logepsilon(indomain(y, ω))
   U(ωvec::Vector) = U(unlinearize(ωvec, ω))
   ∇U(ωvec) = gradient(y, ω, ωvec)
 
@@ -99,5 +101,5 @@ function Base.rand(OmegaT::Type{OT}, y::RandVar, alg::Type{HMC};
     end
     cb(RunData(ω_, accepted, p_, i), Outside)
   end
-  ωsamples
+  [applywoerror.(y, ω_) for ω_ in ωsamples]
 end

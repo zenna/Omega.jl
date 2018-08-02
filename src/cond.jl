@@ -1,16 +1,15 @@
 
-MaybeSoftBool = Union{Bool, SoftBool}
-"Conditional Random Variable `x | y`"
-struct CondRandVar{T, RVX, RVB <: RandVar{<:Bool}} <: AbstractRandVar{T}
-  x::AbstractRandVar{T} 
-  y::RVB
-end
+condf(ω, x, y) = Bool(y(ω)) ? x(ω) : nothing
 
-# "Conditional Random Variable `x | y`"
-Base.cond(x::AbstractRandVar, y::RandVar{<:Bool}) = CondRandVar(x, y)
+"""Condition random variable `x` with random predicate RandVar{Bool}
 
-# "(rejection) Sample from a conditional random variable"
-# Base.rand(x::CondRandVar) = rand(x.x, x.y)
+```julia
+x = normal(0.0, 1.0)
+x_ = cond(x, x > 0)
+```
+"""
+cond(x::RandVar{T}, y::RandVar) where T = RandVar{T}(ω -> condf(ω, x, y))
 
-# "`x(ω)`"
-# (x::CondRandVar)(ω::Omega) = x.y(ω) ? x.x(ω) : throw(ArgumentError("Invalid ω"))
+"Condition random variable with predicate: cond(x, p) = cond(x, p(x))
+`cond(poisson(0.5), iseven`"
+cond(x::RandVar, f::Function) = cond(x, lift(f)(x))

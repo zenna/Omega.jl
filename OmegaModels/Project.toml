@@ -1,0 +1,11 @@
+name = "OmegaModels"
+uuid = "e4b2da64-90e5-11e8-1330-cf9ed31e9f8b"
+authors = ["Zenna Tavares <zennatavares@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+Cassette = "59fb9612-49be-509a-8654-f972bbc0bdb2"
+Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
+Omega = "f05e9b56-6544-11e8-2dc8-1fe18f3ca5da"
+Spec = "526a04b8-654b-11e8-1588-db2a414f95b5"
+ZenUtils = "8c7a6496-654a-11e8-0e4c-c7dc3dc823b6"

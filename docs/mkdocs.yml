@@ -1,6 +1,6 @@
-site_name:        Mu.jl
-repo_url:         https://github.com/zenna/Mu.jl
-site_description: A miniminal but powerful causal probabilistic programming languagie
+site_name:        Omega.jl
+repo_url:         https://github.com/zenna/Omega.jl
+site_description: A higher-order, causal, probabilistic programming languagie
 site_author:      zenna
 
 theme: readthedocs

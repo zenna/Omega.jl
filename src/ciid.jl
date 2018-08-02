@@ -7,7 +7,7 @@ struct RandVar{T, Prim, F, TPL, I} <: AbstractRandVar{T} # Rename to PrimRandVar
   indeps::SetRandVar
 end
 
-function (rv::RandVar{T, true})(ω::SimpleOmega) where T
+function (rv::RandVar{T, true})(ω::SimpleΩ) where T
   caller_ = caller(rv, ω) # Find out which random variable is calling ω, could be none
   if owns(caller_, rv)  # If caller_
   end
@@ -31,10 +31,10 @@ end
 A = poisson(5)
 B(ω) = A(ω) + 10.0  
 C(ω) = B(ω) + A(ω)
-D = iid(C)  # i.i.d of C
+D = ciid(C)  # i.i.d of C
 E = ciid(D, A)  # shares D's A
 
-# Problem 1 How to make D iid
+# Problem 1 How to make D ciid
 # Conceptually I would (i) make a copy of C, and go through it and replace
 # The i.d. of A in copy(C) with a new id.
 # I can't do this in reality because I don't have access to A in C
@@ -44,7 +44,7 @@ E = ciid(D, A)  # shares D's A
 # Currnetly, if we add ids which accumulate into sequence of integers
 # X.f(ω[1][2][3]) == X.f(ω[1,2,3])
 # When we call rand(ω): this id is what is stored as the index in omega
-# And with that index we control Omega
+# And with that index we control Ω
 
 # Therefore if when we call A(ω) from within D, if we put on some unique id
 # A.f(ω[uniqueid]), then this will make an independent A
