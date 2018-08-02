@@ -36,16 +36,20 @@ if `isconstant(x)` is true then `x` is constant, but if `isconstant(x)` is false
 ```jldoctest
 x1 = constant(0.3)
 isconstant(x1)
+true
 
 x2 = ciid(ω -> 0.3)
 isconstant(x2)
+true
 
 x3 = ciid(ω -> rand(ω))
 isconstant(x3)
+false
 
 # False Negative
 x3 = ciid(ω -> rand(ω) > 0.5 ? 0.3 : 0.3)
 isconstant(x3)
+false
 ```
 """
 function isconstant(x, ΩT = defΩ(x))

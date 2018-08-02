@@ -3,7 +3,8 @@ __precompile__()
 module Omega
 
 using Flux
-using Distributions
+import Distributions
+const Djl = Distributions
 using PDMats
 using ProgressMeter
 using Spec
@@ -28,7 +29,7 @@ include("omega/simple.jl")        # Simple Ω
 include("omega/id.jl")            # Pairing functions for omega ids
 
 # RandVar
-include("randvar/randvar.jl")             # Random variables
+include("randvar/randvar2.jl")             # Random variables
 include("randvar/randvarapply.jl")        # Random variable application to ω::Ω
 
 # i.i.d.
@@ -71,6 +72,7 @@ include("gradient.jl")
 # Library
 include("library/distributions.jl")  # Primitive distributions
 include("library/statistics.jl")     # Distributional properties: mean, variance, etc
+include("library/djl.jl")            # Distributions.jl interop
 
 # Neural Network Stuff
 include("flux.jl")
