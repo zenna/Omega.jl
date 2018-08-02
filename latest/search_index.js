@@ -69,7 +69,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Basic Tutorial",
     "title": "Basic Tutorial",
     "category": "section",
-    "text": "In this tutorial we will run through the basics of creating a model and conditioning it.First let\'s load Omega:using OmegaWe will model our belief about a coin after observing a number of tosses.Use a prior belief about the weight of the coin is beta distributed. A beta distribution is useful because it is continuous and bounded between 0 and 1. weight = betarv(2.0, 2.0)Draw a 10000 samples from weight using rand:beta_samples = rand(weight, 10000)Let\'s see what this distribution looks like using UnicodePlots.  If you don\'t have it installed already install with:(v0.7) pkg> add UnicodePlotsTo visualize the distribution, plot a histogram of the samples:julia> UnicodePlots.histogram(beta_samples)             ┌────────────────────────────────────────┐ \n   (0.0,0.1] │▇▇▇▇▇▇ 279                              │ \n   (0.1,0.2] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 727                   │ \n   (0.2,0.3] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1218       │ \n   (0.3,0.4] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1354    │ \n   (0.4,0.5] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1482 │ \n   (0.5,0.6] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1426  │ \n   (0.6,0.7] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1406   │ \n   (0.7,0.8] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1124         │ \n   (0.8,0.9] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 702                    │ \n   (0.9,1.0] │▇▇▇▇▇▇ 282                              │ \n             └────────────────────────────────────────┘The distribution is symmetric around 0.5 but there is nonzero probability on all values between 0 and 1.So far we have not done anything we couldn\'t do with Distributions.jl.We will create a model representing four flips of the coin. Since a coin can be heads or tales, the appropriate distribution is the bernouli distribution:nflips = 4\ncoinflips_ = [bernoulli(weight) for i = 1:nflips]Take note that the weight is the random variable defined previously.coinflips is a normal Julia array of Random Variables (RandVars). For reasons we will elaborate in later sections, it will be useful to have an Array-valued RandVar (instead of an Array of RandVar).One way to do this (there are several ways discuseed later), is to use the function randarraycoinflips = randarray(coinflips)coinflips is a RandVar and hence we can sample from it with randjulia> rand(coinflips)\n4-element Array{Float64,1}:\n 0.0\n 0.0\n 0.0\n 0.0\n\njulia> rand(coinflips)\n4-element Array{Float64,1}:\n 0.0\n 1.0\n 0.0\n 0.0\n\njulia> rand(coinflips)\n4-element Array{Float64,1}:\n 1.0\n 1.0\n 1.0\n 1.0Now we can condition the model. We want to find the conditional distribution over the weight of the coin given some observations.First we create some fake data, and then use rand to draw conditional samples:observations = [true, true, true, false]\nweight_samples = rand(weight, coinflips == observations, RejectionSample)In this case, rand takesA random variable we want to sample from\nA predicate (type RandVar{Bool}) that we want to condition on, i.e. assert that it is true\nAn inference algorithm.  Here we use rejction samplingPlot a histogram of the weights like before:julia> UnicodePlots.histogram(weight_samples)\n             ┌────────────────────────────────────────┐ \n   (0.1,0.2] │▇ 4                                     │ \n   (0.2,0.3] │▇▇▇ 22                                  │ \n   (0.3,0.4] │▇▇▇▇▇▇▇▇▇▇▇ 69                          │ \n   (0.4,0.5] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 147             │ \n   (0.5,0.6] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 185       │ \n   (0.6,0.7] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 226 │ \n   (0.7,0.8] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 203     │ \n   (0.8,0.9] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 120                 │ \n   (0.9,1.0] │▇▇▇▇ 23                                 │ \n             └────────────────────────────────────────┘ \nObserve that our belief about the weight has now changed. We are more convinced the coin is biased towards heads (true)"
+    "text": "In this tutorial we will run through the basics of creating a model and conditioning it.First load Omega:using OmegaWe will model our belief about a coin after observing a number of tosses.Model the coin as a bernoulli distribution.  The weight of a bernoulli determines the probability it comes up true (which represents heads). Use a beta distribution to represent our prior belief weight of the coin.weight = β(2.0, 2.0)A beta distribution is appropriate here because it is bounded between 0 and 1. Draw a 10000 samples from weight using rand:beta_samples = rand(weight, 10000)Let\'s see what this distribution looks like using UnicodePlots.  If you don\'t have it installed already install with:(v0.7) pkg> add UnicodePlotsTo visualize the distribution, plot a histogram of the samples:julia> UnicodePlots.histogram(beta_samples)             ┌────────────────────────────────────────┐ \n   (0.0,0.1] │▇▇▇▇▇▇ 279                              │ \n   (0.1,0.2] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 727                   │ \n   (0.2,0.3] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1218       │ \n   (0.3,0.4] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1354    │ \n   (0.4,0.5] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1482 │ \n   (0.5,0.6] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1426  │ \n   (0.6,0.7] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1406   │ \n   (0.7,0.8] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1124         │ \n   (0.8,0.9] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 702                    │ \n   (0.9,1.0] │▇▇▇▇▇▇ 282                              │ \n             └────────────────────────────────────────┘The distribution is symmetric around 0.5 and has support over the the interval [0, 1].So far we have not done anything we couldn\'t do with Distributions.jl. A primary distinction between a package like Distribution.jl, is that Omega.jl allows you to condition probability distributions.Create a model representing four flips of the coin. Since a coin can be heads or tales, the appropriate distribution is the bernouli distribution:nflips = 4\ncoinflips_ = [bernoulli(weight) for i = 1:nflips]Take note that weight is the random variable defined previously.coinflips is a normal Julia array of Random Variables (RandVars). For reasons we will elaborate in later sections, it will be useful to have an Array-valued RandVar (instead of an Array of RandVar).One way to do this (there are several ways discuseed later), is to use the function randarraycoinflips = randarray(coinflips_)coinflips is a RandVar and hence we can sample from it with randjulia> rand(coinflips)\n4-element Array{Float64,1}:\n 0.0\n 0.0\n 0.0\n 0.0\n\njulia> rand(coinflips)\n4-element Array{Float64,1}:\n 0.0\n 1.0\n 0.0\n 0.0\n\njulia> rand(coinflips)\n4-element Array{Float64,1}:\n 1.0\n 1.0\n 1.0\n 1.0Now we can condition the model. We want to find the conditional distribution over the weight of the coin given some observations.First create some fake dataobservations = [true, true, true, false]and then use rand to draw conditional samples:weight_samples = rand(weight, coinflips == observations, 10, RejectionSample)weight_samples is a set of 10 samples from the conditional (sometimes called posterior) distribution of weight condition on the fact that coinflips == observations.In this case, rand takesA random variable we want to sample from\nA predicate (type RandVar{Bool}) that we want to condition on, i.e. assert that it is true\nAn inference algorithm.  Here we use rejection samplingPlot a histogram of the weights like before:julia> UnicodePlots.histogram(weight_samples)\n             ┌────────────────────────────────────────┐ \n   (0.1,0.2] │▇ 4                                     │ \n   (0.2,0.3] │▇▇▇ 22                                  │ \n   (0.3,0.4] │▇▇▇▇▇▇▇▇▇▇▇ 69                          │ \n   (0.4,0.5] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 147             │ \n   (0.5,0.6] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 185       │ \n   (0.6,0.7] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 226 │ \n   (0.7,0.8] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 203     │ \n   (0.8,0.9] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 120                 │ \n   (0.9,1.0] │▇▇▇▇ 23                                 │ \n             └────────────────────────────────────────┘ \nObserve that our belief about the weight has now changed. We are more convinced the coin is biased towards heads (true)."
 },
 
 {
@@ -77,7 +77,23 @@ var documenterSearchIndex = {"docs": [
     "page": "Modeling",
     "title": "Modeling",
     "category": "page",
-    "text": "In Omega a probabilistic model is a collection of  random variable.The simplest random variable you can construct is the perhaps the standard uniformx1 = uniform(0.0, 1.0)x is a random variable not a sample. To construct another random variable x2, we do the same. x2 = uniform(0.0, 1.0)x1 and x2 are identically distributed and independent (i.i.d.)julia> rand((x1, x2))\n(0.5602978842341093, 0.9274576159629635)Omega comes with a large number of in-built distributions, and so to make complex probabilistic you can simply use these and compose them."
+    "text": "In Omega a probabilistic model is a collection of random variables. Random Variables are of type RandVar. There are two ways to construct random variables: the statistical style, which can be less verbose, and more intuitive, but has some limitations, and the explicit style, which is more general."
+},
+
+{
+    "location": "model.html#Statistical-Style-1",
+    "page": "Modeling",
+    "title": "Statistical Style",
+    "category": "section",
+    "text": "In the statistical style we create random variables by combining a number of primitives. Omega comes with a number of built-in primitive distributions, the simplest of which is (arguably) the standard uniform:x1 = uniform(0.0, 1.0)x1 is a random variable not a sample. To construct another random variable x2, we do the same. x2 = uniform(0.0, 1.0)x1 and x2 are identically distributed and independent (i.i.d.).julia> rand((x1, x2))\n(0.5602978842341093, 0.9274576159629635)"
+},
+
+{
+    "location": "model.html#Composition-1",
+    "page": "Modeling",
+    "title": "Composition",
+    "category": "section",
+    "text": "Statistical style is convenient because it allows us to treat a RandVar{T} as if it is a value of type T.  For instance the typeof uniform(0.0, 1.0) is RandVar{Float64}.  Using the statistical style, we can add, multiply, divide them as if theyh were Float64x3 = x1 + x2This includes functions which return a Booleanp = x3 > 1.0A particularly useful case is that primitive distributions which take parameters of type T, also accept RandVar{T}n = normal(x3, 1.0)Suppose you write your own functionmyfunc(x::Float64, y::Float64) = (x * y)^2We can\'t automatically apply myfunc to RandVars; it will cause a method errormyfunc(x1, x2)However this is easily remedied with the function liftlift(myfunc)(x1, x2)"
 },
 
 {
@@ -85,7 +101,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Modeling",
     "title": "Explicit Style",
     "category": "section",
-    "text": "The above style is convenient but it hides a lot of the machinery of what is going on. Omega, as well as all probabilistic programming languages, use programs to represent probability distributions However, there are several different probability distribution.Omega is distinct from other probabilistic programming langauges because it represents. In Omegax(\\omega) = \\omega(1)"
+    "text": "The above style is convenient but has a few limitations and it hides a lot of the machinery. To create random variables in the explicit style, create a normal julia sampler, but it is essential to pass through the rng object.For instance, to define a bernoulli distribution in explicit style:x_(rng) = rand(rng) > 0.5x_ is just a normal julia function.  We could sample from it by passing in the GLOBAL_RNGjulia> x_(Base.Random.GLOBAL_RNG)\ntrueHowever, in order to use x for conditional or causal inference we must turn it into a RandVar using ciid.x = ciid(x_)<!– Mathematically, a sampler is a slightly different kind of object than a random variable. –>"
 },
 
 {
@@ -93,7 +109,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Modeling",
     "title": "Independent Random Variables",
     "category": "section",
-    "text": "Use iid(x) to create a random variabel that is identical in distribution to x but but independent."
+    "text": "Use iid(x) to create a random variable that is identical in distribution to x but but independent."
 },
 
 {
@@ -101,36 +117,44 @@ var documenterSearchIndex = {"docs": [
     "page": "Modeling",
     "title": "Conditionally Independent Random Variables",
     "category": "section",
-    "text": "Use ciid(x) to create a random variable that is identical in distributio to x but conditionally independent given its parents.μ = uniform(0.0, 1.0)\ny1 = normal(μ, 1.0)\ny2 = ciid(y1)\nrand((y1, y2))"
+    "text": "Use ciid(x) to create a random variable that is identical in distribution to x but conditionally independent given its parents.μ = uniform(0.0, 1.0)\ny1 = normal(μ, 1.0)\ny2 = ciid(y1)\nrand((y1, y2))"
 },
 
 {
     "location": "inference.html#",
-    "page": "Inference",
-    "title": "Inference",
+    "page": "Conditional Inference",
+    "title": "Conditional Inference",
     "category": "page",
     "text": ""
 },
 
 {
     "location": "inference.html#Inference-1",
-    "page": "Inference",
+    "page": "Conditional Inference",
     "title": "Inference",
     "category": "section",
     "text": "Omega have several inference algorithms built in, and provides the mechanism to build your own."
 },
 
 {
+    "location": "inference.html#Base.rand",
+    "page": "Conditional Inference",
+    "title": "Base.rand",
+    "category": "function",
+    "text": "Sample n from x\n\n\n\n\n\nSample 1 from x\n\n\n\n\n\nn samples from x with rejection sampling\n\n\n\n\n\nSample ω | y == true with Metropolis Hasting\n\n\n\n\n\nSample from x | y == true with Single Site Metropolis Hasting\n\n\n\n\n\nSample from x | y == true with Hamiltonian Monte Carlo\n\n\n\n\n\nSample from x | y == true with Hamiltonian Monte Carlo\n\n\n\n\n\nSample from ω | y == true with Stochastic Gradient Hamiltonian Monte Carlo\n\n\n\n\n\nSample from x | y == true with Metropolis Hasting\n\n\n\n\n\n"
+},
+
+{
     "location": "inference.html#Conditional-Samples-1",
-    "page": "Inference",
+    "page": "Conditional Inference",
     "title": "Conditional Samples",
     "category": "section",
-    "text": "If you have a random variable x and a Boolean-valued random variable y, to sample from a conditional distribution use rand(x,y).For example:weight = β(2.0, 2.0)\nx = bernoulli()\nrand(weight, x == 0)To sample from more than one random variable, just pass a tuple of RandVars to rand, e.g.:weight = β(2.0, 2.0)\nx = bernoulli()\nrand(weight, x == 0)"
+    "text": "If you have a random variable x and a Boolean-valued random variable y, to sample from a conditional distribution use rand(x,y).Omega.randFor example:weight = β(2.0, 2.0)\nx = bernoulli()\nrand(weight, x == 0)To sample from more than one random variable, just pass a tuple of RandVars to rand, e.g.:weight = β(2.0, 2.0)\nx = bernoulli()\nrand(weight, x == 0)"
 },
 
 {
     "location": "inference.html#Omega.cond",
-    "page": "Inference",
+    "page": "Conditional Inference",
     "title": "Omega.cond",
     "category": "function",
     "text": "Condition random variable x with random predicate RandVar{Bool}\n\nx = normal(0.0, 1.0)\nx_ = cond(x, x > 0)\n\n\n\n\n\nCondition random variable with predicate: cond(x, p) = cond(x, p(x)) cond(poisson(0.5), iseven\n\n\n\n\n\n"
@@ -138,7 +162,7 @@ var documenterSearchIndex = {"docs": [
 
 {
     "location": "inference.html#Conditioning-with-cond-1",
-    "page": "Inference",
+    "page": "Conditional Inference",
     "title": "Conditioning with cond",
     "category": "section",
     "text": "rand(x, y) is simply a shorter way of saying rand(cond(x, y)). That is, the mechanism for inference in Omega is conditioning random variables:cond"
@@ -146,7 +170,7 @@ var documenterSearchIndex = {"docs": [
 
 {
     "location": "inference.html#Conditioning-as-Prior-1",
-    "page": "Inference",
+    "page": "Conditional Inference",
     "title": "Conditioning as Prior",
     "category": "section",
     "text": "Conditioning Random Variables allows you to add constraints to your mode.For example we can make a truncated normal distribution with:x = normal(0.0, 1.0)\nx_ = cond(x, x > 0.0)A shorter way to write this is to pass a unary function as the second argument to condx = cond(normal(0.0, 1.0), rv -> rv > 0.0)Or suppose we want a poisson distribution over the even numberscond(poission(1.0), isevenispos(x) = x > 0.0\nweight = cond(normal(72, 1.0), ispos)\nheight = cond(normal(1.78, 1.0), ispos)\nbmi = weight / heightbmi is a function of both weight and height, both of which have their own conditions. Omega automatically propagates the conditions from weight and height onto bmi, so that if we sample from all of them with rand((bmi, weight, height), alg = Rejection))"
@@ -185,126 +209,6 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "inferencealgorithms.html#",
-    "page": "Inference",
-    "title": "Inference",
-    "category": "page",
-    "text": ""
-},
-
-{
-    "location": "inferencealgorithms.html#Built-in-Inference-Algorithms-1",
-    "page": "Inference",
-    "title": "Built-in Inference Algorithms",
-    "category": "section",
-    "text": "Omega comes with a number of built in inference algorithms. You can of course develop your own"
-},
-
-{
-    "location": "inferencealgorithms.html#Omega.RejectionSample",
-    "page": "Inference",
-    "title": "Omega.RejectionSample",
-    "category": "constant",
-    "text": "Rejection Sampling\n\n\n\n\n\n"
-},
-
-{
-    "location": "inferencealgorithms.html#Omega.MI",
-    "page": "Inference",
-    "title": "Omega.MI",
-    "category": "constant",
-    "text": "Metropolized Independent Sampling\n\n\n\n\n\n"
-},
-
-{
-    "location": "inferencealgorithms.html#Omega.SSMH",
-    "page": "Inference",
-    "title": "Omega.SSMH",
-    "category": "constant",
-    "text": "Single Site Metropolis Hastings\n\n\n\n\n\n"
-},
-
-{
-    "location": "inferencealgorithms.html#Omega.HMC",
-    "page": "Inference",
-    "title": "Omega.HMC",
-    "category": "constant",
-    "text": "Hamiltonian Monte Carlo Sampling\n\n\n\n\n\n"
-},
-
-{
-    "location": "inferencealgorithms.html#Omega.SGHMC",
-    "page": "Inference",
-    "title": "Omega.SGHMC",
-    "category": "type",
-    "text": "Stochastic Gradient Hamiltonian Monte Carlo Sampling\n\n\n\n\n\n"
-},
-
-{
-    "location": "inferencealgorithms.html#Omega.HMCFAST",
-    "page": "Inference",
-    "title": "Omega.HMCFAST",
-    "category": "constant",
-    "text": "Flux based Hamiltonian Monte Carlo Sampling\n\n\n\n\n\n"
-},
-
-{
-    "location": "inferencealgorithms.html#Conditional-Sampling-1",
-    "page": "Inference",
-    "title": "Conditional Sampling",
-    "category": "section",
-    "text": "Conditional sampling is done with rand and the algorithm are selected RejectionSample\nMI\nSSMH\nHMC\nSGHMC\nHMCFAST"
-},
-
-{
-    "location": "conditioning.html#",
-    "page": "Conditioning",
-    "title": "Conditioning",
-    "category": "page",
-    "text": ""
-},
-
-{
-    "location": "conditioning.html#Conditioning-1",
-    "page": "Conditioning",
-    "title": "Conditioning",
-    "category": "section",
-    "text": "The primary purpose of building a probabilic program is to put it to use in inference.  Omega supports causal inference through the cond function."
-},
-
-{
-    "location": "higher.html#",
-    "page": "Higher Order Inference",
-    "title": "Higher Order Inference",
-    "category": "page",
-    "text": ""
-},
-
-{
-    "location": "higher.html#Higher-Order-Inference-1",
-    "page": "Higher Order Inference",
-    "title": "Higher Order Inference",
-    "category": "section",
-    "text": "Another unique property of Omega is our approach to higher-order inference with rcd and rid. Many probabilistic programming languages are built on languages which support higher-order functions and hence are themselves called higher-order probabilistic programming languages. Omega has a different"
-},
-
-{
-    "location": "higher.html#Random-Conditional-Distribution-1",
-    "page": "Higher Order Inference",
-    "title": "Random Conditional Distribution",
-    "category": "section",
-    "text": "EXPLAIN RCDIn Omega, rcd is implemented with a functionrcd"
-},
-
-{
-    "location": "higher.html#Random-Interventional-Distribution-1",
-    "page": "Higher Order Inference",
-    "title": "Random Interventional Distribution",
-    "category": "section",
-    "text": ""
-},
-
-{
     "location": "causal.html#",
     "page": "Causal Inference",
     "title": "Causal Inference",
@@ -321,11 +225,19 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "causal.html#Base.replace",
+    "page": "Causal Inference",
+    "title": "Base.replace",
+    "category": "function",
+    "text": "Causal Intervention: Set θold to θnew in x\n\n\n\n\n\n"
+},
+
+{
     "location": "causal.html#Causal-Interention-the-replace-operator-1",
     "page": "Causal Inference",
     "title": "Causal Interention - the replace operator",
     "category": "section",
-    "text": "The replace operator models an interention to a model. It changes the model.In Omega we use the syntax:replace(X, θold => θnew)To mean the random variable X where θold has been replaced with θnew.  For this to be meaningful, θold must be a parent of x.Let\'s look at an example:julia> μold = normal(0.0, 1.0)\n45:Omega.normal(0.0, 1.0)::Float64\n\njulia> x = normal(μold, 1.0)\n46:Omega.normal(Omega.normal, 1.0)::Float64\n\njulia> μnew = 100.0\n47:Omega.normal(100.0, 1.0)::Float64\n\njulia> xnew = replace(x, μold => μnew)\njulia> rand((x, xnew))\n(-2.664230595692529, 96.99998702926271)Observe that the sample from xnew is much greater, because it has the mean of the normal distribution has been changed to 100"
+    "text": "The replace operator models an interention to a model. It changes the model.replaceIn Omega we use the syntax:replace(X, θold => θnew)To mean the random variable X where θold has been replaced with θnew.  For this to be meaningful, θold must be a parent of x.Let\'s look at an example:julia> μold = normal(0.0, 1.0)\n45:Omega.normal(0.0, 1.0)::Float64\n\njulia> x = normal(μold, 1.0)\n46:Omega.normal(Omega.normal, 1.0)::Float64\n\njulia> μnew = 100.0\n47:Omega.normal(100.0, 1.0)::Float64\n\njulia> xnew = replace(x, μold => μnew)\njulia> rand((x, xnew))\n(-2.664230595692529, 96.99998702926271)Observe that the sample from xnew is much greater, because it has the mean of the normal distribution has been changed to 100"
 },
 
 {
@@ -382,6 +294,38 @@ var documenterSearchIndex = {"docs": [
     "title": "In what scenarios would it still be hotter after turning on the AC and closing the window?",
     "category": "section",
     "text": "rand((timeofday, outsidetemp, insidetemp, thermostat),       thermostatnew - thermostat > 0.0, 10, alg = RejectionSample)"
+},
+
+{
+    "location": "higher.html#",
+    "page": "Higher Order Inference",
+    "title": "Higher Order Inference",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "higher.html#Higher-Order-Inference-1",
+    "page": "Higher Order Inference",
+    "title": "Higher Order Inference",
+    "category": "section",
+    "text": "Another unique property of Omega is our approach to higher-order inference with rcd and rid. Many probabilistic programming languages are built on languages which support higher-order functions and hence are themselves called higher-order probabilistic programming languages. Omega has a different"
+},
+
+{
+    "location": "higher.html#Random-Conditional-Distribution-1",
+    "page": "Higher Order Inference",
+    "title": "Random Conditional Distribution",
+    "category": "section",
+    "text": "EXPLAIN RCDIn Omega, rcd is implemented with a functionrcd"
+},
+
+{
+    "location": "higher.html#Random-Interventional-Distribution-1",
+    "page": "Higher Order Inference",
+    "title": "Random Interventional Distribution",
+    "category": "section",
+    "text": ""
 },
 
 {
@@ -550,6 +494,94 @@ var documenterSearchIndex = {"docs": [
     "title": "Describe distributional functions",
     "category": "section",
     "text": "Omega comes with some functions which summarize an entire distribution. Most of these are inherited from Distributions.jlmean\nprob"
+},
+
+{
+    "location": "omega.html#",
+    "page": "Omega",
+    "title": "Omega",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "omega.html#Omega-1",
+    "page": "Omega",
+    "title": "Omega",
+    "category": "section",
+    "text": "As described in [models], random variables are thin wrappers around functions which take as input a value ω::Ω We previously described Ω as a type of AbstractRNG.  This is true, but the full store is a bit more complex"
+},
+
+{
+    "location": "omega.html#Omega.Ω",
+    "page": "Omega",
+    "title": "Omega.Ω",
+    "category": "type",
+    "text": "Probability Space indexed with values of type I\n\n\n\n\n\n"
+},
+
+{
+    "location": "omega.html#Omega.SimpleΩ",
+    "page": "Omega",
+    "title": "Omega.SimpleΩ",
+    "category": "type",
+    "text": "Fast SimpleΩ\n\nProperties\n\nFast tracking (50 ns overhead)\nFast to get linear view\nHence easy to sample from\nUnique index for each rand value and hence: (i) Memory intensive\n\n\n\n\n\n"
+},
+
+{
+    "location": "omega.html#Ω-1",
+    "page": "Omega",
+    "title": "Ω",
+    "category": "section",
+    "text": "Ω is an abstract type which represents a sample space in probability theory.ΩSimpleΩ"
+},
+
+{
+    "location": "omega.html#Samplers-vs-Random-Variables-1",
+    "page": "Omega",
+    "title": "Samplers vs Random Variables",
+    "category": "section",
+    "text": "A sampler and a random variable have many similarities but are different. To demonstrate the difference, we shall show the changes one has to make to turn a sampler into an Omega RandVar.Create a sampler that x1() = rand() > 0.5x1 uses Random.GLOBAL_RNG in the background.  Instead, make it explicit:julia> x2(rng::AbstractRNG) = rand(rng) > 0.5\njulia> x2(Random.MersenneTwister())\nfalseMake a cosmetic changejulia> x2(rng::AbstractRNG) = rand(rng) > 0.5\njulia> x2(Random.MersenneTwister())\nfalse"
+},
+
+{
+    "location": "cheatsheet.html#",
+    "page": "Cheat Sheet",
+    "title": "Cheat Sheet",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "cheatsheet.html#Cheat-Sheet-1",
+    "page": "Cheat Sheet",
+    "title": "Cheat Sheet",
+    "category": "section",
+    "text": ""
+},
+
+{
+    "location": "cheatsheet.html#Core-Functions-1",
+    "page": "Cheat Sheet",
+    "title": "Core Functions",
+    "category": "section",
+    "text": "The major functions that you will use in Omega are:ciid(x) : that is equal in distribution to x but conditionally independent given parents\niid(x) : that is equal in distribution to x but independent\ncond(x, y) : condition random variable x on condition y\nrand(x, n; alg=Alg) : n samples from (possibly conditioned) random variable x using algorithm ALG\nreplace(x, θold => θnew) : causal intervention in random variable\nrid(x, θ)  : distribution interventional distribution of x given θ  \nrcd(x, θ) or x ∥ θ  : random conditional distribution of x given θ"
+},
+
+{
+    "location": "cheatsheet.html#Built-in-Distributions-1",
+    "page": "Cheat Sheet",
+    "title": "Built-in Distributions",
+    "category": "section",
+    "text": "bernoulli(w) boolbernoulli(w) betarv categorical constant exponential gammarv inversegamma kumaraswamy logistic poisson normal uniform rademacher"
+},
+
+{
+    "location": "cheatsheet.html#Built-in-Inference-Algorithms-1",
+    "page": "Cheat Sheet",
+    "title": "Built-in Inference Algorithms",
+    "category": "section",
+    "text": "RejectionSample MI SSMH HMC SGHMC HMCFAST"
 },
 
 {
