@@ -1,19 +1,29 @@
 using RunTools
+using UnicodePlots
+using JLD2
 include("mnistflux.jl")
+
+# Take every
+# Loss function
 
 ## Params
 ## ======
-"Optimization-specific parameters"
+"Inference-specific parameters"
 function infparams()
   φ = Params()
-  φ[:infalg] = SSMH
+  φ[:infalg] = HMCFAST
   φ[:infalgargs] = infparams_(φ[:infalg])
   φ
 end
 
-"Default is no argument params"
-function infparams_(::Type{T}) where T
-  Params{Symbol, Any}(Dict{Symbol, Any}(:n => uniform([1000, 10000, 50000, 100000])))
+"HMCFAST Specific Params"
+function infparams_(::Omega.HMCFASTAlg)
+  φ = Params()
+  φ[:n] = uniform([100, 200, 1000, 10000])
+  φ[:stepsize] = uniform([0.1, 0.01, 0.001, 0.0001])
+  φ[:nsteps] =  uniform([1, 5, 10, 50, 100])
+  φ[:takeevery] =  uniform([10])
+  φ
 end
 Omega.lift(:infparams_, 1)
 
@@ -23,7 +33,7 @@ function runparams()
   φ[:loadchain] = false
   φ[:loadnet] = false
 
-  φ[:name] = "rnn test"
+  φ[:name] = "mnist"
   φ[:runname] = randrunname()
   φ[:tags] = ["test", "mnist"]
   φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])   # LOGDIR is required for sim to save
@@ -33,15 +43,19 @@ function runparams()
   φ
 end
 
+function modelparams()
+  φ = Params()
+  φ[:nimages] = uniform([200, 1000, 10000, 30000])
+  φ
+end
+
 "All parameters"
 function allparams()
   φ = Params()
-  # φ[:modelφ] = modelparams()
+  φ[:modelφ] = modelparams()
   φ[:infalg] = infparams()
   φ[:α] = uniform([100.0, 200.0, 400.0, 500.0, 1000.0])
-#  φ[:kernel] = kernelparams()
-  # φ[:runφ] = runparams()
-  merge(φ, runparams()) # FIXME: replace this with line above when have magic indexing
+  merge(φ, runparams())
 end
 
 function paramsamples(nsamples = 10)
@@ -53,36 +67,29 @@ function enumparams()
   [Params()]
 end
 
-
 function infer(φ)
-  scene = ciid(scene_)     # Random Variable of scenes
-  img = render(scene)     # Random Variable over images
-
-  "Save images"
-  function saveimg(data, stage::Type{Outside})
-    imgpath = joinpath(φ[:logdir], "final$(data.i).png")
-    img_ = map(Images.clamp01nan, rgbimg(img(data.ω)))
-    
-    FileIO.save(imgpath, rgbimg(img_))
-  end
-
-  n = φ[:infalg][:infalgargs][:n]
-  pred = withkernel(Omega.kseα(φ[:α])) do
-    nointersect(scene) & (img == img_obs)
-  end
-  samples = rand(scene, pred, φ[:infalg][:infalg];
-                 cb = [Omega.default_cbs(n); Omega.throttle(saveimg, 30)],
-                 φ[:infalg][:infalgargs]...)
+  X, Y = data(φ[:modelφ][:nimages])
+  net = ciid(net_; T = Flux.Chain)
+  error = loss(X, Y, net)
+  nets = infer(net, error; φ[:infalg][:infalgargs]...)
 
   # Save the scenes
-  path = joinpath(φ[:logdir], "omegas.bson")
-  BSON.bson(path, omegas=samples)
+  tX, tY = testdata()
+  accs = [accuracy(net, tX, tY) for net in nets]
+  @show mean(accs)
+  @show accs[end]
+  
+  # Show accuracy
+  println(UnicodePlots.lineplot(accs))
+  
+  path = joinpath(φ[:logdir], "nets.jld2")
+  @save path nets
 end
 
 main() = RunTools.control(infer, paramsamples())
 
-
 function testhyper()
-  params = paramsamples()
-    
+  infer(first(paramsamples()))    
 end
+
+main()
