@@ -1,8 +1,8 @@
 using RunTools
 using UnicodePlots
 using JLD2
-using TensorboardX
 include("mnistflux.jl")
+include("../common.jl")
 
 # Fix the saving
 # Parameterize by nsteps
@@ -62,31 +62,21 @@ function enumparams()
   [Params()]
 end
 
-
-# To make this fast you could usue a generated functio
-"Update Tensorboard"
-function uptb(writer, name, field)
-  updateaccuracy(data, stage) = nothing # Do nothing in other stages
-  function updateaccuracy(data, stage::Type{Outside})
-    @show data
-    println("SAVING SCALAR $data.i")
-    TensorboardX.add_scalar!(writer, name, getfield(name, field), data.i)
-  end
-end 
-
 const tX, tY = testdata()
+const net = ciid(net_; T = Flux.Chain)
+
 testacc(data, stage) = nothing
-testacc(data, stage::Type{Outside}) = (testacc = accuracy(net_(data.ω), tX, tY))
+testacc(data, stage::Type{Outside}) = (testacc = accuracy(net(data.ω), tX, tY),)
 # trainacc(data, stage) = (testacc = accuracy(net_(data.ω, tX, tY)))
 
 function infer(φ)
+  display(φ)
   X, Y = data()
-  net = ciid(net_; T = Flux.Chain)
   error = loss(X, Y, net)
 
   # Callbacks
   writer = TensorboardX.SummaryWriter(φ[:logdir])
-  tbtest = everyn(uptb(writer, "testacc", :testacc), 5)
+  tbtest = uptb(writer, "testacc", :testacc)
   # tbtrain = uptb(writer, "trainacc", :trainacc)
 
   cb = idcb → (Omega.default_cbs_tpl(φ[:infalg][:infalgargs][:n])...,
@@ -112,7 +102,7 @@ main() = RunTools.control(infer, paramsamples())
 
 function testhyper()
   p = first(paramsamples())
-  mkdir(p[:logdir])
+  mkpath(p[:logdir])
   infer(p)    
 end
 

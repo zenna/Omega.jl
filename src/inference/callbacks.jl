@@ -6,7 +6,8 @@ struct CbNode{F, TPL <: Tuple}
   children::TPL
 end
 
-p → c = CbNode(p, c)
+p → c::Tuple = CbNode(p, c)
+p → c = CbNode(p, (c,))
 
 datamerge(x, data) = data
 datamerge(data1::NamedTuple, data2::NamedTuple) = merge(data1, data2)
