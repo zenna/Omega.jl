@@ -148,6 +148,11 @@ export mean,
 
        MaybeRV,
 
+       # Callbacks
+       everyn,
+       →,
+       idcb,
+
        cond
 
 end

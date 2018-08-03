@@ -6,6 +6,8 @@ struct CbNode{F, TPL <: Tuple}
   children::TPL
 end
 
+p → c = CbNode(p, c)
+
 datamerge(x, data) = data
 datamerge(data1::NamedTuple, data2::NamedTuple) = merge(data1, data2)
 
@@ -211,7 +213,8 @@ end
 
 "Higher order function that makes a callback run just once every n"
 function everyn(callback, n::Integer)
-  function everyncb(data, stage)
+  everyncb(data, stage) = nothing
+  function everyncb(data, stage::Outside)
     if data.i % n == 0
       callback(data, stage)
     end
@@ -224,6 +227,11 @@ default_cbs(n) = runall([throttle(plotp(), 0.1),
                          showprogress(n),
                          throttle(printstats, 1.0),
                          stopnanorinf])
+
+default_cbs_tpl(n) = (throttle(plotp(), 0.1),
+                      showprogress(n),
+                      throttle(printstats, 1.0),
+                      stopnanorinf)
 
 # default_cbs(n) = [plotp(),
 #                   showprogress(n),

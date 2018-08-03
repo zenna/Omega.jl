@@ -62,16 +62,22 @@ function enumparams()
   [Params()]
 end
 
+
+# To make this fast you could usue a generated functio
 "Update Tensorboard"
 function uptb(writer, name, field)
   updateaccuracy(data, stage) = nothing # Do nothing in other stages
   function updateaccuracy(data, stage::Type{Outside})
+    @show data
+    println("SAVING SCALAR $data.i")
     TensorboardX.add_scalar!(writer, name, getfield(name, field), data.i)
   end
 end 
 
-testacc(data, stage) = (testacc = accuracy(net(data.ω, tX, tY)))
-trainacc(data, stage) = (testacc = accuracy(net(data.ω, tX, tY)))
+const tX, tY = testdata()
+testacc(data, stage) = nothing
+testacc(data, stage::Type{Outside}) = (testacc = accuracy(net_(data.ω), tX, tY))
+# trainacc(data, stage) = (testacc = accuracy(net_(data.ω, tX, tY)))
 
 function infer(φ)
   X, Y = data()
@@ -80,12 +86,14 @@ function infer(φ)
 
   # Callbacks
   writer = TensorboardX.SummaryWriter(φ[:logdir])
-  tbtest = everyn(uptb(writer, "testacc", :testacc), 100)
-  tbtrain = trainacc, uptb(writer, "trainacc", :trainacc)
+  tbtest = everyn(uptb(writer, "testacc", :testacc), 5)
+  # tbtrain = uptb(writer, "trainacc", :trainacc)
 
-  CbNode(idcb, (CbNode(trainacc, (tbtest, tbtrain)),))
+  cb = idcb → (Omega.default_cbs_tpl(φ[:infalg][:infalgargs][:n])...,
+              # trainacc → tbtrain,
+               testacc → (tbtest,))
 
-  nets = infer(net, error; φ[:infalg][:infalgargs]...)
+  nets = infer(net, error; cb = cb, φ[:infalg][:infalgargs]...)
 
   # Save the scenes
   tX, tY = testdata()
@@ -104,7 +112,8 @@ main() = RunTools.control(infer, paramsamples())
 
 function testhyper()
   p = first(paramsamples())
+  mkdir(p[:logdir])
   infer(p)    
 end
 
-main()
+# main()
