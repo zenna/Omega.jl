@@ -21,7 +21,8 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
   p = p - stepsize * ∇U(invq) .* jacobian(q) / 2.0
 
   for i = 1:nsteps
-    cb(QP(q, p), Inside)
+    cb(RunData(q = q, p = p), Inside)
+
     # Half step for the position and momentum
     q = q .+ stepsize .* p
     # @show mean(stepsize .* p), mean(q)

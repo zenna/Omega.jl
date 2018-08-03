@@ -1,3 +1,5 @@
+## Callback tree
+
 "Callback Node"
 struct CbNode{F, TPL <: Tuple}
   parent::F
@@ -7,10 +9,10 @@ end
 datamerge(x, data) = data
 datamerge(data1::NamedTuple, data2::NamedTuple) = merge(data1, data2)
 
-function (cbt::CbNode)(data)
-  data2 = datamerge(cbt.parent(data), data)
+function (cbt::CbNode)(data, stage)
+  data2 = datamerge(cbt.parent(data, stage), data)
   for child in cbt.children
-    child(data2)
+    child(data2, stage)
   end
 end
 
@@ -189,9 +191,9 @@ function throttle(f, timeout; leading = true, trailing = false) # From Flux (tha
       end
 
       cooldown = false
-      @schedule te
-        while (sle
-          later()e
+      @schedule try
+        while (sleep(timeout); later != nothing)
+          later()
           later = nothing
         end
       catch e
