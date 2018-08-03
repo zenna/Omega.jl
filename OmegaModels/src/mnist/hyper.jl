@@ -1,14 +1,18 @@
 using RunTools
 using UnicodePlots
 using JLD2
+using TensorboardX
 include("mnistflux.jl")
 
+# Fix the saving
+# Parameterize by nsteps
 # Take every
+# step_size
 # Loss function
 
 ## Params
 ## ======
-"Inference-specific parameters"
+"Optimization-specific parameters"
 function infparams()
   φ = Params()
   φ[:infalg] = HMCFAST
@@ -16,14 +20,9 @@ function infparams()
   φ
 end
 
-"HMCFAST Specific Params"
-function infparams_(::Omega.HMCFASTAlg)
-  φ = Params()
-  φ[:n] = uniform([100, 200, 1000, 10000])
-  φ[:stepsize] = uniform([0.1, 0.01, 0.001, 0.0001])
-  φ[:nsteps] =  uniform([1, 5, 10, 50, 100])
-  φ[:takeevery] =  uniform([10])
-  φ
+"Default is no argument params"
+function infparams_(::Any)
+  Params{Symbol, Any}(Dict{Symbol, Any}(:n => uniform([100, 200])))
 end
 Omega.lift(:infparams_, 1)
 
@@ -33,7 +32,7 @@ function runparams()
   φ[:loadchain] = false
   φ[:loadnet] = false
 
-  φ[:name] = "mnist"
+  φ[:name] = "mnist test"
   φ[:runname] = randrunname()
   φ[:tags] = ["test", "mnist"]
   φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])   # LOGDIR is required for sim to save
@@ -43,19 +42,15 @@ function runparams()
   φ
 end
 
-function modelparams()
-  φ = Params()
-  φ[:nimages] = uniform([200, 1000, 10000, 30000])
-  φ
-end
-
 "All parameters"
 function allparams()
   φ = Params()
-  φ[:modelφ] = modelparams()
+  # φ[:modelφ] = modelparams()
   φ[:infalg] = infparams()
   φ[:α] = uniform([100.0, 200.0, 400.0, 500.0, 1000.0])
-  merge(φ, runparams())
+#  φ[:kernel] = kernelparams()
+  # φ[:runφ] = runparams()
+  merge(φ, runparams()) # FIXME: replace this with line above when have magic indexing
 end
 
 function paramsamples(nsamples = 10)
@@ -67,10 +62,29 @@ function enumparams()
   [Params()]
 end
 
+"Update Tensorboard"
+function uptb(writer, name, field)
+  updateaccuracy(data, stage) = nothing # Do nothing in other stages
+  function updateaccuracy(data, stage::Type{Outside})
+    TensorboardX.add_scalar!(writer, name, getfield(name, field), data.i)
+  end
+end 
+
+testacc(data, stage) = (testacc = accuracy(net(data.ω, tX, tY)))
+trainacc(data, stage) = (testacc = accuracy(net(data.ω, tX, tY)))
+
 function infer(φ)
-  X, Y = data(φ[:modelφ][:nimages])
+  X, Y = data()
   net = ciid(net_; T = Flux.Chain)
   error = loss(X, Y, net)
+
+  # Callbacks
+  writer = TensorboardX.SummaryWriter(φ[:logdir])
+  tbtest = everyn(uptb(writer, "testacc", :testacc), 100)
+  tbtrain = trainacc, uptb(writer, "trainacc", :trainacc)
+
+  CbNode(idcb, (CbNode(trainacc, (tbtest, tbtrain)),))
+
   nets = infer(net, error; φ[:infalg][:infalgargs]...)
 
   # Save the scenes
@@ -89,7 +103,8 @@ end
 main() = RunTools.control(infer, paramsamples())
 
 function testhyper()
-  infer(first(paramsamples()))    
+  p = first(paramsamples())
+  infer(p)    
 end
 
 main()

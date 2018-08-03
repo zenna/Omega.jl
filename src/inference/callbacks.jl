@@ -1,3 +1,21 @@
+"Callback Node"
+struct CbNode{F, TPL <: Tuple}
+  parent::F
+  children::TPL
+end
+
+datamerge(x, data) = data
+datamerge(data1::NamedTuple, data2::NamedTuple) = merge(data1, data2)
+
+function (cbt::CbNode)(data)
+  data2 = datamerge(cbt.parent(data), data)
+  for child in cbt.children
+    child(data2)
+  end
+end
+
+@inline idcb(x, stage) = x
+
 "Inf found"
 struct InfError <: Exception end
 
@@ -9,13 +27,7 @@ struct NaNError <: Exception end
 runall(f) = f
 runall(fs::AbstractVector) = (data, stage) -> foreach(f -> handlesignal(f(data, stage)), fs)
 
-# Replace with named tuple in 0.7
-struct RunData{O}
-  ω::O
-  accepted::Int
-  p::Float64
-  i::Int
-end
+RunData(;kwargs...) = kwargs.data
 
 "Stage of algorithm at which callback is called.
  Callback has type f(data, stage::Type{<:Stage}."
@@ -177,9 +189,9 @@ function throttle(f, timeout; leading = true, trailing = false) # From Flux (tha
       end
 
       cooldown = false
-      @schedule try
-        while (sleep(timeout); later != nothing)
-          later()
+      @schedule te
+        while (sle
+          later()e
           later = nothing
         end
       catch e
@@ -206,10 +218,10 @@ function everyn(callback, n::Integer)
 end
 
 "Defautlt callbacks"
-default_cbs(n) = [throttle(plotp(), 0.1),
-                  showprogress(n),
-                  throttle(printstats, 1.0),
-                  stopnanorinf]
+default_cbs(n) = runall([throttle(plotp(), 0.1),
+                         showprogress(n),
+                         throttle(printstats, 1.0),
+                         stopnanorinf])
 
 # default_cbs(n) = [plotp(),
 #                   showprogress(n),

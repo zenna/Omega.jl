@@ -81,7 +81,6 @@ function Base.rand(y::RandVar,
                    nsteps = 10,
                    stepsize = 0.001,
                    cb = default_cbs(n)) where {OT <: Ω}
-  cb = runall(cb)
   ω = ΩT()
   y(ω) # Initialize omega
   ωvec = linearize(ω)
@@ -99,7 +98,7 @@ function Base.rand(y::RandVar,
     if wasaccepted
       accepted += 1
     end
-    cb(RunData(ω_, accepted, p_, i), Outside)
+    cb(RunData(ω = ω_, accepted = accepted, p = p_, i = i), Outside)
   end
   [applywoerror.(y, ω_) for ω_ in ωsamples]
 end

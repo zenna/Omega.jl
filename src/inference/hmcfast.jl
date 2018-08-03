@@ -35,7 +35,7 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
             pvals, ∇qvals, prop_qvals)
 
   for i = 1:nsteps
-    cb(QP(prop_qvals, pvals), Inside)
+    cb(RunData(q = prop_qvals, p = pvals), Inside)
     # @show prop_qvals
     # Half step p and q
     # @show prop_qvals 
@@ -81,7 +81,6 @@ function Base.rand(y::RandVar,
                    nsteps = 10,
                    cb = default_cbs(n * takeevery),
                    stepsize = 0.001) where {OT <: Ω}
-  cb = runall(cb)
   ω = ΩT()        # Current Ω state of chain
   y(ω)            # Initialize omega
   qvals = [x.data for x in values(ω)]   # Values as a vector
@@ -109,7 +108,7 @@ function Base.rand(y::RandVar,
       # QVALS need to reflect
       i % takeevery == 0 && push!(ωsamples, deepcopy(ω))
     end
-    cb(RunData(prop_ω, accepted, Flux.data(p_), i), Outside)
+    cb(RunData(ω = prop_ω, accepted = accepted, p = Flux.data(p_), i = i), Outside)
   end
   [applywoerror.(y, ω_) for ω_ in ωsamples]
 end
