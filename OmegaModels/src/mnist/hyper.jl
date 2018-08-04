@@ -17,9 +17,9 @@ end
 "HMCFAST Specific Params"
 function infparams_(::Omega.HMCFASTAlg)
   φ = Params()
-  φ[:n] = uniform([100, 200, 1000, 10000])
-  φ[:stepsize] = uniform([0.1, 0.01, 0.001, 0.0001])
-  φ[:nsteps] =  uniform([1, 5, 10, 50, 100])
+  φ[:n] = uniform([200, 500, 1000, 10000])
+  φ[:stepsize] = uniform([0.1, 0.01, 0.001])
+  φ[:nsteps] =  uniform([100, 200, 500, 1000])
   φ[:takeevery] =  uniform([10])
   φ
 end
