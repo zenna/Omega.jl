@@ -56,7 +56,7 @@ function allparams()
   merge(φ, runparams())
 end
 
-function paramsamples(nsamples = 10)
+function paramsamples(nsamples = 30)
   (rand(merge(allparams(), φ, Params(Dict(:samplen => i))))  for φ in enumparams(), i = 1:nsamples)
 end
 
@@ -81,7 +81,7 @@ function infer(φ)
 
   # Callbacks
   @show div(ntotal, 100)
-  writer = TensorboardX.SummaryWriter(φ[:logdir])
+  writer = Tensorboard.SummaryWriter(φ[:logdir])
   tbtest = uptb(writer, "testacc", :testacc)
   tbp = uptb(writer, "logp", :p)
   savenets = Omega.everyn(savedatajld2(joinpath(φ[:logdir], "nets"), :ω), div(ntotal, 10))
