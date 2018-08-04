@@ -63,6 +63,14 @@ Base.:|(x::RandVar, y::RandVar) = RandVar{SoftBool, false}(|, (x, y))
 Base.all(xs::Vector{<:SoftBool}) = SoftBool(minimum(logepsilon.(xs)))
 Base.all(xs::Vector{<:RandVar}) = RandVar{SoftBool}(all, ())
 
+if isjulia7()
+  const >ₛ = softgt
+  const >=ₛ = softgt
+  const <=ₛ = softlt
+  const <ₛ = softlt
+  const ==ₛ = softeq
+end
+
 const ⪆ = softgt
 const ⪅ = softlt
 const ≊ = softeq

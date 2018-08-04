@@ -22,3 +22,6 @@ Counter() = Counter(0)
 increment(c::Counter) = x::Int = c.count += 1
 
 UTuple{T} = Tuple{Vararg{T, N}} where N
+
+isjulia6() = v"0.6" <= VERSION < v"0.7-"
+isjulia7() = VERSION > v"0.7-"

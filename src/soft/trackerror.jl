@@ -49,4 +49,7 @@ end
 indomain(x, ω) = trackerrorapply(x, ω)[2]
 
 "Is `ω` in the domain of `x`?"
-applywoerror(x, ω) = trackerrorapply(x, ω)[1]
+function applywoerror(x, ω)
+  ω_, sbw = tagerror(ω)
+  x(ω_)
+end
