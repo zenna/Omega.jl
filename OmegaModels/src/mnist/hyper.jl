@@ -21,11 +21,6 @@ function infparams_(::Omega.HMCFASTAlg)
   φ[:stepsize] = uniform([0.1, 0.01, 0.001, 0.0001])
   φ[:nsteps] =  uniform([1, 5, 10, 50, 100])
   φ[:takeevery] =  uniform([10])
-
-  φ[:n] = uniform([100, 200, 1000, 10000])
-  φ[:takeevery] =  uniform([1])
-  φ[:nsteps] =  uniform([5])
-
   φ
 end
 Omega.lift(:infparams_, 1)
