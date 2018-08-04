@@ -4,15 +4,9 @@ using JLD2
 include("mnistflux.jl")
 include("../common.jl")
 
-# Fix the saving
-# Parameterize by nsteps
-# Take every
-# step_size
-# Loss function
-
 ## Params
 ## ======
-"Optimization-specific parameters"
+"Inference-specific parameters"
 function infparams()
   φ = Params()
   φ[:infalg] = HMCFAST
@@ -20,9 +14,19 @@ function infparams()
   φ
 end
 
-"Default is no argument params"
-function infparams_(::Any)
-  Params{Symbol, Any}(Dict{Symbol, Any}(:n => uniform([100, 200])))
+"HMCFAST Specific Params"
+function infparams_(::Omega.HMCFASTAlg)
+  φ = Params()
+  φ[:n] = uniform([100, 200, 1000, 10000])
+  φ[:stepsize] = uniform([0.1, 0.01, 0.001, 0.0001])
+  φ[:nsteps] =  uniform([1, 5, 10, 50, 100])
+  φ[:takeevery] =  uniform([10])
+
+  φ[:n] = uniform([100, 200, 1000, 10000])
+  φ[:takeevery] =  uniform([1])
+  φ[:nsteps] =  uniform([5])
+
+  φ
 end
 Omega.lift(:infparams_, 1)
 
@@ -32,7 +36,7 @@ function runparams()
   φ[:loadchain] = false
   φ[:loadnet] = false
 
-  φ[:name] = "mnist test"
+  φ[:name] = "mnist"
   φ[:runname] = randrunname()
   φ[:tags] = ["test", "mnist"]
   φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])   # LOGDIR is required for sim to save
@@ -42,15 +46,19 @@ function runparams()
   φ
 end
 
+function modelparams()
+  φ = Params()
+  φ[:nimages] = uniform([200, 1000, 10000, 30000])
+  φ
+end
+
 "All parameters"
 function allparams()
   φ = Params()
-  # φ[:modelφ] = modelparams()
+  φ[:modelφ] = modelparams()
   φ[:infalg] = infparams()
   φ[:α] = uniform([100.0, 200.0, 400.0, 500.0, 1000.0])
-#  φ[:kernel] = kernelparams()
-  # φ[:runφ] = runparams()
-  merge(φ, runparams()) # FIXME: replace this with line above when have magic indexing
+  merge(φ, runparams())
 end
 
 function paramsamples(nsamples = 10)
@@ -67,35 +75,29 @@ const net = ciid(net_; T = Flux.Chain)
 
 testacc(data, stage) = nothing
 testacc(data, stage::Type{Outside}) = (testacc = accuracy(net(data.ω), tX, tY),)
+
 # trainacc(data, stage) = (testacc = accuracy(net_(data.ω, tX, tY)))
 
 function infer(φ)
   display(φ)
-  X, Y = data()
+  X, Y = data(φ[:modelφ][:nimages])
+  @show ntotal = φ[:infalg][:infalgargs][:n] * φ[:infalg][:infalgargs][:takeevery]
   error = loss(X, Y, net)
 
   # Callbacks
+  @show div(ntotal, 100)
   writer = TensorboardX.SummaryWriter(φ[:logdir])
   tbtest = uptb(writer, "testacc", :testacc)
-  # tbtrain = uptb(writer, "trainacc", :trainacc)
+  tbp = uptb(writer, "logp", :p)
+  savenets = Omega.everyn(savedatajld2(joinpath(φ[:logdir], "nets"), :ω), div(ntotal, 10))
 
+  # tbtrain = uptb(writer, "trainacc", :trainacc)
   cb = idcb → (Omega.default_cbs_tpl(φ[:infalg][:infalgargs][:n])...,
-              # trainacc → tbtrain,
-               testacc → (tbtest,))
+               tbp,
+               savenets,
+               testacc → tbtest)
 
   nets = infer(net, error; cb = cb, φ[:infalg][:infalgargs]...)
-
-  # Save the scenes
-  tX, tY = testdata()
-  accs = [accuracy(net, tX, tY) for net in nets]
-  @show mean(accs)
-  @show accs[end]
-  
-  # Show accuracy
-  println(UnicodePlots.lineplot(accs))
-  
-  path = joinpath(φ[:logdir], "nets.jld2")
-  @save path nets
 end
 
 main() = RunTools.control(infer, paramsamples())
@@ -103,7 +105,7 @@ main() = RunTools.control(infer, paramsamples())
 function testhyper()
   p = first(paramsamples())
   mkpath(p[:logdir])
-  infer(p)    
+  infer(p)
 end
 
 # main()

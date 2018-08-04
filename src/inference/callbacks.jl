@@ -9,15 +9,23 @@ end
 p → c::Tuple = CbNode(p, c)
 p → c = CbNode(p, (c,))
 
-datamerge(x, data) = data
+datamerge(x, data) = nothing
 datamerge(data1::NamedTuple, data2::NamedTuple) = merge(data1, data2)
+
+trigger(data, child, stage) = nothing
+trigger(data::NamedTuple, child, stage) = child(data, stage)
 
 function (cbt::CbNode)(data, stage)
   data2 = datamerge(cbt.parent(data, stage), data)
+  # @show typeof(data2)
+  # @show typeof(cbt)
   for child in cbt.children
-    child(data2, stage)
+    trigger(data2, child, stage)
   end
 end
+
+# Either make rule be that we always pass whatever is on
+# Or we could make it say only if we pass some value it is tricted
 
 @inline idcb(x, stage) = x
 
@@ -215,9 +223,11 @@ end
 "Higher order function that makes a callback run just once every n"
 function everyn(callback, n::Integer)
   everyncb(data, stage) = nothing
-  function everyncb(data, stage::Outside)
+  function everyncb(data, stage::Type{Outside})
     if data.i % n == 0
-      callback(data, stage)
+      return callback(data, stage)
+    else
+      nothing
     end
   end
   return everyncb
