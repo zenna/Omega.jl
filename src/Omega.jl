@@ -85,6 +85,11 @@ export mean,
        ≊,
        ⪆,
        ⪅,
+       >ₛ,
+       >=ₛ,
+       <=ₛ,
+       <ₛ,
+       ==ₛ,     
        randarray,
        @lift,
        lift,
@@ -147,6 +152,11 @@ export mean,
        Outside,
 
        MaybeRV,
+
+       # Callbacks
+       everyn,
+       →,
+       idcb,
 
        cond
 

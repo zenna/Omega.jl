@@ -94,12 +94,12 @@ uuid = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
 version = "0.5.1"
 
 [[Flux]]
-deps = ["AbstractTrees", "Adapt", "Colors", "DiffRules", "ForwardDiff", "GZip", "LinearAlgebra", "MacroTools", "NNlib", "NaNMath", "Reexport", "Requires", "SpecialFunctions", "StatsBase", "ZipFile"]
-git-tree-sha1 = "3793a8fe2a10669981f9ce460c9c32c5d4fe304e"
+deps = ["AbstractTrees", "Adapt", "Colors", "Dates", "DiffRules", "ForwardDiff", "GZip", "Juno", "LinearAlgebra", "MacroTools", "NNlib", "NaNMath", "Printf", "Random", "Reexport", "Requires", "SpecialFunctions", "Statistics", "Test", "ZipFile"]
+git-tree-sha1 = "bb953dbe16a6caa7b3cdce09acf506c6015d7b84"
 repo-rev = "julia-0.7"
 repo-url = "https://github.com/FluxML/Flux.jl.git"
 uuid = "587475ba-b771-5e3f-ad9e-33799f191a9c"
-version = "0.5.3+"
+version = "0.6.0+"
 
 [[ForwardDiff]]
 deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "InteractiveUtils", "LinearAlgebra", "NaNMath", "Random", "SparseArrays", "SpecialFunctions", "StaticArrays", "Test"]
@@ -116,6 +116,12 @@ version = "0.4.0"
 [[InteractiveUtils]]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
+[[Juno]]
+deps = ["Base64", "Logging", "Media", "Profile", "Test"]
+git-tree-sha1 = "595f7c7a93d6c143509b667b0d0f6d6e3a19ab5d"
+uuid = "e5e0dc1b-0480-54bc-9374-aad01c23163d"
+version = "0.5.1"
+
 [[LibGit2]]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
 
@@ -125,6 +131,9 @@ uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 [[LinearAlgebra]]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
+[[Logging]]
+uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+
 [[MacroTools]]
 deps = ["Compat"]
 git-tree-sha1 = "18c17737f3d375b86b495144ba7ab359ab3dca57"
@@ -133,6 +142,12 @@ version = "0.4.2"
 
 [[Markdown]]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+
+[[Media]]
+deps = ["MacroTools", "Test"]
+git-tree-sha1 = "9cc7fc9d0e3e7e4ecb1f1b81209f9dc626e893f1"
+uuid = "e89f7d12-3494-54d1-8411-f7d8b9ae1f27"
+version = "0.4.0"
 
 [[Missings]]
 deps = ["Compat"]
@@ -165,6 +180,9 @@ uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 
 [[Printf]]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+
+[[Profile]]
+uuid = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"
 
 [[ProgressMeter]]
 deps = ["Compat"]
@@ -263,10 +281,10 @@ uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[URIParser]]
-deps = ["Compat", "Unicode"]
-git-tree-sha1 = "0f9c5e2d14e03fbd00696f9394e288bdd5adacbc"
+deps = ["Test", "Unicode"]
+git-tree-sha1 = "6ddf8244220dfda2f17539fa8c9de20d6c575b69"
 uuid = "30578b45-9adc-5946-b283-645ec420af67"
-version = "0.3.1"
+version = "0.4.0"
 
 [[UUIDs]]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
@@ -275,10 +293,10 @@ uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 
 [[UnicodePlots]]
-deps = ["Compat", "StatsBase"]
-git-tree-sha1 = "ca93b5cb5338ea776b5b9947eff0fd01560afd3d"
+deps = ["Dates", "SparseArrays", "StatsBase", "Test"]
+git-tree-sha1 = "1e2eca82472f0b6b5998b40bcee5cf4dfc3610b7"
 uuid = "b8865327-cd53-5732-bb35-84acbb429228"
-version = "0.2.6"
+version = "0.3.0"
 
 [[ZenUtils]]
 deps = ["Spec"]

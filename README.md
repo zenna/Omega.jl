@@ -1,15 +1,10 @@
 # Omega.jl
 
-[![Build Status](https://travis-ci.org/zenna/Omega.jl.svg?branch=master)](https://travis-ci.org/zenna/Omega.jl)
+| **Documentation**                       | **Build Status**                                                                                |
+|:--------------------------------------- |:----------------------------------------------------------------------------------------------- |
+| [![][docs-latest-img]][docs-latest-url] | [![][travis-img]][travis-url] [![][codecov-img]][codecov-url] |
 
-[![codecov.io](http://codecov.io/github/zenna/Omega.jl/coverage.svg?branch=master)](http://codecov.io/github/zenna/Omega.jl?branch=master)
-
-Probabilistic programming in Julia
-
-# Documentation
-
-<!-- [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://zenna.github.io/Omega.jl/stable) -->
-[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://zenna.github.io/Omega.jl/latest)
+Omega is a library for causal and probabilistic inference in Julia.
 
 # Quick start
 
@@ -166,3 +161,13 @@ julia> UnicodePlots.histogram(weight_samples)
 
 Observe that our belief about the weight has now changed.
 We are more convinced the coin is biased towards heads (`true`)
+
+
+[docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
+[docs-latest-url]: https://zenna.github.io/Omega.jl/latest
+
+[travis-img]: https://travis-ci.org/zenna/Omega.jl.svg?branch=master
+[travis-url]: https://travis-ci.org/zenna/Omega.jl
+
+[codecov-img]: https://codecov.io/github/zenna/Omega.jl/coverage.svg?branch=master
+[codecov-url]: http://codecov.io/github/zenna/Omega.jl?branch=master

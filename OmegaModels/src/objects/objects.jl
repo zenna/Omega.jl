@@ -1,12 +1,11 @@
 using Omega
-using ImageView
+# using ImageView
 using RunTools
 import RayTrace: SimpleSphere, ListScene, rgbimg
 import RayTrace: FancySphere, Vec3, Sphere, Scene
 using BSON
 using FileIO
 using DataFrames
-
 
 include("net.jl")
 

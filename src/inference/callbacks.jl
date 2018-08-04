@@ -1,3 +1,34 @@
+## Callback tree
+
+"Callback Node"
+struct CbNode{F, TPL <: Tuple}
+  parent::F
+  children::TPL
+end
+
+p → c::Tuple = CbNode(p, c)
+p → c = CbNode(p, (c,))
+
+datamerge(x, data) = nothing
+datamerge(data1::NamedTuple, data2::NamedTuple) = merge(data1, data2)
+
+trigger(data, child, stage) = nothing
+trigger(data::NamedTuple, child, stage) = child(data, stage)
+
+function (cbt::CbNode)(data, stage)
+  data2 = datamerge(cbt.parent(data, stage), data)
+  # @show typeof(data2)
+  # @show typeof(cbt)
+  for child in cbt.children
+    trigger(data2, child, stage)
+  end
+end
+
+# Either make rule be that we always pass whatever is on
+# Or we could make it say only if we pass some value it is tricted
+
+@inline idcb(x, stage) = x
+
 "Inf found"
 struct InfError <: Exception end
 
@@ -9,13 +40,7 @@ struct NaNError <: Exception end
 runall(f) = f
 runall(fs::AbstractVector) = (data, stage) -> foreach(f -> handlesignal(f(data, stage)), fs)
 
-# Replace with named tuple in 0.7
-struct RunData{O}
-  ω::O
-  accepted::Int
-  p::Float64
-  i::Int
-end
+RunData(;kwargs...) = kwargs.data
 
 "Stage of algorithm at which callback is called.
  Callback has type f(data, stage::Type{<:Stage}."
@@ -197,19 +222,27 @@ end
 
 "Higher order function that makes a callback run just once every n"
 function everyn(callback, n::Integer)
-  function everyncb(data, stage)
+  everyncb(data, stage) = nothing
+  function everyncb(data, stage::Type{Outside})
     if data.i % n == 0
-      callback(data, stage)
+      return callback(data, stage)
+    else
+      nothing
     end
   end
   return everyncb
 end
 
 "Defautlt callbacks"
-default_cbs(n) = [throttle(plotp(), 0.1),
-                  showprogress(n),
-                  throttle(printstats, 1.0),
-                  stopnanorinf]
+default_cbs(n) = runall([throttle(plotp(), 0.1),
+                         showprogress(n),
+                         throttle(printstats, 1.0),
+                         stopnanorinf])
+
+default_cbs_tpl(n) = (throttle(plotp(), 0.1),
+                      showprogress(n),
+                      throttle(printstats, 1.0),
+                      stopnanorinf)
 
 # default_cbs(n) = [plotp(),
 #                   showprogress(n),
