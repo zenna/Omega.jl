@@ -1,4 +1,4 @@
-using TensorboardX
+using Tensorboard
 using FileIO
 
 # To make this fast you could usue a generated function
@@ -8,7 +8,7 @@ function uptb(writer, name, field, verbose = true)
   function updateaccuracy(data, stage::Type{Outside})
     val = getfield(data, field)
     verbose && println("Saving $name to Tensoboard: $val")
-    TensorboardX.add_scalar!(writer, name, val, data.i)
+    Tensorboard.add_scalar!(writer, name, val, data.i)
   end
 end
 
