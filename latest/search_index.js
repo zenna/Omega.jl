@@ -85,7 +85,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Modeling",
     "title": "Statistical Style",
     "category": "section",
-    "text": "In the statistical style we create random variables by combining a number of primitives. Omega comes with a number of built-in primitive distributions, the simplest of which is (arguably) the standard uniform:x1 = uniform(0.0, 1.0)x1 is a random variable not a sample. To construct another random variable x2, we do the same. x2 = uniform(0.0, 1.0)x1 and x2 are identically distributed and independent (i.i.d.).julia> rand((x1, x2))\n(0.5602978842341093, 0.9274576159629635)"
+    "text": "In the statistical style we create random variables by combining a number of primitives. Omega comes with a number of built-in primitive distributions, the simplest of which is (arguably) the standard uniform:x1 = uniform(0.0, 1.0)x1 is a random variable not a sample. To construct another random variable x2, we do the same. x2 = uniform(0.0, 1.0)x1 and x2 are identically distributed and independent (i.i.d.).julia> rand((x1, x2))\n(0.5602978842341093, 0.9274576159629635)Contrast this with:julia> rand((x1, x1))\n(0.057271529749001626, 0.057271529749001626)"
 },
 
 {
@@ -93,7 +93,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Modeling",
     "title": "Composition",
     "category": "section",
-    "text": "Statistical style is convenient because it allows us to treat a RandVar{T} as if it is a value of type T.  For instance the typeof uniform(0.0, 1.0) is RandVar{Float64}.  Using the statistical style, we can add, multiply, divide them as if theyh were Float64x3 = x1 + x2This includes functions which return a Booleanp = x3 > 1.0A particularly useful case is that primitive distributions which take parameters of type T, also accept RandVar{T}n = normal(x3, 1.0)Suppose you write your own functionmyfunc(x::Float64, y::Float64) = (x * y)^2We can\'t automatically apply myfunc to RandVars; it will cause a method errormyfunc(x1, x2)However this is easily remedied with the function liftlift(myfunc)(x1, x2)"
+    "text": "Statistical style is convenient because it allows us to treat a RandVar{T} as if it is a value of type T.  For instance the typeof(uniform(0.0, 1.0)) is RandVar{Float64}.  Using the statistical style, we can add, multiply, divide them as if they were values of type Float64.x3 = x1 + x2Note x3 is a RandVar{Float64} like x1 and x2This includes inequalities:p = x3 > 1.0p is of type RandVar{Bool}julia> rand(p)\nfalseA particularly useful case is that primitive distributions which take parameters of type T, also accept RandVar{T}n = normal(x3, 1.0)Suppose you write your own function defined on the reals:myfunc(x::Float64, y::Float64) = (x * y)^2We can\'t automatically apply myfunc to RandVars; it will cause a method errorjulia> myfunc(x1, x2)\nERROR: MethodError: no method matching myfunc(::RandVar..., ::RandVar...)However this is easily remedied with the function lift:lift(myfunc)(x1, x2)"
 },
 
 {
@@ -101,20 +101,44 @@ var documenterSearchIndex = {"docs": [
     "page": "Modeling",
     "title": "Explicit Style",
     "category": "section",
-    "text": "The above style is convenient but has a few limitations and it hides a lot of the machinery. To create random variables in the explicit style, create a normal julia sampler, but it is essential to pass through the rng object.For instance, to define a bernoulli distribution in explicit style:x_(rng) = rand(rng) > 0.5x_ is just a normal julia function.  We could sample from it by passing in the GLOBAL_RNGjulia> x_(Base.Random.GLOBAL_RNG)\ntrueHowever, in order to use x for conditional or causal inference we must turn it into a RandVar using ciid.x = ciid(x_)<!– Mathematically, a sampler is a slightly different kind of object than a random variable. –>"
+    "text": "The above style is convenient but has a few limitations and it hides a lot of the machinery. To create random variables in the explicit style, create a normal julia sampler, but it is essential to pass through the rng object.For instance, to define a bernoulli distribution in explicit style:x_(rng) = rand(rng) > 0.5x_ is just a normal julia function.  We could sample from it by passing in the GLOBAL_RNGjulia> x_(Base.Random.GLOBAL_RNG)\ntrueHowever, in order to use x for conditional or causal inference we must turn it into a RandVar using ciid.x = ciid(x_)Statistical style and functional style can be combined naturally. For example:x = ciid(rng -> rand(rng) > 0.5 ? rand(rng)^2 : sqrt(rand(rng)))\ny = normal(0.0, 1.0)\nz = x + y"
 },
 
 {
-    "location": "model.html#Independent-Random-Variables-1",
+    "location": "model.html#Random-Variable-Families-1",
     "page": "Modeling",
+    "title": "Random Variable Families",
+    "category": "section",
+    "text": "Often we want to parameterize a random variable.  To do this we create functions with addition argument, and pass arguments to ciid.uniform(rng, a, b) = rand(rng) * (b - a) + b  \nx = ciid(10, 20)And hence if we wanted to create a method that created independent uniformly distributed random variables, we could do it like so:uniform(a, b) = ciid(rng -> rand(rng) * (b - a) + b)"
+},
+
+{
+    "location": "conditionalindependence.html#",
+    "page": "(Conditional) Independence",
+    "title": "(Conditional) Independence",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "conditionalindependence.html#Conditionally-Independence-1",
+    "page": "(Conditional) Independence",
+    "title": "Conditionally Independence",
+    "category": "section",
+    "text": "Previously we saw that we could use ciid to turn a function rng into a RandVar."
+},
+
+{
+    "location": "conditionalindependence.html#Independent-Random-Variables-1",
+    "page": "(Conditional) Independence",
     "title": "Independent Random Variables",
     "category": "section",
     "text": "Use iid(x) to create a random variable that is identical in distribution to x but but independent."
 },
 
 {
-    "location": "model.html#Conditionally-Independent-Random-Variables-1",
-    "page": "Modeling",
+    "location": "conditionalindependence.html#Conditionally-Independent-Random-Variables-1",
+    "page": "(Conditional) Independence",
     "title": "Conditionally Independent Random Variables",
     "category": "section",
     "text": "Use ciid(x) to create a random variable that is identical in distribution to x but conditionally independent given its parents.μ = uniform(0.0, 1.0)\ny1 = normal(μ, 1.0)\ny2 = ciid(y1)\nrand((y1, y2))"
@@ -141,7 +165,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Conditional Inference",
     "title": "Base.rand",
     "category": "function",
-    "text": "Sample n from x\n\n\n\n\n\nSample 1 from x\n\n\n\n\n\nn samples from x with rejection sampling\n\n\n\n\n\nSample ω | y == true with Metropolis Hasting\n\n\n\n\n\nSample from x | y == true with Single Site Metropolis Hasting\n\n\n\n\n\nSample from x | y == true with Hamiltonian Monte Carlo\n\n\n\n\n\nSample from x | y == true with Hamiltonian Monte Carlo\n\n\n\n\n\nSample from ω | y == true with Stochastic Gradient Hamiltonian Monte Carlo\n\n\n\n\n\nSample from x | y == true with Metropolis Hasting\n\n\n\n\n\n"
+    "text": "Random ω ∈ Ω\n\n\n\n\n\nSample n from x\n\n\n\n\n\nSample 1 from x\n\n\n\n\n\nn samples from x with rejection sampling\n\n\n\n\n\nSample ω | y == true with Metropolis Hasting\n\n\n\n\n\nSample from x | y == true with Single Site Metropolis Hasting\n\n\n\n\n\nSample from x | y == true with Hamiltonian Monte Carlo\n\n\n\n\n\nSample from x | y == true with Hamiltonian Monte Carlo\n\n\n\n\n\nSample from ω | y == true with Stochastic Gradient Hamiltonian Monte Carlo\n\n\n\n\n\nSample from x | y == true with Metropolis Hasting\n\n\n\n\n\n"
 },
 
 {
