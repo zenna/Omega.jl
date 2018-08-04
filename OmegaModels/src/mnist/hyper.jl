@@ -33,7 +33,7 @@ function runparams()
 
   φ[:name] = "mnist"
   φ[:runname] = randrunname()
-  φ[:tags] = ["test", "mnist"]
+  φ[:tags] = ["firsttry", "mnist"]
   φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])   # LOGDIR is required for sim to save
   φ[:runfile] = @__FILE__
 
@@ -103,4 +103,4 @@ function testhyper()
   infer(p)
 end
 
-# main()
+main()
