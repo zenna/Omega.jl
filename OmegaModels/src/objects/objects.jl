@@ -4,7 +4,6 @@ using RunTools
 using RayTrace
 import RayTrace: SimpleSphere, ListScene, rgbimg
 import RayTrace: FancySphere, Vec3, Sphere, Scene
-using BSON
 using FileIO
 using DataFrames
 
