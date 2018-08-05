@@ -12,7 +12,7 @@ function uptb(writer, name, field, verbose = true)
   end
 end
 
-savejld(val, path) = save("$path$i.jld2", Dict("data" => val))
+savejld(val, path, i) = save("$path$i.jld2", Dict("data" => val))
 
 "Save `data.field` to `path(data.i).jld2` as JLD2"
 function savedatajld2(path, field, verbose = true)

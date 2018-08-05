@@ -20,7 +20,7 @@ function allparams()
   φ = Params()
   φ[:infalg] = infparams()
   φ[:α] = uniform([100.0, 200.0, 400.0, 500.0, 1000.0])
-  φ[:n] = uniform([1000, 10000, 50000])
+  φ[:n] = uniform([1000, 2000, 5000, 10000, 50000])
   merge(φ, runparams())
 end
 
@@ -63,7 +63,7 @@ function infer(φ)
   cb = idcb → (Omega.default_cbs_tpl(n)...,
                tbp,
                renderedimg → everyn(tbimg, 10),
-               everyn(saveω, div(n, 10)))
+               everyn(saveω, div(n, 30)))
   ## Sample
   samples = rand(scene, img ==ₛ img_obs, φ[:n]; cb = cb, alg = φ[:infalg][:infalg],
                                               φ[:infalg][:infalgargs]...)
