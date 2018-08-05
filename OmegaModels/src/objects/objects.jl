@@ -18,7 +18,6 @@ end
 rendersquare(x) = Img(RayTrace.render(x, width = 224, height = 224))
 rgbimg(x::Img) = rgbimg(x.img)
 
-
 ## Priors
 ## ======
 const nspheres = poisson(3)

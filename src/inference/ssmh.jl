@@ -19,7 +19,7 @@ function Base.rand(x::RandVar{T},
                    n::Integer,
                    alg::SSMHAlg,
                    ΩT::Type{OT};
-                   cb = default_cbs(n),
+                   cb = donothing,
                    hack = true) where {T, OT <: Ω}
   ω = ΩT()
   xω, sb = trackerrorapply(x, ω)
