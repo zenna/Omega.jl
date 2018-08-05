@@ -30,13 +30,11 @@ function runparams()
   φ[:train] = true
   φ[:loadchain] = false
   φ[:loadnet] = false
-
   φ[:name] = "mnist"
   φ[:runname] = randrunname()
   φ[:tags] = ["firsttry", "mnist"]
   φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])   # LOGDIR is required for sim to save
   φ[:runfile] = @__FILE__
-
   φ[:gitinfo] = RunTools.gitinfo()
   φ
 end

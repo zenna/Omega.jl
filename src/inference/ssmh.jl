@@ -3,6 +3,7 @@ struct SSMHAlg <: Algorithm end
 
 "Single Site Metropolis Hastings"
 const SSMH = SSMHAlg()
+defcb(::SSMHAlg) = default_cbs()
 
 isapproximate(::SSMHAlg) = true
 
@@ -18,7 +19,7 @@ function Base.rand(x::RandVar{T},
                    n::Integer,
                    alg::SSMHAlg,
                    ΩT::Type{OT};
-                   cb = donothing,
+                   cb = default_cbs(n),
                    hack = true) where {T, OT <: Ω}
   ω = ΩT()
   xω, sb = trackerrorapply(x, ω)

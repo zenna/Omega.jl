@@ -51,7 +51,6 @@ function enumparams()
   [Params()]
 end
 
-
 function infer(φ)
   scene = ciid(scene_)     # Random Variable of scenes
   img = render(scene)     # Random Variable over images
@@ -60,7 +59,6 @@ function infer(φ)
   function saveimg(data, stage::Type{Outside})
     imgpath = joinpath(φ[:logdir], "final$(data.i).png")
     img_ = map(Images.clamp01nan, rgbimg(img(data.ω)))
-    
     FileIO.save(imgpath, rgbimg(img_))
   end
 

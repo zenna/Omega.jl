@@ -1,6 +1,7 @@
 using Omega
 # using ImageView
 using RunTools
+using RayTrace
 import RayTrace: SimpleSphere, ListScene, rgbimg
 import RayTrace: FancySphere, Vec3, Sphere, Scene
 using BSON
@@ -13,15 +14,14 @@ struct Img{T}
   img::T
 end
 
-render(x) = Img(RayTrace.render(x, 224, 224))
+# Render at 224 by 225 because that's what the neural networ expects
+rendersquare(x) = Img(RayTrace.render(x, width = 224, height = 224))
 rgbimg(x::Img) = rgbimg(x.img)
 
-Omega.lift(:(RayTrace.SimpleSphere), n=2)
-Omega.lift(:(RayTrace.ListScene), n=1)
-Omega.lift(:(render), n=1)
 
-nspheres = poisson(3)
-
+## Priors
+## ======
+const nspheres = poisson(3)
 "Randm Variable over scenes"
 function scene_(ω)
   # spheres = map(1:nspheres(ω)) do i
@@ -55,17 +55,6 @@ end
 #   scene = ListScene([spheres; light])
 # end
 
-
-function scenetodf(scene::RayTrace.ListScene)
-  alldf = DataFrame(x = Float64[], y = Float64[], z = Float64[], r = Float64[])
-  for obj in scene.geoms
-    x, y, z = obj.center
-    df_ = DataFrame(x = [x], y = [y], z = [z], r = [obj.radius])
-    append!(alldf, df_)
-  end
-  alldf
-end
-
 # "Randm Variable over scenes"
 # function scene_(ω)
 #   # spheres = map(1:nspheres(ω)) do i
@@ -86,49 +75,6 @@ end
 "Show a random image"
 showscene(scene) = imshow(rgbimg(render(scene)))
 
-## Conditions
-## ==========
-function same(xs)
-  a = [x1 ≊ x2 for x1 in xs, x2 in xs if x1 !== x2]
-  # @show length(xs)
-  aba = all(a)
-  # @show aba
-  # println()
-  aba
-end
-norma(x) = sqrt(sum(x .* x))
-
-pairwisef(f, sc::Scene) = [f(obj1, obj2) for obj1 in sc.geoms[1:end-1], obj2 in sc.geoms[1:end-1] if obj1 !== obj2]
-
-"Euclidean distance between all objects"
-d(s1::Sphere, s2::Sphere) = norma(s1.center - s2.center)
-
-"Distance between surfance color"
-cold(s1::Sphere, s2::Sphere) = norma(s1.surface_color - s2.surface_color)
-
-intersect(s1::Sphere, s2::Sphere) = d(s1, s2) ⪅ (s1.radius + s2.radius)
-function nointersect(s1::Sphere, s2::Sphere)
-  d1 = d(s1, s2)
-  d2 = (s1.radius + s2.radius)
-  # d1 > d2
-  withkernel(Omega.kseα(10000)) do
-    @show a = d1 ⪆ d2
-    Omega.SoftBool(Omega.logepsilon(a))
-  end
-end
-
-"Do any objects in the scene intersect with any other"
-intersect(sc::Scene) = any(pairwisef(intersects, sc))
-nointersect(sc::Scene) = @show all(pairwisef(nointersect, sc))
-lift(:nointersect, 1)
-
-"Are all objects isequidistant?"
-isequidistant(sc::Scene) = same(pairwisef(d, sc))
-lift(:isequidistant, 1)
-
-"Distinguished in colour"
-distinguishedcolor(sc::Sphere) = same(pairwisef(cold, sc))
-
 ## Observation
 ## ===========
 "Some example spheres which should create actual image"
@@ -143,8 +89,10 @@ function observation_spheres()
   RayTrace.ListScene(scene)
 end
 
-const img_obs = render(observation_spheres())
+const img_obs = rendersquare(observation_spheres())
 
+## Equality
+## ========
 eucl(x, y) = sqrt(sum((x - y) .^ 2))
 function Omega.d(x::Img, y::Img)
   xfeatures = squeezenet(expanddims(x.img))
@@ -152,24 +100,16 @@ function Omega.d(x::Img, y::Img)
   ds = map(eucl, xfeatures, yfeatures)
   mean(ds)
 end
-
 expanddims(x) = reshape(x, size(x)..., 1)
 
 function main()
   scene = ciid(scene_)     # Random Variable of scenes
-  img = render(scene)     # Random Variable over images
-  # samples = rand(scene, nointersect(scene) & (img == img_obs), HMCFAST)
-  samples = rand(scene, isequidistant(scene), HMC, n=10000)
+  img = lift(rendersquare)(scene)     # Random Variable over images
+  samples = rand(scene, img ==ₛ img_obs, 100; alg = SSMH)
 end
 
-function main2()
-  scene = ciid(scene_)     # Random Variable of scenes
-  img = render(scene)     # Random Variable over images
-  samples = rand(scene, nointersect(scene) & (img == img_obs), SSMH)
-end
-
-## Plots
-## =====
+## Diagnostics
+## ===========
 Δ(a::Sphere, b::Sphere) = norm(a.center - b.center) + abs(a.radius - b.radius)
 Δ(a::Scene, b::Scene) = surjection(a.geoms, b.geoms)
 

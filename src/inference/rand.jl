@@ -3,7 +3,7 @@ defΩ(args...) = Omega.SimpleΩ{Vector{Int}, Any}
 defcb(args...) = donothing
 
 "Sample `n` from `x`"
-function Base.rand(x::RandVar, n::Integer; alg::Algorithm =  defalg(x), ΩT = defΩ(alg), kwargs...)
+function Base.rand(x::RandVar, n::Integer; alg::Algorithm = defalg(x), ΩT = defΩ(alg), kwargs...)
   rand(x, n, alg, ΩT; kwargs...)
 end
 
