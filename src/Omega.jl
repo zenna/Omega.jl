@@ -128,6 +128,13 @@ export mean,
        SGHMC,
        HMCFAST,
 
+       RejectionSampleAlg,
+       MIAlg,
+       SSMHAlg,
+       HMCAlg,
+       SGHMCAlg,
+       HMCFASTAlg,
+
        SoftBool,
 
        # Omegas

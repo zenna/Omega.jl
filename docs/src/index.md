@@ -1,6 +1,6 @@
 # Omega.jl
 
-Omega.jl is a small programming language for causal and probabilistic reasoning.
+Omega.jl is a programming language for causal and probabilistic reasoning.
 It was developed by [Zenna Tavares](http://zenna.org) with help from Javier Burroni, Edgar Minasyan, [Xin Zhang](http://people.csail.mit.edu/xzhang/), [Rajesh Ranganath](https://cims.nyu.edu/~rajeshr/) and [Armando Solar Lezama](https://people.csail.mit.edu/asolar/).
 
 ## Quick Start
