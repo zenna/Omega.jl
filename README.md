@@ -97,7 +97,7 @@ For reasons we will elaborate in later sections, it will be useful to have an `A
 One way to do this (there are several ways discuseed later), is to use the function `randarray`
 
 ```julia
-coinflips = randarray(coinflips)
+coinflips = randarray(coinflips_)
 ```
 
 `coinflips` is a `RandVar` and hence we can sample from it with `rand`
