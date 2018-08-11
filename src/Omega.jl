@@ -7,12 +7,16 @@ using Distributions
 using PDMats
 using ProgressMeter
 using Spec
-import Base.Random
-# import Statistics
-import Base.Random: AbstractRNG
 using ZenUtils
 using UnicodePlots
 using Compat
+
+# import Base.Random: AbstractRNG
+# import Base.Random
+import Random
+import Random: GLOBAL_RNG, AbstractRNG
+import Statistics: mean, var
+
 
 # Util
 include("util/misc.jl")
@@ -95,7 +99,12 @@ export mean,
        lift,
        @id,
        ciid,
+
+       # Kernels
        kse,
+       kseα,
+       kf1,
+       kf1β,
 
        # Distributions
        bernoulli,

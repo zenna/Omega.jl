@@ -1,7 +1,32 @@
 # Soft Execution
 
+## TLDR
+For inference problems which are continuous or high dimensional, use soft predicates to use more efficient inference routines.
+
+```@docs
+==
+>ₛ
+>=
+<=ₛ
+<ₛ
+```
+
+If the values `x` and `y` are not standard numeric types you will need to define a notation of distance.  Override `Omega.d`
+
+```@docs
+d
+```
+
+For example:
+```julia
+struct
+  
+end
+```
+
+## Relaxation
 In Omega you condition on predicates.
-A predicate is any function whose domain is the `Boolean`.
+A predicate is any function whose domain is `Boolean`.
 These are sometimes called indicator functions, or characteristic functions.
 In particular, in Omega we condition on `Bool` valued random variables:
 
@@ -12,7 +37,7 @@ rand(y)
 ```
 
 From this perspective, conditioning means to solve a constraint.
-It can be difficult to solve these constraints exactly, and so Omega can soften constraints to make inference more tractable.
+It can be difficult to solve these constraints exactly, and so Omega supports softened constraints to make inference more tractable.
 
 There are two ways to make soft constraints.  The first way is explicitly:
 
@@ -23,13 +48,20 @@ julia> rand(y)
 ϵ:-47439.72956833765
 ```
 
-These soft kernels have the form
+Suppose we construct a random variable of the form `x == y`.
+The soft version we would write `x ==\_s y` (or `softeq(x, y)`).
+These softened functions have the form:
 
-MATH HERE
+If \rho(x, y) denote a distance between `x` and `y`.
+
+$$
+k(\rho(x, y))
+$$
 
 ```
-withkernel
-```
+
+## Controlling the kernel
+
 
 Omega has a number of built-in kernels:
 

@@ -129,7 +129,7 @@ julia> rand((timeofday, is_window_open, is_ac_on, outside_temp, inside_temp, the
 ```
 
 ### Conditional Inference
-You enter the room and the thermostat reads hot. what does this tell you about the variables?
+- You enter the room and the thermostat reads hot. what does this tell you about the variables?
 
 samples = rand((timeofday, is_window_open, is_ac_on, outside_temp, inside_temp, thermostat),
                 thermostat > 30.0, 5, alg = RejectionSample)
@@ -146,8 +146,8 @@ julia> samples = rand((timeofday, is_window_open, is_ac_on, outside_temp, inside
  (:afternoon, 1.0, 0.0, 32.92982568498735, 27.56800059609554, 30.248913140541447)
 ```
 
-## Coutner Factual
-"If I were to close the window, and turn on the AC would that make it hotter or colder"
+## Counter Factual
+- If I were to close the window, and turn on the AC would that make it hotter or colder"
 
 ```
 thermostatnew = replace(thermostat, is_ac_on => 1.0, is_window_open => 0.0)
@@ -181,6 +181,7 @@ julia> UnicodePlots.histogram([diffsamples...])
                  └────────────────────────────────────────┘ 
 ```
 
-## In what scenarios would it still be hotter after turning on the AC and closing the window?
+- In what scenarios would it still be hotter after turning on the AC and closing the window?
+
 rand((timeofday, outside_temp, inside_temp, thermostat),
       thermostatnew - thermostat > 0.0, 10, alg = RejectionSample)

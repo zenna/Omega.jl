@@ -46,3 +46,18 @@ function squeezenet(x_28)
     edge_36 = relu.(c_4(cat(3, relu.(c_5(edge_35)), relu.(c_26(edge_35)))))
     c_19_, edge_30, edge_34, edge_32, edge_31, x_28
 end
+
+function squeezenet2(x_28)
+    features = []
+    id!(x) = (push!(features, x); x)
+    c_19_ = c_19(x_28)
+    edge_29 = relu.(c_18(maxpool(relu.(c_19_), (3, 3), pad=(0, 0), stride=(2, 2))))
+    edge_30 = relu.(c_16(cat(3, relu.(c_17(edge_29)), relu.(c_20(edge_29)))))
+    edge_31 = relu.(c_14(maxpool(cat(3, relu.(c_15(edge_30)), relu.(c_21(edge_30))), (3, 3), pad=(0, 0), stride=(2, 2))))
+    edge_32 = relu.(c_12(cat(3, relu.(c_13(edge_31)), relu.(c_22(edge_31)))))
+    edge_33 = relu.(c_10(maxpool(cat(3, relu.(c_11(edge_32)), relu.(c_23(edge_32))), (3, 3), pad=(0, 0), stride=(2, 2))))
+    edge_34 = relu.(c_8(cat(3, relu.(c_9(edge_33)), relu.(c_24(edge_33)))))
+    edge_35 = relu.(c_6(cat(3, relu.(c_7(edge_34)), relu.(c_25(edge_34)))))
+    edge_36 = relu.(c_4(cat(3, relu.(c_5(edge_35)), relu.(c_26(edge_35)))))
+    c_19_, edge_30, edge_34, edge_32, edge_31, x_28
+end

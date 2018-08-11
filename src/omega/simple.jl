@@ -21,24 +21,24 @@ Base.keys(sω::SimpleΩ) = keys(sω.vals)
 ## Resolve
 ## =======
 @inline function resolve(ω::SimpleΩ{I}, id::I, T) where {I}
-  get!(()->rand(Base.GLOBAL_RNG, T), ω.vals, id)
+  get!(()->rand(GLOBAL_RNG, T), ω.vals, id)
 end
 
 @inline function resolve(ω::SimpleΩ{I}, id::I, ::Type{T}, dims::Dims) where {I, T}
-  get!(()->rand(Base.GLOBAL_RNG, T, dims), ω.vals, id)
+  get!(()->rand(GLOBAL_RNG, T, dims), ω.vals, id)
 end
 
 @inline function resolve(ωπ::SimpleΩ{I, A}, ::Type{T}) where {T, I, A<:AbstractArray}
-  val = get!(()->[rand(Base.GLOBAL_RNG, T)], ωπ.ω.vals, ωπ.id)
+  val = get!(()->[rand(GLOBAL_RNG, T)], ωπ.ω.vals, ωπ.id)
   first(val)
 end
 
 @inline function resolve(ω::SimpleΩ{I, A}, id::I, ::Type{T},  dims::Dims) where {T, I, A<:Flux.TrackedArray}
-  get!(()->Flux.param(rand(Base.GLOBAL_RNG, T, dims)), ω.vals, id)
+  get!(()->Flux.param(rand(GLOBAL_RNG, T, dims)), ω.vals, id)
 end
 
 @inline function resolve(ω::SimpleΩ{I, A}, id::I, ::Type{T}) where {T, I, A<:Flux.TrackedArray}
-  val = get!(()->Flux.param([rand(Base.GLOBAL_RNG, T)]), ω.vals, id)
+  val = get!(()->Flux.param([rand(GLOBAL_RNG, T)]), ω.vals, id)
   first(val)
 end
 
