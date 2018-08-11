@@ -14,7 +14,7 @@ https://arxiv.org/pdf/1206.1901.pdf"""
 function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsize, cb)
   # Initialise proposal as unbounded of current state
   foreach(qvals, prop_qvals) do q, prop_q @. prop_q = (q) end
-  
+
   # Randomize the momentum
   foreach(p -> @.(p = randn()), pvals)
 
@@ -25,17 +25,17 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
     foreach(∇qvals) do ∇q @. ∇q = 0 end  #reset gradients
     ∇U(prop_ω)  # Gradient step
   end
- 
+  
   # Make a half step for momentum at beginning
-
+  
   ∇step()
   # Unbound
   foreach(prop_qvals) do prop_q @. prop_q = unbound(prop_q) end
   foreach((p, ∇q, prop_q) -> @.(p = p - stepsize * ∇q * jac(prop_q) / 2.0), 
-            pvals, ∇qvals, prop_qvals)
-
+  pvals, ∇qvals, prop_qvals)
+  
   for i = 1:nsteps
-    cb(QP(prop_qvals, pvals), Inside)
+    cb(RunData(q = prop_qvals, p = pvals), Inside)
     # @show prop_qvals
     # Half step p and q
     # @show prop_qvals 
@@ -44,7 +44,7 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
     κ = i !=  nsteps ? 1.0 : 0.5
     # Bound q
     foreach(prop_qvals) do prop_q @. prop_q = bound(prop_q) end 
-
+    
     # Gradient step
     ∇step()
     # Unbound q
@@ -53,11 +53,12 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
       @. p = p - κ * stepsize * ∇q * jac(q)
     end
   end
-
+  
   # Make half a step for momentum at the end
   # any(notunit, q) && return current_q, false
   foreach(prop_qvals) do prop_q @. prop_q = bound(prop_q) end
-
+  
+  # @assert false
   # Evaluate the potential and kinetic energies at start and end
   current_U = U(ω)
   proposed_U = U(prop_ω)
@@ -81,11 +82,9 @@ function Base.rand(y::RandVar,
                    nsteps = 10,
                    cb = default_cbs(n * takeevery),
                    stepsize = 0.001) where {OT <: Ω}
-  cb = runall(cb)
   ω = ΩT()        # Current Ω state of chain
   y(ω)            # Initialize omega
   qvals = [x.data for x in values(ω)]   # Values as a vector
-  # @grab ω
 
   prop_ω = deepcopy(ω)                          # Ω proposal
   prop_qvals = [x.data for x in values(prop_ω)] # as vector
@@ -109,7 +108,8 @@ function Base.rand(y::RandVar,
       # QVALS need to reflect
       i % takeevery == 0 && push!(ωsamples, deepcopy(ω))
     end
-    cb(RunData(prop_ω, accepted, Flux.data(p_), i), Outside)
+    cb(RunData(ω = prop_ω, accepted = accepted, p = Flux.data(p_), i = i), Outside)
   end
+  ωsamples
   [applywoerror.(y, ω_) for ω_ in ωsamples]
 end

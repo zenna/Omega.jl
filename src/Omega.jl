@@ -8,12 +8,16 @@ const Djl = Distributions
 using PDMats
 using ProgressMeter
 using Spec
-import Base.Random
-# import Statistics
-import Base.Random: AbstractRNG
 using ZenUtils
 using UnicodePlots
 using Compat
+
+# import Base.Random: AbstractRNG
+# import Base.Random
+import Random
+import Random: GLOBAL_RNG, AbstractRNG
+import Statistics: mean, var
+
 
 # Util
 include("util/misc.jl")
@@ -30,6 +34,7 @@ include("omega/id.jl")            # Pairing functions for omega ids
 
 # RandVar
 include("randvar/randvar2.jl")             # Random variables
+include("randvar/urandvar.jl")             # Random variables
 include("randvar/randvarapply.jl")        # Random variable application to ω::Ω
 
 # i.i.d.
@@ -87,12 +92,22 @@ export mean,
        ≊,
        ⪆,
        ⪅,
+       >ₛ,
+       >=ₛ,
+       <=ₛ,
+       <ₛ,
+       ==ₛ,     
        randarray,
        @lift,
        lift,
        @id,
        ciid,
+
+       # Kernels
        kse,
+       kseα,
+       kf1,
+       kf1β,
 
        # Distributions
        bernoulli,
@@ -125,6 +140,13 @@ export mean,
        SGHMC,
        HMCFAST,
 
+       RejectionSampleAlg,
+       MIAlg,
+       SSMHAlg,
+       HMCAlg,
+       SGHMCAlg,
+       HMCFASTAlg,
+
        SoftBool,
 
        # Omegas
@@ -151,6 +173,10 @@ export mean,
        MaybeRV,
 
        isconstant,
+       # Callbacks
+       everyn,
+       →,
+       idcb,
 
        cond
 

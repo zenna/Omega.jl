@@ -1,32 +1,19 @@
+# Random Variable Application
 apl(x, ω::Ω) = x
-apl(x::AbstractRandVar, ω::Ω) = x(ω)
-
-## Random Variable Application
-## ===========================
+apl(x::RandVar, ω::Ω) = x(ω)
 
 Zerox{I, T, ΩT} = Union{ΩWOW, TaggedΩ{I, T, ΩT}} where {ΩT <: ΩWOW}
 
 function (rv::RandVar)(ω::Zerox)
-  # args = map(a->apl(a, ω), rv.args)
   (rv.f)(ω[rv.id][1], rv.args...)
 end
 
-# function (rv::RandVar{T, false})(ω::Ω) where T
-#   args = map(a->apl(a, ω), rv.args)
-#   (rv.f)(args...)
-# end
+apl(rv::RandVar, ω::Zerox) =  apl(rv, proj(ω, rv))
 
 "Reproject back to parent random variable"
-(rv::RandVar)(πω::ΩProj) = rv(parentω(πω))
-# (rv::RandVar{T, false})(πω::ΩProj) where T = rv(parentω(πω))
-# (rv::RandVar{T, true})(πω::ΩProj) where T = rv(parentω(πω))
+(rv::URandVar)(πω::ΩProj) = rv(parentω(πω))
+(rv::Beta)(πω::ΩProj) = rv(parentω(πω))
 
 ## Tagged
-
-(rv::RandVar)(tω::TaggedΩ{I, T, ΩT}) where {I, T, ΩT <: ΩProj}  =  rv(TaggedΩ(parentω(tω.taggedω), tω.tags))
-
-# (rv::RandVar{R, false})(tω::TaggedΩ{I, T, ΩT}) where {R, I, T, ΩT <: ΩProj}  =  rv(TaggedΩ(parentω(tω.taggedω), tω.tags))
-# (rv::RandVar{R, true})(tω::TaggedΩ{I, T, ΩT}) where {R, I, T, ΩT <: ΩProj}  =  rv(TaggedΩ(parentω(tω.taggedω), tω.tags))
-
-"X((w1, w2,...,)"
-(rv::NTuple{N, RandVar})(ω::Ω) where N = applymany(rv, ω)
+(rv::RandVar)(tω::TaggedΩ{I, T, ΩT}) where {I, T, ΩT <: ΩProj}  =
+  rv(TaggedΩ(parentω(tω.taggedω), tω.tags))

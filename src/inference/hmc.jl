@@ -21,7 +21,8 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
   p = p - stepsize * ∇U(invq) .* jacobian(q) / 2.0
 
   for i = 1:nsteps
-    cb(QP(q, p), Inside)
+    cb(RunData(q = q, p = p), Inside)
+
     # Half step for the position and momentum
     q = q .+ stepsize .* p
     # @show mean(stepsize .* p), mean(q)
@@ -81,7 +82,6 @@ function Base.rand(y::RandVar,
                    nsteps = 10,
                    stepsize = 0.001,
                    cb = default_cbs(n)) where {OT <: Ω}
-  cb = runall(cb)
   ω = ΩT()
   y(ω) # Initialize omega
   ωvec = linearize(ω)
@@ -99,7 +99,7 @@ function Base.rand(y::RandVar,
     if wasaccepted
       accepted += 1
     end
-    cb(RunData(ω_, accepted, p_, i), Outside)
+    cb(RunData(ω = ω_, accepted = accepted, p = p_, i = i), Outside)
   end
   [applywoerror.(y, ω_) for ω_ in ωsamples]
 end

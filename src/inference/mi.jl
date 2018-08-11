@@ -13,7 +13,6 @@ function Base.rand(y::RandVar,
                    ΩT::Type{OT};
                    cb = default_cbs(n),
                    hack = true) where {OT <: Ω}
-  cb = runall(cb)
   ω = ΩT()
   xω_, sb = trackerrorapply(y, ω)
   plast = epsilon(sb)
@@ -31,7 +30,7 @@ function Base.rand(y::RandVar,
       accepted += 1
     end
     push!(ωsamples, ω)
-    cb(RunData(ω, accepted, p_, i), Outside)
+    cb(RunData(ω = ω, accepted = accepted, p = p_, i = i), Outside)
   end
   [applywoerror.(y, ω_) for ω_ in ωsamples]
 end

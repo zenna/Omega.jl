@@ -1,4 +1,4 @@
-struct RID{T, Trest, RV1 <: RandVar{T, Trest}, RV2 <: RandVar, OM <: Ω} <: AbstractRandVar{T}
+struct RID{T, Trest, RV1 <: RandVar{T, Trest}, RV2 <: RandVar, OM <: Ω} <: RandVar{T}
   x::RV1
   θ::RV2
   ω::OM

@@ -2,7 +2,7 @@
 ## =======
 
 elemtype(x::T) where T = T
-elemtype(::AbstractRandVar{T}) where T = T
+elemtype(::RandVar{T}) where T = T
 
 "Make a random variable"
 function mkrv(f, args::Tuple)
@@ -16,7 +16,7 @@ end
 
 # No Exists{T} yet https://github.com/JuliaLang/julia/issues/21026#issuecomment-306624369"
 function liftnoesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
-  args = [isrv ?  :($(Symbol(:x, i))::Omega.AbstractRandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
+  args = [isrv ?  :($(Symbol(:x, i))::Omega.RandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
   quote
   function $fnm($(args...))
     Omega.mkrv($fnm, ($(args...),))
@@ -25,7 +25,7 @@ function liftnoesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
 end
 
 function liftesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
-  args = [isrv ?  :($(Symbol(:x, i))::Omega.AbstractRandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
+  args = [isrv ?  :($(Symbol(:x, i))::Omega.RandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
   quote
   function $(esc(fnm))($(args...))
     Omega.mkrv($(esc(fnm)), ($(args...),))
@@ -68,7 +68,7 @@ fnms = [:(Base.:-),
         :(Base.:<),
         ]
 
-Base.:^(x1::Omega.AbstractRandVar{T}, x2::Integer) where T = RandVar{T, false}(^, (x1, x2))
+Base.:^(x1::Omega.RandVar{T}, x2::Integer) where T = RandVar{T, false}(^, (x1, x2))
 macro lift(fnm::Union{Symbol, Expr}, n::Integer)
   combinations = Iterators.product(((true,false) for i = 1:n)...)
   combinations = Iterators.filter(any, combinations)

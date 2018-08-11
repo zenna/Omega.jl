@@ -2,9 +2,7 @@ using RunTools
 using UnicodePlots
 using JLD2
 include("mnistflux.jl")
-
-# Take every
-# Loss function
+include("../common.jl")
 
 ## Params
 ## ======
@@ -19,9 +17,9 @@ end
 "HMCFAST Specific Params"
 function infparams_(::Omega.HMCFASTAlg)
   φ = Params()
-  φ[:n] = uniform([100, 200, 1000, 10000])
-  φ[:stepsize] = uniform([0.1, 0.01, 0.001, 0.0001])
-  φ[:nsteps] =  uniform([1, 5, 10, 50, 100])
+  φ[:n] = uniform([200, 500, 1000, 10000])
+  φ[:stepsize] = uniform([0.1, 0.01, 0.001])
+  φ[:nsteps] =  uniform([100, 200, 500, 1000])
   φ[:takeevery] =  uniform([10])
   φ
 end
@@ -32,13 +30,11 @@ function runparams()
   φ[:train] = true
   φ[:loadchain] = false
   φ[:loadnet] = false
-
   φ[:name] = "mnist"
   φ[:runname] = randrunname()
-  φ[:tags] = ["test", "mnist"]
+  φ[:tags] = ["firsttry", "mnist"]
   φ[:logdir] = logdir(runname=φ[:runname], tags=φ[:tags])   # LOGDIR is required for sim to save
   φ[:runfile] = @__FILE__
-
   φ[:gitinfo] = RunTools.gitinfo()
   φ
 end
@@ -58,7 +54,7 @@ function allparams()
   merge(φ, runparams())
 end
 
-function paramsamples(nsamples = 10)
+function paramsamples(nsamples = 30)
   (rand(merge(allparams(), φ, Params(Dict(:samplen => i))))  for φ in enumparams(), i = 1:nsamples)
 end
 
@@ -67,29 +63,42 @@ function enumparams()
   [Params()]
 end
 
-function infer(φ)
-  X, Y = data(φ[:modelφ][:nimages])
-  net = ciid(net_; T = Flux.Chain)
-  error = loss(X, Y, net)
-  nets = infer(net, error; φ[:infalg][:infalgargs]...)
+const tX, tY = testdata()
+const net = ciid(net_; T = Flux.Chain)
 
-  # Save the scenes
-  tX, tY = testdata()
-  accs = [accuracy(net, tX, tY) for net in nets]
-  @show mean(accs)
-  @show accs[end]
-  
-  # Show accuracy
-  println(UnicodePlots.lineplot(accs))
-  
-  path = joinpath(φ[:logdir], "nets.jld2")
-  @save path nets
+testacc(data, stage) = nothing
+testacc(data, stage::Type{Outside}) = (testacc = accuracy(net(data.ω), tX, tY),)
+
+# trainacc(data, stage) = (testacc = accuracy(net_(data.ω, tX, tY)))
+
+function infer(φ)
+  display(φ)
+  X, Y = data(φ[:modelφ][:nimages])
+  @show ntotal = φ[:infalg][:infalgargs][:n] * φ[:infalg][:infalgargs][:takeevery]
+  error = loss(X, Y, net)
+
+  # Callbacks
+  @show div(ntotal, 100)
+  writer = Tensorboard.SummaryWriter(φ[:logdir])
+  tbtest = uptb(writer, "testacc", :testacc)
+  tbp = uptb(writer, "logp", :p)
+  savenets = Omega.everyn(savedatajld2(joinpath(φ[:logdir], "nets"), :ω), div(ntotal, 10))
+
+  # tbtrain = uptb(writer, "trainacc", :trainacc)
+  cb = idcb → (Omega.default_cbs_tpl(φ[:infalg][:infalgargs][:n])...,
+               tbp,
+               savenets,
+               testacc → tbtest)
+
+  nets = infer(net, error; cb = cb, φ[:infalg][:infalgargs]...)
 end
 
 main() = RunTools.control(infer, paramsamples())
 
 function testhyper()
-  infer(first(paramsamples()))    
+  p = first(paramsamples())
+  mkpath(p[:logdir])
+  infer(p)
 end
 
 main()
