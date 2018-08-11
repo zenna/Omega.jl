@@ -1,7 +1,12 @@
 "Probability Space indexed with values of type I"
 abstract type Ω{I} <: AbstractRNG end
 
-abstract type ΩWOW{I} <: Ω{I} end
+# THere are really two types.
+# Omega which represents the underlying set as omega projection
+# WHich is a particular component
+
+"This is "
+abstract type ΩBase{I} <: Ω{I} end
 
 const uidcounter = Counter(0)
 
@@ -25,7 +30,7 @@ const RandVarId = Int
 ## Rand
 ## ====
 "Random ω ∈ Ω"
-Base.rand(x::Type{O}) where O <: ΩWOW = defΩ()()
+Base.rand(x::Type{O}) where O <: ΩBase = defΩ()()
 
 RV = Union{Integer, Random.FloatInterval}
 # lookup(::Type{UInt32}) = UInt32, :_UInt32

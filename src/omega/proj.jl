@@ -38,7 +38,7 @@ end
 
 ## Projection
 ## ==========
-function Base.getindex(sω::SO, i::Int) where {I, SO <: ΩWOW{I}}
+function Base.getindex(sω::SO, i::Int) where {I, SO <: ΩBase{I}}
   ΩProj{SO, I}(sω, base(I, i))
 end
 

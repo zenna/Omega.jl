@@ -1,8 +1,6 @@
 
-"Construct an c.i.i.d. of `X`"
-ciid(f; T=infer_elemtype(f)) = RandVar{T}(f)
-
-# ciid(f, args...; T=infer_elemtype(f, args...)) = RandVar{T}(ω -> f(ω, args...))
+"RandVar that is identically distributed to `f` but conditionally independent given parents`"
+ciid(f; T = infer_elemtype(f)) = URandVar{T}(f)
 
 "ciid with arguments"
-ciid(f, args...; T=infer_elemtype(f, args...)) = RandVar{T, true}(f, args)
+ciid(f, args...; T = infer_elemtype(f, args...)) = URandVar{T}(f, args)

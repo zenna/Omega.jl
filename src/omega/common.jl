@@ -1,6 +1,6 @@
 ## Projection
 ## ==========
-function Base.getindex(sω::SO, i::I) where {I, SO <: ΩWOW{<:I}}
+function Base.getindex(sω::SO, i::I) where {I, SO <: ΩBase{<:I}}
   @show SO
   @show i
   # @assert false

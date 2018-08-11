@@ -1,27 +1,26 @@
 MaybeRV{T} = Union{T, RandVar{T}} where T
 
-# "Distribution Family"
-# abstract type Dist end
+abstract type PrimRandVar{T} <: RandVar{T} end
 
-# "Unknown distribution"
-# abstract type Unknown <: Dist end
-
-struct Beta{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: RandVar{T}
-  alpha::A
-  beta::B
+struct Beta{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
+  α::A
+  β::B
   id::Int
 end
 
-params(rv::Beta) = (alpha = rv.alpha, beta = rv.beta)
+params(rv::Beta) = (rv.α, rv.β)
+transform(ω, α, β) = quantile(Djl.Beta(α, β), rand(ω))
+fapl(rv::Beta{T, T, T}, ωπ::ΩProj) where {T <: Float64} = transform(ωπ, rv.α, rv.β)
+fapl(rv::Beta, ωπ::ΩProj) = transform(ωπ, reify(ωπ, params(rv))...)
 
-# @generated function params(x::RandVar)
-#   params(x::Beta) = (alpha = a, beta = x.b)
-# end
-(rv::Beta)(ω::Ω) = quantile(Djl.Beta(rv.α, rv.β), rand(ω))
+reify(ω, params) = map(x -> apl(x, ω), params)
 
+# Constructors
 betarv(alpha::T, beta::T) where {T <: Real} = Beta{T, T, T}(alpha, beta, uid())
+betarv(alpha::MaybeRV{T}, beta::MaybeRV{T}) where {T <: Real} = Beta{T, typeof(alpha), typeof(beta)}(alpha, beta, uid())
 
 const β = betarv
+@inline (rv::Beta)(ω::Ω) = apl(rv, ω)
 
 # abstract type Beta <: Dist end
 # "Beta distribution (alias β) parameters `α`  and `β`"

@@ -1,4 +1,4 @@
-__precompile__()
+__precompile__(false)
 "A Library for Causal and Higher-Order Probabilistic Programming"
 module Omega
 
@@ -16,7 +16,7 @@ using Compat
 # import Base.Random
 import Random
 import Random: GLOBAL_RNG, AbstractRNG
-import Statistics: mean, var
+import Statistics: mean, var, quantile
 
 
 # Util

@@ -8,7 +8,7 @@ Fast SimpleΩ
 - Unique index for each rand value and hence:
   (i) Memory intensive
 """
-struct SimpleΩ{I, V} <: ΩWOW{I}
+struct SimpleΩ{I, V} <: ΩBase{I}
   vals::Dict{I, V}
 end
 
