@@ -1,5 +1,6 @@
-defalg(args...) = SSMH
-defΩ(args...) = Omega.SimpleΩ{Vector{Int}, Any}
+defalg(args...) = RejectionSample
+defΩ(args...) = SimpleΩ{Vector{Int}, Any}
+defΩProj(args...; OT = defΩ(args...)) = ΩProj{OT, idtype(OT)}
 defcb(args...) = donothing
 
 "Sample `n` from `x`"

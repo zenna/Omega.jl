@@ -46,7 +46,7 @@ include("higher/rcd.jl")          # Random Conditional Distribution
 include("higher/rid.jl")          # Random Interventional Distribution
 
 # Lifted random variable operatiosn
-include("lift/array.jl")          # Array primitives
+include("lift/containers.jl")     # Array/Tuple primitives
 include("lift/lift.jl")           # Lifting functions to RandVar domain
 
 # Conditioning

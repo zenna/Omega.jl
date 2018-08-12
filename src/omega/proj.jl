@@ -1,3 +1,7 @@
+randrtype(::Type{T}) where T = T
+randrtype(::Type{Float64}) = Float64
+randrtype(::UnitRange{T}) where T = T
+
 mutable struct ΩProj{O, I} <: Ω{I}
   ω::O
   id::I
@@ -23,13 +27,13 @@ function Base.rand(ωπ::ΩProj, dims::Dims)
   res
 end
 
-function Base.rand(ωπ::ΩProj, T)
+function Base.rand(ωπ::ΩProj, T)::randrtype(T)
   res = resolve(ωπ.ω, ωπ.id, T) 
   increment!(ωπ)
   res
 end
 
-function Base.rand(ωπ::ΩProj, ::Type{T}) where T
+function Base.rand(ωπ::ΩProj, ::Type{T})::randrtype(T) where T
   res = resolve(ωπ.ω, ωπ.id, T) 
   increment!(ωπ)
   res

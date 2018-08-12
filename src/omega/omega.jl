@@ -5,8 +5,10 @@ abstract type Ω{I} <: AbstractRNG end
 # Omega which represents the underlying set as omega projection
 # WHich is a particular component
 
-"This is "
+"This is base Omega - Sample Space Object"
 abstract type ΩBase{I} <: Ω{I} end
+
+idtype(::Type{OT}) where {I, OT <: Ω{I}} = I
 
 const uidcounter = Counter(0)
 
