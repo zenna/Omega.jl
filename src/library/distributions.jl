@@ -1,11 +1,16 @@
+## Issues
+# 1. Don't have allthe Constructors
+# 2. Generic Params
+# 3. Fix printg n
+
 MaybeRV{T} = Union{T, RandVar{T}} where T
 
-abstract type PrimRandVar{T} <: RandVar{T} end
+abstract type PrimRandVar{T} <: RandVar{T} end  
 
 struct Beta{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
   α::A
   β::B
-  id::Int
+  id::ID
 end
 
 params(rv::Beta) = (rv.α, rv.β)
@@ -14,6 +19,9 @@ fapl(rv::Beta{T, T, T}, ωπ::ΩProj) where {T <: Float64} = transform(ωπ, rv.
 fapl(rv::Beta, ωπ::ΩProj) = transform(ωπ, reify(ωπ, params(rv))...)
 
 reify(ω, params) = map(x -> apl(x, ω), params)
+
+name(t::T) where {T <: PrimRandVar} = t.name.name
+name(::T) where {T <: PrimRandVar} = Symbol(T)
 
 # Constructors
 betarv(alpha::T, beta::T) where {T <: Real} = Beta{T, T, T}(alpha, beta, uid())

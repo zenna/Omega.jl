@@ -3,12 +3,6 @@ abstract type RandVar{T} end
 
 const ID = Int
 
-"Construct `RandVar{TNEW}` from `RandVar{TOLD}`, useful when `TNEW` is poorly inferred."
-function newtype(x::RandVar{TOLD}, ::Type{TNEW}) where {TOLD, TNEW}
-  RandVar{TNEW}()
-end
-
-
 """Is `x` a constant random variable, i.e. x(ω) = c ∀ ω ∈ Ω?
 
 Determining constancy is intractable (and likely undecidable) in general.
@@ -53,6 +47,5 @@ end
 ## Printing
 ## ========
 name(x) = x
-name(rv::RandVar) = string(rv.f)
-Base.show(io::IO, rv::RandVar{T}) where T=
-  print(io, "$(rv.id):$(name(rv))($(join(map(name, rv.args), ", ")))::$T")
+Base.show(io::IO, rv::RandVar{T}) where T =
+  print(io, "$(rv.id):$(name(rv))($(join(map(name, params(rv), ", ")))::$T")
