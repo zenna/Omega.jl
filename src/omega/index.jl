@@ -25,7 +25,7 @@ const Paired = Int
 #   val::T
 # end
 
-"Cantour Pairing Function"
+"Cantor Pairing Function"
 @inline pair(k1, k2) = div((k1 + k2)*(k1 + k2 + 1), 2) + k2
 @inline pair(k1) = k1
 
