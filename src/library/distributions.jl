@@ -8,7 +8,7 @@ MaybeRV{T} = Union{T, RandVar{T}} where T
 abstract type PrimRandVar{T} <: RandVar{T} end  
 name(t::T) where {T <: PrimRandVar} = t.name.name
 name(::T) where {T <: PrimRandVar} = Symbol(T)
-fapl(rv::PrimRandVar, ωπ::ΩProj) = transform(rv)(ωπ, reify(ωπ, params(rv))...)
+fapl(rv::PrimRandVar, ωπ) = transform(rv)(ωπ, reify(ωπ, params(rv))...)
 
 # Beta
 struct Beta{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}

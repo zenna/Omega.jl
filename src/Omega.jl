@@ -25,7 +25,7 @@ include("util/misc.jl")
 # Core
 include("omega/omega.jl")         # Sample Space
 include("omega/proj.jl")          # Sample Space Projection
-include("omega/tagged.jl")        # Space space Tagged with metadata
+include("omega/tagged2.jl")        # Space space Tagged with metadata
 
 ## Different Types of Omega
 include("omega/simple.jl")        # Simple Ω
@@ -69,7 +69,7 @@ include("inference/hmcfast.jl")   # Faster Hamiltonian Monte Carlo
 include("inference/sghmc.jl")     # Stochastic Gradient Hamiltonian Monte Carlo
 
 # Causal Inference
-include("replace.jl")             # Causal Interventions
+# include("replace.jl")             # Causal Interventions
 
 # Gradient
 include("gradient.jl")

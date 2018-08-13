@@ -8,6 +8,5 @@ ciid(x::T) where T <: RandVar =  T(params(x)..., uid())
 ciid(f, args...; T = infer_elemtype(reifyapply, f, args...)) =
   URandVar{T}(reifyapply, (f, args...))
 
-@inline reifyapply(ωπ::ΩProj, f, args...) = f(reify(ωπ, args)...)
-@inline reifyapply(ωπ::ΩProj, f) = f(ωπ)
-@inline fapl(rv::URandVar, ωπ::ΩProj) =  rv.f(ωπ, rv.args...)
+@inline reifyapply(ωπ, f, args...) = f(reify(ωπ, args)...)
+@inline reifyapply(ωπ, f) = f(ωπ)

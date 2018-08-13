@@ -16,4 +16,6 @@ func(x::URandVar) = x.f
 "Name of a random variable"
 name(rv::URandVar) = string(rv.f)
 
+@inline fapl(rv::URandVar, ωπ) =  rv.f(ωπ, rv.args...)
+
 @inline (rv::URandVar)(ω::Ω) = apl(rv, ω)
