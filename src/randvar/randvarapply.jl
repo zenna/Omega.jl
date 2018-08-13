@@ -14,7 +14,7 @@ apl(x::RandVar, ω::Ω) = x(ω)
 @inline apl(rv::RandVar, πω::ΩProj) = rv(parentω(πω))
 
 "Reify arguments (resolve random variables to values)"
-@inline reify(ω, args) = map(x -> apl(x, ω), params)
+@inline reify(ω, args) = map(x -> apl(x, ω), args)
 
 @inline apl(rv::RandVar, tω::TaggedΩ{I, T, ΩT}) where {I, T, ΩT <: ΩProj}  =
   rv(TaggedΩ(parentω(tω.taggedω), tω.tags))

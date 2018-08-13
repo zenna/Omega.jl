@@ -39,7 +39,6 @@ function Base.rand(ωπ::ΩProj, ::Type{T})::randrtype(T) where T
   res
 end
 
-
 ## Projection
 ## ==========
 function Base.getindex(sω::SO, i::Int) where {I, SO <: ΩBase{I}}

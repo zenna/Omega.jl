@@ -3,7 +3,7 @@ struct URandVar{T, F, TPL <: Tuple} <: RandVar{T}
   f::F
   args::TPL
   id::ID
-  URandVar{T}(f::F, args::TPL, id = uid()) where {T, F, TPL} =
+  URandVar{T}(f::F, args::TPL = (), id = uid()) where {T, F, TPL} =
     new{T, F, TPL}(f, args, id)
 end
 
