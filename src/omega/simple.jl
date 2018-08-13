@@ -18,6 +18,16 @@ SimpleΩ{I, V}() where {I, V} = SimpleΩ{I, V}(Dict{I, V}())
 Base.values(sω::SimpleΩ) = values(sω.vals)
 Base.keys(sω::SimpleΩ) = keys(sω.vals)
 
+module Simple
+# TODO: Eventually encompass whole file
+
+using Flux
+
+using ...Omega: SimpleΩ
+using ..Space
+
+export resolve
+
 ## Resolve
 ## =======
 @inline function resolve(ω::SimpleΩ{I}, id::I, T) where {I}
@@ -40,6 +50,8 @@ end
 @inline function resolve(ω::SimpleΩ{I, A}, id::I, ::Type{T}) where {T, I, A<:Flux.TrackedArray}
   val = get!(()->Flux.param([rand(Base.GLOBAL_RNG, T)]), ω.vals, id)
   first(val)
+end
+
 end
 
 ## Version Specfici

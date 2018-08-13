@@ -54,4 +54,4 @@ Base.rand(tω::TaggedΩ, dims::Integer...) = rand(tω.taggedω, dims...)
 Base.rand(tω::Omega.TaggedΩ, dims::Dims) = rand(tω.taggedω, dims)
 Base.rand(tω::Omega.TaggedΩ, arr::Array) = rand(tω.taggedω, arr)
 
-parentω(tω::TaggedΩ) = TaggedΩ(parentω(tω), tω.tags)
+Proj.parentω(tω::TaggedΩ) = TaggedΩ(parentω(tω), tω.tags)

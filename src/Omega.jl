@@ -21,15 +21,14 @@ using .Misc
 # Core
 include("omega/space.jl")         # Sample Space
 using .Space
-include("omega/proj.jl")          # Sample Space Projection
-using .Proj
-include("omega/tagged.jl")        # Space space Tagged with metadata
-
-## Different Types of Omega
 include("omega/simple.jl")        # Simple Ω
+
 # include("omega/dirtyomega.jl")  # Sample Space
 include("omega/index.jl")         # Pairing functions for omega ids
 using .Index
+include("omega/proj.jl")          # Sample Space Projection
+using .Proj
+include("omega/tagged.jl")        # Space space Tagged with metadata
 
 # RandVar
 include("randvar/randvar.jl")             # Random variables

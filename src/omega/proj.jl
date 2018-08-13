@@ -1,5 +1,7 @@
 module Proj
 
+using ..Index
+using ..Simple
 using ..Space
 
 export ΩProj, parentω
@@ -41,11 +43,18 @@ function Base.rand(ωπ::ΩProj, ::Type{T}) where T
   res
 end
 
+Base.getindex(ωπ::ΩProj{O, I}, i::I) where {O, I} =
+  ΩProj{O, I}(ωπ.ω, combine(ωπ.id, i))
+
+Base.getindex(ωπ::ΩProj{O, I}, i::SI) where {O, I, SI} =
+  ΩProj{O, I}(ωπ.ω, append(ωπ.id, i))
+
+Base.getindex(ωπ::ΩProj{O, Paired}, i::Int) where O = ΩProj{O, Paired}(ωπ.ω, pair(ωπ.id, i))
 
 ## Projection
 ## ==========
 function Base.getindex(sω::SO, i::Int) where {I, SO <: ΩWOW{I}}
-  ΩProj{SO, I}(sω, base(I, i))
+  ΩProj{SO, I}(sω, Index.base(I, i))
 end
 
 end
