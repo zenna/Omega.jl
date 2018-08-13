@@ -1,4 +1,7 @@
+module TestNamespace
+
 using Test
+using Omega
 import Omega: CbNode
 
 function testcb()
@@ -12,3 +15,5 @@ function testcb()
 end
 
 testcb()
+
+end

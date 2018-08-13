@@ -1,3 +1,5 @@
+module TestNamespace
+
 using Omega
 using Flux
 
@@ -9,3 +11,5 @@ function testsum(;kwargs...)
 end
 
 testsum()
+
+end

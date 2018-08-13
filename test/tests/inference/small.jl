@@ -1,3 +1,5 @@
+module TestNamespace
+
 # Set of small tests for all inference algorithms
 using Omega
 using UnicodePlots
@@ -19,3 +21,5 @@ function testall()
 end
 
 testall()
+
+end

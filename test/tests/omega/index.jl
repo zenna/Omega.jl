@@ -1,4 +1,4 @@
-module Test
+module TestNamespace
 
 using Base.Test
 

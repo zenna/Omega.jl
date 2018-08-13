@@ -1,3 +1,5 @@
+module TestNamespace
+
 using Omega
 using Test
 
@@ -22,3 +24,5 @@ function testcond2()
 end
 
 testcond2()
+
+end

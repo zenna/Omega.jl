@@ -1,3 +1,5 @@
+module TestNamespace
+
 using Omega
 
 function testtrackerror()
@@ -10,3 +12,5 @@ function testtrackerror()
   Omega.trackerrorapply(x__, Omega.defΩ()())
 end
 testtrackerror()
+
+end

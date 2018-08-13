@@ -1,3 +1,5 @@
+module TestNamespace
+
 using Omega
 using UnicodePlots
 
@@ -19,3 +21,5 @@ function test_ssmc_2()
 end
 
 test_ssmc_2()
+
+end

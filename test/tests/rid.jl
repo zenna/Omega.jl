@@ -1,3 +1,5 @@
+module TestNamespace
+
 using Omega
 using Test
 
@@ -15,3 +17,5 @@ function testrid()
 end
 
 testrid()
+
+end

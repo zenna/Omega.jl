@@ -1,3 +1,5 @@
+module TestNamespace
+
 using Omega
 
 function Y(rng, n)
@@ -13,3 +15,5 @@ end
 # end
 
 # rand(ciid(X))
+
+end

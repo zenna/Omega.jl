@@ -1,3 +1,5 @@
+module TestNamespace
+
 using Omega
 
 function testw()
@@ -10,3 +12,5 @@ function testw()
 end
 
 testw()
+
+end
