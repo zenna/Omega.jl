@@ -1,3 +1,9 @@
+module Index
+
+using ..Proj
+
+export append, base, combine, increment!, increment
+
 ## Vector Indices
 ## ==============
 
@@ -5,7 +11,7 @@
 @inline append(a::Vector{Int}, b::Int) = vcat(a, Int[b])
 @inline base(::Type{Vector{Int}}, i::Int) = Int[i]
 
-Base.getindex(ωπ::ΩProj{O, I}, i::I) where {O, I} = 
+Base.getindex(ωπ::ΩProj{O, I}, i::I) where {O, I} =
   ΩProj{O, I}(ωπ.ω, combine(ωπ.id, i))
 
 Base.getindex(ωπ::ΩProj{O, I}, i::SI) where {O, I, SI} = 
@@ -34,3 +40,5 @@ const Paired = Int
 @inline base(::Type{Paired}, i::Int) = i
 
 Base.getindex(ωπ::ΩProj{O, Paired}, i::Int) where O = ΩProj{O, Paired}(ωπ.ω, pair(ωπ.id, i))
+
+end

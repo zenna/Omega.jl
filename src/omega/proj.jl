@@ -1,3 +1,9 @@
+module Proj
+
+using ..Space
+
+export ΩProj, parentω
+
 mutable struct ΩProj{O, I} <: Ω{I}
   ω::O
   id::I
@@ -42,3 +48,4 @@ function Base.getindex(sω::SO, i::Int) where {I, SO <: ΩWOW{I}}
   ΩProj{SO, I}(sω, base(I, i))
 end
 
+end
