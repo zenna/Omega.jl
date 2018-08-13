@@ -16,9 +16,12 @@ using Compat
 
 # Util
 include("util/misc.jl")
+using .Misc
 
 # Core
-include("omega/omega.jl")         # Sample Space
+include("omega/space.jl")         # Sample Space
+using .Space
+
 include("omega/proj.jl")          # Sample Space Projection
 include("omega/tagged.jl")        # Space space Tagged with metadata
 

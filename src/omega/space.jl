@@ -1,3 +1,10 @@
+module Space
+
+using ..Misc
+
+export Ω, ΩWOW, uid, @id,
+       Id, Ints
+
 "Probability Space indexed with values of type I"
 abstract type Ω{I} <: AbstractRNG end
 
@@ -10,7 +17,7 @@ uid() = (global uidcounter; increment(uidcounter))
 
 "Construct globally unique id for indices for ω"
 macro id()
-  Omega.uid()
+  uid()
 end
 
 "Index of Probability Space"
@@ -31,3 +38,6 @@ RV = Union{Integer, Random.FloatInterval}
 # lookup(::Type{UInt32}) = UInt32, :_UInt32
 # lookup(::Type{Close1Open2}) = Float64, :_Float64
 # lookup(::Type{CloseOpen}) = Float64, :_Float64
+
+
+end

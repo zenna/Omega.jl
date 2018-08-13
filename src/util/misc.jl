@@ -1,3 +1,9 @@
+module Misc
+
+export applymany, ntranspose, Counter,
+       increment, UTuple, isjulia6,
+       isjulia7
+
 applymany(fs, x) = map(xi->xi(x), fs)
 
 """
@@ -25,3 +31,8 @@ UTuple{T} = Tuple{Vararg{T, N}} where N
 
 isjulia6() = v"0.6" <= VERSION < v"0.7-"
 isjulia7() = VERSION > v"0.7-"
+
+
+
+
+end
