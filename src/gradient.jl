@@ -4,7 +4,10 @@ using Flux
 "Gradient ∇Y()"
 function gradient(Y::RandVar, ω::Ω, vals = linearize(ω))
   Y(ω)
-  unpackcall(xs) = -logepsilon(indomain(Y, unlinearize(xs, ω)))
+  function unpackcall(xs)
+    @grab xs
+    -logepsilon(indomain(Y, unlinearize(xs, ω)))
+  end
   ForwardDiff.gradient(unpackcall, vals)
 end
 

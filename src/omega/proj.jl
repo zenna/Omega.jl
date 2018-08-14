@@ -7,14 +7,14 @@ end
 increment!(ωπ::ΩProj) = ωπ.id = increment(ωπ.id)
 parentω(ωπ::ΩProj) = ωπ.ω
 
-function Base.rand(ωπ::ΩProj, arr::Array)
-  res = resolve(ωπ.ω, ωπ.id, arr) 
+function Base.rand(ωπ::ΩProj, dims::Dims)
+  res = resolve(ωπ.ω, ωπ.id, Float64, dims) 
   increment!(ωπ)
   res
 end
 
-function Base.rand(ωπ::ΩProj, dims::Dims)
-  res = resolve(ωπ.ω, ωπ.id, Float64, dims) 
+function Base.rand(ωπ::ΩProj, arr::Array)
+  res = resolve(ωπ.ω, ωπ.id, arr) 
   increment!(ωπ)
   res
 end
