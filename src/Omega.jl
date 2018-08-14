@@ -27,7 +27,6 @@ include("omega/tagged2.jl")       # Space space Tagged with metadata
 
 ## Different Types of Omega
 include("omega/simple.jl")        # Simple Ω
-# include("omega/dirtyomega.jl")  # Sample Space
 include("omega/id.jl")            # Pairing functions for omega ids
 
 # RandVar
