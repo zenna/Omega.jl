@@ -66,7 +66,7 @@ include("inference/hmcfast.jl")   # Faster Hamiltonian Monte Carlo
 include("inference/sghmc.jl")     # Stochastic Gradient Hamiltonian Monte Carlo
 
 # Causal Inference
-# include("replace.jl")             # Causal Interventions
+include("replace.jl")             # Causal Interventions
 
 # Gradient
 include("gradient.jl")

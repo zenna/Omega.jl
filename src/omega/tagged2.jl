@@ -15,18 +15,7 @@ tag(ω, tag_::NamedTuple) = tag(ω, Tag(tag_))
 tag(ω, tag_::Tag) = TaggedΩ(ω, tag_)
 
 proj(tω::TaggedΩ, x) = tag(proj(tω.taggedω, x), tω.tags)
-
-# @generated function (x::TaggedΩ{O, Tag{K, V}}, ω::Ω) wgere {O, K, V}
-#   if :scope in K
-#     @assert false
-#   end
-# end
-
-# # 0.7 TaggedΩ(ω::ΩT, tags::Tag) where {N, I, T, ΩT <: Ω{I}} = TaggedΩ{I, TAG, ΩT}(ω, tags)
-# TaggedΩ(ω::ΩT, tags::TAG) where {I, TAG, ΩT <: Ω{I}} = TaggedΩ{I, TAG, ΩT}(ω, tags)
-
-# tag(ω::Ω, tag) = TaggedΩ(ω, tag)
-# # tag(ω::TaggedΩ, tag) = TaggedΩ(ω.taggedω, merge(ω.tags, tag))
+tag(ω::TaggedΩ, tag) = TaggedΩ(ω.taggedω, merge(ω.tags, tag))
 
 # mergetags(etag::ErrorTag, stag::ScopeTag) = 
 #   HybridTag(stag.scope, etag.sbw)

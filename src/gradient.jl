@@ -5,7 +5,6 @@ using Flux
 function gradient(Y::RandVar, ω::Ω, vals = linearize(ω))
   Y(ω)
   function unpackcall(xs)
-    @grab xs
     -logepsilon(indomain(Y, unlinearize(xs, ω)))
   end
   ForwardDiff.gradient(unpackcall, vals)

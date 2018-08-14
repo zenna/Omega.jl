@@ -1,19 +1,37 @@
+# Causal Intervention (using TaggedΩ)
 
-## Tagged Omega Intervention
-## =========================
+"Intervened Random Variable"
+struct ReplaceRandVar{T, R1 <: RandVar, R2 <: RandVar} <: RandVar{T}
+  rv::R1                    # Intervend Random Variable
+  replmap::Dict{ID, R2}     # Intervention map
+  ReplaceRandVar(rv::R22, replmap::Dict{ID, T2}) where {T1, R22 <: RandVar{T1}, T2 <: RandVar} = 
+    new{T1, R22, T2}(rv, replmap)
+end
 
-function apl(rv::RandVar, tω::TaggedΩ{I, E, ΩT}) where {I, E <: Union{ScopeTag, HybridTag}, ΩT <: ΩBase}
-  if rv.id ∈ keys(tω.tags.scope.idmap) 
-    return tω.tags.scope.idmap[rv.id](tω)
+id(x::ReplaceRandVar) = id(x.rv)
+
+@generated function apl(rv::RandVar, tω::TaggedΩ{I, Tag{K, V}, ΩT}) where {I, K, V, ΩT <: ΩBase}
+  # Use generated funtion to get typed dispatch on different tags
+  if @show :replmap in K
+    quote
+    # Is replmap in the tag
+    println("id", id(rv))
+    println(tω.tags.tags.replmap)
+    if id(rv) ∈ keys(tω.tags.tags.replmap) 
+      return tω.tags.tags.replmap[rv.id](tω)
+    else
+      ppapl(rv, proj(tω, rv))
+    end
+    end
   else
-    (rv.f)(tω[rv.id][1], rv.args...)
+    :(ppapl(rv, proj(tω, rv)))
   end
 end
 
-function addscope(ω, pairs::Dict{Int, RV}, x) where {RV <: RandVar}
-  ω_ = tag(ω, ScopeTag(Scope(pairs)))
-  x(ω_)
-end
+apl(rv::ReplaceRandVar, ω::Ω) = rv.rv(tag(ω, (replmap = rv.replmap,)))
+apl(rv::ReplaceRandVar, ω::TaggedΩ) = rv.rv(tag(ω, (replmap = rv.replmap,)))
+
+@inline (rv::ReplaceRandVar)(ω::Ω) = apl(rv, ω)
 
 ## Conversion
 mcv(x::RandVar) = x
@@ -23,8 +41,7 @@ upconv(pairs::Pair...) = Dict(k.id => mcv(v) for (k, v) in pairs)
 upconv(pair) = Dict(pair.first.id => mcv(pair.second))
 
 "Causal Intervention: Set `θold` to `θnew` in `x`"
-function Base.replace(x::RandVar{T}, tochange::Union{Dict, Pair}...) where T
-  let d = upconv(tochange...)
-    RandVar{T}(ω -> addscope(ω, d, x))
-  end
+function Base.replace(x::RandVar, tochange::Union{Dict, Pair}...)
+    ReplaceRandVar(x, upconv(tochange...))
 end
+@spec :nocheck all([isparent(theta, x) for theta in values(tochange)])

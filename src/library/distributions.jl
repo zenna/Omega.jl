@@ -8,7 +8,8 @@ MaybeRV{T} = Union{T, RandVar{T}} where T
 abstract type PrimRandVar{T} <: RandVar{T} end  
 name(t::T) where {T <: PrimRandVar} = t.name.name
 name(::T) where {T <: PrimRandVar} = Symbol(T)
-fapl(rv::PrimRandVar, ωπ) = rvtransform(rv)(ωπ, reify(ωπ, params(rv))...)
+ppapl(rv::PrimRandVar, ωπ) = rvtransform(rv)(ωπ, reify(ωπ, params(rv))...)
+id(rv::PrimRandVar) = rv.id
 
 # Beta
 struct Beta{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
@@ -19,7 +20,7 @@ end
 params(rv::Beta) = (rv.α, rv.β)
 rvtransform(rv::Beta, ω, α, β) = quantile(Djl.Beta(α, β), rand(ω))
 
-fapl(rv::Beta{T, T, T}, ωπ::ΩProj) where {T <: Float64} = rvtransform(rv, ωπ, rv.α, rv.β)
+ppapl(rv::Beta{T, T, T}, ωπ::ΩProj) where {T <: Float64} = rvtransform(rv, ωπ, rv.α, rv.β)
 betarv(alpha::T, beta::T) where {T <: Real} = Beta{T, T, T}(alpha, beta, uid())
 betarv(alpha::MaybeRV{T}, beta::MaybeRV{T}) where {T <: Real} = Beta{T, typeof(alpha), typeof(beta)}(alpha, beta, uid())
 const β = betarv

@@ -73,4 +73,4 @@ end
 name(x) = x
 name(rv::RandVar) = string(rv.f)
 Base.show(io::IO, rv::RandVar{T}) where T=
-  print(io, "$(rv.id):$(name(rv))($(join(map(name, rv.args), ", ")))::$T")
+  print(io, "$(id(rv):$(name(rv))($(join(map(name, rv.args), ", ")))::$T")

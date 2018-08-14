@@ -7,6 +7,8 @@ struct URandVar{T, F, TPL <: Tuple} <: RandVar{T}
     new{T, F, TPL}(f, args, id)
 end
 
+id(rv::URandVar) = rv.id
+
 "Parameters of the Random Variable"
 params(x::URandVar) = x.args
 
@@ -16,6 +18,6 @@ func(x::URandVar) = x.f
 "Name of a random variable"
 name(rv::URandVar) = string(rv.f)
 
-@inline fapl(rv::URandVar, ωπ) =  rv.f(ωπ, rv.args...)
+@inline ppapl(rv::URandVar, ωπ) =  rv.f(ωπ, rv.args...)
 
 @inline (rv::URandVar)(ω::Ω) = apl(rv, ω)

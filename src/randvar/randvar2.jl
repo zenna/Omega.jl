@@ -48,4 +48,4 @@ end
 ## ========
 name(x) = x
 Base.show(io::IO, rv::RandVar{T}) where T =
-  print(io, "$(rv.id):$(name(rv))($(join(map(name, params(rv)), ", ")))::$T")
+  print(io, "$(id(rv)):$(name(rv))($(join(map(name, params(rv)), ", ")))::$T")

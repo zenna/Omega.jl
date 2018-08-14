@@ -1,14 +1,11 @@
+# Soft Logic
+
 "Soft Boolean"
 struct SoftBool{ET <: Real}
   logepsilon::ET
 end
 @invariant 0 <= epsilon(b::SoftBool) <= 1
 
-randbool(f, x, y) = RandVar{Bool, false}(SoftBool ∘ f, (x, y))
-randbool(ϵ::RandVar) = RandVar{Bool, false}(SoftBool, (ϵ,))
-
-## Soft Logic
-## ==========
 "Error in [0, 1]"
 epsilon(x::SoftBool) = x.logepsilon |> exp
 
@@ -20,7 +17,10 @@ SoftBool(::Type{Val{true}}) = SoftBool(0.0)
 SoftBool(::Type{Val{false}}) = SoftBool(-Inf)
 
 ## (In)Equalities
-## ==============
+
+"Distance between two values"
+function d end
+
 @inline d(x::Real, y::Real) = (xy = (x - y); xy * xy)
 # @inline d(x::Vector{<:Real}, y::Vector{<:Real}) = norm(x - y)
 @inline d(x::Vector{<:Real}, y::Vector{<:Real}) = sum(d.(x,y))
