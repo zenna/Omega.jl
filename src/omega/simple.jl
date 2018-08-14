@@ -18,14 +18,19 @@ SimpleΩ{I, V}() where {I, V} = SimpleΩ{I, V}(Dict{I, V}())
 Base.values(sω::SimpleΩ) = values(sω.vals)
 Base.keys(sω::SimpleΩ) = keys(sω.vals)
 
+# For Type Inference when V is Any
+randrtype(::Type{T}) where T = T
+randrtype(::Type{Float64}) = Float64
+randrtype(::UnitRange{T}) where T = T
+
 ## Resolve
 ## =======
 @inline function resolve(ω::SimpleΩ{I}, id::I, T) where {I}
-  get!(()->rand(GLOBAL_RNG, T), ω.vals, id)
+  get!(()->rand(GLOBAL_RNG, T), ω.vals, id)::randrtype(T)
 end
 
 @inline function resolve(ω::SimpleΩ{I}, id::I, ::Type{T}, dims::Dims) where {I, T}
-  get!(()->rand(GLOBAL_RNG, T, dims), ω.vals, id)
+  get!(()->rand(GLOBAL_RNG, T, dims), ω.vals, id)::randrtype(T)
 end
 
 @inline function resolve(ωπ::SimpleΩ{I, A}, ::Type{T}) where {T, I, A<:AbstractArray}
@@ -42,43 +47,7 @@ end
   first(val)
 end
 
-## Version Specfici
-## ================
-
-if v"0.6" <= VERSION < v"0.7-"
-  rettype(::Type{Base.Random.CloseOpen}) = Float64
-end
-
-if VERSION > v"0.7-"
-  Random.rng_native_52(ω::Ω) = Random.rng_native_52(Random.GLOBAL_RNG)
-end
-
-#   function Random.rng_native_52(ωπ::ΩProj{O}) where {I, O <: SimpleΩ{I, ValueTuple}}
-#     res = if ωπ.id ∈ keys(ωπ.ω.vals)
-#       ωπ.ω.vals[ωπ.id]._Float64::Float64
-#     else
-#       @show val = Random.rng_native_52(Random.GLOBAL_RNG)
-#       ωπ.ω.vals[ωπ.id] = ValueTuple(val, Float32(0.0), UInt(0))
-#       val
-#     end
-#     increment!(ωπ)
-#     res
-#   end
-# end
-
-
-# 0.7
-# function Base.rand(ωπ::ΩProj{O}, fi::Random.FloatInterval{Float64}) where {I, O <: SimpleΩ{I, ValueTuple}}
-#   res = if ωπ.id ∈ keys(ωπ.ω.vals)
-#     ωπ.ω.vals[ωπ.id]._Float64
-#   else
-#     val = rand(Random.GLOBAL_RNG, fi)
-#     ωπ.ω.vals[ωπ.id] = ValueTuple(val, zero(Float32), zero(UInt))
-#     val
-#   end
-#   increment!(ωπ)
-#   res
-# end
+Random.rng_native_52(ω::Ω) = Random.rng_native_52(Random.GLOBAL_RNG)
 
 ## Merging
 ## =======

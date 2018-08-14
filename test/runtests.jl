@@ -15,7 +15,7 @@ julia> walktests(Spec)
 function fakewalktests(testmodule::Module;
                    test_dir = joinpath(Pkg.dir(string(testmodule)), "test", "tests"),
                    exclude = [])
-  print_with_color(:blue, "Running tests:\n")
+  printstyled("Running tests:\n", color = :blue)
 
   # Single thread
   seed!(345679)

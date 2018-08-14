@@ -18,6 +18,7 @@ struct Beta{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
 end
 params(rv::Beta) = (rv.α, rv.β)
 transform(rv::Beta, ω, α, β) = quantile(Djl.Beta(α, β), rand(ω))
+
 fapl(rv::Beta{T, T, T}, ωπ::ΩProj) where {T <: Float64} = transform(rv, ωπ, rv.α, rv.β)
 betarv(alpha::T, beta::T) where {T <: Real} = Beta{T, T, T}(alpha, beta, uid())
 betarv(alpha::MaybeRV{T}, beta::MaybeRV{T}) where {T <: Real} = Beta{T, typeof(alpha), typeof(beta)}(alpha, beta, uid())
@@ -32,8 +33,8 @@ end
 @inline (rv::Bernoulli)(ω::Ω) = apl(rv, ω)
 params(rv::Bernoulli) = (rv.p,)
 bernoulli(ω, p, T::Type{RTT} = Int) where {RTT <: Real} = T(quantile(Djl.Bernoulli(p), rand(ω)))
-# transform(::Bernoulli{T}, ω, p) where T = T(quantile(Djl.Bernoulli(p), rand(ω)))
-transform(Bernoulli) = bernoulli
+
+transform(::Bernoulli) = bernoulli
 bernoulli(p::MaybeRV{T}, RT::Type{RTT} = Int) where {T <: Real, RTT <: Real} = Bernoulli{RT, typeof(p)}(p, uid())
 
 # ## ===============================================================================================
@@ -92,21 +93,36 @@ bernoulli(p::MaybeRV{T}, RT::Type{RTT} = Int) where {T <: Real, RTT <: Real} = B
 # categorical(ω::Ω, p::Vector) = quantile(Djl.Categorical(p), rand(ω))
 # categorical(p::MaybeRV{Vector{T}}) where T <: Real = RandVar{Int, Categorical}(categorical, (p,))
 
-# "Poisson distribution with rate parameter `λ`"
-# abstract type Poisson <: Dist end
-# poisson(ω::Ω, λ::Real) = quantile(Djl.Poisson(λ), rand(ω))
-# poisson(λ::MaybeRV{T}) where T <: Real = RandVar{Int, Poisson}(poisson, (λ,))
+"Poisson distribution with rate parameter `λ`"
+struct Poisson{T, A <: MaybeRV} <: PrimRandVar{T}
+  λ::A
+  id::ID
+end
+@inline (rv::Poisson)(ω::Ω) = apl(rv, ω)
+params(rv::Poisson) = (rv.λ,)
+transform(::Poisson) = poisson
 
-# "Uniform distribution with lower bound `a` and upper bound `b`"
-# abstract type Uniform <: Dist end
-# uniform(ω::Ω, a::T, b::T) where T = rand(ω) * (b - a) + a
-# uniform(a::MaybeRV{T}, b::MaybeRV{T}) where T <: AbstractFloat =
-#   RandVar{T, Uniform}(uniform, (a, b))
+poisson(ω::Ω, λ::Real) = quantile(Djl.Poisson(λ), rand(ω))
+poisson(λ::MaybeRV{T}) where T <: Real = Poisson{Int, typeof(λ)}(λ, uid())
+
+struct Uniform{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
+  a::A
+  b::B
+  id::ID
+end
+@inline (rv::Uniform)(ω::Ω) = apl(rv, ω)
+params(rv::Poisson) = (rv.λ,)
+transform(::Poisson) = poisson
+
+"Uniform distribution with lower bound `a` and upper bound `b`"
+uniform(ω::Ω, a::T, b::T) where T = rand(ω) * (b - a) + a
+uniform(a::MaybeRV{T}, b::MaybeRV{T}) where T <: AbstractFloat =
+  Uniform{T, typeof(a), typeof(b)}(a, b, uid())
 # uniform(ω::Ω, a, b, sz::Dims) = p = rand(ω, sz) .* (b .- a) .+ a
 # uniform(a::MaybeRV{T}, b::MaybeRV{T}) where T =
-#   RandVar{T, Uniform}(uniform, (a, b))
-# uniform(a::MaybeRV{T}, b::MaybeRV{T}, dims::MaybeRV{Dims{N}}) where {N, T} =
-#   RandVar{Array{T, N}, Uniform}(uniform, (a, b, dims))
+#   Uniform{T, typeof(a), typeof(b)}(a, b, uid())
+uniform(a::MaybeRV{T}, b::MaybeRV{T}, dims::MaybeRV{Dims{N}}) where {N, T} =
+  RandVar{Array{T, N}, Uniform}(uniform, (a, b, dims))
 
 # "Uniform sample from vector"
 # uniform(ω::Ω, a::T) where T = rand(ω, a)
@@ -149,15 +165,24 @@ normal(μ::MaybeRV{T}, σ::MaybeRV{T}) where T <: AbstractFloat = Normal{T, type
 
 # lift(:PDMat, 1)
 
-# "Logistic Distribution"
-# abstract type Logistic <: Dist end
-# logistic(ω::Ω, μ, s) = (p = rand(ω); μ + s * log(p / (1 - p)))
-# logistic(ω::Ω, μ::Array, s::Array) = (p = rand(ω, size(μ)); μ .+ s .* log.(p ./ (1 .- p)))
-# logistic(ω::Ω, μ, s, sz::Dims) =  (p = rand(ω, sz); μ .+ s .* log.(p ./ (1 .- p)))
-# logistic(μ::MaybeRV{T}, s::MaybeRV{T}) where T =
-#   RandVar{T, Logistic}(logistic, (μ, s))
+"Logistic Distribution with mean μ and shape s"
+struct Logistic{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
+  μ::A
+  s::B
+  id::ID
+end
+@inline (rv::Logistic)(ω::Ω) = apl(rv, ω)
+params(rv::Logistic) = (rv.μ,)
+transform(::Logistic) = logistic
+
+logistic(ω::Ω, μ, s) = (p = rand(ω); μ + s * log(p / (1 - p)))
+logistic(μ::MaybeRV{T}, s::MaybeRV{T}) where T = Logistic{T, typeof(μ), typeof(s)}(μ, s, uid())
+
 # logistic(μ::MaybeRV{T}, s::MaybeRV{T}, dims::MaybeRV{Dims{N}}) where {N, T} =
 #   RandVar{Array{T, N}, Logistic}(logistic, (μ, s, dims))
+
+# logistic(ω::Ω, μ, s, sz::Dims) =  (p = rand(ω, sz); μ .+ s .* log.(p ./ (1 .- p)))
+# logistic(ω::Ω, μ::Array, s::Array) = (p = rand(ω, size(μ)); μ .+ s .* log.(p ./ (1 .- p)))
 
 # "Exponential Distribution with λ"
 # abstract type Exponential <: Dist end

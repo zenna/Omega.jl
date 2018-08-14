@@ -110,6 +110,5 @@ function Base.rand(y::RandVar,
     end
     cb(RunData(ω = prop_ω, accepted = accepted, p = Flux.data(p_), i = i), Outside)
   end
-  ωsamples
-  [applywoerror.(y, ω_) for ω_ in ωsamples]
+  [applywoerror(y, ω_) for ω_ in ωsamples]
 end

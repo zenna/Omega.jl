@@ -79,11 +79,11 @@ function plotp()
     end
     if data.p > maxseen
       maxseen = data.p
-      print_with_color(:light_blue, "\nNew max at id $(data.i): $(data.p)\n")
+      printstyled("\nNew max at id $(data.i): $(data.p)\n"; color = :light_blue)
     end
     if data.p < minseen
       minseen = data.p
-      print_with_color(:light_blue, "\nNew min at id $(data.i): $(data.p)\n")
+      printstyled("\nNew min at id $(data.i): $(data.p)\n"; color = :light_blue)
     end
   end
 end
@@ -154,8 +154,9 @@ end
 "Print the p value"
 printstats(data, stage) = nothing
 function printstats(data, stage::Type{Outside})
-  print_with_color(:light_blue, "\nacceptance ratio: $(data.accepted/float(data.i))\n",
-                                "Last p: $(data.p)\n")
+  printstyled("\nacceptance ratio: $(data.accepted/float(data.i))\n",
+              "Last p: $(data.p)\n";
+              color = :light_blue)
 end
 
 
@@ -189,7 +190,7 @@ but if you'd like to disable the execution on the leading edge, pass
 function throttle(f, timeout; leading = true, trailing = false) # From Flux (thanks!)
   cooldown = true
   later = nothing
-  result = nothing
+  result = nothingx
 
   function throttled(args...; kwargs...)
     yield()
@@ -202,7 +203,7 @@ function throttle(f, timeout; leading = true, trailing = false) # From Flux (tha
       end
 
       cooldown = false
-      @schedule try
+      @async try
         while (sleep(timeout); later != nothing)
           later()
           later = nothing

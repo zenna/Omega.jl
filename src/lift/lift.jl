@@ -4,23 +4,11 @@
 elemtype(x::T) where T = T
 elemtype(::RandVar{T}) where T = T
 
-
-"Make a random variable"
-function mkrv(f, args::Tuple)
-  elemtypes = map(elemtype, args)
-  ms = methods(f, elemtypes)
-  length(ms) =! 1 && throw(MethodError(f, elemtypes))
-  RTS = Base.return_types(f, elemtypes)
-  isempty(RTS) && throw(ArgumentError("No return types"))
-  RandVar{first(RTS), false}(f, args)
-end
-
 # No Exists{T} yet https://github.com/JuliaLang/julia/issues/21026#issuecomment-306624369"
 function liftnoesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
   args = [isrv ?  :($(Symbol(:x, i))::Omega.RandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
   quote
   function $fnm($(args...))
-    # Omega.mkrv($fnm, ($(args...),))
     Omega.ciid($fnm, $(args...))
   end
   end
@@ -30,7 +18,6 @@ function liftesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
   args = [isrv ?  :($(Symbol(:x, i))::Omega.RandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
   quote
   function $(esc(fnm))($(args...))
-    Omega.mkrv($(esc(fnm)), ($(args...),))
     Omega.ciid($fnm, $(args...))
   end
   end
@@ -89,6 +76,4 @@ for fnm in fnms, i = 1:MAXN
   lift(fnm, i)
 end
 
-# wowlift(f::Function, args...) =  mkrv(f, args::Tuple)
-
-lift(f::Function) = g(args...) = mkrv(f, args)
+lift(f::Function) = (args...) -> ciid(f, args...)

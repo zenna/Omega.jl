@@ -12,7 +12,7 @@ x_, y_ = ntranspose(samples)
 ```
 """
 ntranspose(xs) = [[x[i] for x in xs] for i = 1:length(xs[1])]
-@spec same([length(x) for x in xs])
+@spec :incomplete same([length(x) for x in xs])
 
 "Counter"
 mutable struct Counter

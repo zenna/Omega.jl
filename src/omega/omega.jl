@@ -10,7 +10,7 @@ const uidcounter = Counter(0)
 
 "Unique id"
 uid() = (global uidcounter; increment(uidcounter))
-@spec (x = [uid() for i = 1:Inf]; unique(x) == x)
+# @spec (x = [uid() for i = 1:Inf]; unique(x) == x)
 
 "Construct globally unique id for indices for ω"
 macro id()
