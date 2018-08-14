@@ -1,6 +1,8 @@
 using Omega
 using Spec
 using Test
+using Pkg
+using Random: seed!
 
 """
 Walk through `test_dir` directory and execute all tests, excluding `exclude`
@@ -16,7 +18,7 @@ function fakewalktests(testmodule::Module;
   print_with_color(:blue, "Running tests:\n")
 
   # Single thread
-  srand(345679)
+  seed!(345679)
   with_pre() do
     for (root, dirs, files) in walkdir(test_dir)
       for file in files

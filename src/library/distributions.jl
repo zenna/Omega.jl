@@ -6,35 +6,35 @@
 MaybeRV{T} = Union{T, RandVar{T}} where T
 
 abstract type PrimRandVar{T} <: RandVar{T} end  
+name(t::T) where {T <: PrimRandVar} = t.name.name
+name(::T) where {T <: PrimRandVar} = Symbol(T)
+fapl(rv::PrimRandVar, ωπ) = transform(rv)(ωπ, reify(ωπ, params(rv))...)
 
+# Beta
 struct Beta{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
   α::A
   β::B
   id::ID
 end
-
 params(rv::Beta) = (rv.α, rv.β)
-transform(ω, α, β) = quantile(Djl.Beta(α, β), rand(ω))
-fapl(rv::Beta{T, T, T}, ωπ::ΩProj) where {T <: Float64} = transform(ωπ, rv.α, rv.β)
-fapl(rv::Beta, ωπ::ΩProj) = transform(ωπ, reify(ωπ, params(rv))...)
-
-reify(ω, params) = map(x -> apl(x, ω), params)
-
-name(t::T) where {T <: PrimRandVar} = t.name.name
-name(::T) where {T <: PrimRandVar} = Symbol(T)
-
-# Constructors
+transform(rv::Beta, ω, α, β) = quantile(Djl.Beta(α, β), rand(ω))
+fapl(rv::Beta{T, T, T}, ωπ::ΩProj) where {T <: Float64} = transform(rv, ωπ, rv.α, rv.β)
 betarv(alpha::T, beta::T) where {T <: Real} = Beta{T, T, T}(alpha, beta, uid())
 betarv(alpha::MaybeRV{T}, beta::MaybeRV{T}) where {T <: Real} = Beta{T, typeof(alpha), typeof(beta)}(alpha, beta, uid())
-
 const β = betarv
 @inline (rv::Beta)(ω::Ω) = apl(rv, ω)
 
-# abstract type Beta <: Dist end
-# "Beta distribution (alias β) parameters `α`  and `β`"
-# betarv(ω::Ω, α::AbstractFloat, β::AbstractFloat) = quantile(Djl.Beta(α, β), rand(ω))
-# betarv(α::MaybeRV{T}, β::MaybeRV{T}) where T <: AbstractFloat = RandVar{T, Beta}(Omega.betarv, (α, β))
-# const β = betarv
+# Bernoulli
+struct Bernoulli{T, A <: MaybeRV} <: PrimRandVar{T}
+  p::A
+  id::ID
+end
+@inline (rv::Bernoulli)(ω::Ω) = apl(rv, ω)
+params(rv::Bernoulli) = (rv.p,)
+bernoulli(ω, p, T::Type{RTT} = Int) where {RTT <: Real} = T(quantile(Djl.Bernoulli(p), rand(ω)))
+# transform(::Bernoulli{T}, ω, p) where T = T(quantile(Djl.Bernoulli(p), rand(ω)))
+transform(Bernoulli) = bernoulli
+bernoulli(p::MaybeRV{T}, RT::Type{RTT} = Int) where {T <: Real, RTT <: Real} = Bernoulli{RT, typeof(p)}(p, uid())
 
 # ## ===============================================================================================
 
@@ -116,15 +116,20 @@ const β = betarv
 # "Discrete uniform distribution with range `range`"
 # uniform(range::UnitRange{T}) where T = RandVar{T, Uniform}(rand, (range,))
 
-# normalinvt(p, μ, σ) = quantile(Normal(μ, σ), p)
 
-# "Normal Distribution with mean μ and variance σ"
-# abstract type Normal <: Dist end
+"Normal Distribution with mean μ and variance σ"
+struct Normal{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
+  μ::A
+  σ::B
+  id::ID
+end
+@inline (rv::Normal)(ω::Ω) = apl(rv, ω)
+params(rv::Normal) = (rv.μ, rv.σ)
+normal(ω::Ω, μ, σ) = quantile(Djl.Normal(μ, σ), rand(ω))
+transform(::Normal) = normal
+normal(μ::MaybeRV{T}, σ::MaybeRV{T}) where T <: AbstractFloat = Normal{T, typeof(μ), typeof(σ)}(μ, σ, uid())
 
-# normal(ω::Ω, μ, σ) = normalinvt(rand(ω), μ, σ)
-# normal(ω::Ω, μ, σ, sz::Dims) = normalinvt.(rand(ω, sz), μ, σ)
-# normal(μ::MaybeRV{T}, σ::MaybeRV{T}) where T <: AbstractFloat =
-#   RandVar{T, Normal}(normal, (μ, σ))
+
 # normal(μ::MaybeRV{T}, σ::MaybeRV{T}, dims::MaybeRV{Dims{N}}) where {N, T <: AbstractFloat} =
 #   RandVar{Array{T, N}, Normal}(normal, (μ, σ, dims))
 # # normal(ω::Ω, μ, σ) = rand(ω, Normal(μ, σ))

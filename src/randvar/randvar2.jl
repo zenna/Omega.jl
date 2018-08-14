@@ -38,7 +38,7 @@ end
 
 "Infer T from function `f: w -> T`"
 function infer_elemtype(f, args...; OT = defΩProj())
-  @show argtypes = map(typeof, args)
+  argtypes = map(typeof, args)
   rt = Base.return_types(f, (OT, argtypes...))
   @pre length(rt) == 1 "Could not infer unique return type"
   rt[1]

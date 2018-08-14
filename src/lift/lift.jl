@@ -1,8 +1,9 @@
-## Lifting
-## =======
+# Lifting Functions to Functions
 
+"Domain type of Random Variable"
 elemtype(x::T) where T = T
 elemtype(::RandVar{T}) where T = T
+
 
 "Make a random variable"
 function mkrv(f, args::Tuple)
@@ -19,7 +20,8 @@ function liftnoesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
   args = [isrv ?  :($(Symbol(:x, i))::Omega.RandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
   quote
   function $fnm($(args...))
-    Omega.mkrv($fnm, ($(args...),))
+    # Omega.mkrv($fnm, ($(args...),))
+    Omega.ciid($fnm, $(args...))
   end
   end
 end
@@ -29,6 +31,7 @@ function liftesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
   quote
   function $(esc(fnm))($(args...))
     Omega.mkrv($(esc(fnm)), ($(args...),))
+    Omega.ciid($fnm, $(args...))
   end
   end
 end

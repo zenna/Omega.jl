@@ -3,7 +3,7 @@ struct URandVar{T, F, TPL <: Tuple} <: RandVar{T}
   f::F
   args::TPL
   id::ID
-  URandVar{T}(f::F, args::TPL, id = uid()) where {T, F, TPL} =
+  URandVar{T}(f::F, args::TPL = (), id = uid()) where {T, F, TPL} =
     new{T, F, TPL}(f, args, id)
 end
 
@@ -15,5 +15,7 @@ func(x::URandVar) = x.f
 
 "Name of a random variable"
 name(rv::URandVar) = string(rv.f)
+
+@inline fapl(rv::URandVar, ωπ) =  rv.f(ωπ, rv.args...)
 
 @inline (rv::URandVar)(ω::Ω) = apl(rv, ω)
