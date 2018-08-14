@@ -29,8 +29,8 @@ randrtype(::UnitRange{T}) where T = T
   get!(()->rand(GLOBAL_RNG, T), ω.vals, id)::randrtype(T)
 end
 
-@inline function resolve(ω::SimpleΩ{I}, id::I, ::Type{T}, dims::Dims) where {I, T}
-  get!(()->rand(GLOBAL_RNG, T, dims), ω.vals, id)::randrtype(T)
+@inline function resolve(ω::SimpleΩ{I}, id::I, ::Type{T}, dims::NTuple{N, Int}) where {I, T, N}
+  get!(()->rand(GLOBAL_RNG, T, dims), ω.vals, id)::Array{randrtype(T), N}
 end
 
 @inline function resolve(ωπ::SimpleΩ{I, A}, ::Type{T}) where {T, I, A<:AbstractArray}

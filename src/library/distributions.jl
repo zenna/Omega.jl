@@ -170,13 +170,19 @@ struct Logistic{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
   μ::A
   s::B
   id::ID
+  Logistic{T}(μ::A, s::B, id = uid()) where {T, A, B} = new{T, A, B}(μ, s, id)
 end
 @inline (rv::Logistic)(ω::Ω) = apl(rv, ω)
-params(rv::Logistic) = (rv.μ,)
+params(rv::Logistic) = (rv.μ, rv.s)
 transform(::Logistic) = logistic
 
 logistic(ω::Ω, μ, s) = (p = rand(ω); μ + s * log(p / (1 - p)))
-logistic(μ::MaybeRV{T}, s::MaybeRV{T}) where T = Logistic{T, typeof(μ), typeof(s)}(μ, s, uid())
+logistic(ω::Ω, μ::Array, s::Array) = (p = rand(ω, size(μ)); μ .+ s .* log.(p ./ (1 .- p)))
+logistic(μ::MaybeRV{T}, s::MaybeRV{T}) where T = Logistic{T}(μ, s, uid())
+logistic(μ::MaybeRV{T}, s::MaybeRV{T}, sz::NTuple{N, Int}) where {N, T <: Real} =
+  Logistic{Array{T, N}}(fill(μ, sz), fill(s, sz))
+
+@spec size(μ) == size(s)
 
 # logistic(μ::MaybeRV{T}, s::MaybeRV{T}, dims::MaybeRV{Dims{N}}) where {N, T} =
 #   RandVar{Array{T, N}, Logistic}(logistic, (μ, s, dims))
