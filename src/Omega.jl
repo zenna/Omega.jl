@@ -12,8 +12,6 @@ using ZenUtils
 using UnicodePlots
 using Compat
 
-# import Base.Random: AbstractRNG
-# import Base.Random
 import Random
 import Random: GLOBAL_RNG, AbstractRNG
 import Statistics: mean, var, quantile
@@ -25,7 +23,7 @@ include("util/misc.jl")
 # Core
 include("omega/omega.jl")         # Sample Space
 include("omega/proj.jl")          # Sample Space Projection
-include("omega/tagged2.jl")        # Space space Tagged with metadata
+include("omega/tagged2.jl")       # Space space Tagged with metadata
 
 ## Different Types of Omega
 include("omega/simple.jl")        # Simple Ω
@@ -33,8 +31,8 @@ include("omega/simple.jl")        # Simple Ω
 include("omega/id.jl")            # Pairing functions for omega ids
 
 # RandVar
-include("randvar/randvar2.jl")             # Random variables
-include("randvar/urandvar.jl")             # Random variables
+include("randvar/randvar2.jl")            # Random variables
+include("randvar/urandvar.jl")            # Random variables
 include("randvar/randvarapply.jl")        # Random variable application to ω::Ω
 
 # i.i.d.

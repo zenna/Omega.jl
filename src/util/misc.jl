@@ -1,4 +1,4 @@
-@spec all([res[i] = f[i](x) for f in fs])
+# @spec all([res[i] = f[i](x) for f in fs])
 applymany(fs, x) = map(xi->xi(x), fs)
 
 """
@@ -12,7 +12,7 @@ x_, y_ = ntranspose(samples)
 ```
 """
 ntranspose(xs) = [[x[i] for x in xs] for i = 1:length(xs[1])]
-@post res[i, j]
+# @post res[i, j]
 
 "Counter"
 mutable struct Counter
