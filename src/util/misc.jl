@@ -1,5 +1,5 @@
-@spec all([res[i] = f[i](x) for f in fs])
 applymany(fs, x) = map(xi->xi(x), fs)
+@spec all([res[i] = f[i](x) for f in fs])
 
 """
 Transpose for nested list / tuples.  Useful for output of rand(::NTuple{RandVar})
@@ -12,7 +12,7 @@ x_, y_ = ntranspose(samples)
 ```
 """
 ntranspose(xs) = [[x[i] for x in xs] for i = 1:length(xs[1])]
-@post res[i, j]
+@spec same([length(x) for x in xs])
 
 "Counter"
 mutable struct Counter
