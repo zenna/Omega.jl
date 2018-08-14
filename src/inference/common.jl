@@ -1,3 +1,4 @@
+"Inference Algorithm"
 abstract type Algorithm end
 
 "ω ∉ [0, 1]"
@@ -12,6 +13,7 @@ function clip(x, eps = 1e-5)
     x
   end
 end
+@spec 0.0 < res < 1.0
 
 "Bijective transformation from [0, 1] to the real line, T(x)=log(1/(1-x)-1)"
 transform(x) = log.(clip(x) ./ (1 .- clip(x)))
@@ -33,17 +35,3 @@ bound(y) = 1 /(1 + exp(-y))
 
 "Jacobian of the transformation above, J(x) = 1/x(1-x)"
 jac(x) = bound(x) * (1-bound(x))
-
-function showstats(accepted, i, y, ω)
-  print_with_color(:light_blue, "acceptance ratio: $(accepted/float(i)) ",
-                                "Last log likelihood $(epsilon(y(ω)))\n")
-end
-
-## HMC COMMON
-## ===========
-
-"Structure for passing Q and P values of HMC to callbacks"
-struct QP{T} # TODO: Replace with NameedTuple 
-  q::T
-  p::T
-end

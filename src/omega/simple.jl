@@ -23,14 +23,20 @@ randrtype(::Type{T}) where T = T
 randrtype(::Type{Float64}) = Float64
 randrtype(::UnitRange{T}) where T = T
 
-## Resolve
-## =======
-@inline function resolve(ω::SimpleΩ{I}, id::I, T) where {I}
+@inline function resolve(ω::SimpleΩ{I, Any}, id::I, T) where {I}
   get!(()->rand(GLOBAL_RNG, T), ω.vals, id)::randrtype(T)
 end
 
-@inline function resolve(ω::SimpleΩ{I}, id::I, ::Type{T}, dims::NTuple{N, Int}) where {I, T, N}
+@inline function resolve(ω::SimpleΩ{I, Any}, id::I, ::Type{T}, dims::NTuple{N, Int}) where {I, T, N}
   get!(()->rand(GLOBAL_RNG, T, dims), ω.vals, id)::Array{randrtype(T), N}
+end
+
+@inline function resolve(ω::SimpleΩ{I}, id::I, T) where {I}
+  get!(()->rand(GLOBAL_RNG, T), ω.vals, id)
+end
+
+@inline function resolve(ω::SimpleΩ{I}, id::I, ::Type{T}, dims::NTuple{N, Int}) where {I, T, N}
+  get!(()->rand(GLOBAL_RNG, T, dims), ω.vals, id)
 end
 
 @inline function resolve(ωπ::SimpleΩ{I, A}, ::Type{T}) where {T, I, A<:AbstractArray}

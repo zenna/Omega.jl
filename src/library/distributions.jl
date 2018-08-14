@@ -8,7 +8,7 @@ MaybeRV{T} = Union{T, RandVar{T}} where T
 abstract type PrimRandVar{T} <: RandVar{T} end  
 name(t::T) where {T <: PrimRandVar} = t.name.name
 name(::T) where {T <: PrimRandVar} = Symbol(T)
-fapl(rv::PrimRandVar, ωπ) = transform(rv)(ωπ, reify(ωπ, params(rv))...)
+fapl(rv::PrimRandVar, ωπ) = rvtransform(rv)(ωπ, reify(ωπ, params(rv))...)
 
 # Beta
 struct Beta{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
@@ -17,9 +17,9 @@ struct Beta{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
   id::ID
 end
 params(rv::Beta) = (rv.α, rv.β)
-transform(rv::Beta, ω, α, β) = quantile(Djl.Beta(α, β), rand(ω))
+rvtransform(rv::Beta, ω, α, β) = quantile(Djl.Beta(α, β), rand(ω))
 
-fapl(rv::Beta{T, T, T}, ωπ::ΩProj) where {T <: Float64} = transform(rv, ωπ, rv.α, rv.β)
+fapl(rv::Beta{T, T, T}, ωπ::ΩProj) where {T <: Float64} = rvtransform(rv, ωπ, rv.α, rv.β)
 betarv(alpha::T, beta::T) where {T <: Real} = Beta{T, T, T}(alpha, beta, uid())
 betarv(alpha::MaybeRV{T}, beta::MaybeRV{T}) where {T <: Real} = Beta{T, typeof(alpha), typeof(beta)}(alpha, beta, uid())
 const β = betarv
@@ -34,7 +34,7 @@ end
 params(rv::Bernoulli) = (rv.p,)
 bernoulli(ω, p, T::Type{RTT} = Int) where {RTT <: Real} = T(quantile(Djl.Bernoulli(p), rand(ω)))
 
-transform(::Bernoulli) = bernoulli
+rvtransform(::Bernoulli) = bernoulli
 bernoulli(p::MaybeRV{T}, RT::Type{RTT} = Int) where {T <: Real, RTT <: Real} = Bernoulli{RT, typeof(p)}(p, uid())
 
 # ## ===============================================================================================
@@ -100,7 +100,7 @@ struct Poisson{T, A <: MaybeRV} <: PrimRandVar{T}
 end
 @inline (rv::Poisson)(ω::Ω) = apl(rv, ω)
 params(rv::Poisson) = (rv.λ,)
-transform(::Poisson) = poisson
+rvtransform(::Poisson) = poisson
 
 poisson(ω::Ω, λ::Real) = quantile(Djl.Poisson(λ), rand(ω))
 poisson(λ::MaybeRV{T}) where T <: Real = Poisson{Int, typeof(λ)}(λ, uid())
@@ -109,20 +109,15 @@ struct Uniform{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
   a::A
   b::B
   id::ID
+  Uniform{T}(a::A, b::B, id = uid()) where {T, A, B} = new{T, A, B}(a, b, id)
 end
 @inline (rv::Uniform)(ω::Ω) = apl(rv, ω)
-params(rv::Poisson) = (rv.λ,)
-transform(::Poisson) = poisson
+params(rv::Uniform) = (rv.a, rv.b)
+rvtransform(::Uniform) = uniform
 
 "Uniform distribution with lower bound `a` and upper bound `b`"
 uniform(ω::Ω, a::T, b::T) where T = rand(ω) * (b - a) + a
-uniform(a::MaybeRV{T}, b::MaybeRV{T}) where T <: AbstractFloat =
-  Uniform{T, typeof(a), typeof(b)}(a, b, uid())
-# uniform(ω::Ω, a, b, sz::Dims) = p = rand(ω, sz) .* (b .- a) .+ a
-# uniform(a::MaybeRV{T}, b::MaybeRV{T}) where T =
-#   Uniform{T, typeof(a), typeof(b)}(a, b, uid())
-uniform(a::MaybeRV{T}, b::MaybeRV{T}, dims::MaybeRV{Dims{N}}) where {N, T} =
-  RandVar{Array{T, N}, Uniform}(uniform, (a, b, dims))
+uniform(a::MaybeRV{T}, b::MaybeRV{T}) where T <: Real = Uniform{T}(a, b, uid())
 
 # "Uniform sample from vector"
 # uniform(ω::Ω, a::T) where T = rand(ω, a)
@@ -142,7 +137,7 @@ end
 @inline (rv::Normal)(ω::Ω) = apl(rv, ω)
 params(rv::Normal) = (rv.μ, rv.σ)
 normal(ω::Ω, μ, σ) = quantile(Djl.Normal(μ, σ), rand(ω))
-transform(::Normal) = normal
+rvtransform(::Normal) = normal
 normal(μ::MaybeRV{T}, σ::MaybeRV{T}) where T <: AbstractFloat = Normal{T, typeof(μ), typeof(σ)}(μ, σ, uid())
 
 
@@ -174,7 +169,7 @@ struct Logistic{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
 end
 @inline (rv::Logistic)(ω::Ω) = apl(rv, ω)
 params(rv::Logistic) = (rv.μ, rv.s)
-transform(::Logistic) = logistic
+rvtransform(::Logistic) = logistic
 
 logistic(ω::Ω, μ, s) = (p = rand(ω); μ + s * log(p / (1 - p)))
 logistic(ω::Ω, μ::Array, s::Array) = (p = rand(ω, size(μ)); μ .+ s .* log.(p ./ (1 .- p)))
