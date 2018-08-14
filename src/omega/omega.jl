@@ -1,10 +1,6 @@
 "Probability Space indexed with values of type I"
 abstract type Ω{I} <: AbstractRNG end
 
-# THere are really two types.
-# Omega which represents the underlying set as omega projection
-# WHich is a particular component
-
 "This is base Omega - Sample Space Object"
 abstract type ΩBase{I} <: Ω{I} end
 
@@ -14,6 +10,7 @@ const uidcounter = Counter(0)
 
 "Unique id"
 uid() = (global uidcounter; increment(uidcounter))
+@spec (x = [uid() for i = 1:Inf]; unique(x) == x)
 
 "Construct globally unique id for indices for ω"
 macro id()
