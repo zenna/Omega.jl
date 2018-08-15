@@ -7,6 +7,15 @@ end
 increment!(ωπ::ΩProj) = ωπ.id = increment(ωπ.id)
 parentω(ωπ::ΩProj) = ωπ.ω
 
+## Projection
+
+function Base.getindex(ω::O, i::Int) where {I, O <: ΩBase{I}}
+  ΩProj{O, I}(ω, base(I, i))
+end
+
+
+## Rand
+
 function Base.rand(ωπ::ΩProj, dims::Dims)
   res = resolve(ωπ.ω, ωπ.id, Float64, dims) 
   increment!(ωπ)
@@ -30,10 +39,3 @@ function Base.rand(ωπ::ΩProj, ::Type{T}) where T
   increment!(ωπ)
   res
 end
-
-## Projection
-## ==========
-function Base.getindex(sω::SO, i::Int) where {I, SO <: ΩBase{I}}
-  ΩProj{SO, I}(sω, base(I, i))
-end
-

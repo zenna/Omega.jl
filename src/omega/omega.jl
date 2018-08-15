@@ -31,6 +31,8 @@ const RandVarId = Int
 "Random ω ∈ Ω"
 Base.rand(x::Type{O}) where O <: ΩBase = defΩ()()
 
+Random.rng_native_52(ω::Ω) = Random.rng_native_52(Random.GLOBAL_RNG)
+
 RV = Union{Integer, Random.FloatInterval}
 # lookup(::Type{UInt32}) = UInt32, :_UInt32
 # lookup(::Type{Close1Open2}) = Float64, :_Float64

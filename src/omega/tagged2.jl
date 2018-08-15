@@ -11,11 +11,15 @@ end
 TaggedΩ(ω::ΩT, tags::TAGS) where {I, ΩT <: Ω{I}, TAGS} =
   TaggedΩ{I, TAGS, ΩT}(ω, tags)
 
+  
 tag(ω, tag_::NamedTuple) = tag(ω, Tag(tag_))
+tag(ω::TaggedΩ, tag_::NamedTuple) = tag(ω, Tag(tag_))
+
 tag(ω, tag_::Tag) = TaggedΩ(ω, tag_)
+tag(tω::TaggedΩ, tag_::Tag) =
+  TaggedΩ(tω.taggedω, Tag(merge(tag_.tags, tω.tags.tags)))
 
 proj(tω::TaggedΩ, x) = tag(proj(tω.taggedω, x), tω.tags)
-tag(ω::TaggedΩ, tag) = TaggedΩ(ω.taggedω, merge(ω.tags, tag))
 
 # mergetags(etag::ErrorTag, stag::ScopeTag) = 
 #   HybridTag(stag.scope, etag.sbw)

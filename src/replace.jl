@@ -30,6 +30,10 @@ end
 
 apl(rv::ReplaceRandVar, ω::Ω) = rv.rv(tag(ω, (replmap = rv.replmap,)))
 apl(rv::ReplaceRandVar, ω::TaggedΩ) = rv.rv(tag(ω, (replmap = rv.replmap,)))
+apl(rv::ReplaceRandVar, ω::ΩBase) = rv.rv(tag(ω, (replmap = rv.replmap,)))
+
+apl(rv::ReplaceRandVar, tω::TaggedΩ{I, Tag{K, V}, ΩT}) where {I, K, V, ΩT <: ΩBase} = 
+  rv.rv(tag(tω, (replmap = rv.replmap,)))
 
 @inline (rv::ReplaceRandVar)(ω::Ω) = apl(rv, ω)
 

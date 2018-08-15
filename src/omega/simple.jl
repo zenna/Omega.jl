@@ -53,32 +53,6 @@ end
   first(val)
 end
 
-Random.rng_native_52(ω::Ω) = Random.rng_native_52(Random.GLOBAL_RNG)
-
-## Merging
-## =======
-
-function Base.merge!(sω1::SimpleΩ, sω2::SimpleΩ)
-  for (k, v) in sω2.vals
-    sω1.vals[k] = v
-  end
-  sω1
-end
-
-function projintersect!(ω_p::SimpleΩ, ω_s::SimpleΩ)
-  for k in keys(ω_p)
-    if k in keys(ω_s)
-      ω_p.vals[k] = ω_s.vals[k]
-    end
-  end
-  ω_p
-end
-
-projintersect!(ωπ1::Ω, ωπ2::Ω) = projintersect!(ωπ1.ω, ωπ2.ω)
-
-Base.merge!(ωπ1::Ω{O}, ωπ2::Ω{O}) where {O <: SimpleΩ} =
-  merge!(ωπ1.ω, ωπ2.ω)
-
 Base.isempty(sω::SimpleΩ) = isempty(sω.vals)
 Base.length(sω::SimpleΩ) = length(sω.vals)
 
