@@ -19,6 +19,7 @@ import Statistics: mean, var, quantile
 
 # Util
 include("util/misc.jl")
+include("specs.jl")
 
 # Core
 include("omega/omega.jl")         # Sample Space
