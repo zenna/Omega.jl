@@ -20,25 +20,25 @@ function parentω(ωπ::ΩProj)
 end
 
 function Base.rand(ωπ::ΩProj, arr::Array)
-  res = resolve(ωπ.ω, ωπ.id, arr) 
+  res = resolve(ωπ.ω, ωπ.id, arr)
   increment!(ωπ)
   res
 end
 
 function Base.rand(ωπ::ΩProj, dims::Dims)
-  res = resolve(ωπ.ω, ωπ.id, Float64, dims) 
+  res = resolve(ωπ.ω, ωπ.id, Float64, dims)
   increment!(ωπ)
   res
 end
 
 function Base.rand(ωπ::ΩProj, T)
-  res = resolve(ωπ.ω, ωπ.id, T) 
+  res = resolve(ωπ.ω, ωπ.id, T)
   increment!(ωπ)
   res
 end
 
 function Base.rand(ωπ::ΩProj, ::Type{T}) where T
-  res = resolve(ωπ.ω, ωπ.id, T) 
+  res = resolve(ωπ.ω, ωπ.id, T)
   increment!(ωπ)
   res
 end

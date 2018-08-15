@@ -2,7 +2,7 @@ module TestModule
 
 using Base.Test
 
-using Omega.Space
+using Omega.IdGen
 
 @testset "id" begin
   vec1 = []

@@ -19,6 +19,8 @@ include("util/misc.jl")
 using .Misc
 
 # Core
+include("omega/idgen.jl")            # UIDs
+using .IdGen
 include("omega/space.jl")         # Sample Space
 using .Space
 include("omega/simple.jl")        # Simple Ω
