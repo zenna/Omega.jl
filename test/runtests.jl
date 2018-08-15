@@ -2,6 +2,8 @@ using Omega
 using Spec
 using Test
 
+include("lib/testlib.jl")
+
 """
 Walk through `test_dir` directory and execute all tests, excluding `exclude`
 
