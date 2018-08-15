@@ -5,6 +5,10 @@ export Ω, ΩWOW, resolve
 "Probability Space indexed with values of type I"
 abstract type Ω{I} <: AbstractRNG end
 
+# Must implement:
+# * Base.isempty
+# * Base.merge! ( -- currently unused)
+# ? others
 function resolve end
 
 abstract type ΩWOW{I} <: Ω{I} end
