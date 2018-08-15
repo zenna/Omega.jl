@@ -19,6 +19,8 @@ using Omega.Space
 
   ω = SimpleΩ{Vector{Int}, Bool}()
   @test test_resolve_uniform(ω, startIdx, nextIdx)
+
+  #TODO: Add tests for the other variants of resolve
 end
 
 end
