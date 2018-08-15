@@ -28,6 +28,7 @@ id(x::ReplaceRandVar) = id(x.rv)
   end
 end
 
+## Avoid type ambiguities
 apl(rv::ReplaceRandVar, ω::Ω) = rv.rv(tag(ω, (replmap = rv.replmap,)))
 apl(rv::ReplaceRandVar, ω::TaggedΩ) = rv.rv(tag(ω, (replmap = rv.replmap,)))
 apl(rv::ReplaceRandVar, ω::ΩBase) = rv.rv(tag(ω, (replmap = rv.replmap,)))
@@ -45,7 +46,8 @@ upconv(pairs::Pair...) = Dict(k.id => mcv(v) for (k, v) in pairs)
 upconv(pair) = Dict(pair.first.id => mcv(pair.second))
 
 "Causal Intervention: Set `θold` to `θnew` in `x`"
-function Base.replace(x::RandVar, tochange::Union{Dict, Pair}...)
-    ReplaceRandVar(x, upconv(tochange...))
-end
+Base.replace(x::RandVar, replmap::Dict{Int, <: RandVar}) = ReplaceRandVar(x, replmap)
 @spec :nocheck all([isparent(theta, x) for theta in values(tochange)])
+
+"Causal Intervention: Set `θold` to `θnew` in `x`"
+Base.replace(x::RandVar, tochange::Union{Dict, Pair}...) = replace(x, upconv)

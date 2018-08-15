@@ -1,6 +1,6 @@
 # Random Variable Application
 
-"Post Projection Application"
+"Post-projection application"
 function ppapl end
 
 "Apply function to argument"
@@ -9,7 +9,7 @@ function apl end
 apl(x, ω) = x
 
 "Project ω to `x`"
-proj(ω::ΩBase, x::RandVar) = ω[x.id][1]
+proj(ω::ΩBase, x::RandVar) = ω[x.id][1] # FIXME, change to ω[x.id, 1]
 
 # @inline apl(rv::RandVar, ω::ΩBaseGroup) =  ppapl(rv, proj(ω, rv))
 @inline apl(rv::RandVar, ω::ΩBase) =  ppapl(rv, proj(ω, rv))
