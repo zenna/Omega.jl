@@ -8,6 +8,16 @@ Fast SimpleΩ
 - Unique index for each rand value and hence:
   (i) Memory intensive
 """
+
+module Simple
+# TODO: Eventually encompass whole file
+
+using Flux
+
+using ..Space
+
+export SimpleΩ, linearize, unlinearize
+
 struct SimpleΩ{I, V} <: ΩWOW{I}
   vals::Dict{I, V}
 end
@@ -18,13 +28,7 @@ SimpleΩ{I, V}() where {I, V} = SimpleΩ{I, V}(Dict{I, V}())
 Base.values(sω::SimpleΩ) = values(sω.vals)
 Base.keys(sω::SimpleΩ) = keys(sω.vals)
 
-module Simple
-# TODO: Eventually encompass whole file
 
-using Flux
-
-using ...Omega: SimpleΩ
-using ..Space
 
 ## Resolve
 ## =======
@@ -48,8 +52,6 @@ end
 @inline function Space.resolve(ω::SimpleΩ{I, A}, id::I, ::Type{T}) where {T, I, A<:Flux.TrackedArray}
   val = get!(()->Flux.param([rand(Base.GLOBAL_RNG, T)]), ω.vals, id)
   first(val)
-end
-
 end
 
 ## Version Specfici
@@ -156,4 +158,7 @@ end
 function unlinearize(ωvec, sω::SimpleΩ{I, V}) where {I, V <: Real}
   # Keys not sorted, might be wrong
   SimpleΩ(Dict(k => ωvec[i] for (i, k) in enumerate(keys(sω.vals))))
+end
+
+
 end

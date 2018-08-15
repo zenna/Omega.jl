@@ -24,6 +24,7 @@ using .IdGen
 include("omega/space.jl")         # Sample Space
 using .Space
 include("omega/simple.jl")        # Simple Ω
+using .Simple
 
 # include("omega/dirtyomega.jl")  # Sample Space
 include("omega/index.jl")         # Pairing functions for omega ids
