@@ -1,4 +1,4 @@
-__precompile__(false)
+# __precompile__(false)
 "A Library for Causal and Higher-Order Probabilistic Programming"
 module Omega
 
@@ -16,7 +16,6 @@ import Random
 import Random: GLOBAL_RNG, AbstractRNG
 import Statistics: mean, var, quantile
 
-
 # Util
 include("util/misc.jl")
 include("specs.jl")
@@ -24,14 +23,14 @@ include("specs.jl")
 # Core
 include("omega/omega.jl")         # Sample Space
 include("omega/proj.jl")          # Sample Space Projection
-include("omega/tagged2.jl")       # Space space Tagged with metadata
+include("omega/tagged.jl")       # Space space Tagged with metadata
 
 ## Different Types of Omega
 include("omega/simple.jl")        # Simple Ω
 include("omega/id.jl")            # Pairing functions for omega ids
 
 # RandVar
-include("randvar/randvar2.jl")            # Random variables
+include("randvar/randvar.jl")            # Random variables
 include("randvar/urandvar.jl")            # Random variables
 include("randvar/randvarapply.jl")        # Random variable application to ω::Ω
 

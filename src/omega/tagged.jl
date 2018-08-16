@@ -1,52 +1,35 @@
-abstract type Tag end
-
-struct ErrorTag{E} <: Tag
-  sbw::E
+"Meta data to attach to ω::Ω"
+struct Tags{K, V}
+  tags::NamedTuple{K, V}
 end
 
-"Mapping from random variable to random variable which replaces it in interved model"
-struct Scope{RV}
-  idmap::Dict{Int, RV}
-end
-Base.merge(scope1::Scope, scope2::Scope) = Scope(merge(scope1.idmap, scope2.idmap))
+"Does tag type contain `t`, forall t in `tags`?"
+hastags(::Type{Tags{K, V}}, tags::Symbol...) where {K, V} = all([t in K for t in tags])
 
-struct ScopeTag{ID <: Scope} <: Tag
-  scope::ID
-end
+# Merging
 
-struct HybridTag{ID <: Scope, E} <: Tag
-  scope::ID
-  sbw::E
-end
+Base.merge(x::Tags, y::Tags) = merge(combinetag, x.tags, y.tags)
+combinetag(::Type{Val{:replmap}}, a, b) = merge(a, b)
 
-# Tag = NamedTuple{N, T}
-
-struct TaggedΩ{I, TAG <: Tag, ΩT} <: Ω{I}
+"Sample space tagged with meta-data.  Enables `iid`, `replace`, `trackerror`"
+struct TaggedΩ{I, TAGS <: Tags, ΩT} <: Ω{I}
   taggedω::ΩT
-  tags::TAG
+  tags::TAGS
+  TaggedΩ(ω::ΩT, tags::TAGS) where {I, ΩT <: Ω{I}, TAGS} =
+    new{I, TAGS, ΩT}(ω, tags)
 end
 
-# 0.7 TaggedΩ(ω::ΩT, tags::Tag) where {N, I, T, ΩT <: Ω{I}} = TaggedΩ{I, TAG, ΩT}(ω, tags)
-TaggedΩ(ω::ΩT, tags::TAG) where {I, TAG, ΩT <: Ω{I}} = TaggedΩ{I, TAG, ΩT}(ω, tags)
+hastags(::Type{TaggedΩ{I, TAGS, ΩT}}, tags...) where {I, TAGS, ΩT} = hastags(TAGS, tags...)
+  
+tag(ω, tag_::Tags) = TaggedΩ(ω, tag_)
+tag(ω, tag_::NamedTuple) = tag(ω, Tags(tag_))
+tag(ω::TaggedΩ, tag_::NamedTuple) = tag(ω, Tags(tag_))
+tag(tω::TaggedΩ, tag_::Tags) = TaggedΩ(tω.taggedω, Tags(merge(tag_, tω.tags)))
 
-tag(ω::Ω, tag) = TaggedΩ(ω, tag)
-# tag(ω::TaggedΩ, tag) = TaggedΩ(ω.taggedω, merge(ω.tags, tag))
+proj(tω::TaggedΩ, x) = tag(proj(tω.taggedω, x), tω.tags)
+@spec _res.tags == tω.tags "tags are preserved in projection"
 
-mergetags(etag::ErrorTag, stag::ScopeTag) = 
-  HybridTag(stag.scope, etag.sbw)
-
-mergetags(stag::ScopeTag, etag::ErrorTag) = 
-  HybridTag(stag.scope, etag.sbw)
-
-mergetags(stag1::ScopeTag, stag2::ScopeTag) = 
-  ScopeTag(merge(stag1.scope, stag2.scope))
-
-mergetags(htag::HybridTag, stag::ScopeTag) = 
-  HybridTag(merge(htag.scope, stag.scope), htag.sbw)
-
-function tag(ω::TaggedΩ, tags)
-  TaggedΩ(ω.taggedω, mergetags(ω.tags, tags))
-end
+# Pass-throughs (tω::TaggedΩ should work like its tω.taggedω, but preserve tags)
 
 Base.getindex(tω::TaggedΩ, i) = TaggedΩ(getindex(tω.taggedω, i), tω.tags)
 Base.rand(tω::TaggedΩ, args...) = rand(tω.taggedω, args...)
