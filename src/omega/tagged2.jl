@@ -1,41 +1,35 @@
-"Meta data attached to ω::Ω"
-struct Tag{K, V}
+"Meta data to attach to ω::Ω"
+struct Tags{K, V}
   tags::NamedTuple{K, V}
 end
 
-struct TaggedΩ{I, TAGS <: Tag, ΩT} <: Ω{I}
+"Does tag type contain `t`, forall t in `tags`?"
+hastags(::Type{Tags{K, V}}, tags::Symbol...) where {K, V} = all([t in K for t in tags])
+
+# Merging
+
+Base.merge(x::Tags, y::Tags) = merge(combinetag, x.tags, y.tags)
+combinetag(::Type{Val{:replmap}}, a, b) = merge(a, b)
+
+"Sample space tagged with meta-data.  Enables `iid`, `replace`, `trackerror`"
+struct TaggedΩ{I, TAGS <: Tags, ΩT} <: Ω{I}
   taggedω::ΩT
   tags::TAGS
+  TaggedΩ(ω::ΩT, tags::TAGS) where {I, ΩT <: Ω{I}, TAGS} =
+    new{I, TAGS, ΩT}(ω, tags)
 end
 
-TaggedΩ(ω::ΩT, tags::TAGS) where {I, ΩT <: Ω{I}, TAGS} =
-  TaggedΩ{I, TAGS, ΩT}(ω, tags)
-
+hastags(::Type{TaggedΩ{I, TAGS, ΩT}}, tags...) where {I, TAGS, ΩT} = hastags(TAGS, tags...)
   
-tag(ω, tag_::NamedTuple) = tag(ω, Tag(tag_))
-tag(ω::TaggedΩ, tag_::NamedTuple) = tag(ω, Tag(tag_))
-
-tag(ω, tag_::Tag) = TaggedΩ(ω, tag_)
-tag(tω::TaggedΩ, tag_::Tag) =
-  TaggedΩ(tω.taggedω, Tag(merge(tag_.tags, tω.tags.tags)))
+tag(ω, tag_::Tags) = TaggedΩ(ω, tag_)
+tag(ω, tag_::NamedTuple) = tag(ω, Tags(tag_))
+tag(ω::TaggedΩ, tag_::NamedTuple) = tag(ω, Tags(tag_))
+tag(tω::TaggedΩ, tag_::Tags) = TaggedΩ(tω.taggedω, Tags(merge(tag_, tω.tags)))
 
 proj(tω::TaggedΩ, x) = tag(proj(tω.taggedω, x), tω.tags)
+@spec _res.tags == tω.tags "tags are preserved in projection"
 
-# mergetags(etag::ErrorTag, stag::ScopeTag) = 
-#   HybridTag(stag.scope, etag.sbw)
-
-# mergetags(stag::ScopeTag, etag::ErrorTag) = 
-#   HybridTag(stag.scope, etag.sbw)
-
-# mergetags(stag1::ScopeTag, stag2::ScopeTag) = 
-#   ScopeTag(merge(stag1.scope, stag2.scope))
-
-# mergetags(htag::HybridTag, stag::ScopeTag) = 
-#   HybridTag(merge(htag.scope, stag.scope), htag.sbw)
-
-# function tag(ω::TaggedΩ, tags)
-#   TaggedΩ(ω.taggedω, mergetags(ω.tags, tags))
-# end
+# Pass-throughs (tω::TaggedΩ should work like its tω.taggedω, but preserve tags)
 
 Base.getindex(tω::TaggedΩ, i) = TaggedΩ(getindex(tω.taggedω, i), tω.tags)
 Base.rand(tω::TaggedΩ, args...) = rand(tω.taggedω, args...)

@@ -3,8 +3,6 @@
 # 2. Generic Params
 # 3. Fix printg n
 
-MaybeRV{T} = Union{T, RandVar{T}} where T
-
 abstract type PrimRandVar{T} <: RandVar{T} end  
 name(t::T) where {T <: PrimRandVar} = t.name.name
 name(::T) where {T <: PrimRandVar} = Symbol(T)
@@ -55,8 +53,8 @@ bernoulli(p::MaybeRV{T}, RT::Type{RTT} = Int) where {T <: Real, RTT <: Real} = B
 # boolbernoulli(args...) = RandVar{Bool, Bernoulli}(Bool, (bernoulli(args...),))
 
 # abstract type Constant <: Dist end
-# "Constant Random Variable"
-# constant(x::T) where T = RandVar{T, Constant}(ω -> x, ())
+"Constant Random Variable"
+constant(x::T) where T = URandVar{T}(ω -> x)
 
 # "Gamma distribution (alias Γ)"
 # abstract type Gamma <: Dist end

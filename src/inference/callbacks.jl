@@ -40,8 +40,6 @@ struct NaNError <: Exception end
 runall(f) = f
 runall(fs::AbstractVector) = (data, stage) -> foreach(f -> handlesignal(f(data, stage)), fs)
 
-RunData(;kwargs...) = kwargs.data
-
 "Stage of algorithm at which callback is called.
  Callback has type f(data, stage::Type{<:Stage}."
 abstract type Stage end
@@ -190,7 +188,7 @@ but if you'd like to disable the execution on the leading edge, pass
 function throttle(f, timeout; leading = true, trailing = false) # From Flux (thanks!)
   cooldown = true
   later = nothing
-  result = nothingx
+  result = nothing
 
   function throttled(args...; kwargs...)
     yield()

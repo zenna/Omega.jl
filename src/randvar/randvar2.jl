@@ -1,6 +1,8 @@
 "Random Variable: a function `Ω -> T`"
 abstract type RandVar{T} end
 
+MaybeRV{T} = Union{T, RandVar{T}} where T
+
 const ID = Int
 
 """Is `x` a constant random variable, i.e. x(ω) = c ∀ ω ∈ Ω?

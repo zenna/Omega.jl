@@ -22,7 +22,10 @@ function fakewalktests(testmodule::Module;
   with_pre() do
     for (root, dirs, files) in walkdir(test_dir)
       for file in files
-        file ∈ exclude && continue
+        if file ∈ exclude
+          println("Skipping: ", file)
+          continue
+        end
         fn = joinpath(root, file)
         println("Testing: ", fn)
         include(fn)
@@ -36,4 +39,4 @@ function fakewalktests(testmodule::Module;
   println()
 end
 
-fakewalktests(Omega)
+fakewalktests(Omega, exclude = ["rid.jl"])

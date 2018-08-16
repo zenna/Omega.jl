@@ -21,9 +21,9 @@ function Base.rand(x::RandVar{T},
     if xω != nothing
       push!(samples, xω)
       accepted += 1
-      cb(RunData(ω = ω, accepted = accepted, p = 0.0, i = i), Outside)
+      cb((ω = ω, accepted = accepted, p = 0.0, i = i), Outside)
     else
-      cb(RunData(ω = ω, accepted = accepted, p = 1.0, i = i), Outside)
+      cb((ω = ω, accepted = accepted, p = 1.0, i = i), Outside)
     end
     i += 1
   end

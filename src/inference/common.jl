@@ -16,22 +16,19 @@ end
 @spec 0.0 < res < 1.0
 
 "Bijective transformation from [0, 1] to the real line, T(x)=log(1/(1-x)-1)"
-transform(x) = log.(clip(x) ./ (1 .- clip(x)))
-#transform(x) = log.(1./(1.-clip(x)).-1)
+transform(x) = log(clip(x) / (1 - clip(x)))
 
 "The inverse of the transformation above, T^(-1)(y)=1-1/(1+e^y)"
-inv_transform(y) = 1 ./ (1 .+ exp.(-y))
-#inv_transform(y) = 1.-1./(1.+exp.(y))
+inv_transform(y) = 1 / (1 + exp(-y))
 
 "Jacobian of the transformation above, J(x) = 1/x(1-x)"
-jacobian(x) = inv_transform(x).*(1. -inv_transform(x))
-#jacobian(x) = 1./(x .* (1.-x))
+jacobian(x) = inv_transform(x) * (1. -inv_transform(x))
 
 "Bijective transformation from [0, 1] to the real line, T(x)=log(1/(1-x)-1)"
 unbound(x) = log(clip(x)/(1-clip(x)))
 
 "The inverse of the transformation above, T^(-1)(y)=1-1/(1+e^y)"
-bound(y) = 1 /(1 + exp(-y))
+bound(y) = 1 / (1 + exp(-y))
 
 "Jacobian of the transformation above, J(x) = 1/x(1-x)"
-jac(x) = bound(x) * (1-bound(x))
+jac(x) = bound(x) * (1 - bound(x))

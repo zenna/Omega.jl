@@ -6,9 +6,9 @@ version = "0.2.0"
 
 [[Adapt]]
 deps = ["LinearAlgebra", "Test"]
-git-tree-sha1 = "a8bcb59ead936b9a6d6f0e45fb923aed507670f1"
+git-tree-sha1 = "036ce44a518b912c43df728bfae274f8d8de9059"
 uuid = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
-version = "0.3.0"
+version = "0.3.1"
 
 [[Arpack]]
 deps = ["BinaryProvider", "Libdl", "LinearAlgebra", "Random", "SparseArrays", "Test"]
@@ -98,12 +98,10 @@ uuid = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
 version = "0.5.2"
 
 [[Flux]]
-deps = ["AbstractTrees", "Adapt", "Colors", "Dates", "DiffRules", "ForwardDiff", "GZip", "Juno", "LinearAlgebra", "MacroTools", "NNlib", "NaNMath", "Printf", "Random", "Reexport", "Requires", "SpecialFunctions", "Statistics", "Test", "ZipFile"]
-git-tree-sha1 = "bb953dbe16a6caa7b3cdce09acf506c6015d7b84"
-repo-rev = "julia-0.7"
-repo-url = "https://github.com/FluxML/Flux.jl.git"
+deps = ["AbstractTrees", "Adapt", "Colors", "Dates", "DiffRules", "ForwardDiff", "GZip", "Juno", "LinearAlgebra", "MacroTools", "NNlib", "NaNMath", "Printf", "Random", "Reexport", "Requires", "SpecialFunctions", "Statistics", "StatsBase", "Test", "ZipFile"]
+git-tree-sha1 = "7f363d6f5c8e0c5daee4f44f02177309e2d1baae"
 uuid = "587475ba-b771-5e3f-ad9e-33799f191a9c"
-version = "0.6.0+"
+version = "0.6.1"
 
 [[ForwardDiff]]
 deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "InteractiveUtils", "LinearAlgebra", "NaNMath", "Pkg", "Random", "SparseArrays", "SpecialFunctions", "StaticArrays", "Test"]

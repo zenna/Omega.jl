@@ -58,7 +58,7 @@ fnms = [:(Base.:-),
         :(Base.:<),
         ]
 
-Base.:^(x1::Omega.RandVar{T}, x2::Integer) where T = RandVar{T, false}(^, (x1, x2))
+Base.:^(x1::RandVar, x2::MaybeRV) = ciid(^, x1, x2)
 macro lift(fnm::Union{Symbol, Expr}, n::Integer)
   combinations = Iterators.product(((true,false) for i = 1:n)...)
   combinations = Iterators.filter(any, combinations)
