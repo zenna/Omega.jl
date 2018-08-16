@@ -19,3 +19,5 @@ end
 
 "Random interentional distribution `x ∥ change(θ)`"
 rid(x, θ) = ciid(ω -> RID(x, θ, ω))
+
+rid(x, θ) = ciid(ω -> replace(x, rv.θ => rv.θ(rv.ω))(ω))

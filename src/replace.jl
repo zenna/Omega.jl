@@ -11,7 +11,6 @@ end
 @inline (rv::ReplaceRandVar)(ω::Ω) = apl(rv, ω)
 id(x::ReplaceRandVar) = x.id
 
-
 @generated function apl(rv::RandVar, tω::TaggedΩ{I, Tags{K, V}, ΩT}) where {I, K, V, ΩT <: ΩBase}
   # Use generated funtion to get typed dispatch on different tags
   if hastags(tω, :replmap)
@@ -30,17 +29,9 @@ end
 
 maybetag(rv::ReplaceRandVar, ω::Ω) = tag(ω, (replmap = rv.replmap,))
 maybetag(rv::RandVar, ω::Ω) = ω # tag(ω, (replmap = rv.replmap,))
-# apl(rv::Replace RandVar, ω::ΩBase) = apl(rv, tag(ω, (replmap = rv.replmap,)))
 
-## Avoid type ambiguities
-# apl(rv::ReplaceRandVar, ω::Ω) = rv.x(tag(ω, (replmap = rv.replmap,)))
-# apl(rv::ReplaceRandVar, ω::TaggedΩ) = rv.x(tag(ω, (replmap = rv.replmap,)))
 apl(rv::ReplaceRandVar, ω::ΩBase) = rv.x(tag(ω, (replmap = rv.replmap,)))
 ppapl(rv::ReplaceRandVar, ωpi) = rv.x(ωpi)
-
-# apl(rv::ReplaceRandVar, tω::TaggedΩ{I, Tags{K, V}, ΩT}) where {I, K, V, ΩT <: ΩBase} = 
-#   rv.x(tag(tω, (replmap = rv.replmap,)))
-
 
 ## Conversion
 mcv(x::RandVar) = x

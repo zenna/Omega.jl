@@ -1,9 +1,6 @@
-## Issues
-# 1. Don't have allthe Constructors
-# 2. Generic Params
-# 3. Fix printg n
-
+"Primitive random variable of known distribution"
 abstract type PrimRandVar{T} <: RandVar{T} end  
+
 name(t::T) where {T <: PrimRandVar} = t.name.name
 name(::T) where {T <: PrimRandVar} = Symbol(T)
 ppapl(rv::PrimRandVar, ωπ) = rvtransform(rv)(ωπ, reify(ωπ, params(rv))...)
@@ -32,27 +29,11 @@ end
 @inline (rv::Bernoulli)(ω::Ω) = apl(rv, ω)
 params(rv::Bernoulli) = (rv.p,)
 bernoulli(ω, p, T::Type{RTT} = Int) where {RTT <: Real} = T(quantile(Djl.Bernoulli(p), rand(ω)))
+ppapl(rv::Bernoulli{T}, ωπ) where T = bernoulli(ωπ, reify(ωπ, params(rv))..., T)
 
 rvtransform(::Bernoulli) = bernoulli
 bernoulli(p::MaybeRV{T}, RT::Type{RTT} = Int) where {T <: Real, RTT <: Real} = Bernoulli{RT, typeof(p)}(p, uid())
 
-# ## ===============================================================================================
-
-# abstract type Beta <: Dist end
-# "Beta distribution (alias β) parameters `α`  and `β`"
-# betarv(ω::Ω, α::AbstractFloat, β::AbstractFloat) = quantile(Djl.Beta(α, β), rand(ω))
-# betarv(α::MaybeRV{T}, β::MaybeRV{T}) where T <: AbstractFloat = RandVar{T, Beta}(Omega.betarv, (α, β))
-# const β = betarv
-
-# abstract type Bernoulli <: Dist end
-# "Bernoulli with weight `p`"
-# bernoulli(ω::Ω, p::AbstractFloat) = quantile(Djl.Bernoulli(p), rand(ω))
-# bernoulli(p::MaybeRV{T}) where T <: AbstractFloat = RandVar{Float64, Bernoulli}(bernoulli, (p,))
-
-# "Bool - valued Bernoulli distribution (as opposed to Float64 valued)"
-# boolbernoulli(args...) = RandVar{Bool, Bernoulli}(Bool, (bernoulli(args...),))
-
-# abstract type Constant <: Dist end
 "Constant Random Variable"
 constant(x::T) where T = URandVar{T}(ω -> x)
 
@@ -104,6 +85,7 @@ rvtransform(::Poisson) = poisson
 poisson(ω::Ω, λ::Real) = quantile(Djl.Poisson(λ), rand(ω))
 poisson(λ::MaybeRV{T}) where T <: Real = Poisson{Int, typeof(λ)}(λ, uid())
 
+# Uniform
 struct Uniform{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
   a::A
   b::B
@@ -125,7 +107,6 @@ uniform(a::MaybeRV{T}, b::MaybeRV{T}) where T <: Real = Uniform{T}(a, b, uid())
 
 # "Discrete uniform distribution with range `range`"
 # uniform(range::UnitRange{T}) where T = RandVar{T, Uniform}(rand, (range,))
-
 
 "Normal Distribution with mean μ and variance σ"
 struct Normal{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
