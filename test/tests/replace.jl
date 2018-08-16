@@ -9,7 +9,10 @@ function testreplace2()
   @test isapprox(mean(rand(xnew, 1000)), 100, atol = 1.0)
   θnewnew = normal(200.0, 1.0)
   xnewnew = replace(xnew, θnew => θnewnew)
-  @test isapprox(mean(rand(xnewnew, 1000)), 200, atol = 1.0)
+  @test isapprox(mean(rand(xnewnew, 1000)), 200, atol = 1.0
+  y = xnewnew^2
+  ynew = replace(y, xnewnew => 10.0)
+  @test rand(ynew) == 10.0^2
 end
 
 testreplace2()
