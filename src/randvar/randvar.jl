@@ -5,6 +5,8 @@ MaybeRV{T} = Union{T, RandVar{T}} where T
 
 const ID = Int
 
+id(rv::RandVar) = rv.id
+
 """Is `x` a constant random variable, i.e. x(ω) = c ∀ ω ∈ Ω?
 
 Determining constancy is intractable (and likely undecidable) in general.

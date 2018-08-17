@@ -2,9 +2,15 @@
 abstract type PrimRandVar{T} <: RandVar{T} end  
 
 name(t::T) where {T <: PrimRandVar} = t.name.name
+
 name(::T) where {T <: PrimRandVar} = Symbol(T)
+
+@generated function params(rv::PrimRandVar)
+  fields = [Expr(:., :rv, QuoteNode(f)) for f in fieldnames(rv) if f !== :id]
+  Expr(:tuple, fields...)
+end
+
 ppapl(rv::PrimRandVar, ωπ) = rvtransform(rv)(ωπ, reify(ωπ, params(rv))...)
-id(rv::PrimRandVar) = rv.id
 
 # Beta
 struct Beta{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
@@ -12,7 +18,6 @@ struct Beta{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
   β::B
   id::ID
 end
-params(rv::Beta) = (rv.α, rv.β)
 rvtransform(rv::Beta, ω, α, β) = quantile(Djl.Beta(α, β), rand(ω))
 
 ppapl(rv::Beta{T, T, T}, ωπ::ΩProj) where {T <: Float64} = rvtransform(rv, ωπ, rv.α, rv.β)
@@ -27,15 +32,15 @@ struct Bernoulli{T, A <: MaybeRV} <: PrimRandVar{T}
   id::ID
 end
 @inline (rv::Bernoulli)(ω::Ω) = apl(rv, ω)
-params(rv::Bernoulli) = (rv.p,)
+# params(rv::Bernoulli) = (rv.p,)
 bernoulli(ω, p, T::Type{RTT} = Int) where {RTT <: Real} = T(quantile(Djl.Bernoulli(p), rand(ω)))
 ppapl(rv::Bernoulli{T}, ωπ) where T = bernoulli(ωπ, reify(ωπ, params(rv))..., T)
 
 rvtransform(::Bernoulli) = bernoulli
 bernoulli(p::MaybeRV{T}, RT::Type{RTT} = Int) where {T <: Real, RTT <: Real} = Bernoulli{RT, typeof(p)}(p, uid())
 
-"Constant Random Variable"
-constant(x::T) where T = URandVar{T}(ω -> x)
+"Constant random variable which always outputs `c`"
+constant(c::T) where T = URandVar{T}(ω -> c)
 
 # "Gamma distribution (alias Γ)"
 # abstract type Gamma <: Dist end
@@ -79,34 +84,10 @@ struct Poisson{T, A <: MaybeRV} <: PrimRandVar{T}
   id::ID
 end
 @inline (rv::Poisson)(ω::Ω) = apl(rv, ω)
-params(rv::Poisson) = (rv.λ,)
 rvtransform(::Poisson) = poisson
 
 poisson(ω::Ω, λ::Real) = quantile(Djl.Poisson(λ), rand(ω))
 poisson(λ::MaybeRV{T}) where T <: Real = Poisson{Int, typeof(λ)}(λ, uid())
-
-# Uniform
-struct Uniform{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
-  a::A
-  b::B
-  id::ID
-  Uniform{T}(a::A, b::B, id = uid()) where {T, A, B} = new{T, A, B}(a, b, id)
-end
-@inline (rv::Uniform)(ω::Ω) = apl(rv, ω)
-params(rv::Uniform) = (rv.a, rv.b)
-rvtransform(::Uniform) = uniform
-
-"Uniform distribution with lower bound `a` and upper bound `b`"
-uniform(ω::Ω, a::T, b::T) where T = rand(ω) * (b - a) + a
-uniform(a::MaybeRV{T}, b::MaybeRV{T}) where T <: Real = Uniform{T}(a, b, uid())
-
-# "Uniform sample from vector"
-# uniform(ω::Ω, a::T) where T = rand(ω, a)
-# uniform(a::MaybeRV{T}) where {V, T <: Vector{V}} =
-#   RandVar{V, Uniform}(uniform, (a,))
-
-# "Discrete uniform distribution with range `range`"
-# uniform(range::UnitRange{T}) where T = RandVar{T, Uniform}(rand, (range,))
 
 "Normal Distribution with mean μ and variance σ"
 struct Normal{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
@@ -115,11 +96,10 @@ struct Normal{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
   id::ID
 end
 @inline (rv::Normal)(ω::Ω) = apl(rv, ω)
-params(rv::Normal) = (rv.μ, rv.σ)
+# params(rv::Normal) = (rv.μ, rv.σ)
 normal(ω::Ω, μ, σ) = quantile(Djl.Normal(μ, σ), rand(ω))
 rvtransform(::Normal) = normal
 normal(μ::MaybeRV{T}, σ::MaybeRV{T}) where T <: AbstractFloat = Normal{T, typeof(μ), typeof(σ)}(μ, σ, uid())
-
 
 # normal(μ::MaybeRV{T}, σ::MaybeRV{T}, dims::MaybeRV{Dims{N}}) where {N, T <: AbstractFloat} =
 #   RandVar{Array{T, N}, Normal}(normal, (μ, σ, dims))
@@ -148,7 +128,6 @@ struct Logistic{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
   Logistic{T}(μ::A, s::B, id = uid()) where {T, A, B} = new{T, A, B}(μ, s, id)
 end
 @inline (rv::Logistic)(ω::Ω) = apl(rv, ω)
-params(rv::Logistic) = (rv.μ, rv.s)
 rvtransform(::Logistic) = logistic
 
 logistic(ω::Ω, μ, s) = (p = rand(ω); μ + s * log(p / (1 - p)))
@@ -156,8 +135,6 @@ logistic(ω::Ω, μ::Array, s::Array) = (p = rand(ω, size(μ)); μ .+ s .* log.
 logistic(μ::MaybeRV{T}, s::MaybeRV{T}) where T = Logistic{T}(μ, s, uid())
 logistic(μ::MaybeRV{T}, s::MaybeRV{T}, sz::NTuple{N, Int}) where {N, T <: Real} =
   Logistic{Array{T, N}}(fill(μ, sz), fill(s, sz))
-
-@spec size(μ) == size(s)
 
 # logistic(μ::MaybeRV{T}, s::MaybeRV{T}, dims::MaybeRV{Dims{N}}) where {N, T} =
 #   RandVar{Array{T, N}, Logistic}(logistic, (μ, s, dims))
@@ -183,3 +160,36 @@ logistic(μ::MaybeRV{T}, s::MaybeRV{T}, sz::NTuple{N, Int}) where {N, T <: Real}
 #   RandVar{T, Kumaraswamy}(kumaraswamy, (a, b))
 # kumaraswamy(a::MaybeRV{T}, b::MaybeRV{T}, dims::MaybeRV{Dims{N}}) where {N, T} =
 #   RandVar{T, Kumaraswamy}(kumaraswamy, (a, b, dims))
+
+
+# Uniform
+struct Uniform{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
+  a::A
+  b::B
+  id::ID
+  Uniform{T}(a::A, b::B, id = uid()) where {T, A, B} = new{T, A, B}(a, b, id)
+end
+@inline (rv::Uniform)(ω::Ω) = apl(rv, ω)
+rvtransform(::Uniform) = uniform
+
+"Uniform distribution with lower bound `a` and upper bound `b`"
+uniform(ω::Ω, a::T, b::T) where T = rand(ω) * (b - a) + a
+uniform(a::MaybeRV{T}, b::MaybeRV{T}) where T <: Real = Uniform{T}(a, b, uid())
+
+struct UniformChoice{T, A} <: PrimRandVar{T}
+  values::A
+  id::ID
+  UniformChoice(values::A, id = uid()) where A = new{elemtype(values), A}(values, id)
+end
+
+@inline (rv::UniformChoice)(ω::Ω) = apl(rv, ω)
+rvtransform(::UniformChoice) = uniform
+
+"Uniformly distributed over values of `a`"
+uniform(ω::Ω, a) = rand(ω, a)
+
+"Discrete uniform distribution over unit range `range`"
+uniform(range::MaybeRV{UnitRange}) = UniformChoice(range)
+
+"Discrete uniform distribution over array"
+uniform(arr::MaybeRV{Array}) = UniformChoice(arr)

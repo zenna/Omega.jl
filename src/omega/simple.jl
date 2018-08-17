@@ -22,6 +22,7 @@ Base.keys(sω::SimpleΩ) = keys(sω.vals)
 randrtype(::Type{T}) where T = T
 randrtype(::Type{Float64}) = Float64
 randrtype(::UnitRange{T}) where T = T
+randrtype(::Array{T}) where T = T
 
 @inline function resolve(ω::SimpleΩ{I, Any}, id::I, T) where {I}
   get!(()->rand(GLOBAL_RNG, T), ω.vals, id)::randrtype(T)
