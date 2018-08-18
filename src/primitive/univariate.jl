@@ -1,17 +1,3 @@
-"Primitive random variable of known distribution"
-abstract type PrimRandVar{T} <: RandVar{T} end  
-
-name(t::T) where {T <: PrimRandVar} = t.name.name
-
-name(::T) where {T <: PrimRandVar} = Symbol(T)
-
-"Parameters of `rv`"
-@generated function params(rv::PrimRandVar)
-  fields = [Expr(:., :rv, QuoteNode(f)) for f in fieldnames(rv) if f !== :id]
-  Expr(:tuple, fields...)
-end
-
-ppapl(rv::PrimRandVar, ωπ) = rvtransform(rv)(ωπ, reify(ωπ, params(rv))...)
 
 # Beta
 struct Beta{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
@@ -71,21 +57,10 @@ invgamma(ω::Ω, α::Real, θ::Real) = quantile(Djl.InverseGamma(α, θ), rand(�
 invgamma(α::MaybeRV{T}, θ::MaybeRV{T}) where T <: Real = InverseGamma(α, θ)
 const invΓ = invgamma
 
-# "Dirichlet distribution"
-# abstract type Dirichlet <: Dist end
-
-# function dirichlet(ω::Ω, α)
-#   gammas = [gammarv(ω[@id][i], αi, 1.0) for (i, αi) in enumerate(α)]
-#   Σ = sum(gammas)
-#   [gamma/Σ for gamma in gammas]
-# end
-# # FIXME: Type
-# dirichlet(α::MaybeRV{T}) where T = RandVar{T, Dirichlet}(dirichlet, (α,))
-
 "Rademacher distribution"
-struct Rademacher <: PrimRandVar{T}
+struct Rademacher{T} <: PrimRandVar{T}
   id::ID
-  Rademacher{T}(id = uid())(id) 
+  Rademacher{T}(id = uid()) where T = new{T}(id) 
 end
 @inline (rv::Rademacher)(ω::Ω) = apl(rv, ω)
 rademacher(ω::Ω) = bernoulli(ω, 0.5) * 2 - 1

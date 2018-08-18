@@ -72,9 +72,8 @@ include("replace.jl")             # Causal Interventions
 include("gradient.jl")
 
 # Library
-include("library/distributions.jl")  # Primitive distributions
-include("library/statistics.jl")     # Distributional properties: mean, variance, etc
-include("library/djl.jl")            # Distributions.jl interop
+include("primitive/Prim.jl")
+using .Prim
 
 # Neural Network Stuff
 include("flux.jl")
