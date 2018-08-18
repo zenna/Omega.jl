@@ -5,6 +5,7 @@ name(t::T) where {T <: PrimRandVar} = t.name.name
 
 name(::T) where {T <: PrimRandVar} = Symbol(T)
 
+"Parameters of `rv`"
 @generated function params(rv::PrimRandVar)
   fields = [Expr(:., :rv, QuoteNode(f)) for f in fieldnames(rv) if f !== :id]
   Expr(:tuple, fields...)
@@ -17,12 +18,11 @@ struct Beta{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
   α::A
   β::B
   id::ID
+  Beta(α::MaybeRV{T}, β::MaybeRV{T}, id = uid()) where T = new{T, typeof(α), typeof(β)}(α, β, id)
 end
 rvtransform(rv::Beta, ω, α, β) = quantile(Djl.Beta(α, β), rand(ω))
-
-ppapl(rv::Beta{T, T, T}, ωπ::ΩProj) where {T <: Float64} = rvtransform(rv, ωπ, rv.α, rv.β)
-betarv(alpha::T, beta::T) where {T <: Real} = Beta{T, T, T}(alpha, beta, uid())
-betarv(alpha::MaybeRV{T}, beta::MaybeRV{T}) where {T <: Real} = Beta{T, typeof(alpha), typeof(beta)}(alpha, beta, uid())
+betarv(α::T, β::T) where {T <: Real} = Beta{T, T, T}(α, β, uid())
+betarv(α::MaybeRV{T}, β::MaybeRV{T}) where {T <: Real} = Beta(α, β, uid())
 const β = betarv
 @inline (rv::Beta)(ω::Ω) = apl(rv, ω)
 
@@ -32,30 +32,44 @@ struct Bernoulli{T, A <: MaybeRV} <: PrimRandVar{T}
   id::ID
 end
 @inline (rv::Bernoulli)(ω::Ω) = apl(rv, ω)
-# params(rv::Bernoulli) = (rv.p,)
 bernoulli(ω, p, T::Type{RTT} = Int) where {RTT <: Real} = T(quantile(Djl.Bernoulli(p), rand(ω)))
 ppapl(rv::Bernoulli{T}, ωπ) where T = bernoulli(ωπ, reify(ωπ, params(rv))..., T)
-
 rvtransform(::Bernoulli) = bernoulli
 bernoulli(p::MaybeRV{T}, RT::Type{RTT} = Int) where {T <: Real, RTT <: Real} = Bernoulli{RT, typeof(p)}(p, uid())
+
+"Categorical distribution with probability weight vector `p`"
+struct Categorical{T, A} <: PrimRandVar{T}
+  p::A  # Probability Vector
+  Categorical(p::A, T = Int, id = uid()) where A = new{T, A}(p)
+end
+@inline (rv::Categorical)(ω::Ω) = apl(rv, ω)
+categorical(ω::Ω, p::Vector) = quantile(Djl.Categorical(p), rand(ω))
+categorical(p::MaybeRV{Vector{T}}) where T <: Real = Categorical(p)
 
 "Constant random variable which always outputs `c`"
 constant(c::T) where T = URandVar{T}(ω -> c)
 
-# "Gamma distribution (alias Γ)"
-# abstract type Gamma <: Dist end
+struct Gamma{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
+  α::A
+  θ::B
+  id::ID
+  Gamma(α::MaybeRV{T}, θ::MaybeRV{T}) where T = new{T, typeof(α), typeof(θ)}(α, θ)
+end
+@inline (rv::Gamma)(ω::Ω) = apl(rv, ω)
+gammarv(ω::Ω, α::Real, θ::Real) = quantile(Djl.Gamma(α, θ), rand(ω))
+gammarv(α::MaybeRV{T}, θ::MaybeRV{T}) where T <: Real = Gamma(α, θ)
+const Γ = gammarv
 
-# gammarv(ω::Ω, α::AbstractFloat, θ::AbstractFloat) = quantile(Djl.Gamma(α, θ), rand(ω))
-# gammarv(α::MaybeRV{T}, θ::MaybeRV{T}) where T <: Real =
-#   RandVar{T, Gamma}(gammarv, (α, θ))
-# const Γ = gammarv
-
-# "Inverse Gamma distribution"
-# abstract type InverseGamma <: Dist end
-
-# inversegamma(ω::Ω, α, θ, ωi) = quantile(Djl.InverseGamma(α, θ), rand(ω))
-# inversegamma(α::MaybeRV{T}, θ::MaybeRV{T}) where T <: Real =
-#   RandVar{T, InverseGamma}(inversegamma, (α, θ))
+struct InverseGamma{T, A, B} <: PrimRandVar{T}
+  α::A
+  θ::B
+  id::ID
+  InverseGamma(α::MaybeRV{T}, θ::MaybeRV{T}) where T = new{T, typeof(α), typeof(θ)}(α, θ)
+end
+@inline (rv::InverseGamma)(ω::Ω) = apl(rv, ω)
+invgamma(ω::Ω, α::Real, θ::Real) = quantile(Djl.InverseGamma(α, θ), rand(ω))
+invgamma(α::MaybeRV{T}, θ::MaybeRV{T}) where T <: Real = InverseGamma(α, θ)
+const invΓ = invgamma
 
 # "Dirichlet distribution"
 # abstract type Dirichlet <: Dist end
@@ -68,15 +82,14 @@ constant(c::T) where T = URandVar{T}(ω -> c)
 # # FIXME: Type
 # dirichlet(α::MaybeRV{T}) where T = RandVar{T, Dirichlet}(dirichlet, (α,))
 
-# "Rademacher distribution"
-# abstract type Rademacher <: Dist end
-# rademacher(ω::Ω, p) = bernoulli(ω, p) * 2.0 - 1.0
-# rademacher(p::MaybeRV{T}) where T = RandVar{T, Rademacher}(rademacher, (p,))
-
-# "Categorical distribution with probability weight vector `p`"
-# abstract type Categorical <: Dist end
-# categorical(ω::Ω, p::Vector) = quantile(Djl.Categorical(p), rand(ω))
-# categorical(p::MaybeRV{Vector{T}}) where T <: Real = RandVar{Int, Categorical}(categorical, (p,))
+"Rademacher distribution"
+struct Rademacher <: PrimRandVar{T}
+  id::ID
+  Rademacher{T}(id = uid())(id) 
+end
+@inline (rv::Rademacher)(ω::Ω) = apl(rv, ω)
+rademacher(ω::Ω) = bernoulli(ω, 0.5) * 2 - 1
+rademacher(T = Int) = Rademacher{T}()
 
 "Poisson distribution with rate parameter `λ`"
 struct Poisson{T, A <: MaybeRV} <: PrimRandVar{T}
@@ -85,7 +98,6 @@ struct Poisson{T, A <: MaybeRV} <: PrimRandVar{T}
 end
 @inline (rv::Poisson)(ω::Ω) = apl(rv, ω)
 rvtransform(::Poisson) = poisson
-
 poisson(ω::Ω, λ::Real) = quantile(Djl.Poisson(λ), rand(ω))
 poisson(λ::MaybeRV{T}) where T <: Real = Poisson{Int, typeof(λ)}(λ, uid())
 
@@ -129,40 +141,33 @@ struct Logistic{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
 end
 @inline (rv::Logistic)(ω::Ω) = apl(rv, ω)
 rvtransform(::Logistic) = logistic
-
 logistic(ω::Ω, μ, s) = (p = rand(ω); μ + s * log(p / (1 - p)))
 logistic(ω::Ω, μ::Array, s::Array) = (p = rand(ω, size(μ)); μ .+ s .* log.(p ./ (1 .- p)))
 logistic(μ::MaybeRV{T}, s::MaybeRV{T}) where T = Logistic{T}(μ, s, uid())
 logistic(μ::MaybeRV{T}, s::MaybeRV{T}, sz::NTuple{N, Int}) where {N, T <: Real} =
   Logistic{Array{T, N}}(fill(μ, sz), fill(s, sz))
 
-# logistic(μ::MaybeRV{T}, s::MaybeRV{T}, dims::MaybeRV{Dims{N}}) where {N, T} =
-#   RandVar{Array{T, N}, Logistic}(logistic, (μ, s, dims))
+"Exponential Distribution with λ"
+struct Exponential{T, A} <: PrimRandVar{T}
+  λ::A
+end
+@inline (rv::Exponential)(ω::Ω) = apl(rv, ω)
+rvtransform(::Exponential) = exponential
+exponential(ω::Ω, λ) = -log(1 - rand(ω)) / λ
+exponential(λ::MaybeRV{T}) where T = Exponential{T}(λ)
 
-# logistic(ω::Ω, μ, s, sz::Dims) =  (p = rand(ω, sz); μ .+ s .* log.(p ./ (1 .- p)))
-# logistic(ω::Ω, μ::Array, s::Array) = (p = rand(ω, size(μ)); μ .+ s .* log.(p ./ (1 .- p)))
+"Kumaraswamy distribution, similar to beta but easier"
+struct Kumaraswamy{T, A, B} <: PrimRandVar{T}
+  a::A
+  b::B
+end
+@inline (rv::Kumaraswamy)(ω::Ω) = apl(rv, ω)
+rvtransform(::Kumaraswamy) = kumaraswamy
+kumaraswamyinvcdf(p, a, b) = (1 - (1 - p)^(1/b))^(1/a)
+kumaraswamy(ω::Ω, a, b) = kumaraswamyinvcdf(rand(ω), a, b)
+kumaraswamy(a::MaybeRV{T}, b::MaybeRV{T}) where T = Kumaraswamy(a, b)
 
-# "Exponential Distribution with λ"
-# abstract type Exponential <: Dist end
-# exponential(ω::Ω, λ) = -log(1 - rand(ω)) / λ
-# exponential(ω::Ω, λ, sz::Dims) = log.(1 - rand(ω, sz)) ./ λ
-# exponential(λ::MaybeRV{T}) where T = RandVar{T, Exponential}(exponential, (λ,))
-# exponential(λ::MaybeRV{T}, dims::MaybeRV{Dims{N}}) where {N, T} = RandVar{T, Exponential}(exponential, (λ, dims))
-
-# kumaraswamyinvcdf(p, a, b) = (1 - (1 - p)^(1/b))^(1/a)
-
-# "Kumaraswamy distribution, similar to beta but easier"
-# abstract type Kumaraswamy <: Dist end
-
-# kumaraswamy(ω::Ω, a, b) = kumaraswamyinvcdf(rand(ω), a, b)
-# kumaraswamy(ω::Ω, a, b, dims::Dims) = kumaraswamyinvcdf.(rand(ω, dims), a, b)
-# kumaraswamy(a::MaybeRV{T}, b::MaybeRV{T}) where T =
-#   RandVar{T, Kumaraswamy}(kumaraswamy, (a, b))
-# kumaraswamy(a::MaybeRV{T}, b::MaybeRV{T}, dims::MaybeRV{Dims{N}}) where {N, T} =
-#   RandVar{T, Kumaraswamy}(kumaraswamy, (a, b, dims))
-
-
-# Uniform
+"Uniform between `a` and `b`"
 struct Uniform{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
   a::A
   b::B
