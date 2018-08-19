@@ -116,11 +116,26 @@ struct Logistic{T, A <: MaybeRV{T}, B <: MaybeRV{T}} <: PrimRandVar{T}
 end
 @inline (rv::Logistic)(ω::Ω) = apl(rv, ω)
 rvtransform(::Logistic) = logistic
-logistic(ω::Ω, μ, s) = (p = rand(ω); μ + s * log(p / (1 - p)))
-logistic(ω::Ω, μ::Array, s::Array) = (p = rand(ω, size(μ)); μ .+ s .* log.(p ./ (1 .- p)))
+lquantile(p, μ, s) = μ + s * log(p / (1 - p))
+logistic(ω::Ω, μ, s) = lquantile(rand(ω), μ, s)
+logistic(ω::Ω, μ::Array, s::Array) = (p = rand(ω, size(μ)); lquantile.(p, μ, s))
 logistic(μ::MaybeRV{T}, s::MaybeRV{T}) where T = Logistic{T}(μ, s, uid())
 logistic(μ::MaybeRV{T}, s::MaybeRV{T}, sz::NTuple{N, Int}) where {N, T <: Real} =
   Logistic{Array{T, N}}(fill(μ, sz), fill(s, sz))
+
+# What's missing?
+# Integer promotion
+# Array type isn't inherited (static arrays?!)
+# wasted memory with fill
+# Passing in actual arrays of values
+
+function testlogistic()
+  args = [uniform(0.0, 1.0), uniform(0.0, 1.0)]
+  logistic(rand.(args)...)
+  logistic(rand.(args)...)
+end
+
+end
 
 "Exponential Distribution with λ"
 struct Exponential{T, A} <: PrimRandVar{T}
