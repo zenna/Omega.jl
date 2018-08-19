@@ -1,7 +1,7 @@
 "Random Variable: a function `Ω -> T`"
-abstract type RandVar{T} end
+abstract type RandVar end
 
-MaybeRV{T} = Union{T, RandVar{T}} where T
+MaybeRV{T} = Union{T, RandVar} where T
 
 const ID = Int
 

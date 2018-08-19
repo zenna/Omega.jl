@@ -76,4 +76,14 @@ for fnm in fnms, i = 1:MAXN
   lift(fnm, i)
 end
 
-lift(f::Function) = (args...) -> ciid(f, args...)
+# lift(f::Function) = (args...) -> ciid(f, args...)
+
+@generated function maybelift(f::Function, args...)
+  if any([arg <: RandVar for arg in args])
+    :(ciid(f, args...))
+  else
+    :(f(args...))
+  end
+end
+
+lift(f::Function) = (args...) -> maybelift(f, args...)
