@@ -11,8 +11,8 @@ end
 @inline (rv::ReplaceRandVar)(ω::Ω) = apl(rv, ω)
 id(x::ReplaceRandVar) = x.id
 
+# Use generated funtion to get typed dispatch on different tags
 @generated function apl(rv::RandVar, tω::TaggedΩ{I, Tags{K, V}, ΩT}) where {I, K, V, ΩT <: ΩBase}
-  # Use generated funtion to get typed dispatch on different tags
   if hastags(tω, :replmap)
     quote
     if id(rv) ∈ keys(tω.tags.tags.replmap) 
@@ -23,7 +23,10 @@ id(x::ReplaceRandVar) = x.id
     end
     end
   else
-    :(ppapl(rv, proj(tω, rv)))
+    quote
+    tω_ = maybetag(rv, tω)
+    ppapl(rv, proj(tω_, rv))
+    end
   end
 end
 

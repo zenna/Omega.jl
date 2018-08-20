@@ -83,7 +83,7 @@ function Base.rand(y::RandVar,
                    cb = default_cbs(n * takeevery),
                    stepsize = 0.001) where {OT <: Ω}
   ω = ΩT()        # Current Ω state of chain
-  y(ω)            # Initialize omega
+  indomain(y, ω)  # Initialize omega
   qvals = [x.data for x in values(ω)]   # Values as a vector
 
   prop_ω = deepcopy(ω)                          # Ω proposal

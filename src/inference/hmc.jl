@@ -83,7 +83,7 @@ function Base.rand(y::RandVar,
                    stepsize = 0.001,
                    cb = default_cbs(n)) where {OT <: Ω}
   ω = ΩT()
-  y(ω) # Initialize omega
+  indomain(y, ω) # Initialize omega
   ωvec = linearize(ω)
 
   ωsamples = ΩT[]
