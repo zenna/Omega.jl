@@ -51,5 +51,5 @@ end
 ## Printing
 ## ========
 name(x) = x
-Base.show(io::IO, rv::RandVar{T}) where T =
-  print(io, "$(id(rv)):$(name(rv))($(join(map(name, params(rv)), ", ")))::$T")
+Base.show(io::IO, rv::RandVar) =
+  print(io, "$(id(rv)):$(name(rv))($(join(map(name, params(rv)), ", ")))::")

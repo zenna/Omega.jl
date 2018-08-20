@@ -1,12 +1,12 @@
 # Causal Intervention (using TaggedΩ)
 
 "Intervened Random Variable x | do(theta)"
-struct ReplaceRandVar{T, R1 <: RandVar, R2 <: RandVar} <: RandVar{T}
+struct ReplaceRandVar{R1 <: RandVar, R2 <: RandVar} <: RandVar
   x::R1                     # Intervend Random Variable
   replmap::Dict{ID, R2}     # Intervention map
   id::ID
-  ReplaceRandVar(rv::R22, replmap::Dict{ID, T2}, id = uid()) where {T1, R22 <: RandVar{T1}, T2 <: RandVar} = 
-    new{T1, R22, T2}(rv, replmap, id)
+  ReplaceRandVar(rv::R22, replmap::Dict{ID, T2}, id = uid()) where {R22 <: RandVar, T2 <: RandVar} = 
+    new{R22, T2}(rv, replmap, id)
 end
 @inline (rv::ReplaceRandVar)(ω::Ω) = apl(rv, ω)
 id(x::ReplaceRandVar) = x.id

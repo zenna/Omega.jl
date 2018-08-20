@@ -2,8 +2,6 @@
 applymany(ω::Ω, xs) = map(xi->xi(ω), xs)
 
 "RandVar{Vector} from Vector{<:RandVar}"
-function randarray(x::Array{<:RandVar{T}, N}) where {T, N}
-  RandVar{Array{T, N}, true}(applymany, (x,))
-end
+randarray(x::Array{<:RandVar, N}) where N = URandVar(applymany, (x,))
 
-randtuple(x::UTuple{RandVar}) = URandVar{Tuple{elemtype.(x)...}}(applymany, (x,))
+randtuple(x::UTuple{RandVar}) = URandVar(applymany, (x,))

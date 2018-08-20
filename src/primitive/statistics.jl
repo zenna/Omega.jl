@@ -1,26 +1,26 @@
 ## Distributional Functions
 ## ========================
-"Sample approximation (using `n` samples)  to expectation of `x`"
-mean(x::RandVar{<:Real}, n=10000) = sum((rand(x, alg = RejectionSample) for i = 1:n)) / n
-mean(x::RandVar{T}, n=10000) where {T <: RandVar{<:Real}} =
-  RandVar{Float64, false}(mean, (x, n), 0)
+# "Sample approximation (using `n` samples)  to expectation of `x`"
+# mean(x::RandVar{<:Real}, n=10000) = sum((rand(x, alg = RejectionSample) for i = 1:n)) / n
+# mean(x::RandVar{T}, n=10000) where {T <: RandVar{<:Real}} =
+#   RandVar{Float64, false}(mean, (x, n), 0)
 
-"Sample approximation (using `n` samples) to variance of `x`"
-function var(x::RandVar{<:Real}, n=10000)
-  var([rand(x) for i = 1:n])
-end
+# "Sample approximation (using `n` samples) to variance of `x`"
+# function var(x::RandVar{<:Real}, n=10000)
+#   var([rand(x) for i = 1:n])
+# end
 
-"Sample variance (using `n` samples)"
-function var(x::RandVar{T}, n=10000) where {T <: RandVar{<:Real}}
-  RandVar{Float64, false}(var, (x, n))
-end
+# "Sample variance (using `n` samples)"
+# function var(x::RandVar{T}, n=10000) where {T <: RandVar{<:Real}}
+#   RandVar{Float64, false}(var, (x, n))
+# end
 
-mean(xs::RandVar{<:Array}) = RandVar{Float64, false}(mean, (xs,))
+# mean(xs::RandVar{<:Array}) = RandVar{Float64, false}(mean, (xs,))
 
-"Probability that `x` is `true`"
-prob(x::RandVar{T}, n) where {T <: Bool} = mean(x, n)
-prob(x::RandVar{T}, n = 10000) where { T<: RandVar{Bool}} = RandVar{Float64}(prob, (x, n))
-lift(:prob, 1)
+# "Probability that `x` is `true`"
+# prob(x::RandVar{T}, n) where {T <: Bool} = mean(x, n)
+# prob(x::RandVar{T}, n = 10000) where { T<: RandVar{Bool}} = RandVar{Float64}(prob, (x, n))
+# lift(:prob, 1)
 
 ## Specializations
 ## ===============

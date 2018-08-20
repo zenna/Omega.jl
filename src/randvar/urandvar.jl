@@ -1,10 +1,10 @@
 "Random Variable of Unknown distribution `ω -> f(ω[id], args...)`"
-struct URandVar{T, F, TPL <: Tuple} <: RandVar{T}
+struct URandVar{F, TPL <: Tuple} <: RandVar
   f::F
   args::TPL
   id::ID
-  URandVar{T}(f::F, args::TPL = (), id = uid()) where {T, F, TPL} =
-    new{T, F, TPL}(f, args, id)
+  URandVar(f::F, args::TPL = (), id = uid()) where {F, TPL} =
+    new{F, TPL}(f, args, id)
 end
 
 id(rv::URandVar) = rv.id

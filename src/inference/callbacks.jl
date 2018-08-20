@@ -87,7 +87,7 @@ function plotp()
 end
 
 "Scatter plot ω values with UnicodePlots"
-function plotω(x::RandVar{T}, y::RandVar{T}) where T
+function plotω(x::RandVar, y::RandVar)
   xωs = Float64[]
   yωs = Float64[]
 
@@ -106,8 +106,8 @@ function plotω(x::RandVar{T}, y::RandVar{T}) where T
 end
 
 "Plot histogram of loss with UnicodePlots"
-function plotrv(x::RandVar{T}, name = string(x), display_ = display) where T
-  xs = T[]
+function plotrv(x::RandVar, name = string(x), display_ = display)
+  xs = []
   ys = Int[]
 
   innerplotω(data, stage) = nothing # Do nothing in other stages

@@ -10,3 +10,31 @@ function testw()
 end
 
 testw()
+
+
+function testlogistic()
+  x = logistic(0.0, 1.0)
+  rand(x)
+  x = logistic(0.0, 1.0, (1, 2))
+  rand(x)
+  x = logistic(logistic(0.0, 1.0), logistic(0.0, 1.0))
+  rand(x)
+  x = logistic(logistic(0.0, 1.0), 1.0)
+  rand(x)
+  x = logistic(1.0, logistic(0.0, 1.0))
+  rand(x)
+  x = logistic(0.0, 1.0, (1,2,3))
+  rand(x)
+  x = logistic(logistic(0.0, 1.0, (1,2,3)), logistic(0.0, 1.0, (1,2,3)))
+  rand(x)
+  x = logistic(logistic(0.0, 1.0, (1,2,3)), 1.0)
+  rand(x)
+  x = logistic(1.0, logistic(0.0, 1.0, (1,2,3)))
+  rand(x)
+  x = logistic(logistic(0.0, 1.0, (1,2,3)), logistic(0.0, 1.0))
+  rand(x)
+  x = logistic(0, 1)
+  rand(x)
+end
+
+testlogistic()

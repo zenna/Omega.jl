@@ -1,11 +1,12 @@
 module Prim
 
-using ..Omega: Ω, RandVar, MaybeRV, ID, lift, Djl, uid
+using ..Omega: Ω, RandVar, URandVar, MaybeRV, ID, lift, Djl, uid
 import ..Omega: params, name, ppapl, apl, reify
 import Statistics: mean, var, quantile
+using Spec
 
 "Primitive random variable of known distribution"
-abstract type PrimRandVar{T} <: RandVar{T} end  
+abstract type PrimRandVar <: RandVar end  
 
 "Name of a distribution"
 function name end
@@ -21,6 +22,17 @@ name(t::T) where {T <: PrimRandVar} = T.name.name
 end
 
 ppapl(rv::PrimRandVar, ωπ) = rvtransform(rv)(ωπ, reify(ωπ, params(rv))...)
+
+@generated function anysize(args::Union{<:AbstractArray, Real}...)
+  isarr = (arg -> arg <: AbstractArray).([args...])
+  firstarr = findfirst(isarr)
+  if isempty(isarr)
+    :(())
+  else
+    :(size(args[$firstarr]))
+  end
+end
+@spec same(size.(filter(a -> a isa AbstractArray, args)))
 
 include("univariate.jl")      # Univariate Distributions
 include("multivariate.jl")    # Multivariate Distributions
