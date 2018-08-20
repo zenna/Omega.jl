@@ -1,9 +1,12 @@
 module Prim
 
-using ..Omega: Ω, RandVar, URandVar, MaybeRV, ID, lift, Djl, uid
+using ..Omega: Ω, RandVar, URandVar, MaybeRV, ID, lift, uid
 import ..Omega: params, name, ppapl, apl, reify
 import Statistics: mean, var, quantile
 using Spec
+import Distributions
+const Djl = Distributions
+
 
 "Primitive random variable of known distribution"
 abstract type PrimRandVar <: RandVar end  

@@ -3,8 +3,6 @@
 module Omega
 
 using Flux
-import Distributions
-const Djl = Distributions
 using PDMats
 using ProgressMeter
 using Spec
