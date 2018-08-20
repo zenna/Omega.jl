@@ -14,6 +14,10 @@ function condf(tω::TaggedΩ, x, y)
   x(tω)
 end
 
+function cond(tω::TaggedΩ, bool)
+  conjoinerror!(tω.tags.tags.sbw, bool)
+end
+
 tagerror(ω) = tag(ω, (sbw = SoftBoolWrapper(SoftBool(Val{true})),))
 
 "Is `ω` in the domain of `x`?"

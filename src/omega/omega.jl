@@ -10,7 +10,7 @@ const uidcounter = Counter(0)
 
 "Unique id"
 uid() = (global uidcounter; increment(uidcounter))
-# @spec (x = [uid() for i = 1:Inf]; unique(x) == x)
+@spec :nocheck (x = [uid() for i = 1:Inf]; unique(x) == x)
 
 "Construct globally unique id for indices for ω"
 macro id()
@@ -27,13 +27,10 @@ const Ints = NTuple{N, Int} where N
 const RandVarId = Int
 
 ## Rand
-## ====
+
 "Random ω ∈ Ω"
 Base.rand(x::Type{O}) where O <: ΩBase = defΩ()()
 
 Random.rng_native_52(ω::Ω) = Random.rng_native_52(Random.GLOBAL_RNG)
 
 RV = Union{Integer, Random.FloatInterval}
-# lookup(::Type{UInt32}) = UInt32, :_UInt32
-# lookup(::Type{Close1Open2}) = Float64, :_Float64
-# lookup(::Type{CloseOpen}) = Float64, :_Float64
