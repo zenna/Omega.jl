@@ -14,7 +14,7 @@ cond(x::RandVar, y::RandVar) where T = URandVar(ω -> condf(ω, x, y))
 `cond(poisson(0.5), iseven`"
 cond(x::RandVar, f::Function) = cond(x, lift(f)(x))
 
-"Condition
+"""Condition within a function
 
 ```
 function x_(ω)
@@ -32,5 +32,5 @@ end
 x = ciid(x_)
 samples = rand(x, 100; alg = SSMH)
 ```
-"
+"""
 cond(ω::Ω, bool) = nothing
