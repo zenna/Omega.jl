@@ -1,5 +1,5 @@
 
-condf(ω, x, y) = Bool(y(ω)) ? x(ω) : nothing
+condf(ω, x, y) = Bool(y(ω)) ? x(ω) : error("Condition unsatisfied")
 
 """Condition random variable `x` with random predicate RandVar{Bool}
 

@@ -1,5 +1,7 @@
+using Base: sym_in, merge_names, merge_types
+
 applymany(fs, x) = map(xi->xi(x), fs)
-@spec all([res[i] = f[i](x) for f in fs])
+@spec all([_res[i] = f[i](x) for f in fs])
 
 """
 Transpose for nested list / tuples.  Useful for output of rand(::NTuple{RandVar})
@@ -21,11 +23,10 @@ end
 Counter() = Counter(0)
 
 "Increment counter"
-increment(c::Counter) = x::Int = c.count += 1
+increment!(c::Counter) = x::Int = c.count += 1
+@spec c.count == _pre(c.count) += 1
 
 UTuple{T} = Tuple{Vararg{T, N}} where N
-
-using Base: sym_in, merge_names, merge_types
 
 "merge using combine if key is shared.  Assumes result of combine same type as in `b`
 

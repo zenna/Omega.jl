@@ -23,14 +23,14 @@ include("specs.jl")
 # Core
 include("omega/omega.jl")         # Sample Space
 include("omega/proj.jl")          # Sample Space Projection
-include("omega/tagged.jl")       # Space space Tagged with metadata
+include("omega/tagged.jl")        # Space space Tagged with metadata
 
 ## Different Types of Omega
 include("omega/simple.jl")        # Simple Ω
 include("omega/id.jl")            # Pairing functions for omega ids
 
 # RandVar
-include("randvar/randvar.jl")            # Random variables
+include("randvar/randvar.jl" )            # Random variables
 include("randvar/urandvar.jl")            # Random variables
 include("randvar/randvarapply.jl")        # Random variable application to ω::Ω
 
@@ -39,8 +39,8 @@ include("randvar/randvarapply.jl")        # Random variable application to ω::�
 include("iid/ciid.jl")            # Conditionally i.i.d. RandVars
 
 # Higher-Order Inference
-include("higher/rcd.jl")          # Random Conditional Distribution
-include("higher/rid.jl")          # Random Interventional Distribution
+include("higher/Higher.jl")
+using .Higher
 
 # Lifted random variable operatiosn
 include("lift/containers.jl")     # Array/Tuple primitives
@@ -81,6 +81,7 @@ include("flux.jl")
 export mean,
        prob,
        rcd,
+       rid,
        ∥,
        softeq,
        softlt,

@@ -1,34 +1,37 @@
-mutable struct SoftBoolWrapper
-  sb::SoftBool # FIXME: Loose type because error when tracked softbool was changing to softbool
+# Tagged Omega Tracking
+
+mutable struct Wrapper{T}
+  elem::T
 end
 
-conjoinerror!(sbw::SoftBoolWrapper, y::Nothing) = nothing
-conjoinerror!(sbw::SoftBoolWrapper, yω::SoftBool) = sbw.sb &= yω
-conjoinerror!(sbw::SoftBoolWrapper, yω::Bool) = conjoinerror!(sbw, SoftBool(log(yω)))
+SoftBoolWrapper = Wrapper{SoftBool}
 
-## Tagged Omega Tracking
-## =====================
+conjoinerror!(sbw::SoftBoolWrapper, y::Nothing) = nothing
+conjoinerror!(sbw::SoftBoolWrapper, yω::SoftBool) = sbw.elem &= yω
+conjoinerror!(sbw::SoftBoolWrapper, yω::Bool) = conjoinerror!(sbw, SoftBool(log(yω)))
+conjoinerror!(wrap::Wrapper{Bool}, yω::Bool) = wrap.elem &= yω
+
 function condf(tω::TaggedΩ, x, y)
   res = y(tω)
-  conjoinerror!(tω.tags.tags.sbw, res)
+  conjoinerror!(tω.tags.tags.err, res)
   x(tω)
 end
 
 function cond(tω::TaggedΩ, bool)
-  conjoinerror!(tω.tags.tags.sbw, bool)
+  conjoinerror!(tω.tags.tags.err, bool)
 end
 
-tagerror(ω) = tag(ω, (sbw = SoftBoolWrapper(SoftBool(Val{true})),))
+tagerror(ω, wrap) = tag(ω, (err = wrap,))
 
 "Is `ω` in the domain of `x`?"
-function trackerrorapply(x, ω)  
-  ω_ = tagerror(ω)
+function trackerrorapply(x, ω, wrap = SoftBoolWrapper(trueₛ))
+  ω_ = tagerror(ω, wrap)
   fx = x(ω_)
-  (fx, ω_.tags.tags.sbw.sb)
+  (fx, ω_.tags.tags.err.elem)
 end
 
 "Is `ω` in the domain of `x`?"
-indomain(x, ω) = trackerrorapply(x, ω)[2]
+indomain(x, ω, wrap = SoftBoolWrapper(trueₛ)) = trackerrorapply(x, ω, wrap)[2]
 
 "Is `ω` in the domain of `x`?"
-applywoerror(x, ω) = x(tagerror(ω))
+applywoerror(x, ω, wrap = SoftBoolWrapper(trueₛ)) = x(tagerror(ω, wrap))

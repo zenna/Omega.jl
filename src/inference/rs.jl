@@ -17,8 +17,8 @@ function Base.rand(x::RandVar,
   i = 1
   while accepted < n
     ω = ΩT()
-    xω = x(ω)
-    if xω != nothing
+    xω, sat = trackerrorapply(x, ω, Wrapper(true))
+    if sat
       push!(samples, xω)
       accepted += 1
       cb((ω = ω, accepted = accepted, p = 0.0, i = i), Outside)

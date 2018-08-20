@@ -15,6 +15,8 @@ logepsilon(x::SoftBool) = x.logepsilon
 Bool(x::SoftBool) = epsilon(x) == 1.0
 SoftBool(::Type{Val{true}}) = SoftBool(0.0)
 SoftBool(::Type{Val{false}}) = SoftBool(-Inf)
+const trueₛ = SoftBool(Val{true})
+const falseₛ = SoftBool(Val{false})
 
 ## (In)Equalities
 
