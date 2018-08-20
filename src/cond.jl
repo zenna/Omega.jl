@@ -1,7 +1,8 @@
 
 condf(ω, x, y) = Bool(y(ω)) ? x(ω) : error("Condition unsatisfied")
 
-"""Condition random variable `x` with random predicate RandVar{Bool}
+"""Condition random variable `x` with random predicate RandVar which returns
+Bool or SoftBool.
 
 ```julia
 x = normal(0.0, 1.0)
