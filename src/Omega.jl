@@ -14,31 +14,23 @@ import Random: GLOBAL_RNG, AbstractRNG
 import Statistics: mean, var, quantile
 
 # Util
-include("util/misc.jl")
-using .Misc
-include("specs.jl")
-include("tags.jl")                # Tags
+include("util/Util.jl")
+using .Util
+export ntranspose
 
 # Core
-include("omega/idgen.jl")         # UIDs
-using .IdGen
-include("omega/space.jl")         # Sample Space
+include("space/Space.jl")         # UIDs
 using .Space
-include("omega/index.jl")         # Pairing functions for omega ids
-using .Index
-include("omega/proj.jl")          # Sample Space Projection
-using .Proj
-include("omega/tagged.jl")        # Space space Tagged with metadata
-include("omega/simple.jl")        # Simple Ω
+export Ω, uid, @id
 
 # RandVar
 include("randvar/randvar.jl" )            # Random variables
 include("randvar/urandvar.jl")            # Random variables
 include("randvar/randvarapply.jl")        # Random variable application to ω::Ω
+include("randvar/ciid.jl")                # Conditionally i.i.d. RandVars
 
-# i.i.d.
-# include("iid/iid.jl")           # i.i.d. RandVars
-include("iid/ciid.jl")            # Conditionally i.i.d. RandVars
+# Conditioning
+include("cond.jl")                # Conditioning
 
 # Higher-Order Inference
 include("higher/Higher.jl")
@@ -48,28 +40,78 @@ using .Higher
 include("lift/containers.jl")     # Array/Tuple primitives
 include("lift/lift.jl")           # Lifting functions to RandVar domain
 
-# Conditioning
-include("cond.jl")                # Conditional random variables
-
 # Soft Inference
 include("soft/kernels.jl")        # Kernels
 include("soft/soft.jl")           # Soft logic
 include("soft/trackerror.jl")     # Tracking error
+export  softeq,
+        softlt,
+        softgt,
+        ≊,
+        ⪆,
+        ⪅,
+        >ₛ,
+        >=ₛ,
+        <=ₛ,
+        <ₛ,
+        ==ₛ,
+
+        # Kernels
+        kse,
+        kseα,
+        kf1,
+        kf1β
 
 # Gradient
 include("gradient.jl")
 
 # Inference Algorithms
-include("inference/Inference.jl")    # Algorithm abstract type, Common Inference Functions
+include("inference/Inference.jl")
 using .Inference
+export  RejectionSample,
+        MI,
+        SSMH,
+        HMC,
+        SGHMC,
+        HMCFAST,
+
+        RejectionSampleAlg,
+        MIAlg,
+        SSMHAlg,
+        HMCAlg,
+        SGHMCAlg,
+        HMCFASTAlg,
+
+        defalg,
+        defcb,
+        defΩ,
+        defΩProj
 
 # Causal Inference
-include("causal/Causal.jl")          # Causal Interventions
+include("causal/Causal.jl")
 using .Causal
+export replace
 
 # Library
 include("primitive/Prim.jl")
 using .Prim
+export bernoulli,
+       betarv,
+       β,
+       categorical,
+       dirichlet,
+       exponential,
+       gammarv,
+       Γ,
+       inversegamma,
+       kumaraswamy,
+       logistic,
+       poisson,
+       normal,
+       mvnormal,
+       uniform,
+       rademacher,
+       constant
 
 # Neural Network Stuff
 include("flux.jl")
@@ -102,48 +144,7 @@ export mean,
        kf1,
        kf1β,
 
-       # Distributions
-       bernoulli,
-       boolbernoulli,
-       betarv,
-       β,
-       categorical,
-       dirichlet,
-       exponential,
-       gammarv,
-       Γ,
-       inversegamma,
-       kumaraswamy,
-       logistic,
-       poisson,
-       normal,
-       mvnormal,
-       uniform,
-       rademacher,
-       constant,
 
-       # Causal
-       replace,
-
-       # Algorithms
-       RejectionSample,
-       MI,
-       SSMH,
-       HMC,
-       SGHMC,
-       HMCFAST,
-
-       RejectionSampleAlg,
-       MIAlg,
-       SSMHAlg,
-       HMCAlg,
-       SGHMCAlg,
-       HMCFASTAlg,
-
-       defalg,
-       defcb,
-       defΩ,
-       defΩProj,
 
        SoftBool,
 
@@ -163,7 +164,7 @@ export mean,
        # Gradient
        gradient,
 
-       # Misc
+       # Util
        ntranspose,
 
        Outside,

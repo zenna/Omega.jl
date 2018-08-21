@@ -50,7 +50,7 @@ Base.replace(x::RandVar, replmap::Dict{Int, <: RandVar}) = ReplaceRandVar(x, rep
 "Causal Intervention: Set `θold` to `θnew` in `x`"
 Base.replace(x::RandVar, tochange::Union{Dict, Pair}...) = replace(x, upconv(tochange...))
 
-# Show
+## Show
 
 Base.show(io::IO, rv::ReplaceRandVar) = 
   (print(io, rv.x); print(io, " | intervened "))

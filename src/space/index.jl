@@ -1,8 +1,3 @@
-module Index
-
-export append, base, combine, increment!, increment,
-       Paired, pair
-
 ## Vector Indices
 ## ==============
 
@@ -27,5 +22,3 @@ const Paired = Int
 
 @inline combine(a::Paired, b::Paired) = pair(a, b)
 @inline base(::Type{Paired}, i::Int) = i
-
-end

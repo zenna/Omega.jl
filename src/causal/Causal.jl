@@ -1,8 +1,8 @@
 module Causal
 
 using Spec
-using ..Omega: RandVar, ID, Ω, ΩBase, Tags, TaggedΩ, hastags, proj, uid, tag,
-               constant
+using ..Space
+using ..Omega: RandVar, constant, proj
 import ..Omega: apl, ppapl, id
 
 include("replace.jl")

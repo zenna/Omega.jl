@@ -1,9 +1,8 @@
 module Space
 
 using Omega.Space
-
 using Random
-
+using Test
 export test_resolve_repeatable, test_resolve_uniform
 
 const TEST_SEED = 12345
@@ -15,19 +14,15 @@ function randvec(ω::Ω{I}, startIdx, nextIdx, n, T::Type) where {I}
     push!(vec, resolve(ω, id, T))
     id = nextIdx(id)
   end
-
   vec
 end
 
 function test_resolve_repeatable(ω::Ω{I}, startIdx, nextIdx) where {I}
   Random.seed!(TEST_SEED)
-
-  const N = 10000
-
+  N = 10000
   vec1 = randvec(ω, startIdx, nextIdx, N, Int)
   vec2 = randvec(ω, startIdx, nextIdx, N, Int)
-
-  vec1 == vec2
+  @test vec1 == vec2
 end
 
 function close_to(num, targ, sigma)
@@ -37,15 +32,11 @@ end
 # Extra precondition: ω must be able to take Bool values
 function test_resolve_uniform(ω::Ω{I}, startIdx, nextIdx) where {I}
   Random.seed!(TEST_SEED)
-
-  const N = 10000
-
+  N = 10000
   vec = randvec(ω, startIdx, nextIdx, N, Bool)
   numTrue = length(filter(x -> x, vec))
-
   bernVariance = sqrt(0.5*(1-0.5))
-
-  close_to(numTrue / N, 0.5, bernVariance / sqrt(N))
+  @test close_to(numTrue / N, 0.5, bernVariance / sqrt(N))
 end
 
 end

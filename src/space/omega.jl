@@ -1,21 +1,18 @@
 "Probability Space indexed with values of type I"
-abstract type Ω{I} <: AbstractRNG end
+abstract type Ω{I} <: Random.AbstractRNG end
 
 "This is base Omega - Sample Space Object"
 abstract type ΩBase{I} <: Ω{I} end
 
 idtype(::Type{OT}) where {I, OT <: Ω{I}} = I
 
-const uidcounter = Counter(0)
+function resolve end
 
-"Unique id"
-uid() = (global uidcounter; increment!(uidcounter))
-@spec :nocheck (x = [uid() for i = 1:Inf]; unique(x) == x)
+"Linearize ω into flat vector"
+function linearize end
 
-"Construct globally unique id for indices for ω"
-macro id()
-  Omega.uid()
-end
+"Inverse of `linearize`, structure vector into ω"
+function unlinearize end
 
 ## Rand
 
