@@ -18,6 +18,9 @@ func(x::URandVar) = x.f
 "Name of a random variable"
 name(rv::URandVar) = string(rv.f)
 
+"Constant random variable which always outputs `c`"
+constant(c) = URandVar(ω -> c)
+
 @inline ppapl(rv::URandVar, ωπ) =  rv.f(ωπ, rv.args...)
 
 @inline (rv::URandVar)(ω::Ω) = apl(rv, ω)

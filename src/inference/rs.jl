@@ -5,7 +5,7 @@ struct RejectionSampleAlg <: Algorithm end
 const RejectionSample = RejectionSampleAlg()
 
 isapproximate(::RejectionSampleAlg) = false
-
+using ZenUtils
 "`n` samples from `x` with rejection sampling"
 function Base.rand(x::RandVar,
                    n::Integer,

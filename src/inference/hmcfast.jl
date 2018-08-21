@@ -4,8 +4,8 @@ struct HMCFASTAlg <: Algorithm end
 "Flux based Hamiltonian Monte Carlo Sampling"
 const HMCFAST = HMCFASTAlg()
 isapproximate(::HMCFASTAlg) = true
-defΩ(::Type{HMCFASTAlg}) = Omega.SimpleΩ{Vector{Int}, Flux.TrackedArray}
-defΩ(::HMCFASTAlg) = Omega.SimpleΩ{Vector{Int}, Flux.TrackedArray}
+defΩ(::Type{HMCFASTAlg}) = SimpleΩ{Vector{Int}, Flux.TrackedArray}
+defΩ(::HMCFASTAlg) = SimpleΩ{Vector{Int}, Flux.TrackedArray}
 defcb(::HMCFASTAlg) = default_cbs()
 # defcb = default_cbs(n)
 

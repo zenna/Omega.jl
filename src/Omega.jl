@@ -4,7 +4,6 @@ module Omega
 
 using Flux
 using PDMats
-using ProgressMeter
 using Spec
 using ZenUtils
 using UnicodePlots
@@ -52,22 +51,16 @@ include("soft/kernels.jl")        # Kernels
 include("soft/soft.jl")           # Soft logic
 include("soft/trackerror.jl")     # Tracking error
 
-# Inference Algorithms
-include("inference/common.jl")    # Algorithm abstract type, Common Inference Functions
-include("inference/callbacks.jl") # Common Inference Functions
-include("inference/rand.jl")      # Sampling
-include("inference/rs.jl")        # Rejection Sampling
-include("inference/mi.jl")        # Metropolized Independent Sampling
-include("inference/ssmh.jl")      # Single Site Metropolis Hastings
-include("inference/hmc.jl")       # Hamiltonian Monte Carlo
-include("inference/hmcfast.jl")   # Faster Hamiltonian Monte Carlo
-include("inference/sghmc.jl")     # Stochastic Gradient Hamiltonian Monte Carlo
-
-# Causal Inference
-include("replace.jl")             # Causal Interventions
-
 # Gradient
 include("gradient.jl")
+
+# Inference Algorithms
+include("inference/Inference.jl")    # Algorithm abstract type, Common Inference Functions
+using .Inference
+
+# Causal Inference
+include("causal/Causal.jl")             # Causal Interventions
+using .Causal
 
 # Library
 include("primitive/Prim.jl")
@@ -141,6 +134,11 @@ export mean,
        HMCAlg,
        SGHMCAlg,
        HMCFASTAlg,
+
+       defalg,
+       defcb,
+       defΩ,
+       defΩProj,
 
        SoftBool,
 

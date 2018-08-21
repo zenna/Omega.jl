@@ -1,4 +1,4 @@
-## Callback tree
+# Callback tree
 
 "Callback Node"
 struct CbNode{F, TPL <: Tuple}
@@ -135,11 +135,11 @@ end
 function tracecb(::Type{T}, t = identity) where T
   ωs = T[]
   allωs = Vector{T}[]
-  function f(qp, ::Type{Omega.Inside})
+  function f(qp, ::Type{Inside})
     push!(ωs, t(qp))
   end
 
-  function f(data, ::Type{Omega.Outside})
+  function f(data, ::Type{Outside})
     push!(allωs, copy(ωs))
     empty!(ωs)
   end
@@ -164,11 +164,11 @@ function stopnanorinf(data, stage::Type{Outside})
   if isnan(data.p)
     println("p is $(data.p)")
     throw(NaNError())
-    return Omega.Stop
+    return Stop
   elseif data.p == Inf
     println("p is $(data.p)")
     throw(InfError())
-    return Omega.Stop
+    return Stop
   end
 end
 

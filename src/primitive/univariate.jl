@@ -47,9 +47,6 @@ categorical(ω::Ω, p) = categorical(rand(ω, size(p)), p)
 categorical(p) = Categorical(p)
 categorical(p, sz::Dims) = Categorical(lift(fill)(p, sz))
 
-"Constant random variable which always outputs `c`"
-constant(c) = URandVar(ω -> c)
-
 "Gamma distribution with parameters α, θ"
 struct Gamma{A, B} <: PrimRandVar
   α::A

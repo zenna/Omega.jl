@@ -1,5 +1,5 @@
 using Test
-import Omega: CbNode
+import Omega.Inference: CbNode
 
 function testcb()
   x = normal(0.0, 1.0)
