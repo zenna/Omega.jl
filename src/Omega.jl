@@ -15,16 +15,21 @@ import Statistics: mean, var, quantile
 
 # Util
 include("util/misc.jl")
+using .Misc
 include("specs.jl")
+include("tags.jl")                # Tags
 
 # Core
-include("omega/omega.jl")         # Sample Space
+include("omega/idgen.jl")         # UIDs
+using .IdGen
+include("omega/space.jl")         # Sample Space
+using .Space
+include("omega/index.jl")         # Pairing functions for omega ids
+using .Index
 include("omega/proj.jl")          # Sample Space Projection
+using .Proj
 include("omega/tagged.jl")        # Space space Tagged with metadata
-
-## Different Types of Omega
 include("omega/simple.jl")        # Simple Ω
-include("omega/id.jl")            # Pairing functions for omega ids
 
 # RandVar
 include("randvar/randvar.jl" )            # Random variables

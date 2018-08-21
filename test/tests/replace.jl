@@ -1,3 +1,5 @@
+module TestNamespace
+
 using Omega
 using Test
 
@@ -30,3 +32,5 @@ function replaceconst()
 end
 
 replaceconst()
+
+end

@@ -1,4 +1,6 @@
+module Misc
 using Base: sym_in, merge_names, merge_types
+export applymany, ntranspose, Counter, increment, UTuple
 
 applymany(fs, x) = map(xi->xi(x), fs)
 @spec all([_res[i] = f[i](x) for f in fs])
@@ -51,4 +53,6 @@ function Base.merge(combine::Function, a::NamedTuple{an}, b::NamedTuple{bn}) whe
     end
   end
   NamedTuple{names, types}(map(resolve, names))::NamedTuple{names, types} # Inference fails without this
+end
+
 end

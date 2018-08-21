@@ -1,3 +1,5 @@
+module TestNamespace
+
 using Omega
 
 function testw()
@@ -10,7 +12,6 @@ function testw()
 end
 
 testw()
-
 
 function testlogistic()
   x = logistic(0.0, 1.0)
@@ -38,3 +39,4 @@ function testlogistic()
 end
 
 testlogistic()
+end

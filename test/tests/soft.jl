@@ -1,3 +1,5 @@
+module TestNamespace
+
 using Omega
 using UnicodePlots
 
@@ -16,3 +18,5 @@ function softtest()
 end
 
 softtest()
+
+end

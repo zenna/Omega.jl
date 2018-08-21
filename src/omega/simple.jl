@@ -59,13 +59,6 @@ Base.length(sω::SimpleΩ) = length(sω.vals)
 
 ## Linearlization
 ## ==============
-
-"Linearize ω into flat vector"
-function linearize end
-
-"Inverse of `linearize`, structure vector into ω"
-function unlinearize end
-
 linearize(sω::SimpleΩ{I, V}) where {I, V <: Real} = collect(values(sω.vals))
 
 function linearize(sω::SimpleΩ{I, V}) where {I, V <: AbstractArray}

@@ -1,5 +1,7 @@
+module TestNamespace
+
 using Test
-import Omega.Inference: CbNode
+using Omega.Inference: CbNode
 
 function testcb()
   x = normal(0.0, 1.0)
@@ -12,3 +14,5 @@ function testcb()
 end
 
 testcb()
+
+end

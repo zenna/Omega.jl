@@ -4,6 +4,8 @@ using Test
 using Pkg
 using Random: seed!
 
+include("lib/testlib.jl")
+
 """
 Walk through `test_dir` directory and execute all tests, excluding `exclude`
 

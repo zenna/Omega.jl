@@ -7,6 +7,23 @@ using Spec
 import Distributions
 const Djl = Distributions
 
+export bernoulli,
+       betarv,
+       β,
+       categorical,
+       dirichlet,
+       exponential,
+       gammarv,
+       Γ,
+       inversegamma,
+       kumaraswamy,
+       logistic,
+       poisson,
+       normal,
+       mvnormal,
+       uniform,
+       rademacher,
+       constant
 
 "Primitive random variable of known distribution"
 abstract type PrimRandVar <: RandVar end  
@@ -15,8 +32,6 @@ abstract type PrimRandVar <: RandVar end
 function name end
 
 name(t::T) where {T <: PrimRandVar} = T.name.name
-
-# name(::T) where {T <: PrimRandVar} = Symbol(T)
 
 "Parameters of `rv`"
 @generated function params(rv::PrimRandVar)
@@ -41,23 +56,5 @@ include("univariate.jl")      # Univariate Distributions
 include("multivariate.jl")    # Multivariate Distributions
 include("statistics.jl")      # Distributional properties: mean, variance, etc
 include("djl.jl")             # Distributions.jl interop
-
-export bernoulli,
-       betarv,
-       β,
-       categorical,
-       dirichlet,
-       exponential,
-       gammarv,
-       Γ,
-       inversegamma,
-       kumaraswamy,
-       logistic,
-       poisson,
-       normal,
-       mvnormal,
-       uniform,
-       rademacher,
-       constant
 
 end
