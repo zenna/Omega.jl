@@ -26,30 +26,36 @@ include("mi.jl")        # Metropolized Independent Sampling
 include("ssmh.jl")      # Single Site Metropolis Hastings
 include("hmc.jl")       # Hamiltonian Monte Carlo
 include("hmcfast.jl")   # Faster Hamiltonian Monte Carlo
-include("sghmc.jl")     # Stochastic Gradient Hamiltonian Monte Carlo
+# include("sghmc.jl")     # Stochastic Gradient Hamiltonian Monte Carlo
 
-export RejectionSample,
-       MI,
-       SSMH,
-       HMC,
-       SGHMC,
-       HMCFAST,
-       RejectionSampleAlg,
-       MIAlg,
-       SSMHAlg,
-       HMCAlg,
-       SGHMCAlg,
-       HMCFASTAlg,
+export  isapproximate,
 
-       idcb,
-       everyn,
-       →,
+        RejectionSample,
+        MI,
+        SSMH,
+        HMC,
+        # SGHMC,
+        HMCFAST,
 
-       defalg,
-       defcb,
-       defΩ,
-       defΩProj,
+        RejectionSampleAlg,
+        MIAlg,
+        SSMHAlg,
+        HMCAlg,
+        # SGHMCAlg,
+        HMCFASTAlg,
 
-       isapproximate
+        defalg,
+        defcb,
+        defΩ,
+        defΩProj,
+
+        everyn,
+        →,
+        idcb,
+        throttle,
+        plotrv,
+        default_cbs,
+        Inside,
+        Outside
 
 end

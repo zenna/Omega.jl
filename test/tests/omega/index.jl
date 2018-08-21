@@ -1,8 +1,7 @@
 module TestNamespace
 
-using Base.Test
-
-using Omega.Index
+using Test
+using Omega.Space
 
 @testset "Increment" begin
   x = [1,2,3]
@@ -40,7 +39,7 @@ end
 
   for elt in test_elts
     for x in test_indivs
-      @test append(elt, x) == combine(elt, Index.base(Vector{Int}, x))
+      @test append(elt, x) == combine(elt, Space.base(Vector{Int}, x))
     end
   end
 

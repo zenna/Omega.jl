@@ -1,6 +1,7 @@
 module TestNamespace
 
 using Test
+using Omega
 using Omega.Inference: CbNode
 
 function testcb()

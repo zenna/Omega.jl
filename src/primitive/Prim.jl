@@ -7,23 +7,22 @@ using Spec
 import Distributions
 const Djl = Distributions
 
-export bernoulli,
-       betarv,
-       β,
-       categorical,
-       dirichlet,
-       exponential,
-       gammarv,
-       Γ,
-       inversegamma,
-       kumaraswamy,
-       logistic,
-       poisson,
-       normal,
-       mvnormal,
-       uniform,
-       rademacher,
-       constant
+export  bernoulli,
+        betarv,
+        β,
+        categorical,
+        # dirichlet,
+        exponential,
+        gammarv,
+        Γ,
+        invgamma,
+        kumaraswamy,
+        logistic,
+        # mvnormal,
+        normal,
+        poisson,
+        rademacher,
+        uniform
 
 "Primitive random variable of known distribution"
 abstract type PrimRandVar <: RandVar end  

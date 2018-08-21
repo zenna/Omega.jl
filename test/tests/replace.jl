@@ -2,6 +2,7 @@ module TestNamespace
 
 using Omega
 using Test
+using Statistics: mean
 
 function testreplace2()
   θ = normal(0.0, 1.0)

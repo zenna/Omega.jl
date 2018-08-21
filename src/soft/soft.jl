@@ -60,10 +60,9 @@ function Base.:&(x::SoftBool, y::SoftBool)
 end
 # Base.:&(x::SoftBool, y::SoftBool) = SoftBool(logepsilon(x) +  logepsilon(y))
 Base.:|(x::SoftBool, y::SoftBool) = SoftBool(max(logepsilon(x), logepsilon(y)))
-Base.:|(x::RandVar, y::RandVar) = RandVar{SoftBool, false}(|, (x, y))
 
 Base.all(xs::Vector{<:SoftBool}) = SoftBool(minimum(logepsilon.(xs)))
-Base.all(xs::Vector{<:RandVar}) = RandVar{SoftBool}(all, ())
+Base.all(xs::Vector{<:RandVar}) = RandVar(all, (xs, ))
 
 const >ₛ = softgt
 const >=ₛ = softgt

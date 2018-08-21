@@ -1,8 +1,7 @@
-module TestModule
+module IdGenTests
 
-using Base.Test
-
-using Omega.IdGen
+using Test
+using Omega.Space
 
 @testset "id" begin
   vec1 = []

@@ -2,6 +2,7 @@ module TestNamespace
 
 using Omega
 using UnicodePlots
+using Statistics: mean
 
 function test_ssmc_1()
   μ = uniform(0.0, 1.0)
