@@ -3,7 +3,6 @@
 module Omega
 
 using Flux
-using PDMats
 using Spec
 using ZenUtils
 using UnicodePlots
@@ -110,7 +109,9 @@ export  isapproximate,
         plotrv,
         default_cbs,
         Inside,
-        Outside
+        Outside,
+        default_cbs_tpl,
+        default_cbs
 
 # Causal Inference
 include("causal/Causal.jl")
