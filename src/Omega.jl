@@ -59,7 +59,7 @@ include("inference/Inference.jl")    # Algorithm abstract type, Common Inference
 using .Inference
 
 # Causal Inference
-include("causal/Causal.jl")             # Causal Interventions
+include("causal/Causal.jl")          # Causal Interventions
 using .Causal
 
 # Library
@@ -171,6 +171,8 @@ export mean,
        →,
        idcb,
 
-       cond
+       cond,
+
+       isapproximate
 
 end

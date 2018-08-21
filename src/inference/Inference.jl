@@ -4,12 +4,19 @@ module Inference
 using Spec
 using ..Omega: RandVar, trackerrorapply, indomain, Wrapper, logepsilon,
                UTuple, logepsilon, Ω, applywoerror, SimpleΩ, cond, randtuple,
-               fluxgradient
+               fluxgradient, gradient, linearize, unlinearize, epsilon
 using ProgressMeter
 using Flux
+import UnicodePlots
 
 "Inference Algorithm"
 abstract type Algorithm end
+
+"Is the inference algorithm approximate?"
+function isapproximate end
+
+"Default probability space type to use"
+function defΩ end
 
 include("transforms.jl")# Transformations from [0, 1] to R, etc
 include("callbacks.jl") # Common Inference Functions
@@ -36,11 +43,13 @@ export RejectionSample,
 
        idcb,
        everyn,
-       →
+       →,
 
        defalg,
        defcb,
        defΩ,
-       defΩProj
+       defΩProj,
+
+       isapproximate
 
 end

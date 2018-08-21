@@ -17,15 +17,10 @@ trigger(data::NamedTuple, child, stage) = child(data, stage)
 
 function (cbt::CbNode)(data, stage)
   data2 = datamerge(cbt.parent(data, stage), data)
-  # @show typeof(data2)
-  # @show typeof(cbt)
   for child in cbt.children
     trigger(data2, child, stage)
   end
 end
-
-# Either make rule be that we always pass whatever is on
-# Or we could make it say only if we pass some value it is tricted
 
 @inline idcb(x, stage) = x
 
@@ -50,7 +45,6 @@ abstract type Inside <: Stage end
 "Stage at end of MHStep"
 abstract type Outside <: Stage end
 
-
 "Signal returned by callback"
 abstract type Signal end
 abstract type Stop <: Signal end
@@ -73,7 +67,7 @@ function plotp()
     push!(alldata, data.p)
     push!(ys, data.i)
     if !isempty(alldata)
-      println(lineplot(ys, alldata, title="Time vs p"))
+      println(UnicodePlots.lineplot(ys, alldata, title="Time vs p"))
     end
     if data.p > maxseen
       maxseen = data.p
@@ -118,7 +112,7 @@ function plotrv(x::RandVar, name = string(x), display_ = display)
     push!(xs, x_)
     push!(ys, data.i)
     if !isempty(xs)
-      println(lineplot(ys, xs, title="Time vs $name"))
+      println(UnicodePlots.lineplot(ys, xs, title="Time vs $name"))
     end
   end
 end

@@ -1,6 +1,13 @@
+"Default inference algorithm"
 defalg(args...) = RejectionSample
+
+"Default Ω to use"
 defΩ(args...) = SimpleΩ{Vector{Int}, Any}
+
+"Default projection"
 defΩProj(args...; OT = defΩ(args...)) = ΩProj{OT, idtype(OT)}
+
+"Default callbacks"
 defcb(args...) = donothing
 
 "Sample `n` from `x`"
