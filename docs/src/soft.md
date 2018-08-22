@@ -4,30 +4,23 @@
 For inference problems which are continuous or high dimensional, use soft predicates to use more efficient inference routines.
 
 ```@docs
-==
+==ₛ
 >ₛ
 >=
 <=ₛ
 <ₛ
 ```
 
-If the values `x` and `y` are not standard numeric types you will need to define a notation of distance.  Override `Omega.d`
+If the values `x` and `y` are not standard numeric types you will need to define a notion of distance.  Override `Omega.d` for the relevant types
 
 ```@docs
-d
-```
-
-For example:
-```julia
-struct
-  
-end
+Omega.d
 ```
 
 ## Relaxation
 In Omega you condition on predicates.
 A predicate is any function whose domain is `Boolean`.
-These are sometimes called indicator functions, or characteristic functions.
+These are sometimes called indicator functions or characteristic functions.
 In particular, in Omega we condition on `Bool` valued random variables:
 
 ```julia
@@ -43,7 +36,7 @@ There are two ways to make soft constraints.  The first way is explicitly:
 
 ```julia
 julia> x = normal(0.0, 1.0)
-julia> y = x ≊ 1.0
+julia> y = x ==ₛ 1.0
 julia> rand(y)
 ϵ:-47439.72956833765
 ```

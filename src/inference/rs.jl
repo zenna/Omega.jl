@@ -27,5 +27,5 @@ function Base.rand(x::RandVar,
     end
     i += 1
   end
-  samples
+  [samples...]
 end

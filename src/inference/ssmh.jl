@@ -45,5 +45,5 @@ function Base.rand(x::RandVar,
     push!(samples, xω)
     cb((ω = ω, accepted = accepted, p = plast, i = i), Outside)
   end
-  samples
+  [samples...]
 end
