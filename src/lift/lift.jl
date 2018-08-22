@@ -1,9 +1,5 @@
 # Lifting Functions to Functions
 
-"Domain type of Random Variable"
-elemtype(x::T) where T = T
-elemtype(::RandVar) = @assert false
-
 # No Exists{T} yet https://github.com/JuliaLang/julia/issues/21026#issuecomment-306624369"
 function liftnoesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
   args = [isrv ?  :($(Symbol(:x, i))::Omega.RandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]

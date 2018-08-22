@@ -40,16 +40,8 @@ function isconstant(x, ΩT = defΩ(x))
   isempty(ω)
 end
 
-"Infer T from function `f: w -> T`"
-function infer_elemtype(f, args...; OT = defΩProj())
-  argtypes = map(typeof, args)
-  rt = Base.return_types(f, (OT, argtypes...))
-  @pre length(rt) == 1 "Could not infer unique return type"
-  rt[1]
-end
-
 ## Printing
 ## ========
 name(x) = x
 Base.show(io::IO, rv::RandVar) =
-  print(io, "$(id(rv)):$(name(rv))($(join(map(name, params(rv)), ", ")))::")
+  print(io, "$(id(rv)):$(name(rv))($(join(map(name, params(rv)), ", ")))::$(elemtype(rv))")

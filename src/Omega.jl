@@ -27,7 +27,8 @@ include("randvar/randvar.jl" )            # Random variables
 include("randvar/urandvar.jl")            # Random variables
 include("randvar/randvarapply.jl")        # Random variable application to ω::Ω
 include("randvar/ciid.jl")                # Conditionally i.i.d. RandVars
-export RandVar, MaybeRV, ciid, isconstant
+include("randvar/elemtype.jl")            # Infer Element Type
+export RandVar, MaybeRV, ciid, isconstant, elemtype
 
 # Conditioning
 include("cond.jl")                # Conditioning
