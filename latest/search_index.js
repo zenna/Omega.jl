@@ -13,7 +13,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Omega.jl",
     "category": "section",
-    "text": "Omega.jl is a small programming language for causal and probabilistic reasoning. It was developed by Zenna Tavares with help from Javier Burroni, Edgar Minasyan, Xin Zhang, Rajesh Ranganath and Armando Solar Lezama."
+    "text": "Omega.jl is a programming language for causal and probabilistic reasoning. It was developed by Zenna Tavares with help from Javier Burroni, Edgar Minasyan, Xin Zhang, Rajesh Ranganath and Armando Solar Lezama."
 },
 
 {
@@ -69,7 +69,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Basic Tutorial",
     "title": "Basic Tutorial",
     "category": "section",
-    "text": "In this tutorial we will run through the basics of creating a model and conditioning it.First load Omega:using OmegaWe will model our belief about a coin after observing a number of tosses.Model the coin as a bernoulli distribution.  The weight of a bernoulli determines the probability it comes up true (which represents heads). Use a beta distribution to represent our prior belief weight of the coin.weight = β(2.0, 2.0)A beta distribution is appropriate here because it is bounded between 0 and 1. Draw a 10000 samples from weight using rand:beta_samples = rand(weight, 10000)Let\'s see what this distribution looks like using UnicodePlots.  If you don\'t have it installed already install with:(v0.7) pkg> add UnicodePlotsTo visualize the distribution, plot a histogram of the samples:julia> UnicodePlots.histogram(beta_samples)             ┌────────────────────────────────────────┐ \n   (0.0,0.1] │▇▇▇▇▇▇ 279                              │ \n   (0.1,0.2] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 727                   │ \n   (0.2,0.3] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1218       │ \n   (0.3,0.4] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1354    │ \n   (0.4,0.5] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1482 │ \n   (0.5,0.6] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1426  │ \n   (0.6,0.7] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1406   │ \n   (0.7,0.8] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1124         │ \n   (0.8,0.9] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 702                    │ \n   (0.9,1.0] │▇▇▇▇▇▇ 282                              │ \n             └────────────────────────────────────────┘The distribution is symmetric around 0.5 and has support over the the interval [0, 1].So far we have not done anything we couldn\'t do with Distributions.jl. A primary distinction between a package like Distribution.jl, is that Omega.jl allows you to condition probability distributions.Create a model representing four flips of the coin. Since a coin can be heads or tales, the appropriate distribution is the bernouli distribution:nflips = 4\ncoinflips_ = [bernoulli(weight) for i = 1:nflips]Take note that weight is the random variable defined previously.coinflips is a normal Julia array of Random Variables (RandVars). For reasons we will elaborate in later sections, it will be useful to have an Array-valued RandVar (instead of an Array of RandVar).One way to do this (there are several ways discuseed later), is to use the function randarraycoinflips = randarray(coinflips_)coinflips is a RandVar and hence we can sample from it with randjulia> rand(coinflips)\n4-element Array{Float64,1}:\n 0.0\n 0.0\n 0.0\n 0.0\n\njulia> rand(coinflips)\n4-element Array{Float64,1}:\n 0.0\n 1.0\n 0.0\n 0.0\n\njulia> rand(coinflips)\n4-element Array{Float64,1}:\n 1.0\n 1.0\n 1.0\n 1.0Now we can condition the model. We want to find the conditional distribution over the weight of the coin given some observations.First create some fake dataobservations = [true, true, true, false]and then use rand to draw conditional samples:weight_samples = rand(weight, coinflips == observations, 10, RejectionSample)weight_samples is a set of 10 samples from the conditional (sometimes called posterior) distribution of weight condition on the fact that coinflips == observations.In this case, rand takesA random variable we want to sample from\nA predicate (type RandVar{Bool}) that we want to condition on, i.e. assert that it is true\nAn inference algorithm.  Here we use rejection samplingPlot a histogram of the weights like before:julia> UnicodePlots.histogram(weight_samples)\n             ┌────────────────────────────────────────┐ \n   (0.1,0.2] │▇ 4                                     │ \n   (0.2,0.3] │▇▇▇ 22                                  │ \n   (0.3,0.4] │▇▇▇▇▇▇▇▇▇▇▇ 69                          │ \n   (0.4,0.5] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 147             │ \n   (0.5,0.6] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 185       │ \n   (0.6,0.7] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 226 │ \n   (0.7,0.8] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 203     │ \n   (0.8,0.9] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 120                 │ \n   (0.9,1.0] │▇▇▇▇ 23                                 │ \n             └────────────────────────────────────────┘ \nObserve that our belief about the weight has now changed. We are more convinced the coin is biased towards heads (true)."
+    "text": "In this tutorial we will run through the basics of creating a model and conditioning it.First load Omega:using OmegaIf you tossed a coin and observed the sequqnce HHHHH, you would be a little suspicious, HHHHHHHH would make you very suspicious. Elementary probability theory tells us that for a fair coin, HHHHHHHH is just a likely outcome as HHTTHHTH.  What gives?  We will use Omega to model this behaviour, and see how that belief about a coin changes after observing a number of tosses.Model the coin as a bernoulli distribution.  The weight of a bernoulli determines the probability it comes up true (which represents heads). Use a beta distribution to represent our prior belief weight of the coin.weight = β(2.0, 2.0)A beta distribution is appropriate here because it is bounded between 0 and 1. Draw a 10000 samples from weight using rand:beta_samples = rand(weight, 10000)Let\'s see what this distribution looks like using UnicodePlots.  If you don\'t have it installed already install with:(v0.7) pkg> add UnicodePlotsTo visualize the distribution, plot a histogram of the samples:julia> UnicodePlots.histogram(beta_samples)             ┌────────────────────────────────────────┐ \n   (0.0,0.1] │▇▇▇▇▇▇ 279                              │ \n   (0.1,0.2] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 727                   │ \n   (0.2,0.3] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1218       │ \n   (0.3,0.4] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1354    │ \n   (0.4,0.5] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1482 │ \n   (0.5,0.6] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1426  │ \n   (0.6,0.7] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1406   │ \n   (0.7,0.8] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1124         │ \n   (0.8,0.9] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 702                    │ \n   (0.9,1.0] │▇▇▇▇▇▇ 282                              │ \n             └────────────────────────────────────────┘The distribution is symmetric around 0.5 and has support over the the interval [0, 1].So far we have not done anything we couldn\'t do with Distributions.jl. A primary distinction between a package like Distribution.jl, is that Omega.jl allows you to condition probability distributions.Create a model representing four flips of the coin. Since a coin can be heads or tales, the appropriate distribution is the bernouli distribution:nflips = 4\ncoinflips_ = [bernoulli(weight) for i = 1:nflips]Take note that weight is the random variable defined previously.coinflips is a normal Julia array of Random Variables (RandVars). For reasons we will elaborate in later sections, it will be useful to have an Array-valued RandVar (instead of an Array of RandVar).One way to do this (there are several ways discuseed later), is to use the function randarraycoinflips = randarray(coinflips_)coinflips is a RandVar and hence we can sample from it with randjulia> rand(coinflips)\n4-element Array{Float64,1}:\n 0.0\n 0.0\n 0.0\n 0.0\n\njulia> rand(coinflips)\n4-element Array{Float64,1}:\n 0.0\n 1.0\n 0.0\n 0.0\n\njulia> rand(coinflips)\n4-element Array{Float64,1}:\n 1.0\n 1.0\n 1.0\n 1.0Now we can condition the model. We want to find the conditional distribution over the weight of the coin given some observations.First create some fake dataobservations = [true, true, true, false]and then use rand to draw conditional samples:weight_samples = rand(weight, coinflips == observations, 10, RejectionSample)weight_samples is a set of 10 samples from the conditional (sometimes called posterior) distribution of weight condition on the fact that coinflips == observations.In this case, rand takesA random variable we want to sample from\nA predicate (type RandVar{Bool}) that we want to condition on, i.e. assert that it is true\nAn inference algorithm.  Here we use rejection samplingPlot a histogram of the weights like before:julia> UnicodePlots.histogram(weight_samples)\n             ┌────────────────────────────────────────┐ \n   (0.1,0.2] │▇ 4                                     │ \n   (0.2,0.3] │▇▇▇ 22                                  │ \n   (0.3,0.4] │▇▇▇▇▇▇▇▇▇▇▇ 69                          │ \n   (0.4,0.5] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 147             │ \n   (0.5,0.6] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 185       │ \n   (0.6,0.7] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 226 │ \n   (0.7,0.8] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 203     │ \n   (0.8,0.9] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 120                 │ \n   (0.9,1.0] │▇▇▇▇ 23                                 │ \n             └────────────────────────────────────────┘ \nObserve that our belief about the weight has now changed. We are more convinced the coin is biased towards heads (true)."
 },
 
 {
@@ -157,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Conditional Inference",
     "title": "Inference",
     "category": "section",
-    "text": "Omega have several inference algorithms built in, and provides the mechanism to build your own."
+    "text": "The primary purpose of building a probabilistic model is to use it for inference."
 },
 
 {
@@ -165,15 +165,15 @@ var documenterSearchIndex = {"docs": [
     "page": "Conditional Inference",
     "title": "Base.rand",
     "category": "function",
-    "text": "Random ω ∈ Ω\n\n\n\n\n\nSample n from x\n\n\n\n\n\nSample 1 from x\n\n\n\n\n\nn samples from x with rejection sampling\n\n\n\n\n\nSample ω | y == true with Metropolis Hasting\n\n\n\n\n\nSample from x | y == true with Single Site Metropolis Hasting\n\n\n\n\n\nSample from x | y == true with Hamiltonian Monte Carlo\n\n\n\n\n\nSample from x | y == true with Hamiltonian Monte Carlo\n\n\n\n\n\nSample from ω | y == true with Stochastic Gradient Hamiltonian Monte Carlo\n\n\n\n\n\nSample from x | y == true with Metropolis Hasting\n\n\n\n\n\n"
+    "text": "rand(s::Sampleable)\n\nGenerate one sample for s.\n\nrand(s::Sampleable, n::Int)\n\nGenerate n samples from s. The form of the returned object depends on the variate form of s:\n\nWhen s is univariate, it returns a vector of length n.\nWhen s is multivariate, it returns a matrix with n columns.\nWhen s is matrix-variate, it returns an array, where each element is a sample matrix.\n\n\n\n\n\nrand(d::UnivariateDistribution)\n\nGenerate a scalar sample from d. The general fallback is quantile(d, rand()).\n\nrand(d::UnivariateDistribution, n::Int) -> Vector\n\nGenerates a vector of n random scalar samples from d. The general fallback is to pick random samples from sampler(d).\n\n\n\n\n\nrand(d::MultivariateDistribution)\n\nSample a vector from the distribution d.\n\nrand(d::MultivariateDistribution, n::Int) -> Vector\n\nSample n vectors from the distribution d. This returns a matrix of size (dim(d), n), where each column is a sample.\n\n\n\n\n\nrand(rng::AbstractRNG, d::AbstractMvNormal)\nrand(rng::AbstractRNG, d::AbstractMvNormal, n::Int)\nrand!(rng::AbstractRNG, d::AbstractMvNormal, x::AbstractArray)\n\nSample from distribution d using the random number generator rng.\n\n\n\n\n\nrand(d::MatrixDistribution, n)\n\nDraw a sample matrix from the distribution d.\n\n\n\n\n\nrand(d::Union{UnivariateMixture, MultivariateDistribution})\n\nDraw a sample from the mixture model d.\n\nrand(d::Union{UnivariateMixture, MultivariateMixture}, n)\n\nDraw n samples from d.\n\n\n\n\n\nRandom ω ∈ Ω\n\n\n\n\n\nSample n from x\n\n\n\n\n\nSample 1 from x\n\n\n\n\n\nn samples from x with rejection sampling\n\n\n\n\n\nSample ω | y == true with Metropolis Hasting\n\n\n\n\n\nSample from x | y == true with Single Site Metropolis Hasting\n\n\n\n\n\nSample from x | y == true with Hamiltonian Monte Carlo\n\n\n\n\n\nSample from x | y == true with Hamiltonian Monte Carlo\n\n\n\n\n\n"
 },
 
 {
-    "location": "inference.html#Conditional-Samples-1",
+    "location": "inference.html#Conditional-Sampling-Algorithms-1",
     "page": "Conditional Inference",
-    "title": "Conditional Samples",
+    "title": "Conditional Sampling Algorithms",
     "category": "section",
-    "text": "If you have a random variable x and a Boolean-valued random variable y, to sample from a conditional distribution use rand(x,y).Omega.randFor example:weight = β(2.0, 2.0)\nx = bernoulli()\nrand(weight, x == 0)To sample from more than one random variable, just pass a tuple of RandVars to rand, e.g.:weight = β(2.0, 2.0)\nx = bernoulli()\nrand(weight, x == 0)"
+    "text": "While there are several kinds of things you would like to know about a conditional distribution (e.g., its mode) currently, all inference algorithms perform conditional sampling only. To sample from a conditional distribution: pass two random variables to rand, the distribution you want to sample from, and the predicate you want to condition on. For example:weight = β(2.0, 2.0)\nx = bernoulli()\nrand(weight, x == 0)It is fine to condition random variables on equalities or inequalities:x1 = normal(0.0, 1.0)\nx2 = normal(0.0, 10)\nrand((x1, x2), x1 + x2 > == 0.0)Note: to sample from more than one random variable, just pass a tuple of RandVars to rand, e.g.:Omega.rand"
 },
 
 {
@@ -181,7 +181,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Conditional Inference",
     "title": "Omega.cond",
     "category": "function",
-    "text": "Condition random variable x with random predicate RandVar{Bool}\n\nx = normal(0.0, 1.0)\nx_ = cond(x, x > 0)\n\n\n\n\n\nCondition random variable with predicate: cond(x, p) = cond(x, p(x)) cond(poisson(0.5), iseven\n\n\n\n\n\n"
+    "text": "Condition random variable x with random predicate RandVar which returns Bool or SoftBool.\n\nx = normal(0.0, 1.0)\nx_ = cond(x, x > 0)\n\n\n\n\n\nCondition random variable with predicate: cond(x, p) = cond(x, p(x)) cond(poisson(0.5), iseven\n\n\n\n\n\nCondition within a function\n\nfunction x_(ω)\n  x = 0.0\n  xs = Float64[]\n  while bernoulli(ω, 0.8, Bool)\n    x += uniform(ω, -5.0, 5.0)\n    cond(ω, x <=ₛ 1.0)\n    cond(ω, x >=ₛ -1.0)\n    push!(xs, x)\n  end\n  xs\nend\n\nx = ciid(x_)\nsamples = rand(x, 100; alg = SSMH)\n\n\n\n\n\n"
 },
 
 {
@@ -189,15 +189,23 @@ var documenterSearchIndex = {"docs": [
     "page": "Conditional Inference",
     "title": "Conditioning with cond",
     "category": "section",
-    "text": "rand(x, y) is simply a shorter way of saying rand(cond(x, y)). That is, the mechanism for inference in Omega is conditioning random variables:cond"
+    "text": "rand(x, y) is simply a shorter way of saying rand(cond(x, y)). That is, the primary mechanism for inference in Omega is conditioning random variables using cond.cond"
 },
 
 {
-    "location": "inference.html#Conditioning-as-Prior-1",
+    "location": "inference.html#Conditioning-the-Prior-1",
     "page": "Conditional Inference",
-    "title": "Conditioning as Prior",
+    "title": "Conditioning the Prior",
     "category": "section",
-    "text": "Conditioning Random Variables allows you to add constraints to your mode.For example we can make a truncated normal distribution with:x = normal(0.0, 1.0)\nx_ = cond(x, x > 0.0)A shorter way to write this is to pass a unary function as the second argument to condx = cond(normal(0.0, 1.0), rv -> rv > 0.0)Or suppose we want a poisson distribution over the even numberscond(poission(1.0), isevenispos(x) = x > 0.0\nweight = cond(normal(72, 1.0), ispos)\nheight = cond(normal(1.78, 1.0), ispos)\nbmi = weight / heightbmi is a function of both weight and height, both of which have their own conditions. Omega automatically propagates the conditions from weight and height onto bmi, so that if we sample from all of them with rand((bmi, weight, height), alg = Rejection))"
+    "text": "In Bayesian inference the term posterior distribution is often used instead of conditional distribution.  Mathematically they are the same objec, but posterior alludes to the fact that it is the distribution after (post) observing data. Prior to observing data, your distribution is the prior.However, conditioning is a more general concept than observing data, and we can meaningfully \"condition the prior\".For example we can make a truncated normal distribution with:x = normal(0.0, 1.0)\nx_ = cond(x, x > 0.0)A shorter way to write this is to pass a unary function as the second argument to condx = cond(normal(0.0, 1.0), rv -> rv > 0.0)Or suppose we want a poisson distribution over the even numberscond(poission(1.0), iseven)"
+},
+
+{
+    "location": "inference.html#Conditions-Propagate-1",
+    "page": "Conditional Inference",
+    "title": "Conditions Propagate",
+    "category": "section",
+    "text": "When you compose condiitoned random variables together, their conditions propagate.  That is, if x is conditioned, and y is conditioned, and z depends on x and y, then z inherits all the conditions of x and y automatically.  For example:ispos(x) = x > 0.0\nweight = cond(normal(72, 1.0), ispos)\nheight = cond(normal(1.78, 1.0), ispos)\nbmi = weight / heightbmi is a function of both weight and height, both of which have their own conditions (namely, they are positive). Omega automatically propagates the conditions from weight and height onto bmi respects these conditions."
 },
 
 {
@@ -209,27 +217,27 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "soft.html#Omega.kse",
-    "page": "Soft Execution",
-    "title": "Omega.kse",
-    "category": "function",
-    "text": "Squared exponential kernel α = 1/2l^2, higher α is lower temperature  \n\n\n\n\n\n"
-},
-
-{
     "location": "soft.html#Soft-Execution-1",
     "page": "Soft Execution",
     "title": "Soft Execution",
     "category": "section",
-    "text": "In Omega you condition on predicates. A predicate is any function whose domain is the Boolean. These are sometimes called indicator functions, or characteristic functions. In particular, in Omega we condition on Bool valued random variables:x = normal(0.0, 1.0)\ny = x == 1.0\nrand(y)From this perspective, conditioning means to solve a constraint. It can be difficult to solve these constraints exactly, and so Omega can soften constraints to make inference more tractable.There are two ways to make soft constraints.  The first way is explicitly:julia> x = normal(0.0, 1.0)\njulia> y = x ≊ 1.0\njulia> rand(y)\nϵ:-47439.72956833765These soft kernels have the formMATH HEREwithkernelOmega has a number of built-in kernels:kse"
+    "text": ""
 },
 
 {
-    "location": "soft.html#Soft-Function-Application-1",
+    "location": "soft.html#TLDR-1",
     "page": "Soft Execution",
-    "title": "Soft Function Application",
+    "title": "TLDR",
     "category": "section",
-    "text": "There are a couple of drawbacks from explicitly using soft constraints in the model:We have changed the model for what is a problem of inference\nOften we may be using pre-existing code and not be able to easily replace all the constraints with soft constraintsOmega has an experimental feature which automatically does soft execution of a normal predicate.  Soft application relies on ejulia> g(x::Real)::Bool = x > 0.5\njulia> softapply(g, 0.3)\nϵ:-2000.0This feature is experimental because Cassette is waiting on a number of compiler optimizations to make this efficient."
+    "text": "For inference problems which are continuous or high dimensional, use soft predicates to use more efficient inference routines.==\n>ₛ\n>=\n<=ₛ\n<ₛIf the values x and y are not standard numeric types you will need to define a notation of distance.  Override Omega.ddFor example:struct\n  \nend"
+},
+
+{
+    "location": "soft.html#Relaxation-1",
+    "page": "Soft Execution",
+    "title": "Relaxation",
+    "category": "section",
+    "text": "In Omega you condition on predicates. A predicate is any function whose domain is Boolean. These are sometimes called indicator functions, or characteristic functions. In particular, in Omega we condition on Bool valued random variables:x = normal(0.0, 1.0)\ny = x == 1.0\nrand(y)From this perspective, conditioning means to solve a constraint. It can be difficult to solve these constraints exactly, and so Omega supports softened constraints to make inference more tractable.There are two ways to make soft constraints.  The first way is explicitly:julia> x = normal(0.0, 1.0)\njulia> y = x ≊ 1.0\njulia> rand(y)\nϵ:-47439.72956833765Suppose we construct a random variable of the form x == y. The soft version we would write x ==\\_s y (or softeq(x, y)). These softened functions have the form:If \\rho(x, y) denote a distance between x and y.$k(\\rho(x, y)) $\n## Controlling the kernel\n\n\nOmega has a number of built-in kernels:\n@docs kse\n## Soft Function Application\nThere are a couple of drawbacks from explicitly using soft constraints in the model:\n\n1. We have changed the model for what is a problem of inference\n2. Often we may be using pre-existing code and not be able to easily replace all the constraints with soft constraints\n\nOmega has an experimental feature which automatically does soft execution of a normal predicate.  Soft application relies on e\njulia julia> g(x::Real)::Bool = x > 0.5 julia> softapply(g, 0.3) ϵ:-2000.0 ```This feature is experimental because Cassette is waiting on a number of compiler optimizations to make this efficient."
 },
 
 {
@@ -253,7 +261,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Causal Inference",
     "title": "Base.replace",
     "category": "function",
-    "text": "Causal Intervention: Set θold to θnew in x\n\n\n\n\n\n"
+    "text": "Causal Intervention: Set θold to θnew in x\n\n\n\n\n\nCausal Intervention: Set θold to θnew in x\n\n\n\n\n\n"
 },
 
 {
@@ -305,19 +313,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "causal.html#Coutner-Factual-1",
+    "location": "causal.html#Counter-Factual-1",
     "page": "Causal Inference",
-    "title": "Coutner Factual",
+    "title": "Counter Factual",
     "category": "section",
-    "text": "\"If I were to close the window, and turn on the AC would that make it hotter or colder\"thermostatnew = replace(thermostat, is_ac_on => 1.0, is_window_open => 0.0)\ndiffsamples = rand(thermostatnew - thermostat, 10000, alg = RejectionSample)\njulia> mean(diffsamples)\n-4.246869797640215So in expectation, that intervention will make the thermostat colder.  But we can look more closely at the distribution:julia> UnicodePlots.histogram([diffsamples...])\n\n                 ┌────────────────────────────────────────┐ \n   (-11.0,-10.0] │ 37                                     │ \n    (-10.0,-9.0] │▇▇▇▇ 502                                │ \n     (-9.0,-8.0] │▇▇▇▇▇▇▇▇▇▇▇ 1269                        │ \n     (-8.0,-7.0] │▇▇▇▇▇ 581                               │ \n     (-7.0,-6.0] │▇▇▇▇ 497                                │ \n     (-6.0,-5.0] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 3926 │ \n     (-5.0,-4.0] │▇ 65                                    │ \n     (-4.0,-3.0] │ 5                                      │ \n     (-3.0,-2.0] │ 3                                      │ \n     (-2.0,-1.0] │▇ 97                                    │ \n      (-1.0,0.0] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1960                  │ \n       (0.0,1.0] │▇▇▇▇ 494                                │ \n       (1.0,2.0] │▇▇ 197                                  │ \n       (2.0,3.0] │▇▇ 237                                  │ \n       (3.0,4.0] │▇ 118                                   │ \n       (4.0,5.0] │ 12                                     │ \n                 └────────────────────────────────────────┘ "
-},
-
-{
-    "location": "causal.html#In-what-scenarios-would-it-still-be-hotter-after-turning-on-the-AC-and-closing-the-window?-1",
-    "page": "Causal Inference",
-    "title": "In what scenarios would it still be hotter after turning on the AC and closing the window?",
-    "category": "section",
-    "text": "rand((timeofday, outsidetemp, insidetemp, thermostat),       thermostatnew - thermostat > 0.0, 10, alg = RejectionSample)"
+    "text": "If I were to close the window, and turn on the AC would that make it hotter or colder\"thermostatnew = replace(thermostat, is_ac_on => 1.0, is_window_open => 0.0)\ndiffsamples = rand(thermostatnew - thermostat, 10000, alg = RejectionSample)\njulia> mean(diffsamples)\n-4.246869797640215So in expectation, that intervention will make the thermostat colder.  But we can look more closely at the distribution:julia> UnicodePlots.histogram([diffsamples...])\n\n                 ┌────────────────────────────────────────┐ \n   (-11.0,-10.0] │ 37                                     │ \n    (-10.0,-9.0] │▇▇▇▇ 502                                │ \n     (-9.0,-8.0] │▇▇▇▇▇▇▇▇▇▇▇ 1269                        │ \n     (-8.0,-7.0] │▇▇▇▇▇ 581                               │ \n     (-7.0,-6.0] │▇▇▇▇ 497                                │ \n     (-6.0,-5.0] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 3926 │ \n     (-5.0,-4.0] │▇ 65                                    │ \n     (-4.0,-3.0] │ 5                                      │ \n     (-3.0,-2.0] │ 3                                      │ \n     (-2.0,-1.0] │▇ 97                                    │ \n      (-1.0,0.0] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1960                  │ \n       (0.0,1.0] │▇▇▇▇ 494                                │ \n       (1.0,2.0] │▇▇ 197                                  │ \n       (2.0,3.0] │▇▇ 237                                  │ \n       (3.0,4.0] │▇ 118                                   │ \n       (4.0,5.0] │ 12                                     │ \n                 └────────────────────────────────────────┘ In what scenarios would it still be hotter after turning on the AC and closing the window?rand((timeofday, outsidetemp, insidetemp, thermostat),       thermostatnew - thermostat > 0.0, 10, alg = RejectionSample)"
 },
 
 {
@@ -369,139 +369,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "distributions.html#Omega.bernoulli",
-    "page": "Built-in Distributions",
-    "title": "Omega.bernoulli",
-    "category": "function",
-    "text": "Bernoulli with weight p\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.boolbernoulli",
-    "page": "Built-in Distributions",
-    "title": "Omega.boolbernoulli",
-    "category": "function",
-    "text": "Bool - valued Bernoulli distribution (as opposed to Float64 valued)\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.betarv",
-    "page": "Built-in Distributions",
-    "title": "Omega.betarv",
-    "category": "function",
-    "text": "Beta distribution (alias β) parameters α  and β\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.categorical",
-    "page": "Built-in Distributions",
-    "title": "Omega.categorical",
-    "category": "function",
-    "text": "Categorical distribution with probability weight vector p\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.constant",
-    "page": "Built-in Distributions",
-    "title": "Omega.constant",
-    "category": "function",
-    "text": "Constant Random Variable\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.exponential",
-    "page": "Built-in Distributions",
-    "title": "Omega.exponential",
-    "category": "function",
-    "text": "Exponential Distribution with λ\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.gammarv",
-    "page": "Built-in Distributions",
-    "title": "Omega.gammarv",
-    "category": "function",
-    "text": "Gamma distribution (alias Γ)\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.inversegamma",
-    "page": "Built-in Distributions",
-    "title": "Omega.inversegamma",
-    "category": "function",
-    "text": "Inverse Gamma distribution\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.kumaraswamy",
-    "page": "Built-in Distributions",
-    "title": "Omega.kumaraswamy",
-    "category": "function",
-    "text": "Kumaraswamy distribution, similar to beta but easier\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.logistic",
-    "page": "Built-in Distributions",
-    "title": "Omega.logistic",
-    "category": "function",
-    "text": "Logistic Distribution\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.poisson",
-    "page": "Built-in Distributions",
-    "title": "Omega.poisson",
-    "category": "function",
-    "text": "Poisson distribution with rate parameter λ\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.normal",
-    "page": "Built-in Distributions",
-    "title": "Omega.normal",
-    "category": "function",
-    "text": "Normal Distribution with mean μ and variance σ\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.uniform",
-    "page": "Built-in Distributions",
-    "title": "Omega.uniform",
-    "category": "function",
-    "text": "Uniform distribution with lower bound a and upper bound b\n\n\n\n\n\nUniform sample from vector\n\n\n\n\n\nDiscrete uniform distribution with range range\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.rademacher",
-    "page": "Built-in Distributions",
-    "title": "Omega.rademacher",
-    "category": "function",
-    "text": "Rademacher distribution\n\n\n\n\n\n"
-},
-
-{
     "location": "distributions.html#Univariate-Distributions-1",
     "page": "Built-in Distributions",
     "title": "Univariate Distributions",
     "category": "section",
     "text": "bernoulli\nboolbernoulli\nbetarv\ncategorical\nconstant\nexponential\ngammarv\ninversegamma\nkumaraswamy\nlogistic\npoisson\nnormal\nuniform\nrademacher"
-},
-
-{
-    "location": "distributions.html#Omega.mvnormal",
-    "page": "Built-in Distributions",
-    "title": "Omega.mvnormal",
-    "category": "function",
-    "text": "Multivariate Normal Distribution with mean vector μ and covariance Σ\n\n\n\n\n\n"
-},
-
-{
-    "location": "distributions.html#Omega.dirichlet",
-    "page": "Built-in Distributions",
-    "title": "Omega.dirichlet",
-    "category": "function",
-    "text": "Dirichlet distribution\n\n\n\n\n\n"
 },
 
 {
@@ -537,17 +409,17 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "omega.html#Omega.Ω",
+    "location": "omega.html#Omega.Space.Ω",
     "page": "Omega",
-    "title": "Omega.Ω",
+    "title": "Omega.Space.Ω",
     "category": "type",
     "text": "Probability Space indexed with values of type I\n\n\n\n\n\n"
 },
 
 {
-    "location": "omega.html#Omega.SimpleΩ",
+    "location": "omega.html#Omega.Space.SimpleΩ",
     "page": "Omega",
-    "title": "Omega.SimpleΩ",
+    "title": "Omega.Space.SimpleΩ",
     "category": "type",
     "text": "Fast SimpleΩ\n\nProperties\n\nFast tracking (50 ns overhead)\nFast to get linear view\nHence easy to sample from\nUnique index for each rand value and hence: (i) Memory intensive\n\n\n\n\n\n"
 },
