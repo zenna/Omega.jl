@@ -43,7 +43,7 @@ function Base.rand(x::RandVar,
       xω = xω_
     end
     push!(samples, xω)
-    cb((ω = ω, accepted = accepted, p = plast, i = i), Outside)
+    cb((ω = ω, sample = xω, accepted = accepted, p = plast, i = i), Outside)
   end
   [samples...]
 end

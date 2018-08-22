@@ -117,6 +117,24 @@ function plotrv(x::RandVar, name = string(x), display_ = display)
   end
 end
 
+"Plot histogram of loss with UnicodePlots"
+function plotscalar(key::Symbol, name, display_ = display)
+  xs = Float64[]
+  ys = Int[]
+
+  innerplotω(data, stage) = nothing # Do nothing in other stages
+  function innerplotrv(data, stage::Type{Outside})
+    x_ = getfield(data, key)
+    println("$name is:")
+    display_(x_)
+    push!(xs, x_)
+    push!(ys, data.i)
+    if !isempty(xs)
+      println(UnicodePlots.lineplot(ys, xs, title="Time vs $name"))
+    end
+  end
+end
+
 "Show progress meter"
 function showprogress(n)
   p = Progress(n, 1)
