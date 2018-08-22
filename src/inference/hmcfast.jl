@@ -4,8 +4,8 @@ struct HMCFASTAlg <: Algorithm end
 "Flux based Hamiltonian Monte Carlo Sampling"
 const HMCFAST = HMCFASTAlg()
 isapproximate(::HMCFASTAlg) = true
-defΩ(::Type{HMCFASTAlg}) = Omega.SimpleΩ{Vector{Int}, Flux.TrackedArray}
-defΩ(::HMCFASTAlg) = Omega.SimpleΩ{Vector{Int}, Flux.TrackedArray}
+defΩ(::Type{HMCFASTAlg}) = SimpleΩ{Vector{Int}, Flux.TrackedArray}
+defΩ(::HMCFASTAlg) = SimpleΩ{Vector{Int}, Flux.TrackedArray}
 defcb(::HMCFASTAlg) = default_cbs()
 # defcb = default_cbs(n)
 
@@ -35,7 +35,7 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
   pvals, ∇qvals, prop_qvals)
   
   for i = 1:nsteps
-    cb(RunData(q = prop_qvals, p = pvals), Inside)
+    cb((q = prop_qvals, p = pvals), Inside)
     # @show prop_qvals
     # Half step p and q
     # @show prop_qvals 
@@ -83,7 +83,7 @@ function Base.rand(y::RandVar,
                    cb = default_cbs(n * takeevery),
                    stepsize = 0.001) where {OT <: Ω}
   ω = ΩT()        # Current Ω state of chain
-  y(ω)            # Initialize omega
+  indomain(y, ω)  # Initialize omega
   qvals = [x.data for x in values(ω)]   # Values as a vector
 
   prop_ω = deepcopy(ω)                          # Ω proposal
@@ -108,8 +108,7 @@ function Base.rand(y::RandVar,
       # QVALS need to reflect
       i % takeevery == 0 && push!(ωsamples, deepcopy(ω))
     end
-    cb(RunData(ω = prop_ω, accepted = accepted, p = Flux.data(p_), i = i), Outside)
+    cb((ω = prop_ω, accepted = accepted, p = Flux.data(p_), i = i), Outside)
   end
-  ωsamples
-  [applywoerror.(y, ω_) for ω_ in ωsamples]
+  [applywoerror(y, ω_) for ω_ in ωsamples]
 end

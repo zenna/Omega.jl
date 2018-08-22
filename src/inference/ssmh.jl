@@ -3,6 +3,7 @@ struct SSMHAlg <: Algorithm end
 
 "Single Site Metropolis Hastings"
 const SSMH = SSMHAlg()
+defcb(::SSMHAlg) = default_cbs()
 
 isapproximate(::SSMHAlg) = true
 
@@ -14,17 +15,17 @@ function update_random(sω::SO)  where {SO <: SimpleΩ}
 end
 
 "Sample from `x | y == true` with Single Site Metropolis Hasting"
-function Base.rand(x::RandVar{T},
+function Base.rand(x::RandVar,
                    n::Integer,
                    alg::SSMHAlg,
                    ΩT::Type{OT};
                    cb = donothing,
-                   hack = true) where {T, OT <: Ω}
+                   hack = true) where {OT <: Ω}
   ω = ΩT()
   xω, sb = trackerrorapply(x, ω)
   plast = logepsilon(sb)
   qlast = 1.0
-  samples = T[]
+  samples = []
   accepted = 0
   for i = 1:n
     ω_ = if isempty(ω)
@@ -42,7 +43,7 @@ function Base.rand(x::RandVar{T},
       xω = xω_
     end
     push!(samples, xω)
-    cb(RunData(ω = ω, accepted = accepted, p = plast, i = i), Outside)
+    cb((ω = ω, accepted = accepted, p = plast, i = i), Outside)
   end
   samples
 end

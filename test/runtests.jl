@@ -1,6 +1,10 @@
 using Omega
 using Spec
 using Test
+using Pkg
+using Random: seed!
+
+include("lib/testlib.jl")
 
 """
 Walk through `test_dir` directory and execute all tests, excluding `exclude`
@@ -13,14 +17,17 @@ julia> walktests(Spec)
 function fakewalktests(testmodule::Module;
                    test_dir = joinpath(Pkg.dir(string(testmodule)), "test", "tests"),
                    exclude = [])
-  print_with_color(:blue, "Running tests:\n")
+  printstyled("Running tests:\n", color = :blue)
 
   # Single thread
-  srand(345679)
+  seed!(345679)
   with_pre() do
     for (root, dirs, files) in walkdir(test_dir)
       for file in files
-        file ∈ exclude && continue
+        if file ∈ exclude
+          println("Skipping: ", file)
+          continue
+        end
         fn = joinpath(root, file)
         println("Testing: ", fn)
         include(fn)
@@ -34,4 +41,4 @@ function fakewalktests(testmodule::Module;
   println()
 end
 
-fakewalktests(Omega)
+fakewalktests(Omega, exclude = ["rid.jl", "simple.jl"])

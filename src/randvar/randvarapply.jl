@@ -1,37 +1,44 @@
-apl(x, ω::Ω) = x
-apl(x::AbstractRandVar, ω::Ω) = x(ω)
+# Random Variable Application
 
-## Random Variable Application
-## ===========================
+"Post-projection application"
+function ppapl end
 
-Zerox{I, T, ΩT} = Union{ΩWOW, TaggedΩ{I, T, ΩT}} where {ΩT <: ΩWOW}
+"Apply function to argument"
+function apl end
 
-function g(rv::RandVar{T, true}, ω::Zerox) where T
-  @assert false
-end
+apl(x, ω) = x
 
-function (rv::RandVar{T, true})(ω::Zerox) where T
-  # @assert false
-  args = map(a->apl(a, ω), rv.args)
-  (rv.f)(ω[rv.id][1], args...)
-end
+"Project ω to `x`"
+proj(ω::ΩBase, x::RandVar) = ω[x.id][1] # FIXME, change to ω[x.id, 1]
 
-function (rv::RandVar{T, false})(ω::Ω) where T
-  args = map(a->apl(a, ω), rv.args)
-  (rv.f)(args...)
-end
+proj(tω::TaggedΩ, x::RandVar) = tag(proj(tω.taggedω, x), tω.tags)
+@spec _res.tags == tω.tags "tags are preserved in projection"
+
+# @inline apl(rv::RandVar, ω::ΩBaseGroup) =  ppapl(rv, proj(ω, rv))
+@inline apl(rv::RandVar, ω::ΩBase) =  ppapl(rv, proj(ω, rv))
 
 "Reproject back to parent random variable"
-(rv::RandVar)(πω::ΩProj) = rv(parentω(πω))
-(rv::RandVar{T, false})(πω::ΩProj) where T = rv(parentω(πω))
-(rv::RandVar{T, true})(πω::ΩProj) where T = rv(parentω(πω))
+@inline apl(rv::RandVar, πω::ΩProj) = rv(parentω(πω))
 
-## Tagged
+"Reify arguments (resolve random variables to values)"
+@inline reify(ω, args) = map(x -> apl(x, ω), args)
+@spec all([r isa elemtype(a) for (a, r) in zip(args, _res)])
 
-(rv::RandVar)(tω::TaggedΩ{I, T, ΩT}) where {I, T, ΩT <: ΩProj}  =  rv(TaggedΩ(parentω(tω.taggedω), tω.tags))
+# TODO use generated function to avoid runtime iteration in reify
 
-(rv::RandVar{R, false})(tω::TaggedΩ{I, T, ΩT}) where {R, I, T, ΩT <: ΩProj}  =  rv(TaggedΩ(parentω(tω.taggedω), tω.tags))
-(rv::RandVar{R, true})(tω::TaggedΩ{I, T, ΩT}) where {R, I, T, ΩT <: ΩProj}  =  rv(TaggedΩ(parentω(tω.taggedω), tω.tags))
+# "Reify random variable args.. i.e. map(x -> apl(x, ω), args)"
+# @generated function reify(ω, args)
+#   if any(isa.(args RandVar))
+#     map(t -> t isa RandVar, args)
+#     quote
+#       (apl(x, ))
+#     end
+#   else
+#     quote
+#       args
+#     end
+#   end
+# end
 
-"X((w1, w2,...,)"
-(rv::NTuple{N, RandVar})(ω::Ω) where N = applymany(rv, ω)
+@inline apl(rv::RandVar, tω::TaggedΩ{I, T, ΩT}) where {I, T, ΩT <: ΩProj}  =
+  rv(TaggedΩ(parentω(tω.taggedω), tω.tags))

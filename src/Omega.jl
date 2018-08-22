@@ -1,163 +1,145 @@
-__precompile__()
+# __precompile__(false)
 "A Library for Causal and Higher-Order Probabilistic Programming"
 module Omega
 
 using Flux
-using Distributions
-using PDMats
-using ProgressMeter
 using Spec
-import Base.Random
-# import Statistics
-import Base.Random: AbstractRNG
 using ZenUtils
 using UnicodePlots
 using Compat
 
+import Random
+import Random: GLOBAL_RNG, AbstractRNG
+import Statistics: mean, var, quantile
+
 # Util
-include("util/misc.jl")
+include("util/Util.jl")
+using .Util
+export ntranspose
 
 # Core
-include("omega/omega.jl")         # Sample Space
-include("omega/proj.jl")          # Sample Space Projection
-include("omega/tagged.jl")        # Space space Tagged with metadata
-
-## Different Types of Omega
-include("omega/simple.jl")        # Simple Ω
-# include("omega/dirtyomega.jl")  # Sample Space
-include("omega/id.jl")            # Pairing functions for omega ids
+include("space/Space.jl")         # UIDs
+using .Space
+export Ω, uid, @id, SimpleΩ
 
 # RandVar
-include("randvar/randvar.jl")             # Random variables
+include("randvar/randvar.jl" )            # Random variables
+include("randvar/urandvar.jl")            # Random variables
 include("randvar/randvarapply.jl")        # Random variable application to ω::Ω
-
-# i.i.d.
-# include("iid/iid.jl")           # i.i.d. RandVars
-include("iid/ciid.jl")            # Conditionally i.i.d. RandVars
-
-# Higher-Order Inference
-include("higher/rcd.jl")          # Random Conditional Distribution
-include("higher/rid.jl")          # Random Interventional Distribution
-
-# Lifted random variable operatiosn
-include("lift/array.jl")          # Array primitives
-include("lift/lift.jl")           # Lifting functions to RandVar domain
+include("randvar/ciid.jl")                # Conditionally i.i.d. RandVars
+export RandVar, MaybeRV, ciid, isconstant
 
 # Conditioning
-include("cond.jl")                # Conditional random variables
+include("cond.jl")                # Conditioning
+export cond
+
+# Higher-Order Inference
+include("higher/Higher.jl")
+using .Higher
+export rcd, rid, ∥
+
+# Lifted random variable operatiosn
+include("lift/containers.jl")     # Array/Tuple primitives
+export  randarray, randtuple
+
+# Lifting functions to RandVar domain
+include("lift/lift.jl")           
+export @lift, lift
 
 # Soft Inference
 include("soft/kernels.jl")        # Kernels
 include("soft/soft.jl")           # Soft logic
 include("soft/trackerror.jl")     # Tracking error
+export  SoftBool,
+        softeq,
+        softlt,
+        softgt,
+        ≊,
+        ⪆,
+        ⪅,
+        >ₛ,
+        >=ₛ,
+        <=ₛ,
+        <ₛ,
+        ==ₛ,
 
-# Inference Algorithms
-include("inference/common.jl")    # Algorithm abstract type, Common Inference Functions
-include("inference/callbacks.jl") # Common Inference Functions
-include("inference/rand.jl")      # Sampling
-include("inference/rs.jl")        # Rejection Sampling
-include("inference/mi.jl")        # Metropolized Independent Sampling
-include("inference/ssmh.jl")      # Single Site Metropolis Hastings
-include("inference/hmc.jl")       # Hamiltonian Monte Carlo
-include("inference/hmcfast.jl")   # Faster Hamiltonian Monte Carlo
-include("inference/sghmc.jl")     # Stochastic Gradient Hamiltonian Monte Carlo
+        # Kernels
+        kse,
+        kseα,
+        kf1,
+        kf1β,
+        withkernel,
 
-# Causal Inference
-include("replace.jl")             # Causal Interventions
+        indomain,
+        applywoerror,
+        trackerrorapply
 
 # Gradient
 include("gradient.jl")
+export gradient
+
+# Inference Algorithms
+include("inference/Inference.jl")
+using .Inference
+export  isapproximate,
+
+        RejectionSample,
+        MI,
+        SSMH,
+        HMC,
+        # SGHMC,
+        HMCFAST,
+
+        RejectionSampleAlg,
+        MIAlg,
+        SSMHAlg,
+        HMCAlg,
+        # SGHMCAlg,
+        HMCFASTAlg,
+
+        defalg,
+        defcb,
+        defΩ,
+        defΩProj,
+
+        everyn,
+        →,
+        idcb,
+        throttle,
+        plotrv,
+        default_cbs,
+        Inside,
+        Outside,
+        default_cbs_tpl,
+        default_cbs
+
+# Causal Inference
+include("causal/Causal.jl")
+using .Causal
+export replace
 
 # Library
-include("library/distributions.jl")  # Primitive distributions
-include("library/statistics.jl")     # Distributional properties: mean, variance, etc
+include("primitive/Prim.jl")
+using .Prim
+export  bernoulli,
+        betarv,
+        β,
+        categorical,
+        # dirichlet,
+        exponential,
+        gammarv,
+        Γ,
+        invgamma,
+        kumaraswamy,
+        logistic,
+        # mvnormal,
+        normal,
+        poisson,
+        rademacher,
+        uniform
 
 # Neural Network Stuff
 include("flux.jl")
-
-export mean,
-       prob,
-       rcd,
-       ∥,
-       softeq,
-       softlt,
-       softgt,
-       ≊,
-       ⪆,
-       ⪅,
-       >ₛ,
-       >=ₛ,
-       <=ₛ,
-       <ₛ,
-       ==ₛ,     
-       randarray,
-       @lift,
-       lift,
-       @id,
-       ciid,
-       kse,
-
-       # Distributions
-       bernoulli,
-       boolbernoulli,
-       betarv,
-       β,
-       categorical,
-       dirichlet,
-       exponential,
-       gammarv,
-       Γ,
-       inversegamma,
-       kumaraswamy,
-       logistic,
-       poisson,
-       normal,
-       mvnormal,
-       uniform,
-       rademacher,
-       constant,
-
-       # Causal
-       replace,
-
-       # Algorithms
-       RejectionSample,
-       MI,
-       SSMH,
-       HMC,
-       SGHMC,
-       HMCFAST,
-
-       SoftBool,
-
-       # Omegas
-       Ω,
-       SimpleΩ,
-
-       throttle,
-       plotrv,
-       default_cbs,
-
-       withkernel,
-
-       # Soft
-       indomain,
-
-       # Gradient
-       gradient,
-
-       # Misc
-       ntranspose,
-
-       Outside,
-
-       MaybeRV,
-
-       # Callbacks
-       everyn,
-       →,
-       idcb,
-
-       cond
+export Dense
 
 end

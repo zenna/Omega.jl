@@ -1,3 +1,5 @@
+module TestNamespace
+
 using Omega
 import ForwardDiff
 
@@ -26,3 +28,5 @@ function testgrad2()
 end
 
 testgrad2()
+
+end

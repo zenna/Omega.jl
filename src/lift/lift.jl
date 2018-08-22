@@ -1,34 +1,24 @@
-## Lifting
-## =======
+# Lifting Functions to Functions
 
+"Domain type of Random Variable"
 elemtype(x::T) where T = T
-elemtype(::AbstractRandVar{T}) where T = T
-
-"Make a random variable"
-function mkrv(f, args::Tuple)
-  elemtypes = map(elemtype, args)
-  ms = methods(f, elemtypes)
-  length(ms) =! 1 && throw(MethodError(f, elemtypes))
-  RTS = Base.return_types(f, elemtypes)
-  isempty(RTS) && throw(ArgumentError("No return types"))
-  RandVar{first(RTS), false}(f, args)
-end
+elemtype(::RandVar) = @assert false
 
 # No Exists{T} yet https://github.com/JuliaLang/julia/issues/21026#issuecomment-306624369"
 function liftnoesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
-  args = [isrv ?  :($(Symbol(:x, i))::Omega.AbstractRandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
+  args = [isrv ?  :($(Symbol(:x, i))::Omega.RandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
   quote
   function $fnm($(args...))
-    Omega.mkrv($fnm, ($(args...),))
+    Omega.ciid($fnm, $(args...))
   end
   end
 end
 
 function liftesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
-  args = [isrv ?  :($(Symbol(:x, i))::Omega.AbstractRandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
+  args = [isrv ?  :($(Symbol(:x, i))::Omega.RandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
   quote
   function $(esc(fnm))($(args...))
-    Omega.mkrv($(esc(fnm)), ($(args...),))
+    Omega.ciid($fnm, $(args...))
   end
   end
 end
@@ -68,7 +58,8 @@ fnms = [:(Base.:-),
         :(Base.:<),
         ]
 
-Base.:^(x1::Omega.AbstractRandVar{T}, x2::Integer) where T = RandVar{T, false}(^, (x1, x2))
+Base.:^(x1::RandVar, x2::MaybeRV) = ciid(^, x1, x2) # FIXME: Only for 0.7 deprecations
+Base.:^(x1::RandVar, x2::Integer) = ciid(^, x1, x2) # FIXME: Only for 0.7 deprecations
 macro lift(fnm::Union{Symbol, Expr}, n::Integer)
   combinations = Iterators.product(((true,false) for i = 1:n)...)
   combinations = Iterators.filter(any, combinations)
@@ -86,6 +77,14 @@ for fnm in fnms, i = 1:MAXN
   lift(fnm, i)
 end
 
-# wowlift(f::Function, args...) =  mkrv(f, args::Tuple)
+# lift(f::Function) = (args...) -> ciid(f, args...)
 
-lift(f::Function) = g(args...) = mkrv(f, args)
+@generated function maybelift(f::Function, args...)
+  if any([arg <: RandVar for arg in args])
+    :(ciid(f, args...))
+  else
+    :(f(args...))
+  end
+end
+
+lift(f::Function) = (args...) -> maybelift(f, args...)

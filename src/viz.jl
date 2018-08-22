@@ -42,14 +42,14 @@ function plottraces(qpdata, plt = plot())
   plt
 end
 
-function testcb(;ALG = HMC, n = 1000, kwargs...)
+function testcb2(;alg = HMC, n = 1000, kwargs...)
   μ = normal(0.0, 1.0)
   x = normal(μ, 1.0)
-  y = (x == 0.0)  
+  y = (x ==ₛ 0.0)  
   # y = (x == 0.0) | (μ < 0.0)
   cb, cbdata = Omega.tracecb(Omega.QP, deepcopy)
-  cb = [default_cbs(n); cb]
-  rand(μ, y, ALG; n = n, cb = cb, kwargs...)
+  # cb = [default_cbs(n); cb]
+  rand(μ, y, n; alg = alg, cb = cb, kwargs...)
   qpdata = cbdata[2]
   plt = plot()
   ucontours(y, x.id, μ.id, Omega.defΩ(HMC)(), plt = plt)
@@ -73,7 +73,7 @@ function testcb2(;kwargs...)
   plottraces(qpdata, plt)
   qpdata, plt
 end
-qpdata, plt = testcb2(nsteps = 20, stepsize = 0.01, n=5000)
+# qpdata, plt = testcb2(nsteps = 20, stepsize = 0.01, n=5000)
 
 function to_output_space(q1, q2)
   n1  = Distributions.Normal(0, 1)

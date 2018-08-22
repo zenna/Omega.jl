@@ -1,4 +1,4 @@
-## Callback tree
+# Callback tree
 
 "Callback Node"
 struct CbNode{F, TPL <: Tuple}
@@ -17,15 +17,10 @@ trigger(data::NamedTuple, child, stage) = child(data, stage)
 
 function (cbt::CbNode)(data, stage)
   data2 = datamerge(cbt.parent(data, stage), data)
-  # @show typeof(data2)
-  # @show typeof(cbt)
   for child in cbt.children
     trigger(data2, child, stage)
   end
 end
-
-# Either make rule be that we always pass whatever is on
-# Or we could make it say only if we pass some value it is tricted
 
 @inline idcb(x, stage) = x
 
@@ -40,8 +35,6 @@ struct NaNError <: Exception end
 runall(f) = f
 runall(fs::AbstractVector) = (data, stage) -> foreach(f -> handlesignal(f(data, stage)), fs)
 
-RunData(;kwargs...) = kwargs.data
-
 "Stage of algorithm at which callback is called.
  Callback has type f(data, stage::Type{<:Stage}."
 abstract type Stage end
@@ -51,7 +44,6 @@ abstract type Inside <: Stage end
 
 "Stage at end of MHStep"
 abstract type Outside <: Stage end
-
 
 "Signal returned by callback"
 abstract type Signal end
@@ -75,21 +67,21 @@ function plotp()
     push!(alldata, data.p)
     push!(ys, data.i)
     if !isempty(alldata)
-      println(lineplot(ys, alldata, title="Time vs p"))
+      println(UnicodePlots.lineplot(ys, alldata, title="Time vs p"))
     end
     if data.p > maxseen
       maxseen = data.p
-      print_with_color(:light_blue, "\nNew max at id $(data.i): $(data.p)\n")
+      printstyled("\nNew max at id $(data.i): $(data.p)\n"; color = :light_blue)
     end
     if data.p < minseen
       minseen = data.p
-      print_with_color(:light_blue, "\nNew min at id $(data.i): $(data.p)\n")
+      printstyled("\nNew min at id $(data.i): $(data.p)\n"; color = :light_blue)
     end
   end
 end
 
 "Scatter plot ω values with UnicodePlots"
-function plotω(x::RandVar{T}, y::RandVar{T}) where T
+function plotω(x::RandVar, y::RandVar)
   xωs = Float64[]
   yωs = Float64[]
 
@@ -108,8 +100,8 @@ function plotω(x::RandVar{T}, y::RandVar{T}) where T
 end
 
 "Plot histogram of loss with UnicodePlots"
-function plotrv(x::RandVar{T}, name = string(x), display_ = display) where T
-  xs = T[]
+function plotrv(x::RandVar, name = string(x), display_ = display)
+  xs = []
   ys = Int[]
 
   innerplotω(data, stage) = nothing # Do nothing in other stages
@@ -120,7 +112,7 @@ function plotrv(x::RandVar{T}, name = string(x), display_ = display) where T
     push!(xs, x_)
     push!(ys, data.i)
     if !isempty(xs)
-      println(lineplot(ys, xs, title="Time vs $name"))
+      println(UnicodePlots.lineplot(ys, xs, title="Time vs $name"))
     end
   end
 end
@@ -137,11 +129,11 @@ end
 function tracecb(::Type{T}, t = identity) where T
   ωs = T[]
   allωs = Vector{T}[]
-  function f(qp, ::Type{Omega.Inside})
+  function f(qp, ::Type{Inside})
     push!(ωs, t(qp))
   end
 
-  function f(data, ::Type{Omega.Outside})
+  function f(data, ::Type{Outside})
     push!(allωs, copy(ωs))
     empty!(ωs)
   end
@@ -154,8 +146,9 @@ end
 "Print the p value"
 printstats(data, stage) = nothing
 function printstats(data, stage::Type{Outside})
-  print_with_color(:light_blue, "\nacceptance ratio: $(data.accepted/float(data.i))\n",
-                                "Last p: $(data.p)\n")
+  printstyled("\nacceptance ratio: $(data.accepted/float(data.i))\n",
+              "Last p: $(data.p)\n";
+              color = :light_blue)
 end
 
 
@@ -165,11 +158,11 @@ function stopnanorinf(data, stage::Type{Outside})
   if isnan(data.p)
     println("p is $(data.p)")
     throw(NaNError())
-    return Omega.Stop
+    return Stop
   elseif data.p == Inf
     println("p is $(data.p)")
     throw(InfError())
-    return Omega.Stop
+    return Stop
   end
 end
 
@@ -202,7 +195,7 @@ function throttle(f, timeout; leading = true, trailing = false) # From Flux (tha
       end
 
       cooldown = false
-      @schedule try
+      @async try
         while (sleep(timeout); later != nothing)
           later()
           later = nothing

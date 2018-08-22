@@ -1,19 +1,5 @@
-function bound_loss(x, a, b)
-  # @pre b >= a
-  if x < a
-    a - x
-  elseif x > b
-    x - b
-  else
-    zero(x)
-  end
-end
+# Soft Logic
 
-randbool(f, x, y) = RandVar{Bool, false}(SoftBool ∘ f, (x, y))
-randbool(ϵ::RandVar) = RandVar{Bool, false}(SoftBool, (ϵ,))
-
-## Soft Logic
-## ==========
 "Soft Boolean"
 struct SoftBool{ET <: Real}
   logepsilon::ET
@@ -26,12 +12,17 @@ epsilon(x::SoftBool) = x.logepsilon |> exp
 "Log error"
 logepsilon(x::SoftBool) = x.logepsilon
 
-Base.convert(::Type{Bool}, x::SoftBool) = epsilon(x) == 1.0
+Bool(x::SoftBool) = epsilon(x) == 1.0
 SoftBool(::Type{Val{true}}) = SoftBool(0.0)
 SoftBool(::Type{Val{false}}) = SoftBool(-Inf)
+const trueₛ = SoftBool(Val{true})
+const falseₛ = SoftBool(Val{false})
 
 ## (In)Equalities
-## ==============
+
+"Distance between two values"
+function d end
+
 @inline d(x::Real, y::Real) = (xy = (x - y); xy * xy)
 # @inline d(x::Vector{<:Real}, y::Vector{<:Real}) = norm(x - y)
 @inline d(x::Vector{<:Real}, y::Vector{<:Real}) = sum(d.(x,y))
@@ -44,6 +35,17 @@ softeq(x, y, k = globalkernel()) = SoftBool(-k(d(x, y)))
 usofteq(x, y, k = globalkernel()) = SoftBool(k(d(x, y)))
 
 # softeq(x::Vector{<:Real}, y::Vector{<:Real}) = SoftBool(1 - mean(f1.(x - y)))
+
+function bound_loss(x, a, b)
+  # @pre b >= a
+  if x < a
+    a - x
+  elseif x > b
+    x - b
+  else
+    zero(x)
+  end
+end
 
 softgt(x::Real, y::Real, k = globalkernel()) = SoftBool(-k(bound_loss(x, y, Inf)))
 softlt(x::Real, y::Real, k = globalkernel()) = SoftBool(-k(bound_loss(x, -Inf, y)))
@@ -58,18 +60,15 @@ function Base.:&(x::SoftBool, y::SoftBool)
 end
 # Base.:&(x::SoftBool, y::SoftBool) = SoftBool(logepsilon(x) +  logepsilon(y))
 Base.:|(x::SoftBool, y::SoftBool) = SoftBool(max(logepsilon(x), logepsilon(y)))
-Base.:|(x::RandVar, y::RandVar) = RandVar{SoftBool, false}(|, (x, y))
 
 Base.all(xs::Vector{<:SoftBool}) = SoftBool(minimum(logepsilon.(xs)))
-Base.all(xs::Vector{<:RandVar}) = RandVar{SoftBool}(all, ())
+Base.all(xs::Vector{<:RandVar}) = RandVar(all, (xs, ))
 
-if isjulia7()
-  const >ₛ = softgt
-  const >=ₛ = softgt
-  const <=ₛ = softlt
-  const <ₛ = softlt
-  const ==ₛ = softeq
-end
+const >ₛ = softgt
+const >=ₛ = softgt
+const <=ₛ = softlt
+const <ₛ = softlt
+const ==ₛ = softeq
 
 const ⪆ = softgt
 const ⪅ = softlt

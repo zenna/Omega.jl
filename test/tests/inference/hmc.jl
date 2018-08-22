@@ -1,3 +1,5 @@
+module TestNamespace
+
 using Omega
 using UnicodePlots
 
@@ -9,3 +11,5 @@ function test_hmc_1()
 end
 
 test_hmc_1()
+
+end

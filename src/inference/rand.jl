@@ -1,9 +1,17 @@
-defalg(args...) = SSMH
-defΩ(args...) = Omega.SimpleΩ{Vector{Int}, Any}
+"Default inference algorithm"
+defalg(args...) = RejectionSample
+
+"Default Ω to use"
+defΩ(args...) = SimpleΩ{Vector{Int}, Any}
+
+"Default projection"
+defΩProj(args...; OT = defΩ(args...)) = ΩProj{OT, idtype(OT)}
+
+"Default callbacks"
 defcb(args...) = donothing
 
 "Sample `n` from `x`"
-function Base.rand(x::RandVar, n::Integer; alg::Algorithm =  defalg(x), ΩT = defΩ(alg), kwargs...)
+function Base.rand(x::RandVar, n::Integer; alg::Algorithm = defalg(x), ΩT = defΩ(alg), kwargs...)
   rand(x, n, alg, ΩT; kwargs...)
 end
 

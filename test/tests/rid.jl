@@ -1,5 +1,8 @@
+module TestNamespace
+
 using Omega
 using Test
+using Statistics: mean
 
 function testrid()
   θ = betarv(2.0, 2.0)
@@ -15,3 +18,5 @@ function testrid()
 end
 
 testrid()
+
+end

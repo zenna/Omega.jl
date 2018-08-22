@@ -1,11 +1,14 @@
+module TestNamespace
+
 using Omega
 using UnicodePlots
+using Statistics: mean
 
 function test_ssmc_1()
   μ = uniform(0.0, 1.0)
   x = normal(μ, 5.0)
   samples = rand(μ, x ≊ 7.0, 10000; alg= SSMH)
-  println(histogram(samples))
+  println(histogram([samples...]))
   println(mean(samples))
 end
 
@@ -19,3 +22,5 @@ function test_ssmc_2()
 end
 
 test_ssmc_2()
+
+end

@@ -7,23 +7,23 @@ const RejectionSample = RejectionSampleAlg()
 isapproximate(::RejectionSampleAlg) = false
 
 "`n` samples from `x` with rejection sampling"
-function Base.rand(x::RandVar{T},
+function Base.rand(x::RandVar,
                    n::Integer,
                    alg::RejectionSampleAlg,
                    ΩT::Type{OT};
-                   cb = donothing) where {T, OT}
+                   cb = donothing) where {OT}
   samples = []
   accepted = 0
   i = 1
   while accepted < n
     ω = ΩT()
-    xω = x(ω)
-    if xω != nothing
+    xω, sat = trackerrorapply(x, ω, Wrapper(true))
+    if sat
       push!(samples, xω)
       accepted += 1
-      cb(RunData(ω = ω, accepted = accepted, p = 0.0, i = i), Outside)
+      cb((ω = ω, accepted = accepted, p = 0.0, i = i), Outside)
     else
-      cb(RunData(ω = ω, accepted = accepted, p = 1.0, i = i), Outside)
+      cb((ω = ω, accepted = accepted, p = 1.0, i = i), Outside)
     end
     i += 1
   end
