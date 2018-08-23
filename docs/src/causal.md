@@ -39,7 +39,7 @@ julia> rand((x, xnew))
 Observe that the sample from `xnew` is much greater, because it has the mean of the normal distribution has been changed to `100`
 
 ### Replace a Random Variable with a Random Variable
-Repacing a radnom variable with a constant is actually a special case of replacing a reandom variable with a number random variable.  The inferfance is the same
+Repacing a random variable with a constant is actually a special case of replacing a random variable with a number random variable.  The inference is the same
 
 ```julia
 julia> xnewnew = replace(x, μold => normal(200.0, 1.0))
