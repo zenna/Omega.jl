@@ -3,9 +3,9 @@
 Omega supports causal inference through the `replace` function and higher-order causal inference through the random interventional distribution `rid`.
 Causal inference is a topic of much confusion, we recommend this [blog post](https://www.inference.vc/untitled/) for a primer.
 
-## Causal Interention - the `replace` operator
+## Causal Intervention - the `replace` operator
 
-The `replace` operator models an interention to a model.
+The `replace` operator models an intervention to a model.
 It changes the model.
 
 ```@docs
