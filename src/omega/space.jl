@@ -6,6 +6,7 @@ export Ω, ΩWOW, resolve
 abstract type Ω{I} <: AbstractRNG end
 
 # Must implement:
+# * Base.==
 # * Base.isempty
 # * Base.merge! ( -- currently unused)
 # ? others

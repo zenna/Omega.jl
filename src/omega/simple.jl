@@ -28,6 +28,10 @@ SimpleΩ{I, V}() where {I, V} = SimpleΩ{I, V}(Dict{I, V}())
 Base.values(sω::SimpleΩ) = values(sω.vals)
 Base.keys(sω::SimpleΩ) = keys(sω.vals)
 
+#TODO: Ask Zenna if this is kosher
+function Base.setindex!(sω::SimpleΩ{I,V}, v::V, i::I) where {I, V}
+  sω.vals[i] = v
+end
 
 
 ## Resolve
@@ -125,7 +129,8 @@ Base.length(sω::SimpleΩ) = length(sω.vals)
 "Linearize ω into flat vector"
 function linearize end
 
-"Inverse of `linearize`, structure vector into ω"
+"Inverse of `linearize`, structure vector into ω.
+Precondition: ωvec and sω are the same length."
 function unlinearize end
 
 linearize(sω::SimpleΩ{I, V}) where {I, V <: Real} = collect(values(sω.vals))
