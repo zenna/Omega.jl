@@ -80,6 +80,7 @@ function plotp()
   end
 end
 
+# FIXME: Redundant, make this use plotscalsr
 "Scatter plot ω values with UnicodePlots"
 function plotω(x::RandVar, y::RandVar)
   xωs = Float64[]
@@ -99,6 +100,7 @@ function plotω(x::RandVar, y::RandVar)
   end
 end
 
+# FIXME: Redundant, make this use plotscalsr
 "Plot histogram of loss with UnicodePlots"
 function plotrv(x::RandVar, name = string(x), display_ = display)
   xs = []
