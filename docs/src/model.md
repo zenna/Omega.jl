@@ -133,8 +133,8 @@ Often we want to parameterize a random variable.  To do this we create functions
 and pass arguments to `ciid`.
 
 ```julia
-uniform(rng, a, b) = rand(rng) * (b - a) + b  
-x = ciid(10, 20)
+unif(rng, a, b) = rand(rng) * (b - a) + b  
+x = ciid(unif, 10, 20)
 ```
 
 And hence if we wanted to create a method that created independent uniformly distributed random variables, we could do it like so:

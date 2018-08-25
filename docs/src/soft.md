@@ -1,21 +1,23 @@
 # Soft Execution
 
-## TLDR
-For inference problems which are continuous or high dimensional, use soft predicates to use more efficient inference routines.
+!!! note
+    **TLDR**: For inference problems which are continuous or high dimensional, use soft predicates to use more efficient inference routines.
 
-```@docs
-==ₛ
->ₛ
->=
-<=ₛ
-<ₛ
-```
+    ```@docs
+    ==ₛ
+    >ₛ
+    >=
+    <=ₛ
+    <ₛ
+    ```
 
-If the values `x` and `y` are not standard numeric types you will need to define a notion of distance.  Override `Omega.d` for the relevant types
+    Soft predicates are supported (and required) by inference algorithms: SSMH, HMC, HMCFAST, MI.
 
-```@docs
-Omega.d
-```
+    If the values `x` and `y` are not standard numeric types you will need to define a notion of distance (even if they are, you may want to wrap them and define a distance for this type).  Override `Omega.d` for the relevant types
+
+    ```@docs
+    Omega.d
+    ```
 
 ## Relaxation
 In Omega you condition on predicates.
@@ -42,39 +44,42 @@ julia> rand(y)
 ```
 
 Suppose we construct a random variable of the form `x == y`.
-The soft version we would write `x ==\_s y` (or `softeq(x, y)`).
-These softened functions have the form:
+In the soft version we would write `x ==ₛ y` (or `softeq(x, y)`).
 
-If \rho(x, y) denote a distance between `x` and `y`.
+!!! note
 
-$$
+    In the Julia REPL and most IDEs ==ₛ is constructed by typing ==\_s [tab].
+
+Softened predicates return values in unit interval `[0, 1]` as opposed to a simply `true` or `false`.
+Intuitively, `1` corresponds to `true`, and a high value (such as 0.999) corresonds to "nearly true".
+Mathematicallty, they have the form:
+
+```math
 k(\rho(x, y))
-$$
+```
 
+If ``\rho(x, y)`` denote a notion of distance between ``x`` and ``y``.
+
+Rather than actually output values of type `Float64`, soft predicate output values of type `SoftBool`.
+As stated a `SoftBool` represents a value in `[0, 1]`, but in log scale for numerical reasons.
+
+```@docs
+SoftBool
 ```
 
 ## Controlling the kernel
-
 
 Omega has a number of built-in kernels:
 
 ```@docs
 kse
+kf1
+kpareto
 ```
 
-## Soft Function Application
-There are a couple of drawbacks from explicitly using soft constraints in the model:
+By default, the squared exponential kernel is used with a default temperature parameter.
+The method `withkernel` can be used to choose which kernel is being applied within the context of a soft boolean operator.
 
-1. We have changed the model for what is a problem of inference
-2. Often we may be using pre-existing code and not be able to easily replace all the constraints with soft constraints
-
-Omega has an experimental feature which automatically does soft execution of a normal predicate.  Soft application relies on e
-
-```julia
-julia> g(x::Real)::Bool = x > 0.5
-julia> softapply(g, 0.3)
-ϵ:-2000.0
+```@docs
+withkernel
 ```
-
-This feature is experimental because Cassette is waiting on a number of compiler optimizations to make this efficient.
-

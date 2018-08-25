@@ -29,11 +29,7 @@ x2 = normal(0.0, 10)
 rand((x1, x2), x1 > x2)
 ```
 
-Note: to sample from more than one random variable, just pass a tuple of `RandVar`s to `rand`, e.g.:
-
-```@docs
-Omega.rand
-```
+Note: to sample from more than one random variable, just pass a tuple of `RandVar`s to `rand`.
 
 ## Conditioning with `cond` 
 
@@ -41,7 +37,7 @@ Omega.rand
 That is, the primary mechanism for inference in Omega is conditioning random variables using `cond`.
 
 ```@docs
-cond
+cond(::RandVar, ::RandVar)
 ```
 
 ## Conditioning the Prior

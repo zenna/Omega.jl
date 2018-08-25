@@ -12,9 +12,10 @@ kseα(α) = d -> kse(d, α)
 lift(:kseα, 1)
 lift(:logkseα, 1)
 
-"Power law relation "
+"Power law kernel"
 kpow(d, α = 1.0, k = 2) = -k * log(d) + log(α)
 
+"Parento Kernel"
 kpareto(x, xm = 0, α = 1.0) = log(α) + log(xm) - (α + 1) * log(x)
 kpareto2(x, xm = 1.0, α = 11) = log(α) + log(xm)  - log(x+xm^(α + 1))
 kpareto3(x, xm = 1.0, α = 3) = log(xm) - log(x+xm^(α + 1))
