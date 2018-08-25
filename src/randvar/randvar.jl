@@ -7,6 +7,9 @@ const ID = Int
 
 id(rv::RandVar) = rv.id
 
+"Parameters of a random variable"
+function params(rv::RandVar) end
+
 """Is `x` a constant random variable, i.e. x(ω) = c ∀ ω ∈ Ω?
 
 Determining constancy is intractable (and likely undecidable) in general.
@@ -32,13 +35,15 @@ isconstant(x3)
 false
 ```
 """
-function isconstant(x, ΩT = defΩ(x))
+function isconstant(x::RandVar, ΩT = defΩ(x))
   # This implementation assumes that ΩT is lazy, more general solution would wrap
   # ω of any type and intercept rand(ω) 
   ω = ΩT()
   x(ω)
   isempty(ω)
 end
+
+isconstant(x) = true
 
 ## Printing
 ## ========
