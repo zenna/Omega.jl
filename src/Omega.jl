@@ -4,7 +4,7 @@ module Omega
 
 using Flux
 using Spec
-using ZenUtils
+# using ZenUtils
 using UnicodePlots
 using Compat
 
@@ -160,7 +160,28 @@ export  succprob,
         isleptokurtic,
         entropy,
         mean
-        
+
+# Lifted distributional functions
+export  lsuccprob,
+        lfailprob,
+        lmaximum,
+        lminimum,
+        lislowerbounded,                    
+        lisupperbounded,
+        lisbounded,
+        lstd,
+        lmedian,
+        lmode,
+        lmodes,
+
+        lskewness,
+        lkurtosis,
+        lisplatykurtic,
+        lismesokurtic,
+
+        lisleptokurtic,
+        lentropy,
+        lmean
 
 # Neural Network Stuff
 include("flux.jl")

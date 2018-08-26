@@ -5,6 +5,7 @@ using ..Omega: Ω, RandVar, URandVar, MaybeRV, ID, lift, uid, elemtype, isconsta
 import ..Omega: params, name, ppapl, apl, reify
 import Statistics: mean, var, quantile
 import ..Causal: ReplaceRandVar
+using ..Util
 using Spec
 import Distributions
 const Djl = Distributions
@@ -78,7 +79,28 @@ export  succprob,
         isleptokurtic,
         entropy,
         mean
-        
+
+# Lifted distributional functions
+export  lsuccprob,
+        lfailprob,
+        lmaximum,
+        lminimum,
+        lislowerbounded,                    
+        lisupperbounded,
+        lisbounded,
+        lstd,
+        lmedian,
+        lmode,
+        lmodes,
+
+        lskewness,
+        lkurtosis,
+        lisplatykurtic,
+        lismesokurtic,
+
+        lisleptokurtic,
+        lentropy,
+        lmean
 include("djl.jl")             # Distributions.jl interop
 
 end
