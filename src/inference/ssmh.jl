@@ -7,11 +7,33 @@ defcb(::SSMHAlg) = default_cbs()
 
 isapproximate(::SSMHAlg) = true
 
+struct SSMHDriftAlg <: Algorithm end
+
+"Single Site Metropolis Hastings with drift"
+const SSMHDrift = SSMHDriftAlg()
+defcb(::SSMHDriftAlg) = default_cbs()
+defΩ(::SSMHDriftAlg) = SimpleΩ{Vector{Int}, Float64}
+
+isapproximate(::SSMHDriftAlg) = true
+
 function update_random(sω::SO)  where {SO <: SimpleΩ}
   k = rand(1:length(sω))
   filtered = Iterators.filter(sω.vals |> keys |> enumerate) do x
     x[1] != k end
   SO(Dict(k => sω.vals[k] for (i, k) in filtered))
+end
+
+function update_random(sω::SO, noiseσ)  where {SO <: SimpleΩ}
+  tomodify = rand(1:length(sω))
+  elements = map(sω.vals |> keys |> enumerate) do (i,k)
+    val = if i == tomodify
+      (sω.vals[k] |> transform) + noiseσ*randn() |> inv_transform
+    else
+      sω.vals[k]
+    end
+    k => val
+  end
+  elements |> Dict |> SO
 end
 
 "Sample from `x | y == true` with Single Site Metropolis Hasting"
@@ -21,6 +43,27 @@ function Base.rand(x::RandVar,
                    ΩT::Type{OT};
                    cb = donothing,
                    hack = true) where {OT <: Ω}
+  rand_(x, n, alg, ΩT; cb = cb, hack = hack, noise = false)
+end
+
+function Base.rand(x::RandVar,
+                  n::Integer,
+                  alg::SSMHDriftAlg,
+                  ΩT::Type{OT};
+                  cb = donothing,
+                  hack = true, 
+                  noiseσ = 0.1 ) where {OT <: Ω}
+  rand_(x, n, alg, ΩT; cb = cb, hack = hack, noiseσ = noiseσ, noise = true)
+end                  
+
+function rand_(x::RandVar,
+                    n::Integer,
+                    alg::Union{SSMHAlg, SSMHDriftAlg},
+                    ΩT::Type{OT};
+                    cb = donothing,
+                    hack = true, 
+                    noiseσ = 0.1,
+                    noise = false) where {OT <: Ω}
   ω = ΩT()
   xω, sb = trackerrorapply(x, ω)
   plast = logepsilon(sb)
@@ -31,7 +74,11 @@ function Base.rand(x::RandVar,
     ω_ = if isempty(ω)
       ω
     else
-      update_random(ω)
+      if noise
+        update_random(ω, noiseσ)
+      else 
+        update_random(ω) 
+      end
     end
     xω_, sb = trackerrorapply(x, ω_)
     p_ = logepsilon(sb)
