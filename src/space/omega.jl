@@ -6,6 +6,10 @@ abstract type ΩBase{I} <: Ω{I} end
 
 idtype(::Type{OT}) where {I, OT <: Ω{I}} = I
 
+# Must implement:
+# * Base.isempty
+# * Base.merge! ( -- currently unused)
+# ? others
 function resolve end
 
 "Linearize ω into flat vector"
