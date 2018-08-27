@@ -24,6 +24,16 @@ randrtype(::Type{Float64}) = Float64
 randrtype(::UnitRange{T}) where T = T
 randrtype(::Array{T}) where T = T
 
+function Base.setindex!(sω::SimpleΩ{I,V}, v::V, i::I) where {I, V}
+  sω.vals[i] = v
+end
+
+function Base.:(==)(sω1::SimpleΩ{I,V}, sω2::SimpleΩ{I,V}) where {I, V}
+  sω1.vals == sω2.vals
+end
+
+# Resolve
+
 @inline function resolve(ω::SimpleΩ{I, Any}, id::I, T) where {I}
   get!(()->rand(GLOBAL_RNG, T), ω.vals, id)::randrtype(T)
 end
@@ -67,6 +77,9 @@ function linearize(sω::SimpleΩ{I, V}) where {I, V <: AbstractArray}
   vcat((a[:] for a in values(sω.vals))...)
 end
 
+
+"Inverse of `linearize`, structure vector into ω.
+Precondition: ωvec and sω are the same length."
 function unlinearize(ωvec, sω::SimpleΩ{I, V}, f=identity) where {I, V <: AbstractArray}
   # warn("Are keys in order?")
   vcat((view(a, :) for a in values(sω.vals))...)
