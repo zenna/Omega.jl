@@ -23,4 +23,21 @@ end
 
 test_ssmc_2()
 
+
+
+
+function test_sshm_drift()
+  x_(rnd) = normal(rnd, 0.0, 1.0)
+  y_(rnd) = normal(rnd, 1.0, 1.0)
+
+  x = x_ |> ciid
+  y = y_ |> ciid
+  z = rand(x-y, x ==ₛ y, 10000; alg=SSMHDrift)
+  z = convert(Array{Float64}, z)
+  println(histogram([z[300:end]...]))
+  println(mean(z[300:end]))
+end
+
+test_sshm_drift()
+
 end
