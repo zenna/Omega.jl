@@ -11,6 +11,11 @@ The major functions that you will use in Omega are:
 - [rid(x, θ)]()  : distribution interventional distribution of `x` given `θ`  
 - [rcd(x, θ) or x ∥ θ]()  : random conditional distribution of `x` given `θ`
 
+## FAQ
+
+- How to sample from a joint distribution (more than one random variable at a time)?
+Pass a tuple of random variables, e.g: `rand((x, y, z))`.
+
 ## Built-in Distributions
 
 [bernoulli(w)](distributions.md#Omega.bernoulli) [boolbernoulli(w)](distributions.md#Omega.boolbernoulli)
@@ -19,7 +24,7 @@ categorical
 constant
 exponential
 gammarv
-inversegamma
+invgamma
 kumaraswamy
 logistic
 poisson
@@ -32,6 +37,6 @@ rademacher
 RejectionSample
 MI
 SSMH
+SSMHDrift
 HMC
-SGHMC
 HMCFAST
