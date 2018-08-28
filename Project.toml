@@ -18,7 +18,7 @@ ZenUtils = "8c7a6496-654a-11e8-0e4c-c7dc3dc823b6"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-InteractiveUtils "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
 [targets]
 test = ["Test"]
