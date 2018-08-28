@@ -1,11 +1,11 @@
+"Set of small tests for all inference algorithms"
 module TestNamespace
 
-# Set of small tests for all inference algorithms
 using Omega
 using UnicodePlots
 using Test
+using InteractiveUtils: subtypes
 
-"Test extremnity of conditionining set"
 function simple(ALG, op, v = 1.0)
   μ = normal(0.0, 1.0)
   x = normal(μ, 1.0)
@@ -13,7 +13,7 @@ function simple(ALG, op, v = 1.0)
 end
 
 function testall()
-  algs = [HMC, SSMH, MI, HMCFAST] # FIXME: subtypes(Omega.Algorithm))
+  algs = [ALG() for ALG in subtypes(Omega.Inference.Algorithm)]
   for ALG in filter(Omega.isapproximate, algs), op in [⪅, ⪆, ≊]
     println("Testing $ALG on $op")
     simple(ALG, op)

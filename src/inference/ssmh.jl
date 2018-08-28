@@ -1,20 +1,14 @@
-"Single Site Metropolis Hastings"
 struct SSMHAlg <: Algorithm end
-
 "Single Site Metropolis Hastings"
 const SSMH = SSMHAlg()
-defcb(::SSMHAlg) = default_cbs()
-
-isapproximate(::SSMHAlg) = true
 
 struct SSMHDriftAlg <: Algorithm end
-
 "Single Site Metropolis Hastings with drift"
 const SSMHDrift = SSMHDriftAlg()
-defcb(::SSMHDriftAlg) = default_cbs()
 defΩ(::SSMHDriftAlg) = SimpleΩ{Vector{Int}, Float64}
 
-isapproximate(::SSMHDriftAlg) = true
+defcb(::Union{SSMHAlg, SSMHDriftAlg}) = default_cbs()
+isapproximate(::Union{SSMHAlg, SSMHDriftAlg}) = true
 
 function update_random(sω::SO)  where {SO <: SimpleΩ}
   k = rand(1:length(sω))
@@ -36,14 +30,13 @@ function update_random(sω::SO, noiseσ)  where {SO <: SimpleΩ}
   elements |> Dict |> SO
 end
 
-"Sample from `x | y == true` with Single Site Metropolis Hasting"
+"Sample from `x` with Single Site Metropolis Hasting"
 function Base.rand(x::RandVar,
                    n::Integer,
                    alg::SSMHAlg,
                    ΩT::Type{OT};
-                   cb = donothing,
-                   hack = true) where {OT <: Ω}
-  rand_(x, n, alg, ΩT; cb = cb, hack = hack, noise = false)
+                   cb = donothing) where {OT <: Ω}
+  rand_(x, n, alg, ΩT; cb = cb, noise = false)
 end
 
 function Base.rand(x::RandVar,
@@ -51,19 +44,17 @@ function Base.rand(x::RandVar,
                   alg::SSMHDriftAlg,
                   ΩT::Type{OT};
                   cb = donothing,
-                  hack = true, 
-                  noiseσ = 0.1 ) where {OT <: Ω}
-  rand_(x, n, alg, ΩT; cb = cb, hack = hack, noiseσ = noiseσ, noise = true)
+                  noiseσ = 0.1) where {OT <: Ω}
+  rand_(x, n, alg, ΩT; cb = cb, noiseσ = noiseσ, noise = true)
 end                  
 
 function rand_(x::RandVar,
-                    n::Integer,
-                    alg::Union{SSMHAlg, SSMHDriftAlg},
-                    ΩT::Type{OT};
-                    cb = donothing,
-                    hack = true, 
-                    noiseσ = 0.1,
-                    noise = false) where {OT <: Ω}
+               n::Integer,
+               alg::Union{SSMHAlg, SSMHDriftAlg},
+               ΩT::Type{OT};
+               cb = donothing,
+               noiseσ = 0.1,
+               noise = false) where {OT <: Ω}
   ω = ΩT()
   xω, sb = trackerrorapply(x, ω)
   plast = logepsilon(sb)
