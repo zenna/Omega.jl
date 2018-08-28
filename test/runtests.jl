@@ -39,4 +39,4 @@ function fakewalktests(testmodule::Module;
   println()
 end
 
-fakewalktests(Omega, exclude = ["rid.jl"])
+fakewalktests(Omega, exclude = ["rid.jl", "rcd.jl"])
