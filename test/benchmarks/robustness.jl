@@ -256,7 +256,7 @@ old_params = ((wrap(-0.2277), wrap(0.6434),wrap(2.3643)),
 
 # test_robustness(params)
 # For some reason, if I pass n to rand with RejectionSample, it returns n-1 samples 
-params = infer_robust(2,true)
+params = infer_robust(11,true)
 
 for p in params
     println(test_robustness(wrap_param(p)))
