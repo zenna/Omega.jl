@@ -4,7 +4,6 @@ module Omega
 
 using Flux
 using Spec
-using ZenUtils
 using UnicodePlots
 using Compat
 
