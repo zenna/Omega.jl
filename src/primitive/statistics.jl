@@ -16,17 +16,14 @@
 # end
 
 # mean(xs::RandVar{<:Array}) = RandVar{Float64, false}(mean, (xs,))
+"Sample Mean"
+mean(x::RandVar, n) = sum((rand(x, alg = RejectionSample) for i = 1:n)) / n
 
-# "Probability that `x` is `true`"
-# prob(x::RandVar{T}, n) where {T <: Bool} = mean(x, n)
-# prob(x::RandVar{T}, n = 10000) where { T<: RandVar{Bool}} = RandVar{Float64}(prob, (x, n))
-# lift(:prob, 1)
-
-
-# Issues.
-# Must expect that type inference may fail, and allow providing of type
-# Also allow separate functions
-# 
+"Probability x is true"
+prob(x::RandVar, n, israndvar::Type{Val{false}}) =
+  sum((rand(x, alg = RejectionSample) for i = 1:n)) / n
+lprob(x::RandVar, n) = ciid(prob, x, n, Val{false})
+prob(x::RandVar, n) = prob(x, n, Val{elemtype(x) <: RandVar})
 
 # Specializations
 const unidistattrs = [:succprob, :failprob, :maximum, :minimum, :islowerbounded,
@@ -42,7 +39,6 @@ for func in unidistattrs
     $(:l *ₛ func)(x::RandVar) = ciid($func, x, Val{false})
     $func(x::RandVar) = $func(x, Val{elemtype(x) <: RandVar})
   end
-  @show expr
   eval(expr)
 end
 
