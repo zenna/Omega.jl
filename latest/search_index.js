@@ -21,7 +21,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Quick Start",
     "category": "section",
-    "text": "Omega is built in Julia 0.7 but not yet in the official Julia Package repository.  You can still easily install it from a Julia repl with:(v0.7) pkg> add https://github.com/zenna/Omega.jl.gitCheck Omega is working and gives reasonable results with: julia> using Omega\n\njulia> rand(normal(0.0, 1.0))\n0.7625637212030862With that, see the Tutorial for a run through of the main features of Omega. "
+    "text": "Omega is built in Julia 1.0 but not yet in the official Julia Package repository.  You can still easily install it from a Julia repl with:(v1.0) pkg> add https://github.com/zenna/Omega.jl.gitNote: You will likely manually add the following dependencies, but if you use Omega from its environment, these will be downloaded automatically:https://github.com/zenna/Spec.jl\nhttps://github.com/zenna/ZenUtils.jlCheck Omega is working and gives reasonable results with: julia> using Omega\n\njulia> rand(normal(0.0, 1.0))\n0.7625637212030862With that, see the Tutorial for a run through of the main features of Omega. "
 },
 
 {
@@ -29,7 +29,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Contribute",
     "category": "section",
-    "text": "We want your contributions!Probabilistic models\nContribute an inference procedure"
+    "text": "We want your contributions!Probabilistic modelsPlease add probabilistic models and model families to https://github.com/zenna/OmegaModels.jlInference procedures"
 },
 
 {
@@ -101,7 +101,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Modeling",
     "title": "Explicit Style",
     "category": "section",
-    "text": "The above style is convenient but has a few limitations and it hides a lot of the machinery. To create random variables in the explicit style, create a normal julia sampler, but it is essential to pass through the rng object.For instance, to define a bernoulli distribution in explicit style:x_(rng) = rand(rng) > 0.5x_ is just a normal julia function.  We could sample from it by passing in the GLOBAL_RNGjulia> x_(Base.Random.GLOBAL_RNG)\ntrueHowever, in order to use x for conditional or causal inference we must turn it into a RandVar using ciid.x = ciid(x_)Statistical style and functional style can be combined naturally. For example:x = ciid(rng -> rand(rng) > 0.5 ? rand(rng)^2 : sqrt(rand(rng)))\ny = normal(0.0, 1.0)\nz = x + y"
+    "text": "The above style is convenient but has a few limitations and it hides a lot of the machinery. To create random variables in the explicit style, create a normal julia sampler, but it is essential to pass through the rng object.For instance, to define a bernoulli distribution in explicit style:x_(rng) = rand(rng) > 0.5x_ is just a normal julia function.  We could sample from it by passing in the GLOBAL_RNGjulia> x_(Base.Random.GLOBAL_RNG)\ntrueHowever, in order to use x for conditional or causal inference we must turn it into a RandVar. One way to do this (we discuss others in [conditonalindependence]) is using ciid.x = ciid(x_)All of the primitive distributions can be used in explicit style by passing the rng object as the first parameter (type constraints are added just to show that the return values are not random variables but elements): function x_(rng)\n  if bernoulli(rng, 0.5, Bool)\n    normal(rng, 0.0, 1.0)::Float64\n  else bernoulli(rng, 0.5, Bool)\n    betarv(rng, 2.0, 2.0)::Float64\n  end\nend\n\nciid(x_)Statistical style and functional style can be combined naturally. For example:x = ciid(rng -> rand(rng) > 0.5 ? rand(rng)^2 : sqrt(rand(rng)))\ny = normal(0.0, 1.0)\nz = x + y"
 },
 
 {
@@ -109,7 +109,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Modeling",
     "title": "Random Variable Families",
     "category": "section",
-    "text": "Often we want to parameterize a random variable.  To do this we create functions with addition argument, and pass arguments to ciid.uniform(rng, a, b) = rand(rng) * (b - a) + b  \nx = ciid(10, 20)And hence if we wanted to create a method that created independent uniformly distributed random variables, we could do it like so:uniform(a, b) = ciid(rng -> rand(rng) * (b - a) + b)"
+    "text": "Often we want to parameterize a random variable.  To do this we create functions with addition argument, and pass arguments to ciid.unif(rng, a, b) = rand(rng) * (b - a) + b  \nx = ciid(unif, 10, 20)And hence if we wanted to create a method that created independent uniformly distributed random variables, we could do it like so:uniform(a, b) = ciid(rng -> rand(rng) * (b - a) + b)"
 },
 
 {
@@ -129,11 +129,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "conditionalindependence.html#Independent-Random-Variables-1",
+    "location": "conditionalindependence.html#Omega.ciid",
     "page": "(Conditional) Independence",
-    "title": "Independent Random Variables",
-    "category": "section",
-    "text": "Use iid(x) to create a random variable that is identical in distribution to x but but independent."
+    "title": "Omega.ciid",
+    "category": "function",
+    "text": "RandVar identically distributed to f but conditionally independent given parents`\n\n\n\n\n\nRandVar identically distributed to x but conditionally independent given parents`\n\n\n\n\n\nciid with arguments\n\n\n\n\n\n"
 },
 
 {
@@ -141,7 +141,7 @@ var documenterSearchIndex = {"docs": [
     "page": "(Conditional) Independence",
     "title": "Conditionally Independent Random Variables",
     "category": "section",
-    "text": "Use ciid(x) to create a random variable that is identical in distribution to x but conditionally independent given its parents.μ = uniform(0.0, 1.0)\ny1 = normal(μ, 1.0)\ny2 = ciid(y1)\nrand((y1, y2))"
+    "text": "Use ciid(x) to create a random variable that is identical in distribution to x but conditionally independent given its parents.μ = uniform(0.0, 1.0)\ny1 = normal(μ, 1.0)\ny2 = ciid(y1)\nrand((y1, y2))ciid"
 },
 
 {
@@ -157,15 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Conditional Inference",
     "title": "Inference",
     "category": "section",
-    "text": "The primary purpose of building a probabilistic model is to use it for inference."
-},
-
-{
-    "location": "inference.html#Base.rand",
-    "page": "Conditional Inference",
-    "title": "Base.rand",
-    "category": "function",
-    "text": "Random ω ∈ Ω\n\n\n\n\n\nSample n from x\n\n\n\n\n\nSample 1 from x\n\n\n\n\n\nn samples from x with rejection sampling\n\n\n\n\n\nSample ω | y == true with Metropolis Hasting\n\n\n\n\n\nSample from x | y == true with Single Site Metropolis Hasting\n\n\n\n\n\nSample from x | y == true with Hamiltonian Monte Carlo\n\n\n\n\n\nSample from x | y == true with Hamiltonian Monte Carlo\n\n\n\n\n\nrand(s::Sampleable)\n\nGenerate one sample for s.\n\nrand(s::Sampleable, n::Int)\n\nGenerate n samples from s. The form of the returned object depends on the variate form of s:\n\nWhen s is univariate, it returns a vector of length n.\nWhen s is multivariate, it returns a matrix with n columns.\nWhen s is matrix-variate, it returns an array, where each element is a sample matrix.\n\n\n\n\n\nrand(d::UnivariateDistribution)\n\nGenerate a scalar sample from d. The general fallback is quantile(d, rand()).\n\nrand(d::UnivariateDistribution, n::Int) -> Vector\n\nGenerates a vector of n random scalar samples from d. The general fallback is to pick random samples from sampler(d).\n\n\n\n\n\nrand(d::MultivariateDistribution)\n\nSample a vector from the distribution d.\n\nrand(d::MultivariateDistribution, n::Int) -> Vector\n\nSample n vectors from the distribution d. This returns a matrix of size (dim(d), n), where each column is a sample.\n\n\n\n\n\nrand(rng::AbstractRNG, d::AbstractMvNormal)\nrand(rng::AbstractRNG, d::AbstractMvNormal, n::Int)\nrand!(rng::AbstractRNG, d::AbstractMvNormal, x::AbstractArray)\n\nSample from distribution d using the random number generator rng.\n\n\n\n\n\nrand(d::MatrixDistribution, n)\n\nDraw a sample matrix from the distribution d.\n\n\n\n\n\nrand(d::Union{UnivariateMixture, MultivariateDistribution})\n\nDraw a sample from the mixture model d.\n\nrand(d::Union{UnivariateMixture, MultivariateMixture}, n)\n\nDraw n samples from d.\n\n\n\n\n\n"
+    "text": "The primary purpose of building a probabilistic model is to use it for inference. The kind of inference we shall describe is called posterior inference, Bayesian inference, conditional inference or simply probabilistic inference."
 },
 
 {
@@ -173,15 +165,15 @@ var documenterSearchIndex = {"docs": [
     "page": "Conditional Inference",
     "title": "Conditional Sampling Algorithms",
     "category": "section",
-    "text": "While there are several kinds of things you would like to know about a conditional distribution (e.g., its mode) currently, all inference algorithms perform conditional sampling only. To sample from a conditional distribution: pass two random variables to rand, the distribution you want to sample from, and the predicate you want to condition on. For example:weight = β(2.0, 2.0)\nx = bernoulli()\nrand(weight, x == 0)It is fine to condition random variables on equalities or inequalities:x1 = normal(0.0, 1.0)\nx2 = normal(0.0, 10)\nrand((x1, x2), x1 + x2 > == 0.0)Note: to sample from more than one random variable, just pass a tuple of RandVars to rand, e.g.:Omega.rand"
+    "text": "While there are several kinds of things you would like to know about a conditional distribution (e.g., its mode) currently, all inference algorithms perform conditional sampling only. To sample from a conditional distribution: pass two random variables to rand, the distribution you want to sample from, and the predicate you want to condition on. For example:weight = β(2.0, 2.0)\nx = bernoulli()\nrand(weight, x == 0)It is fine to condition random variables on equalities or inequalities:x1 = normal(0.0, 1.0)\nrand(x1, x1 > 0.0)It\'s also fine to condition on functions of multiple variablesx1 = normal(0.0, 1.0)\nx2 = normal(0.0, 10)\nrand((x1, x2), x1 > x2)Note: to sample from more than one random variable, just pass a tuple of RandVars to rand."
 },
 
 {
-    "location": "inference.html#Omega.cond",
+    "location": "inference.html#Omega.cond-Tuple{RandVar,RandVar}",
     "page": "Conditional Inference",
     "title": "Omega.cond",
-    "category": "function",
-    "text": "Condition random variable x with random predicate RandVar which returns Bool or SoftBool.\n\nx = normal(0.0, 1.0)\nx_ = cond(x, x > 0)\n\n\n\n\n\nCondition random variable with predicate: cond(x, p) = cond(x, p(x)) cond(poisson(0.5), iseven\n\n\n\n\n\nCondition within a function\n\nfunction x_(ω)\n  x = 0.0\n  xs = Float64[]\n  while bernoulli(ω, 0.8, Bool)\n    x += uniform(ω, -5.0, 5.0)\n    cond(ω, x <=ₛ 1.0)\n    cond(ω, x >=ₛ -1.0)\n    push!(xs, x)\n  end\n  xs\nend\n\nx = ciid(x_)\nsamples = rand(x, 100; alg = SSMH)\n\n\n\n\n\n"
+    "category": "method",
+    "text": "Condition random variable x with random predicate RandVar which returns Bool or SoftBool.\n\nx = normal(0.0, 1.0)\nx_ = cond(x, x > 0)\n\n\n\n\n\n"
 },
 
 {
@@ -189,7 +181,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Conditional Inference",
     "title": "Conditioning with cond",
     "category": "section",
-    "text": "rand(x, y) is simply a shorter way of saying rand(cond(x, y)). That is, the primary mechanism for inference in Omega is conditioning random variables using cond.cond"
+    "text": "rand(x, y) is simply a shorter way of saying rand(cond(x, y)). That is, the primary mechanism for inference in Omega is conditioning random variables using cond.cond(::RandVar, ::RandVar)"
 },
 
 {
@@ -197,7 +189,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Conditional Inference",
     "title": "Conditioning the Prior",
     "category": "section",
-    "text": "In Bayesian inference the term posterior distribution is often used instead of conditional distribution.  Mathematically they are the same objec, but posterior alludes to the fact that it is the distribution after (post) observing data. Prior to observing data, your distribution is the prior.However, conditioning is a more general concept than observing data, and we can meaningfully \"condition the prior\".For example we can make a truncated normal distribution with:x = normal(0.0, 1.0)\nx_ = cond(x, x > 0.0)A shorter way to write this is to pass a unary function as the second argument to condx = cond(normal(0.0, 1.0), rv -> rv > 0.0)Or suppose we want a poisson distribution over the even numberscond(poission(1.0), iseven)"
+    "text": "In Bayesian inference the term posterior distribution is often used instead of conditional distribution.  Mathematically they are the same object, but posterior alludes to the fact that it is the distribution after (a posteriori) observing data. The distribution before observing data is often referred to as the prior.However, conditioning is a more general concept than observing data, and we can meaningfully \"condition the prior\".For example we can make a truncated normal distribution with:x = normal(0.0, 1.0)\nx_ = cond(x, x > 0.0)A shorter way to write this is to pass a unary function as the second argument to condx = cond(normal(0.0, 1.0), rv -> rv > 0.0)Or suppose we want a poisson distribution over the even numbersjulia> x = cond(poisson(3.0), iseven)\njulia> rand(x, 5)\n5-element Array{Any,1}:\n 2\n 6\n 4\n 2\n 4"
 },
 
 {
@@ -205,7 +197,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Conditional Inference",
     "title": "Conditions Propagate",
     "category": "section",
-    "text": "When you compose condiitoned random variables together, their conditions propagate.  That is, if x is conditioned, and y is conditioned, and z depends on x and y, then z inherits all the conditions of x and y automatically.  For example:ispos(x) = x > 0.0\nweight = cond(normal(72, 1.0), ispos)\nheight = cond(normal(1.78, 1.0), ispos)\nbmi = weight / heightbmi is a function of both weight and height, both of which have their own conditions (namely, they are positive). Omega automatically propagates the conditions from weight and height onto bmi respects these conditions."
+    "text": "When you compose conditoned random variables together, their conditions propagate.  That is, if x is conditioned, and y is conditioned, and z depends on x and y, then z inherits all the conditions of x and y automatically.  For example:ispos(x) = x > 0.0\nweight = cond(normal(72, 1.0), ispos)\nheight = cond(normal(1.78, 1.0), ispos)\nbmi = weight / heightbmi is a function of both weight and height, both of which have their own conditions (namely, they are positive). Omega automatically propagates the conditions from weight and height onto bmi respects these conditions."
 },
 
 {
@@ -221,15 +213,15 @@ var documenterSearchIndex = {"docs": [
     "page": "Soft Execution",
     "title": "Soft Execution",
     "category": "section",
-    "text": ""
+    "text": "note: Note\nTLDR: For inference problems which are continuous or high dimensional, use soft predicates to use more efficient inference routines.==ₛ\n>ₛ\n>=\n<=ₛ\n<ₛSoft predicates are supported (and required) by inference algorithms: SSMH, HMC, HMCFAST, MI.If the values x and y are not standard numeric types you will need to define a notion of distance (even if they are, you may want to wrap them and define a distance for this type).  Override Omega.d for the relevant typesOmega.d"
 },
 
 {
-    "location": "soft.html#TLDR-1",
+    "location": "soft.html#Omega.SoftBool",
     "page": "Soft Execution",
-    "title": "TLDR",
-    "category": "section",
-    "text": "For inference problems which are continuous or high dimensional, use soft predicates to use more efficient inference routines.==\n>ₛ\n>=\n<=ₛ\n<ₛIf the values x and y are not standard numeric types you will need to define a notation of distance.  Override Omega.ddFor example:struct\n  \nend"
+    "title": "Omega.SoftBool",
+    "category": "type",
+    "text": "Soft Boolean\n\n\n\n\n\n"
 },
 
 {
@@ -237,7 +229,23 @@ var documenterSearchIndex = {"docs": [
     "page": "Soft Execution",
     "title": "Relaxation",
     "category": "section",
-    "text": "In Omega you condition on predicates. A predicate is any function whose domain is Boolean. These are sometimes called indicator functions, or characteristic functions. In particular, in Omega we condition on Bool valued random variables:x = normal(0.0, 1.0)\ny = x == 1.0\nrand(y)From this perspective, conditioning means to solve a constraint. It can be difficult to solve these constraints exactly, and so Omega supports softened constraints to make inference more tractable.There are two ways to make soft constraints.  The first way is explicitly:julia> x = normal(0.0, 1.0)\njulia> y = x ≊ 1.0\njulia> rand(y)\nϵ:-47439.72956833765Suppose we construct a random variable of the form x == y. The soft version we would write x ==\\_s y (or softeq(x, y)). These softened functions have the form:If \\rho(x, y) denote a distance between x and y.$k(\\rho(x, y)) $\n## Controlling the kernel\n\n\nOmega has a number of built-in kernels:\n@docs kse\n## Soft Function Application\nThere are a couple of drawbacks from explicitly using soft constraints in the model:\n\n1. We have changed the model for what is a problem of inference\n2. Often we may be using pre-existing code and not be able to easily replace all the constraints with soft constraints\n\nOmega has an experimental feature which automatically does soft execution of a normal predicate.  Soft application relies on e\njulia julia> g(x::Real)::Bool = x > 0.5 julia> softapply(g, 0.3) ϵ:-2000.0 ```This feature is experimental because Cassette is waiting on a number of compiler optimizations to make this efficient."
+    "text": "In Omega you condition on predicates. A predicate is any function whose domain is Boolean. These are sometimes called indicator functions or characteristic functions. In particular, in Omega we condition on Bool valued random variables:x = normal(0.0, 1.0)\ny = x == 1.0\nrand(y)From this perspective, conditioning means to solve a constraint. It can be difficult to solve these constraints exactly, and so Omega supports softened constraints to make inference more tractable.There are two ways to make soft constraints.  The first way is explicitly:julia> x = normal(0.0, 1.0)\njulia> y = x ==ₛ 1.0\njulia> rand(y)\nϵ:-47439.72956833765Suppose we construct a random variable of the form x == y. In the soft version we would write x ==ₛ y (or softeq(x, y)).note: Note\nIn the Julia REPL and most IDEs ==ₛ is constructed by typing ==_s [tab].Softened predicates return values in unit interval [0, 1] as opposed to a simply true or false. Intuitively, 1 corresponds to true, and a high value (such as 0.999) corresonds to \"nearly true\". Mathematicallty, they have the form:k(rho(x y))If rho(x y) denote a notion of distance between x and y.Rather than actually output values of type Float64, soft predicate output values of type SoftBool. As stated a SoftBool represents a value in [0, 1], but in log scale for numerical reasons.SoftBool"
+},
+
+{
+    "location": "soft.html#Omega.withkernel",
+    "page": "Soft Execution",
+    "title": "Omega.withkernel",
+    "category": "function",
+    "text": "Temporarily set global kernel\n\n\n\n\n\n"
+},
+
+{
+    "location": "soft.html#Controlling-the-kernel-1",
+    "page": "Soft Execution",
+    "title": "Controlling the kernel",
+    "category": "section",
+    "text": "Omega has a number of built-in kernels:kse\nkf1\nkparetoBy default, the squared exponential kernel is used with a default temperature parameter. The method withkernel can be used to choose which kernel is being applied within the context of a soft boolean operator.withkernel"
 },
 
 {
@@ -393,54 +401,6 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "omega.html#",
-    "page": "Omega",
-    "title": "Omega",
-    "category": "page",
-    "text": ""
-},
-
-{
-    "location": "omega.html#Omega-1",
-    "page": "Omega",
-    "title": "Omega",
-    "category": "section",
-    "text": "As described in [models], random variables are thin wrappers around functions which take as input a value ω::Ω We previously described Ω as a type of AbstractRNG.  This is true, but the full store is a bit more complex"
-},
-
-{
-    "location": "omega.html#Omega.Space.Ω",
-    "page": "Omega",
-    "title": "Omega.Space.Ω",
-    "category": "type",
-    "text": "Probability Space indexed with values of type I\n\n\n\n\n\n"
-},
-
-{
-    "location": "omega.html#Omega.Space.SimpleΩ",
-    "page": "Omega",
-    "title": "Omega.Space.SimpleΩ",
-    "category": "type",
-    "text": "Fast SimpleΩ\n\nProperties\n\nFast tracking (50 ns overhead)\nFast to get linear view\nHence easy to sample from\nUnique index for each rand value and hence: (i) Memory intensive\n\n\n\n\n\n"
-},
-
-{
-    "location": "omega.html#Ω-1",
-    "page": "Omega",
-    "title": "Ω",
-    "category": "section",
-    "text": "Ω is an abstract type which represents a sample space in probability theory.ΩSimpleΩ"
-},
-
-{
-    "location": "omega.html#Samplers-vs-Random-Variables-1",
-    "page": "Omega",
-    "title": "Samplers vs Random Variables",
-    "category": "section",
-    "text": "A sampler and a random variable have many similarities but are different. To demonstrate the difference, we shall show the changes one has to make to turn a sampler into an Omega RandVar.Create a sampler that x1() = rand() > 0.5x1 uses Random.GLOBAL_RNG in the background.  Instead, make it explicit:julia> x2(rng::AbstractRNG) = rand(rng) > 0.5\njulia> x2(Random.MersenneTwister())\nfalseMake a cosmetic changejulia> x2(rng::AbstractRNG) = rand(rng) > 0.5\njulia> x2(Random.MersenneTwister())\nfalse"
-},
-
-{
     "location": "cheatsheet.html#",
     "page": "Cheat Sheet",
     "title": "Cheat Sheet",
@@ -465,11 +425,19 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "cheatsheet.html#FAQ-1",
+    "page": "Cheat Sheet",
+    "title": "FAQ",
+    "category": "section",
+    "text": "How to sample from a joint distribution (more than one random variable at a time)?Pass a tuple of random variables, e.g: rand((x, y, z))."
+},
+
+{
     "location": "cheatsheet.html#Built-in-Distributions-1",
     "page": "Cheat Sheet",
     "title": "Built-in Distributions",
     "category": "section",
-    "text": "bernoulli(w) boolbernoulli(w) betarv categorical constant exponential gammarv inversegamma kumaraswamy logistic poisson normal uniform rademacher"
+    "text": "bernoulli(w) boolbernoulli(w) betarv categorical constant exponential gammarv invgamma kumaraswamy logistic poisson normal uniform rademacher"
 },
 
 {
@@ -477,7 +445,87 @@ var documenterSearchIndex = {"docs": [
     "page": "Cheat Sheet",
     "title": "Built-in Inference Algorithms",
     "category": "section",
-    "text": "RejectionSample MI SSMH HMC SGHMC HMCFAST"
+    "text": "RejectionSample MI SSMH SSMHDrift HMC HMCFAST"
+},
+
+{
+    "location": "internalsoverview.html#",
+    "page": "Overview",
+    "title": "Overview",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "internalsoverview.html#Overview-1",
+    "page": "Overview",
+    "title": "Overview",
+    "category": "section",
+    "text": "The desiderata for Omega are to increase the expressiveness of probabilistic programming, with minimal sacrifices to performance.Support conditioning on arbitrary predicates\nSupport conditioning on distributional propereties\nSupport causal inference\nBe based on solid probabilistic foundations (i.e., measure theory)\nIntegrate seamlessly with Julia\nBe fastSome of these points are contradictory.  For example only pure functions exist in measure theroy, whereas julia programs may have side effects. Also there are tradeoffs between being as fast as possible, while being as general as possible.We think we have found a good compromise in Julia."
+},
+
+{
+    "location": "internalsoverview.html#MiniOmega-1",
+    "page": "Overview",
+    "title": "MiniOmega",
+    "category": "section",
+    "text": "Omega is structured around two primary abstract types Ω and RandVar.module MiniOmega\nusing Random\n\nmutable struct Ω <: Random.AbstractRNG\n  data::Dict{Int, Any}\n  i::Int\nend\n\nΩ() = Ω(Dict(), 0)\n\nfunction Base.rand(w::Ω, args...)\n  w.i += 1\n  get!(w.data, w.i, rand(Random.GLOBAL_RNG, args...))\nend\n\nBase.rand(w::Ω, args...) = (w.i += 1; get!(w.data, w.i, rand(args...)))\nBase.rand(w::Ω, dims::Vararg{Integer,N} where N) = (w.i += 1; get!(w.data, w.i, rand(dims)))\n\nstruct RandVar\n  f::Function\nend\n\n(rv::RandVar)(w::Ω) = (w.i = 0; rv.f(w))\n\nBase.rand(x::RandVar) = x(Ω())\n\ncond(x::RandVar, y::RandVar) = RandVar(rng -> y(rng) ? x(rng) : error())\n\n\"Rejetion Sampling\"\nBase.rand(x::RandVar) = try x(Ω()) catch; rand(x) end\n\nexport RandVar, Ω\nend## Example\nusing Main.MiniOmega\nx_(rng) = rand(rng)\nx = RandVar(x_)\nω = Ω()\nx(ω)"
+},
+
+{
+    "location": "omega.html#",
+    "page": "Ω",
+    "title": "Ω",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "omega.html#Omega-1",
+    "page": "Ω",
+    "title": "Omega",
+    "category": "section",
+    "text": "As described in [models], random variables are thin wrappers around functions which take as input a value ω::Ω We previously described Ω as a type of AbstractRNG.  This is true, but the full store is a bit more complex"
+},
+
+{
+    "location": "omega.html#Omega.Space.Ω",
+    "page": "Ω",
+    "title": "Omega.Space.Ω",
+    "category": "type",
+    "text": "Probability Space indexed with values of type I\n\n\n\n\n\n"
+},
+
+{
+    "location": "omega.html#Omega.Space.SimpleΩ",
+    "page": "Ω",
+    "title": "Omega.Space.SimpleΩ",
+    "category": "type",
+    "text": "Fast SimpleΩ\n\nProperties\n\nFast tracking (50 ns overhead)\nFast to get linear view\nHence easy to sample from\nUnique index for each rand value and hence: (i) Memory intensive\n\n\n\n\n\n"
+},
+
+{
+    "location": "omega.html#Ω-1",
+    "page": "Ω",
+    "title": "Ω",
+    "category": "section",
+    "text": "Ω is an abstract type which represents a sample space in probability theory.ΩSimpleΩ"
+},
+
+{
+    "location": "omega.html#Samplers-vs-Random-Variables-1",
+    "page": "Ω",
+    "title": "Samplers vs Random Variables",
+    "category": "section",
+    "text": "A sampler and a random variable have many similarities but are different. To demonstrate the difference, we shall show the changes one has to make to turn a sampler into an Omega RandVar.Create a sampler that x1() = rand() > 0.5x1 uses Random.GLOBAL_RNG in the background.  Instead, make it explicit:julia> x2(rng::AbstractRNG) = rand(rng) > 0.5\njulia> x2(Random.MersenneTwister())\nfalseMake a cosmetic changejulia> x2(rng::AbstractRNG) = rand(rng) > 0.5\njulia> x2(Random.MersenneTwister())\nfalse"
+},
+
+{
+    "location": "randvar.html#",
+    "page": "RandVar",
+    "title": "RandVar",
+    "category": "page",
+    "text": "Random Variables"
 },
 
 {
