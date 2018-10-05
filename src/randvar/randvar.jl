@@ -7,6 +7,9 @@ const ID = Int
 
 id(rv::RandVar) = rv.id
 
+"Parameters of a random variable"
+function params(rv::RandVar) end
+
 """Is `x` a constant random variable, i.e. x(ω) = c ∀ ω ∈ Ω?
 
 Determining constancy is intractable (and likely undecidable) in general.
@@ -32,7 +35,7 @@ isconstant(x3)
 false
 ```
 """
-function isconstant(x, ΩT = defΩ(x))
+function isconstant(x::RandVar, ΩT = defΩ(x))
   # This implementation assumes that ΩT is lazy, more general solution would wrap
   # ω of any type and intercept rand(ω) 
   ω = ΩT()
@@ -40,16 +43,10 @@ function isconstant(x, ΩT = defΩ(x))
   isempty(ω)
 end
 
-"Infer T from function `f: w -> T`"
-function infer_elemtype(f, args...; OT = defΩProj())
-  argtypes = map(typeof, args)
-  rt = Base.return_types(f, (OT, argtypes...))
-  @pre length(rt) == 1 "Could not infer unique return type"
-  rt[1]
-end
+isconstant(x) = true
 
 ## Printing
 ## ========
 name(x) = x
 Base.show(io::IO, rv::RandVar) =
-  print(io, "$(id(rv)):$(name(rv))($(join(map(name, params(rv)), ", ")))::")
+  print(io, "$(id(rv)):$(name(rv))($(join(map(name, params(rv)), ", ")))::$(elemtype(rv))")

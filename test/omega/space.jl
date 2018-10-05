@@ -22,7 +22,7 @@ function test_resolve_repeatable(ω::Ω{I}, startIdx, nextIdx) where {I}
   N = 10000
   vec1 = randvec(ω, startIdx, nextIdx, N, Int)
   vec2 = randvec(ω, startIdx, nextIdx, N, Int)
-  @test vec1 == vec2
+  vec1 == vec2
 end
 
 function close_to(num, targ, sigma)
@@ -36,7 +36,7 @@ function test_resolve_uniform(ω::Ω{I}, startIdx, nextIdx) where {I}
   vec = randvec(ω, startIdx, nextIdx, N, Bool)
   numTrue = length(filter(x -> x, vec))
   bernVariance = sqrt(0.5*(1-0.5))
-  @test close_to(numTrue / N, 0.5, bernVariance / sqrt(N))
+  close_to(numTrue / N, 0.5, bernVariance / sqrt(N))
 end
 
 end

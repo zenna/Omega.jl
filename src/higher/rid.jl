@@ -1,11 +1,3 @@
-function distribution(rid)
-  # Turn an RID into a distribution
-  θs = params(rid.x) ## Issue is that this is wrong
-  θs = isconstant.(θs)
-  θsc = rand.(θs)
-  distribution(func(x), θsc)
-end
-
 """Random Interventional Distribution
 
 ```jldoctest
@@ -14,4 +6,5 @@ x = normal(μ, 1.0)
 x_ = rid(x, μ)
 ```
 """
-rid(x, θ) = ciid(ω -> replace(x, θ => θ(ω)))
+rid(x::RandVar, θ::RandVar) = ciid(ω -> replace(x, θ => θ(ω)))
+rid(x::RandVar, θs::RandVar...) = ciid(ω -> replace(x, (θi => θi(ω) for θi in θs)...))

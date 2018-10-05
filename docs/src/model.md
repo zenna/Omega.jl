@@ -97,10 +97,25 @@ julia> x_(Base.Random.GLOBAL_RNG)
 true
 ```
 
-However, in order to use `x` for conditional or causal inference we must turn it into a `RandVar` using `ciid`.
+However, in order to use `x` for conditional or causal inference we must turn it into a `RandVar`.
+One way to do this (we discuss others in [conditonalindependence]) is using `ciid`.
 
 ```julia
 x = ciid(x_)
+```
+
+All of the primitive distributions can be used in explicit style by passing the `rng` object as the first parameter (type constraints are added just to show that the return values are not random variables but elements): 
+
+```julia
+function x_(rng)
+  if bernoulli(rng, 0.5, Bool)
+    normal(rng, 0.0, 1.0)::Float64
+  else bernoulli(rng, 0.5, Bool)
+    betarv(rng, 2.0, 2.0)::Float64
+  end
+end
+
+ciid(x_)
 ```
 
 Statistical style and functional style can be combined naturally.
@@ -118,8 +133,8 @@ Often we want to parameterize a random variable.  To do this we create functions
 and pass arguments to `ciid`.
 
 ```julia
-uniform(rng, a, b) = rand(rng) * (b - a) + b  
-x = ciid(10, 20)
+unif(rng, a, b) = rand(rng) * (b - a) + b  
+x = ciid(unif, 10, 20)
 ```
 
 And hence if we wanted to create a method that created independent uniformly distributed random variables, we could do it like so:

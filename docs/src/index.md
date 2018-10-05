@@ -5,11 +5,15 @@ It was developed by [Zenna Tavares](http://zenna.org) with help from Javier Burr
 
 ## Quick Start
 
-Omega is built in Julia 0.7 but not yet in the official Julia Package repository.  You can still easily install it from a Julia repl with:
+Omega is built in Julia 1.0 but not yet in the official Julia Package repository.  You can still easily install it from a Julia repl with:
 
 ```julia
-(v0.7) pkg> add https://github.com/zenna/Omega.jl.git
+(v1.0) pkg> add https://github.com/zenna/Omega.jl.git
 ```
+
+Note: You will likely manually add the following dependencies, but if you use Omega from its environment, these will be downloaded automatically:
+- https://github.com/zenna/Spec.jl
+- https://github.com/zenna/ZenUtils.jl
 
 Check Omega is working and gives reasonable results with: 
 
@@ -27,7 +31,11 @@ With that, see the [Tutorial](basictutorial.md) for a run through of the main fe
 We want your contributions!
 
 - Probabilistic models
-- Contribute an inference procedure
+Please add probabilistic models and model families to https://github.com/zenna/OmegaModels.jl
+
+- Inference procedures
+
+
 
 
 ## Citation

@@ -1,9 +1,5 @@
 # Lifting Functions to Functions
 
-"Domain type of Random Variable"
-elemtype(x::T) where T = T
-elemtype(::RandVar) = @assert false
-
 # No Exists{T} yet https://github.com/JuliaLang/julia/issues/21026#issuecomment-306624369"
 function liftnoesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
   args = [isrv ?  :($(Symbol(:x, i))::Omega.RandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
@@ -23,7 +19,7 @@ function liftesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
   end
 end
 
-function lift(fnm::Union{Expr, Symbol}, n::Integer; mod::Module=@compat @__MODULE__())
+function lift(fnm::Union{Expr, Symbol}, n::Integer; mod::Module=@__MODULE__())
   combs = rvcombinations(n)
   for comb in combs
     Core.eval(mod, liftnoesc(fnm, comb))

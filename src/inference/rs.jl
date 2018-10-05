@@ -21,11 +21,11 @@ function Base.rand(x::RandVar,
     if sat
       push!(samples, xω)
       accepted += 1
-      cb((ω = ω, accepted = accepted, p = 0.0, i = i), Outside)
+      cb((ω = ω, sample = xω, accepted = accepted, p = 0.0, i = i), Outside)
     else
-      cb((ω = ω, accepted = accepted, p = 1.0, i = i), Outside)
+      cb((ω = ω, sample = xω, accepted = accepted, p = 1.0, i = i), Outside)
     end
     i += 1
   end
-  samples
+  [samples...]
 end
