@@ -1,6 +1,7 @@
 # Inference
 
 The primary purpose of building a probabilistic model is to use it for inference.
+The kind of inference we shall describe is called posterior inference, Bayesian inference, conditional inference or simply probabilistic inference.
 
 ## Conditional Sampling Algorithms
 
@@ -17,15 +18,18 @@ It is fine to condition random variables on equalities or inequalities:
 
 ```julia
 x1 = normal(0.0, 1.0)
+rand(x1, x1 > 0.0)
+```
+
+It's also fine to condition on functions of multiple variables
+
+```julia
+x1 = normal(0.0, 1.0)
 x2 = normal(0.0, 10)
-rand((x1, x2), x1 + x2 > == 0.0)
+rand((x1, x2), x1 > x2)
 ```
 
-Note: to sample from more than one random variable, just pass a tuple of `RandVar`s to `rand`, e.g.:
-
-```@docs
-Omega.rand
-```
+Note: to sample from more than one random variable, just pass a tuple of `RandVar`s to `rand`.
 
 ## Conditioning with `cond` 
 
@@ -33,11 +37,11 @@ Omega.rand
 That is, the primary mechanism for inference in Omega is conditioning random variables using `cond`.
 
 ```@docs
-cond
+cond(::RandVar, ::RandVar)
 ```
 
 ## Conditioning the Prior
-In Bayesian inference the term posterior distribution is often used instead of conditional distribution.  Mathematically they are the same objec, but posterior alludes to the fact that it is the distribution after (post) observing data. Prior to observing data, your distribution is the prior.
+In Bayesian inference the term posterior distribution is often used instead of conditional distribution.  Mathematically they are the same object, but posterior alludes to the fact that it is the distribution after (a posteriori) observing data. The distribution before observing data is often referred to as the prior.
 
 However, conditioning is a more general concept than observing data, and we can meaningfully "condition the prior".
 
@@ -57,11 +61,18 @@ x = cond(normal(0.0, 1.0), rv -> rv > 0.0)
 Or suppose we want a poisson distribution over the even numbers
 
 ```julia
-cond(poission(1.0), iseven)
+julia> x = cond(poisson(3.0), iseven)
+julia> rand(x, 5)
+5-element Array{Any,1}:
+ 2
+ 6
+ 4
+ 2
+ 4
 ```
 
 ## Conditions Propagate
-When you compose condiitoned random variables together, their conditions propagate.  That is, if `x` is conditioned, and `y` is conditioned, and `z` depends on `x` and `y`, then `z` inherits all the conditions of `x` and `y` automatically.  For example:
+When you compose conditoned random variables together, their conditions propagate.  That is, if `x` is conditioned, and `y` is conditioned, and `z` depends on `x` and `y`, then `z` inherits all the conditions of `x` and `y` automatically.  For example:
 
 ```julia
 ispos(x) = x > 0.0

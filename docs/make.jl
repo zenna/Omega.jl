@@ -16,8 +16,10 @@ makedocs(
     "Causal Inference" => "causal.md",
     "Higher Order Inference" => "higher.md",
     "Built-in Distributions" => "distributions.md",
-    "Omega" => "omega.md",
     "Cheat Sheet" => "cheatsheet.md",
+    "Internals" => ["Overview" => "internalsoverview.md",
+                    "Ω" => "omega.md",
+                    "RandVar" => "randvar.md"],
     "Contribution Guide" => "contrib.md",
   ]
 )

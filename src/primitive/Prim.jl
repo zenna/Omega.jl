@@ -1,11 +1,15 @@
 module Prim
 
-using ..Omega: Ω, RandVar, URandVar, MaybeRV, ID, lift, uid
+using ..Omega
+using ..Omega: Ω, RandVar, URandVar, MaybeRV, ID, lift, uid, elemtype, isconstant
 import ..Omega: params, name, ppapl, apl, reify
 import Statistics: mean, var, quantile
+import ..Causal: ReplaceRandVar
+using ..Util
 using Spec
 import Distributions
 const Djl = Distributions
+import Base: minimum
 
 export  bernoulli,
         betarv,
@@ -22,7 +26,9 @@ export  bernoulli,
         normal,
         poisson,
         rademacher,
-        uniform
+        uniform,
+
+        mean
 
 "Primitive random variable of known distribution"
 abstract type PrimRandVar <: RandVar end  
@@ -54,6 +60,48 @@ end
 include("univariate.jl")      # Univariate Distributions
 include("multivariate.jl")    # Multivariate Distributions
 include("statistics.jl")      # Distributional properties: mean, variance, etc
+export  succprob,
+        failprob,
+        maximum,
+        minimum,
+        islowerbounded,                    
+        isupperbounded,
+        isbounded,
+        std,
+        median,
+        mode,
+        modes,
+
+        skewness,
+        kurtosis,
+        isplatykurtic,
+        ismesokurtic,
+
+        isleptokurtic,
+        entropy,
+        mean
+
+# Lifted distributional functions
+export  lsuccprob,
+        lfailprob,
+        lmaximum,
+        lminimum,
+        lislowerbounded,                    
+        lisupperbounded,
+        lisbounded,
+        lstd,
+        lmedian,
+        lmode,
+        lmodes,
+
+        lskewness,
+        lkurtosis,
+        lisplatykurtic,
+        lismesokurtic,
+
+        lisleptokurtic,
+        lentropy,
+        lmean
 include("djl.jl")             # Distributions.jl interop
 
 end

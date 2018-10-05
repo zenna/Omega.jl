@@ -5,7 +5,6 @@ module Omega
 using Flux
 using Spec
 using UnicodePlots
-using Compat
 
 import Random
 import Random: GLOBAL_RNG, AbstractRNG
@@ -26,7 +25,8 @@ include("randvar/randvar.jl" )            # Random variables
 include("randvar/urandvar.jl")            # Random variables
 include("randvar/randvarapply.jl")        # Random variable application to ω::Ω
 include("randvar/ciid.jl")                # Conditionally i.i.d. RandVars
-export RandVar, MaybeRV, ciid, isconstant
+include("randvar/elemtype.jl")            # Infer Element Type
+export RandVar, MaybeRV, ciid, isconstant, elemtype, params
 
 # Conditioning
 include("cond.jl")                # Conditioning
@@ -106,6 +106,7 @@ export  isapproximate,
         idcb,
         throttle,
         plotrv,
+        plotscalar,
         default_cbs,
         Inside,
         Outside,
@@ -136,6 +137,49 @@ export  bernoulli,
         poisson,
         rademacher,
         uniform
+
+export  succprob,
+        failprob,
+        maximum,
+        minimum,
+        islowerbounded,                    
+        isupperbounded,
+        isbounded,
+        std,
+        median,
+        mode,
+        modes,
+
+        skewness,
+        kurtosis,
+        isplatykurtic,
+        ismesokurtic,
+
+        isleptokurtic,
+        entropy,
+        mean
+
+# Lifted distributional functions
+export  lsuccprob,
+        lfailprob,
+        lmaximum,
+        lminimum,
+        lislowerbounded,                    
+        lisupperbounded,
+        lisbounded,
+        lstd,
+        lmedian,
+        lmode,
+        lmodes,
+
+        lskewness,
+        lkurtosis,
+        lisplatykurtic,
+        lismesokurtic,
+
+        lisleptokurtic,
+        lentropy,
+        lmean
 
 # Neural Network Stuff
 include("flux.jl")

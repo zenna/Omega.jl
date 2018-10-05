@@ -11,6 +11,8 @@ end
 @inline (rv::ReplaceRandVar)(ω::Ω) = apl(rv, ω)
 id(x::ReplaceRandVar) = x.id
 
+params(rv::ReplaceRandVar) = map(p -> replace(p, rv.replmap), params(rv.x))
+
 # Use generated funtion to get typed dispatch on different tags
 @generated function apl(rv::RandVar, tω::TaggedΩ{I, Tags{K, V}, ΩT}) where {I, K, V, ΩT <: ΩBase}
   if hastags(tω, :replmap)

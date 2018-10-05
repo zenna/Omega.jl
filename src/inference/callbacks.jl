@@ -80,6 +80,7 @@ function plotp()
   end
 end
 
+# FIXME: Redundant, make this use plotscalsr
 "Scatter plot ω values with UnicodePlots"
 function plotω(x::RandVar, y::RandVar)
   xωs = Float64[]
@@ -99,6 +100,7 @@ function plotω(x::RandVar, y::RandVar)
   end
 end
 
+# FIXME: Redundant, make this use plotscalsr
 "Plot histogram of loss with UnicodePlots"
 function plotrv(x::RandVar, name = string(x), display_ = display)
   xs = []
@@ -107,6 +109,24 @@ function plotrv(x::RandVar, name = string(x), display_ = display)
   innerplotω(data, stage) = nothing # Do nothing in other stages
   function innerplotrv(data, stage::Type{Outside})
     x_ = x(data.ω)
+    println("$name is:")
+    display_(x_)
+    push!(xs, x_)
+    push!(ys, data.i)
+    if !isempty(xs)
+      println(UnicodePlots.lineplot(ys, xs, title="Time vs $name"))
+    end
+  end
+end
+
+"Plot histogram of loss with UnicodePlots"
+function plotscalar(key::Symbol, name, display_ = display)
+  xs = Float64[]
+  ys = Int[]
+
+  innerplotω(data, stage) = nothing # Do nothing in other stages
+  function innerplotrv(data, stage::Type{Outside})
+    x_ = getfield(data, key)
     println("$name is:")
     display_(x_)
     push!(xs, x_)

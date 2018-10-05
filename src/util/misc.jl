@@ -53,3 +53,6 @@ function Base.merge(combine::Function, a::NamedTuple{an}, b::NamedTuple{bn}) whe
   end
   NamedTuple{names, types}(map(resolve, names))::NamedTuple{names, types} # Inference fails without this
 end
+
+"Symbol concatenation"
+x::Symbol *ₛ y::Symbol = Symbol(string(x), string(y)) # Is there better way?
