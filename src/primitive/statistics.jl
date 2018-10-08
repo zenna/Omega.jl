@@ -22,8 +22,10 @@ mean(x::RandVar, n) = sum((rand(x, alg = RejectionSample) for i = 1:n)) / n
 "Probability x is true"
 prob(x::RandVar, n, israndvar::Type{Val{false}}) =
   sum((rand(x, alg = RejectionSample) for i = 1:n)) / n
-lprob(x::RandVar, n) = ciid(prob, x, n, Val{false})
+lprob(x::RandVar, n = 1000) = ciid(prob, x, n, Val{false})
 prob(x::RandVar, n) = prob(x, n, Val{elemtype(x) <: RandVar})
+
+# const lmean = lprob
 
 # Specializations
 const unidistattrs = [:succprob, :failprob, :maximum, :minimum, :islowerbounded,
