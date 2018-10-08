@@ -32,14 +32,14 @@ export RandVar, MaybeRV, ciid, isconstant, elemtype, params
 include("cond.jl")                # Conditioning
 export cond
 
+# Lifted random variable operatiosn
+include("lift/containers.jl")     # Array/Tuple primitives
+export randarray, randtuple
+
 # Higher-Order Inference
 include("higher/Higher.jl")
 using .Higher
 export rcd, rid, ∥
-
-# Lifted random variable operatiosn
-include("lift/containers.jl")     # Array/Tuple primitives
-export  randarray, randtuple
 
 # Lifting functions to RandVar domain
 include("lift/lift.jl")           
@@ -157,7 +157,9 @@ export  succprob,
 
         isleptokurtic,
         entropy,
-        mean
+        mean,
+        prob,
+        lprob
 
 # Lifted distributional functions
 export  lsuccprob,

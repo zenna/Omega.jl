@@ -9,7 +9,7 @@ using ..Util
 using Spec
 import Distributions
 const Djl = Distributions
-import Base: minimum
+import Base: minimum, maximum
 
 export  bernoulli,
         betarv,
@@ -79,7 +79,9 @@ export  succprob,
 
         isleptokurtic,
         entropy,
-        mean
+        mean,
+        prob,
+        lprob
 
 # Lifted distributional functions
 export  lsuccprob,

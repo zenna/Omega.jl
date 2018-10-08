@@ -206,10 +206,10 @@ deps = ["Printf"]
 uuid = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"
 
 [[ProgressMeter]]
-deps = ["Printf", "Random", "Test"]
-git-tree-sha1 = "09e653f4b0a3c44628f0bdd0a0e58bc92e0264ef"
+deps = ["Distributed", "Printf", "Random", "Test"]
+git-tree-sha1 = "5b55c2c974084eab2689ec0d1d5245561b22aeb0"
 uuid = "92933f4c-e287-5a05-a399-4b506db050ca"
-version = "0.6.0"
+version = "0.6.1"
 
 [[QuadGK]]
 deps = ["DataStructures", "LinearAlgebra", "Test"]
@@ -267,11 +267,9 @@ deps = ["LinearAlgebra", "Random"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [[Spec]]
-deps = ["Cassette"]
-git-tree-sha1 = "275d533031b8c97b6ca38b83395a435524a3dc46"
-repo-rev = "master"
-repo-url = "https://github.com/zenna/Spec.jl"
-uuid = "526a04b8-654b-11e8-1588-db2a414f95b5"
+deps = ["Cassette", "Test"]
+git-tree-sha1 = "f1839be7daf5bf850406255be00490273eb380ee"
+uuid = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
 version = "0.1.3"
 
 [[SpecialFunctions]]
