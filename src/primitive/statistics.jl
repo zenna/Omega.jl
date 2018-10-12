@@ -42,7 +42,7 @@ for func in unidistattrs
     $(:l *ₛ func)(x::RandVar) = ciid($func, x, Val{false})
     $func(x::RandVar) = $func(x, Val{elemtype(x) <: RandVar})
   end
-  @show expr
+  # @show expr
   eval(expr)
 end
 

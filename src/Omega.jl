@@ -6,7 +6,6 @@ using Flux
 using Spec
 # using ZenUtils
 using UnicodePlots
-using Compat
 
 import Random
 import Random: GLOBAL_RNG, AbstractRNG

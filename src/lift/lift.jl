@@ -19,14 +19,15 @@ function liftesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
   end
 end
 
-function lift(fnm::Union{Expr, Symbol}, n::Integer; mod::Module=@compat @__MODULE__())
+function lift(fnm::Union{Expr, Symbol}, n::Integer;
+              mod::Module = @__MODULE__())
   combs = rvcombinations(n)
   for comb in combs
     Core.eval(mod, liftnoesc(fnm, comb))
   end
 end
 
-function lift(f; n=3, mod::Module=@__MODULE__())
+function lift(f; n=3, mod::Module = @__MODULE__())
   lift(:($f), n; mod=mod)
 end
 

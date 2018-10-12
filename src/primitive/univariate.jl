@@ -196,7 +196,6 @@ struct UniformChoice{A} <: PrimRandVar
 end
 @inline (rv::UniformChoice)(ω::Ω) = apl(rv, ω)
 rvtransform(rv::UniformChoice) = uniform
-uniform(p_::Real, vals::Vector) = quantile(Djl.UniformChoice(vals), p_)
 uniform(ω::Ω, vals::Vector) = rand(ω, vals)
 uniform(ω::Ω, vals) = uniform(rand(ω, size(vals)), vals)
 

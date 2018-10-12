@@ -2,6 +2,7 @@
 module Inference
 
 using Spec
+using ..Omega
 using ..Omega: RandVar, trackerrorapply, indomain, Wrapper, logepsilon,
                UTuple, logepsilon, Ω, applywoerror, SimpleΩ, cond, randtuple,
                fluxgradient, gradient, linearize, unlinearize, epsilon
@@ -26,6 +27,7 @@ include("mi.jl")        # Metropolized Independent Sampling
 include("ssmh.jl")      # Single Site Metropolis Hastings
 include("hmc.jl")       # Hamiltonian Monte Carlo
 include("hmcfast.jl")   # Faster Hamiltonian Monte Carlo
+include("replica.jl")   # Replica Exchange
 # include("sghmc.jl")     # Stochastic Gradient Hamiltonian Monte Carlo
 
 export  isapproximate,
