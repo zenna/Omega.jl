@@ -13,7 +13,7 @@ env:
   - DOCUMENTER_DEBUG="true" CONDA_JL_VERSION="2" PYTHON=""
 after_success:
   - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
-  - julia -e 'using Pkg; Pkg.add("Documenter"); include(joinpath("docs", "make.jl"))'
+  - julia -e 'using Pkg; ps=Pkg.PackageSpec(name="Documenter", version="0.19"); Pkg.add(ps); Pkg.pin(ps); include(joinpath("docs", "make.jl"))'
 matrix:
   fast_finish: true
   allow_failures:
