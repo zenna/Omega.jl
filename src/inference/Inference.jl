@@ -27,6 +27,7 @@ include("ssmh.jl")      # Single Site Metropolis Hastings
 include("hmc.jl")       # Hamiltonian Monte Carlo
 include("hmcfast.jl")   # Faster Hamiltonian Monte Carlo
 # include("sghmc.jl")     # Stochastic Gradient Hamiltonian Monte Carlo
+include("relandscape.jl")  # Variantional Sampling through relandscape
 
 export  isapproximate,
 
@@ -43,6 +44,8 @@ export  isapproximate,
         HMCAlg,
         # SGHMCAlg,
         HMCFASTAlg,
+        RelandscapeAlg,
+        Relandscape,
 
         defalg,
         defcb,
