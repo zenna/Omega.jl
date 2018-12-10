@@ -90,8 +90,8 @@ function Base.rand(x::RandVar,
     log((res)^2) # Work in log scale
   end
   ω = ΩT()
-  # U(ω) = logepsilon(indomain(x, ω)) + wave(ω)
-  U(ω) = min(logepsilon(indomain(x, ω)),  wave(ω))
+  # U(ω) = logerr(indomain(x, ω)) + wave(ω)
+  U(ω) = min(logerr(indomain(x, ω)),  wave(ω))
 
   @grab U
   # @grab x

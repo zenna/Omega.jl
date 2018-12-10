@@ -6,7 +6,7 @@ function gradient(y::RandVar, ω::Ω, vals = linearize(ω))
   # y(ω)
   indomain(y, ω)
   function unpackcall(xs)
-    -logepsilon(indomain(y, unlinearize(xs, ω)))
+    -logerr(indomain(y, unlinearize(xs, ω)))
   end
   ForwardDiff.gradient(unpackcall, vals)
 end
@@ -16,7 +16,7 @@ function gradient(y::RandVar, sω::SimpleΩ{I, V}, vals) where {I, V <: Abstract
   sω = unlinearize(vals, sω)
   sωtracked = SimpleΩ(Dict(i => param(v) for (i, v) in sω.vals))
   # @grab vals
-  l = -epsilon(y(sωtracked))
+  l = -err(y(sωtracked))
   # @grab sωtracked
   # @grab y
   # @grab l
@@ -37,6 +37,6 @@ function gradient(y::RandVar, sω::SimpleΩ{I, V}, vals) where {I, V <: Abstract
 end
 
 function fluxgradient(y::RandVar, sω::SimpleΩ{I, V}) where {I, V <: AbstractArray}
-  l = -logepsilon(indomain(y, sω))
+  l = -logerr(indomain(y, sω))
   Flux.back!(l)
 end

@@ -70,8 +70,8 @@ export  SoftBool,
         withkernel,
 
         indomain,
-        applywoerror,
-        trackerrorapply
+        applynotrackerr,
+        applytrackerr
 
 # Gradient
 include("gradient.jl")

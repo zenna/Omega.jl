@@ -22,8 +22,8 @@ function Base.rand(x::RandVar,
                    cb = donothing,
                    hack = true) where {OT <: Ω}
   ω = ΩT()
-  xω, sb = trackerrorapply(x, ω)
-  plast = logepsilon(sb)
+  xω, sb = applytrackerr(x, ω)
+  plast = logerr(sb)
   qlast = 1.0
   samples = []
   accepted = 0
@@ -33,8 +33,8 @@ function Base.rand(x::RandVar,
     else
       update_random(ω)
     end
-    xω_, sb = trackerrorapply(x, ω_)
-    p_ = logepsilon(sb)
+    xω_, sb = applytrackerr(x, ω_)
+    p_ = logerr(sb)
     ratio = p_ - plast
     if log(rand()) < ratio
       ω = ω_

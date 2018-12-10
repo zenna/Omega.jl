@@ -60,7 +60,7 @@ function Base.rand(y::RandVar,
   ωvec = linearize(ω)
 
   ωsamples = ΩT[]
-  U(ω) = -logepsilon(indomain(y, ω))
+  U(ω) = -logerr(indomain(y, ω))
   U(ωvec::Vector) = U(unlinearize(ωvec, ω))
   ∇U(ωvec) = gradient(y, ω, ωvec)
 
@@ -74,5 +74,5 @@ function Base.rand(y::RandVar,
     end
     cb((ω = ω_, accepted = accepted, p = p_, i = i), Outside)
   end
-  [applywoerror(y, ω_) for ω_ in ωsamples]
+  [applynotrackerr(y, ω_) for ω_ in ωsamples]
 end

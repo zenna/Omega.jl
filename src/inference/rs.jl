@@ -17,7 +17,7 @@ function Base.rand(x::RandVar,
   i = 1
   while accepted < n
     ω = ΩT()
-    xω, sat = trackerrorapply(x, ω, Wrapper(true))
+    xω, sat = applytrackerr(x, ω, Wrapper(true))
     if sat
       push!(samples, xω)
       accepted += 1

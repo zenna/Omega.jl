@@ -93,7 +93,7 @@ function Base.rand(y::RandVar,
   pvals = [x.data for x in values(p)] # as vector
   
   ωsamples = ΩT[] 
-  U(ω) = -logepsilon(indomain(y, ω))
+  U(ω) = -logerr(indomain(y, ω))
   ∇U(ω) = fluxgradient(y, ω)
 
   accepted = 0
@@ -110,5 +110,5 @@ function Base.rand(y::RandVar,
     end
     cb((ω = prop_ω, accepted = accepted, p = Flux.data(p_), i = i), Outside)
   end
-  [applywoerror(y, ω_) for ω_ in ωsamples]
+  [applynotrackerr(y, ω_) for ω_ in ωsamples]
 end

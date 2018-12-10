@@ -2,7 +2,7 @@ module TestNamespace
 
 using Test
 using Omega
-using Omega.Inference: CbNode
+using Callbacks: CbNode, idcb
 
 function testcb()
   x = normal(0.0, 1.0)
@@ -10,7 +10,7 @@ function testcb()
   testz(data, stage) = (println("in testz"); @test haskey(data, :z))
   testnoz(data, stage) = (println("in testz"); @test !haskey(data, :z))
 
-  cb = CbNode(Omega.idcb, (CbNode(addz, (testz,)), testnoz))
+  cb = CbNode(idcb, (CbNode(addz, (testz,)), testnoz))
   rand(x, x ⪆ 0.0, 1, alg = HMCFAST, cb = cb)
 end
 

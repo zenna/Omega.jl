@@ -13,7 +13,7 @@ function ucontours(y::Omega.RandVar, xdim, ydim, ω::Omega.Ω; xrng = 0:0.01:1, 
     # @show x, y, ω_
     ω_.vals[xdim] = x_
     ω_.vals[ydim] = y_
-    Omega.epsilon(y(ω_))
+    Omega.err(y(ω_))
   end
   # p = plot!(plt, xrng, yrng, f, st = [:contourf])
   p = contour!(plt, xrng, yrng, f, fill = false)

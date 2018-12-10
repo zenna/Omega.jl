@@ -17,9 +17,9 @@ end
 
 function f(ω)
   if Bool(ω > 0.35)
-    (baba, epsilon) = ω ⪆ 0.5
+    (baba, err) = ω ⪆ 0.5
     # @show typeof(baba)
-    (res, epsilon2) = g(baba)
+    (res, err2) = g(baba)
     
   else
     2ω <= 0.2

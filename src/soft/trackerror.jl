@@ -27,14 +27,14 @@ end
 tagerror(ω, wrap) = tag(ω, (err = wrap,))
 
 "Is `ω` in the domain of `x`?"
-function trackerrorapply(x, ω, wrap = SoftBoolWrapper(trueₛ))
+function applytrackerr(x, ω, wrap = SoftBoolWrapper(trueₛ))
   ω_ = tagerror(ω, wrap)
   fx = x(ω_)
   (fx, ω_.tags.tags.err.elem)
 end
 
 "Is `ω` in the domain of `x`?"
-indomain(x, ω, wrap = SoftBoolWrapper(trueₛ)) = trackerrorapply(x, ω, wrap)[2]
+indomain(x, ω, wrap = SoftBoolWrapper(trueₛ)) = applytrackerr(x, ω, wrap)[2]
 
 "Is `ω` in the domain of `x`?"
-applywoerror(x, ω, wrap = SoftBoolWrapper(trueₛ)) = x(tagerror(ω, wrap))
+applynotrackerr(x, ω, wrap = SoftBoolWrapper(trueₛ)) = x(tagerror(ω, wrap))

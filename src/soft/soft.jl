@@ -2,17 +2,17 @@
 
 "Soft Boolean"
 struct SoftBool{ET <: Real}
-  logepsilon::ET
+  logerr::ET
 end
-@invariant 0 <= epsilon(b::SoftBool) <= 1
+@invariant 0 <= err(b::SoftBool) <= 1
 
 "Error in [0, 1]"
-epsilon(x::SoftBool) = x.logepsilon |> exp
+err(x::SoftBool) = x.logerr |> exp
 
 "Log error"
-logepsilon(x::SoftBool) = x.logepsilon
+logerr(x::SoftBool) = x.logerr
 
-Bool(x::SoftBool) = epsilon(x) == 1.0
+Bool(x::SoftBool) = err(x) == 1.0
 SoftBool(::Type{Val{true}}) = SoftBool(0.0)
 SoftBool(::Type{Val{false}}) = SoftBool(-Inf)
 const trueₛ = SoftBool(Val{true})
@@ -54,15 +54,15 @@ softlt(x::Real, y::Real, k = globalkernel()) = SoftBool(-k(bound_loss(x, -Inf, y
 ## Boolean Operators
 ## =================
 function Base.:&(x::SoftBool, y::SoftBool)
-  a = logepsilon(x)
-  b = logepsilon(y)
+  a = logerr(x)
+  b = logerr(y)
   c = min(a, b)
   SoftBool(c)
 end
-# Base.:&(x::SoftBool, y::SoftBool) = SoftBool(logepsilon(x) +  logepsilon(y))
-Base.:|(x::SoftBool, y::SoftBool) = SoftBool(max(logepsilon(x), logepsilon(y)))
+# Base.:&(x::SoftBool, y::SoftBool) = SoftBool(logerr(x) +  logerr(y))
+Base.:|(x::SoftBool, y::SoftBool) = SoftBool(max(logerr(x), logerr(y)))
 
-Base.all(xs::Vector{<:SoftBool}) = SoftBool(minimum(logepsilon.(xs)))
+Base.all(xs::Vector{<:SoftBool}) = SoftBool(minimum(logerr.(xs)))
 Base.all(xs::Vector{<:RandVar}) = RandVar(all, (xs, ))
 
 const >ₛ = softgt
@@ -88,4 +88,4 @@ Omega.lift(:softlt, 2)
 
 ## Show
 ## ====
-Base.show(io::IO, sb::SoftBool) = print(io, "ϵ:$(logepsilon(sb))")
+Base.show(io::IO, sb::SoftBool) = print(io, "ϵ:$(logerr(sb))")

@@ -32,9 +32,7 @@ uuid = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
 version = "0.5.3"
 
 [[Callbacks]]
-git-tree-sha1 = "3f892a41d5e35e89e624050a1b544f549c8a943c"
-repo-rev = "master"
-repo-url = "https://github.com/zenna/Callbacks.jl"
+path = "/home/zenna/repos/Callbacks.jl"
 uuid = "5c501fca-fc9b-11e8-1fb9-dbe118bb7e64"
 version = "0.1.0"
 

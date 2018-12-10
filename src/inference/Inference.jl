@@ -2,9 +2,9 @@
 module Inference
 
 using Spec
-using ..Omega: RandVar, trackerrorapply, indomain, Wrapper, logepsilon,
-               UTuple, logepsilon, Ω, applywoerror, SimpleΩ, cond, randtuple,
-               fluxgradient, gradient, linearize, unlinearize, epsilon
+using ..Omega: RandVar, applytrackerr, indomain, Wrapper, logerr,
+               UTuple, logerr, Ω, applynotrackerr, SimpleΩ, cond, randtuple,
+               fluxgradient, gradient, linearize, unlinearize, err
 using ProgressMeter
 using Flux
 using Callbacks
@@ -28,7 +28,7 @@ include("ssmh.jl")      # Single Site Metropolis Hastings
 include("hmc.jl")       # Hamiltonian Monte Carlo
 include("hmcfast.jl")   # Faster Hamiltonian Monte Carlo
 # include("sghmc.jl")     # Stochastic Gradient Hamiltonian Monte Carlo
-include("relandscape.jl")  # Variantional Sampling through relandscape
+# include("relandscape.jl")  # Variantional Sampling through relandscape
 
 export  isapproximate,
 
