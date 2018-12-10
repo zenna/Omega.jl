@@ -9,7 +9,10 @@ SoftBoolWrapper = Wrapper{SoftBool}
 conjoinerror!(sbw::SoftBoolWrapper, y::Nothing) = nothing
 conjoinerror!(sbw::SoftBoolWrapper, yω::SoftBool) = sbw.elem &= yω
 conjoinerror!(sbw::SoftBoolWrapper, yω::Bool) = conjoinerror!(sbw, SoftBool(log(yω)))
+conjoinerror!(wrap::Wrapper{Bool}, yω::SoftBool) =
+  error("Model has soft constraints but sampling algorithm doesn't support them")
 conjoinerror!(wrap::Wrapper{Bool}, yω::Bool) = wrap.elem &= yω
+
 
 function condf(tω::TaggedΩ, x, y)
   res = y(tω)

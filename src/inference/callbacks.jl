@@ -1,60 +1,3 @@
-# Callback tree
-
-"Callback Node"
-struct CbNode{F, TPL <: Tuple}
-  parent::F
-  children::TPL
-end
-
-p → c::Tuple = CbNode(p, c)
-p → c = CbNode(p, (c,))
-
-datamerge(x, data) = nothing
-datamerge(data1::NamedTuple, data2::NamedTuple) = merge(data1, data2)
-
-trigger(data, child, stage) = nothing
-trigger(data::NamedTuple, child, stage) = child(data, stage)
-
-function (cbt::CbNode)(data, stage)
-  data2 = datamerge(cbt.parent(data, stage), data)
-  for child in cbt.children
-    trigger(data2, child, stage)
-  end
-end
-
-@inline idcb(x, stage) = x
-
-"Inf found"
-struct InfError <: Exception end
-
-"NaNs found"
-struct NaNError <: Exception end
-
-## Common Tools
-## ============
-runall(f) = f
-runall(fs::AbstractVector) = (data, stage) -> foreach(f -> handlesignal(f(data, stage)), fs)
-
-"Stage of algorithm at which callback is called.
- Callback has type f(data, stage::Type{<:Stage}."
-abstract type Stage end
-
-""
-abstract type Inside <: Stage end
-
-"Stage at end of MHStep"
-abstract type Outside <: Stage end
-
-"Signal returned by callback"
-abstract type Signal end
-abstract type Stop <: Signal end
-
-"Default handle signal (do nothing)"
-handlesignal(x) = nothing
-handlesignal(::Type{Stop}) = throw(InterruptException)
-
-## Callback generators
-## ===================
 "Plot histogram of loss with UnicodePlots"
 function plotp()
   alldata = Float64[]
@@ -137,14 +80,6 @@ function plotscalar(key::Symbol, name, display_ = display)
   end
 end
 
-"Show progress meter"
-function showprogress(n)
-  p = Progress(n, 1)
-  updateprogress(data, stage) = nothing # Do nothing in other stages
-  function updateprogress(data, stage::Type{Outside})
-    ProgressMeter.next!(p)
-  end
-end
 
 function tracecb(::Type{T}, t = identity) where T
   ωs = T[]
@@ -160,7 +95,6 @@ function tracecb(::Type{T}, t = identity) where T
   f, (ωs, allωs)
 end
 
-
 ## Callbacks
 ## =========
 "Print the p value"
@@ -169,81 +103,6 @@ function printstats(data, stage::Type{Outside})
   printstyled("\nacceptance ratio: $(data.accepted/float(data.i))\n",
               "Last p: $(data.p)\n";
               color = :light_blue)
-end
-
-
-"Stop if nans or Inf are present (-Inf) still permissible"
-stopnanorinf(data, stage) = nothing
-function stopnanorinf(data, stage::Type{Outside})
-  if isnan(data.p)
-    println("p is $(data.p)")
-    throw(NaNError())
-    return Stop
-  elseif data.p == Inf
-    println("p is $(data.p)")
-    throw(InfError())
-    return Stop
-  end
-end
-
-"As the name suggests"
-donothing(data, stage) = nothing
-
-## Callback Augmenters
-## ===================
-#
-"""
-Returns a function that when invoked, will only be triggered at most once
-during `timeout` seconds. Normally, the throttled function will run
-as much as it can, without ever going more than once per `wait` duration;
-but if you'd like to disable the execution on the leading edge, pass
-`leading=false`. To enable execution on the trailing edge, ditto.
-"""
-function throttle(f, timeout; leading = true, trailing = false) # From Flux (thanks!)
-  cooldown = true
-  later = nothing
-  result = nothing
-
-  function throttled(args...; kwargs...)
-    yield()
-
-    if cooldown
-      if leading
-        result = f(args...; kwargs...)
-      else
-        later = () -> f(args...; kwargs...)
-      end
-
-      cooldown = false
-      @async try
-        while (sleep(timeout); later != nothing)
-          later()
-          later = nothing
-        end
-      catch e
-        rethrow(e)
-      finally
-        cooldown = true
-      end
-    elseif trailing
-      later = () -> (result = f(args...; kwargs...))
-    end
-
-    return result
-  end
-end
-
-"Higher order function that makes a callback run just once every n"
-function everyn(callback, n::Integer)
-  everyncb(data, stage) = nothing
-  function everyncb(data, stage::Type{Outside})
-    if data.i % n == 0
-      return callback(data, stage)
-    else
-      nothing
-    end
-  end
-  return everyncb
 end
 
 "Defautlt callbacks"

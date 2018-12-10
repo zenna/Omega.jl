@@ -1,6 +1,6 @@
 struct RelandscapeAlg <: Algorithm end
 const Relandscape = RelandscapeAlg()
-
+using Rotations
 using Flux: Params
 using ZenUtils: @grab
 
@@ -8,10 +8,16 @@ using ZenUtils: @grab
 # Need to make sure omegas have same dimensions
 # Implement optimize
 
-function sin2d(x, y)
-  cos(2 * \pi x)
+# wow(x, y) = sin(x*100) * sin(y*100) * exp(sqrt(x^2 + y^2) /  π)
+# wow2(x, y) = sin(sqrt(x^2 + y^2) * 10π)
+# wow3(x, y) = (sin(10π * x) * sin(10π * y))^2
 
-vectorize(ω) = [x.data for x in values(ω)]
+# sin2d(x, y) = cos(2π * x) = cos(2π * y)
+
+# vectorize(ω) = [x.data for x in values(ω)]
+
+# So this is a little janky but it might work
+# Optimize in constrained space
 
 "ω in argmax_Ω(f) initialised at ωinit"
 function argmax(f, ω::Ω)
@@ -20,7 +26,7 @@ function argmax(f, ω::Ω)
   # @grab ω
   ωvals = collect(values((ω)))
   # @grab ωvals
-  for i = 1:1000
+  for i = 1:10000
     # println("ω", ωvals)
     # @show i
     gs = Tracker.gradient(() -> f(ω), Params(ωvals))
@@ -28,13 +34,14 @@ function argmax(f, ω::Ω)
     # @grab gs
     for ωvec in ωvals
       Δ = gs[ωvec]
-      l = 0.000001
+      l = 0.0001
       # @show Δ, Δ * l
       Flux.Tracker.update!(ωvec, Δ * l)
     end
     # @show f(ω)
   end
   @show f(ω)
+  @show exp(f(ω))
   ω
 end
 
@@ -60,10 +67,35 @@ function Base.rand(x::RandVar,
                    alg::RelandscapeAlg,
                    ΩT::Type{OT};
                    cb = donothing) where {OT <: Ω}
-  ωrand = ΩT()
+  # Random phase
+  unifs = rand(2)
+
+  # Period, adjust per problem
+  period = 10
+
+  # Random rotation 
+  r = rand(RotMatrix{2})
+
+  # To bound betwee [0, 1]
+  sawtooth(x) = x - floor(Flux.data(x))
+  function wave(ω)
+    res = 1.0
+
+    # Each arrow only has one element
+    vs = [x[1] for x in values(ω)]
+    vs = sawtooth.(r * vs)
+    for (i, v) in enumerate(vs)
+      res *= sin((v + unifs[i]) * 2 * pi * period * 1/5) 
+    end
+    log((res)^2) # Work in log scale
+  end
   ω = ΩT()
-  U(ω) = logkernel(logepsilon(indomain(x, ω)),  ωdist(ω, ωrand)) # kernel rename
-  U(ωrand) # Init
+  # U(ω) = logepsilon(indomain(x, ω)) + wave(ω)
+  U(ω) = min(logepsilon(indomain(x, ω)),  wave(ω))
+
+  @grab U
+  # @grab x
+  @grab wave
   U(ω) # Init
   argmax(U, ω)
 end
@@ -74,12 +106,17 @@ function Base.rand(x::RandVar,
                    ΩT::Type{OT};
                    cb = donothing) where {OT <: Ω}
   samples = []
-  for i = 1:n
-    try
+  i = 1
+  while i < n
+    # try
       sample = rand(x, alg, ΩT, cb = cb)
       push!(samples, sample)
-    catch
-    end
+      i += 1
+      # @assert false
+    # catch e
+    #   @show e
+    #   @assert false
+    # end
   end
   # [rand(x, alg, ΩT, cb = cb) for i = 1:n]
   samples

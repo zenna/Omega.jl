@@ -7,6 +7,7 @@ using ..Omega: RandVar, trackerrorapply, indomain, Wrapper, logepsilon,
                fluxgradient, gradient, linearize, unlinearize, epsilon
 using ProgressMeter
 using Flux
+using Callbacks
 import UnicodePlots
 
 "Inference Algorithm"
@@ -52,15 +53,9 @@ export  isapproximate,
         defΩ,
         defΩProj,
 
-        everyn,
-        →,
-        idcb,
-        throttle,
         plotrv,
         plotscalar,
         default_cbs,
-        Inside,
-        Outside,
         default_cbs_tpl,
         default_cbs
 
