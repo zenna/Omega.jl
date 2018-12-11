@@ -6,7 +6,7 @@ function plotp()
   minseen = Inf
   
   innerplotp(data, stage) = nothing # Do nothing in other stages
-  function innerplotp(data, stage::Type{Outside})
+  function innerplotp(data, stage::Type{IterEnd})
     push!(alldata, data.p)
     push!(ys, data.i)
     if !isempty(alldata)
@@ -30,7 +30,7 @@ function plotω(x::RandVar, y::RandVar)
   yωs = Float64[]
 
   innerplotω(data, stage) = nothing # Do nothing in other stages
-  function innerplotω(data, stage::Type{Outside})
+  function innerplotω(data, stage::Type{IterEnd})
     color = :blue
     if isempty(xωs)
       color = :red
@@ -50,7 +50,7 @@ function plotrv(x::RandVar, name = string(x), display_ = display)
   ys = Int[]
 
   innerplotω(data, stage) = nothing # Do nothing in other stages
-  function innerplotrv(data, stage::Type{Outside})
+  function innerplotrv(data, stage::Type{IterEnd})
     x_ = x(data.ω)
     println("$name is:")
     display_(x_)
@@ -68,7 +68,7 @@ function plotscalar(key::Symbol, name, display_ = display)
   ys = Int[]
 
   innerplotω(data, stage) = nothing # Do nothing in other stages
-  function innerplotrv(data, stage::Type{Outside})
+  function innerplotrv(data, stage::Type{IterEnd})
     x_ = getfield(data, key)
     println("$name is:")
     display_(x_)
@@ -84,11 +84,11 @@ end
 function tracecb(::Type{T}, t = identity) where T
   ωs = T[]
   allωs = Vector{T}[]
-  function f(qp, ::Type{Inside})
+  function f(qp, ::Type{HMCStep})
     push!(ωs, t(qp))
   end
 
-  function f(data, ::Type{Outside})
+  function f(data, ::Type{IterEnd})
     push!(allωs, copy(ωs))
     empty!(ωs)
   end
@@ -99,24 +99,16 @@ end
 ## =========
 "Print the p value"
 printstats(data, stage) = nothing
-function printstats(data, stage::Type{Outside})
+function printstats(data, stage::Type{IterEnd})
   printstyled("\nacceptance ratio: $(data.accepted/float(data.i))\n",
               "Last p: $(data.p)\n";
               color = :light_blue)
 end
-
-"Defautlt callbacks"
-default_cbs(n) = runall([throttle(plotp(), 0.1),
-                         showprogress(n),
-                         throttle(printstats, 1.0),
-                         stopnanorinf])
 
 default_cbs_tpl(n) = (throttle(plotp(), 0.1),
                       showprogress(n),
                       throttle(printstats, 1.0),
                       stopnanorinf)
 
-# default_cbs(n) = [plotp(),
-#                   showprogress(n),
-#                   printstats,
-#                   stopnanorinf]
+"Defautlt callbacks"
+default_cbs(n) = runall([default_cbs_tpl(n)...])

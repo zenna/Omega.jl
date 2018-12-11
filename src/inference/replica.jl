@@ -34,7 +34,7 @@ function Base.rand(x::RandVar,
       xω = xω_
     end
     push!(samples, xω)
-    cb((ω = ω, accepted = accepted, p = plast, i = i), Outside)
+    cb((ω = ω, accepted = accepted, p = plast, i = i), IterEnd)
   end
   samples
 end

@@ -30,7 +30,7 @@ function Base.rand(y::RandVar,
       accepted += 1
     end
     push!(ωsamples, ω)
-    cb((ω = ω, accepted = accepted, p = p_, i = i), Outside)
+    cb((ω = ω, accepted = accepted, p = p_, i = i), IterEnd)
   end
   [applynotrackerr(y, ω_) for ω_ in ωsamples]
 end

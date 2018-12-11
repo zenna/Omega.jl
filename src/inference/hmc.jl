@@ -19,7 +19,7 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
   p = p - stepsize * ∇U(invq) .* jacobian.(q) / 2.0
 
   for i = 1:nsteps
-    cb((q = q, p = p), Inside)
+    cb((q = q, p = p), HMCStep)
 
     # Half step for the position and momentum
     q = q .+ stepsize .* p
@@ -72,7 +72,7 @@ function Base.rand(y::RandVar,
     if wasaccepted
       accepted += 1
     end
-    cb((ω = ω_, accepted = accepted, p = p_, i = i), Outside)
+    cb((ω = ω_, accepted = accepted, p = p_, i = i), IterEnd)
   end
   [applynotrackerr(y, ω_) for ω_ in ωsamples]
 end

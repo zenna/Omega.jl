@@ -110,8 +110,8 @@ export  isapproximate,
         plotrv,
         plotscalar,
         default_cbs,
-        Inside,
-        Outside,
+        HMCStep,
+        IterEnd,
         default_cbs_tpl,
         default_cbs
 
