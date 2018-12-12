@@ -1,40 +1,63 @@
 "Replica Exchange (Parallel Tempering)"
-struct ReplicaAlg{T <: Algorithm} end
+struct ReplicaAlg end
 
-"Sample from `x` using Replica Exchange"
+"Single Site Metropolis Hastings"
+const Replica = ReplicaAlg()
+
+"""
+# Arguments
+Ei - energy of chain i
+Ej - energy of chain j
+Ti - temperature of system i
+Tj - temperature of system j
+k - 
+"""
+function doexchange(Ei, Ej, k, Ti, Tj)
+  p = rand()
+  exp((Ei - Ej)*(1/k*Ti - 1/k*Tj))
+end
+
+"exhanged"
+function exchange!(ωs, temps, es)
+  for (ω1, ω2) in ω
+    if doexhange(e1, e2, t1, t2)
+      println("Replica switch")
+    else
+      println("Replica switch")
+    end
+  end
+end
+
+"""Sample from `x` using Replica Exchange
+
+Replica exchange (aka parallel tempemring) runs `nreplicas` independent mcmc
+chains in parallel
+
+# Arguments
+- swapevery : performs swap every swapevery iterations
+- nreplicas : number of replica chains to run
+- temps : temperatures 
+# Returns
+
+"""
 function Base.rand(x::RandVar,
                    n::Integer,
                    alg::ReplicaAlg,
                    ΩT::Type{OT};
+                   algs,
+                   swapevery = 1,
                    nreplicas = 2,
                    temps = sort([rand() for i = 1:nreplicas]),
                    cb = donothing) where {OT <: Ω}
-  ## Run n in parallel?
-  ## When do you swap?
-  ## Presumably swapping Omega
-  ω = ΩT()
-  xω, sb = applytrackerr(x, ω)
-  plast = logerr(sb)
-  qlast = 1.0
-  samples = []
-  accepted = 0
-  for i = 1:n
-    ω_ = if isempty(ω)
-      ω
-    else
-      update_random(ω)
+
+  ωssamples = OT[]
+  ωs = [ΩT() for i = 1:nreplicas]
+  for i = 1:nreplicas
+    withkernel() do
+      rand(ΩT, x, swapevery, alg, ω)
     end
-    xω_, sb = applytrackerr(x, ω_)
-    p_ = logerr(sb)
-    ratio = p_ - plast
-    if log(rand()) < ratio
-      ω = ω_
-      plast = p_
-      accepted += 1
-      xω = xω_
-    end
-    push!(samples, xω)
-    cb((ω = ω, accepted = accepted, p = plast, i = i), IterEnd)
+    exchange!(ωs, temps, map(x, ωs))
   end
-  samples
+  ωssamples
 end
+

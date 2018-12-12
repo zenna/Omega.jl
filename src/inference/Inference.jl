@@ -5,7 +5,7 @@ using Spec
 using ..Omega: RandVar, applytrackerr, indomain, Wrapper, logerr,
                UTuple, logerr, Ω, applynotrackerr, SimpleΩ, LinearΩ, Segment, cond, randtuple,
                fluxgradient, gradient, linearize, unlinearize, err
-using ProgressMeter
+  using ProgressMeter
 using Flux
 using Callbacks
 import UnicodePlots
@@ -27,6 +27,7 @@ include("mi.jl")        # Metropolized Independent Sampling
 include("ssmh.jl")      # Single Site Metropolis Hastings
 include("hmc.jl")       # Hamiltonian Monte Carlo
 include("hmcfast.jl")   # Faster Hamiltonian Monte Carlo
+include("replica.jl")   # Replica Exchange
 # include("sghmc.jl")     # Stochastic Gradient Hamiltonian Monte Carlo
 # include("relandscape.jl")  # Variantional Sampling through relandscape
 

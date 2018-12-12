@@ -48,6 +48,12 @@ git-tree-sha1 = "e3df104c84dfc108f0ca203fd7f5bbdc98641ae9"
 uuid = "944b1d66-785c-5afd-91f1-9de20f533193"
 version = "0.5.1"
 
+[[CodecZlib]]
+deps = ["BinaryProvider", "Libdl", "Pkg", "Test", "TranscodingStreams"]
+git-tree-sha1 = "83cb3d65c37ea1364c2d5bf7bcea41843ba645dc"
+uuid = "944b1d66-785c-5afd-91f1-9de20f533193"
+version = "0.5.0"
+
 [[ColorTypes]]
 deps = ["FixedPointNumbers", "Random", "Test"]
 git-tree-sha1 = "f73b0e10f2a5756de7019818a41654686da06b09"
@@ -187,11 +193,7 @@ uuid = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
 version = "0.3.2"
 
 [[OrderedCollections]]
-deps = ["Random", "Serialization", "Test"]
 git-tree-sha1 = "85619a3f3e17bb4761fe1b1fd47f0e979f964d5b"
-uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
-version = "1.0.2"
-
 [[PDMats]]
 deps = ["Arpack", "LinearAlgebra", "SparseArrays", "SuiteSparse", "Test"]
 git-tree-sha1 = "b6c91fc0ab970c0563cbbe69af18d741a49ce551"
