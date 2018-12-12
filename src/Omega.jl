@@ -18,7 +18,7 @@ export ntranspose
 # Core
 include("space/Space.jl")         # UIDs
 using .Space
-export Ω, uid, @id, SimpleΩ
+export Ω, uid, @id, SimpleΩ, LinearΩ
 
 # RandVar
 include("randvar/randvar.jl" )            # Random variables

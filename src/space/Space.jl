@@ -13,7 +13,7 @@ export append, base, combine, increment!, increment,
        Paired, pair
 export ΩProj, parentω, resolve
 export TaggedΩ, tag, Tags, hastags
-export SimpleΩ
+export SimpleΩ, LinearΩ, Segment
 
 include("idgen.jl")         # Id generation
 include("index.jl")         # Pairing functions for omega ids
@@ -22,5 +22,6 @@ include("proj.jl")          # Sample Space Projection
 include("tags.jl")          # Metadata
 include("tagged.jl")        # Space space Tagged with metadata
 include("simple.jl")        # Simple Ω
+include("linear.jl")        # Simple Ω
 
 end
