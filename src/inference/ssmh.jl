@@ -1,12 +1,14 @@
-"Single Site Metropolis Hastings"
 struct SSMHAlg <: Algorithm end
-
 "Single Site Metropolis Hastings"
 const SSMH = SSMHAlg()
-defcb(::SSMHAlg) = default_cbs()
 
-isapproximate(::SSMHAlg) = true
-ismcmc(::SSMHAlg) = true
+struct SSMHDriftAlg <: Algorithm end
+"Single Site Metropolis Hastings with drift"
+const SSMHDrift = SSMHDriftAlg()
+defΩ(::SSMHDriftAlg) = SimpleΩ{Vector{Int}, Float64}
+
+defcb(::Union{SSMHAlg, SSMHDriftAlg}) = default_cbs()
+isapproximate(::Union{SSMHAlg, SSMHDriftAlg}) = true
 
 function update_random(sω::SO)  where {SO <: SimpleΩ}
   k = rand(1:length(sω))
@@ -15,8 +17,45 @@ function update_random(sω::SO)  where {SO <: SimpleΩ}
   SO(Dict(k => sω.vals[k] for (i, k) in filtered))
 end
 
-function innerloop!(x, ω, n, cb, update!)
-  accepted = 0
+function update_random(sω::SO, noiseσ)  where {SO <: SimpleΩ}
+  tomodify = rand(1:length(sω))
+  elements = map(sω.vals |> keys |> enumerate) do (i,k)
+    val = if i == tomodify
+      (sω.vals[k] |> transform) + noiseσ*randn() |> inv_transform
+    else
+      sω.vals[k]
+    end
+    k => val
+  end
+  elements |> Dict |> SO
+end
+
+"Sample from `x` with Single Site Metropolis Hasting"
+function Base.rand(x::RandVar,
+                   n::Integer,
+                   alg::SSMHAlg,
+                   ΩT::Type{OT};
+                   cb = donothing) where {OT <: Ω}
+  rand_(x, n, alg, ΩT; cb = cb, noise = false)
+end
+
+function Base.rand(x::RandVar,
+                  n::Integer,
+                  alg::SSMHDriftAlg,
+                  ΩT::Type{OT};
+                  cb = donothing,
+                  noiseσ = 0.1) where {OT <: Ω}
+  rand_(x, n, alg, ΩT; cb = cb, noiseσ = noiseσ, noise = true)
+end                  
+
+function rand_(x::RandVar,
+               n::Integer,
+               alg::Union{SSMHAlg, SSMHDriftAlg},
+               ΩT::Type{OT};
+               cb = donothing,
+               noiseσ = 0.1,
+               noise = false) where {OT <: Ω}
+  ω = ΩT()
   xω, sb = trackerrorapply(x, ω)
   plast = logepsilon(sb)
   qlast = 1.0
@@ -25,7 +64,11 @@ function innerloop!(x, ω, n, cb, update!)
     ω_ = if isempty(ω)
       ω
     else
-      update_random(ω)
+      if noise
+        update_random(ω, noiseσ)
+      else 
+        update_random(ω) 
+      end
     end
     xω_, sb = applytrackerr(x, ω_)
     p_ = logerr(sb)
