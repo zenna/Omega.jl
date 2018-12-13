@@ -86,6 +86,10 @@ Omega.lift(:softeq, 3)
 Omega.lift(:softgt, 2)
 Omega.lift(:softlt, 2)
 
+Omega.lift(:logerr, 1)
+Omega.lift(:err, 1)
+
+
 ## Show
 ## ====
 Base.show(io::IO, sb::SoftBool) = print(io, "ϵ:$(logerr(sb))")

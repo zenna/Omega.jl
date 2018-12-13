@@ -61,6 +61,8 @@ export  SoftBool,
         <=ₛ,
         <ₛ,
         ==ₛ,
+        err,
+        logerr,
 
         # Kernels
         kse,

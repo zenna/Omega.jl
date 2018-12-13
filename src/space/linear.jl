@@ -21,11 +21,24 @@ struct Segment
   shape::Dims
 end
 
+nelem(seg::Segment) = prod(seg.shape)
+
+"lb:ub indices of ωvec subsumed by segment"
+segrange(seg::Segment) = seg.startidx:seg.startidx+nelem(seg) - 1
+
 LinearΩ() = LinearΩ{Vector{Int}, Segment, Float64}(Dict{Vector{Int}, Segment}(), Float64[])
 LinearΩ{I, AB, V}() where {I, AB, V} = LinearΩ{I, AB, V}(Dict{I, V}(), V[])
 
 linearize(lω::LinearΩ) = lω.ωvec
 unlinearize(ωvec, lω::LinearΩ{I, AB, V}) where {I, AB, V}  = LinearΩ{I, AB, V}(lω.ids, ωvec)
+
+"Sample a random component"
+randunifkey(lω::LinearΩ) = rand(keys(lω.ids))
+
+function resample!(lω::LinearΩ, id, proposal)
+  segrng = segrange(lω.ids[id])
+  lω.ωvec[segrng] .= proposal(lω.ωvec[segrng])
+end
 
 # Resolve
 function resolve(lω::LinearΩ{I, Int, V}, id::I, T) where {I, V}

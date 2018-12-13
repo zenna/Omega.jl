@@ -3,7 +3,7 @@ module Inference
 
 using Spec
 using ..Omega: RandVar, applytrackerr, indomain, Wrapper, logerr,
-               UTuple, logerr, Ω, applynotrackerr, SimpleΩ, LinearΩ, Segment, cond, randtuple,
+               UTuple, Ω, applynotrackerr, SimpleΩ, LinearΩ, Segment, randunifkey, resample!, cond, randtuple,
                fluxgradient, gradient, linearize, unlinearize, err
   using ProgressMeter
 using Flux
@@ -21,6 +21,8 @@ function defΩ end
 
 include("transforms.jl")# Transformations from [0, 1] to R, etc
 include("callbacks.jl") # Common Inference Functions
+
+# Sampling
 include("rand.jl")      # Sampling
 include("rs.jl")        # Rejection Sampling
 include("mi.jl")        # Metropolized Independent Sampling
@@ -30,6 +32,10 @@ include("hmcfast.jl")   # Faster Hamiltonian Monte Carlo
 include("replica.jl")   # Replica Exchange
 # include("sghmc.jl")     # Stochastic Gradient Hamiltonian Monte Carlo
 # include("relandscape.jl")  # Variantional Sampling through relandscape
+
+# Optimization
+include("argmax.jl")     # NLopt based optimization
+include("nlopt.jl")     # NLopt based optimization
 
 export  isapproximate,
 

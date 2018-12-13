@@ -13,7 +13,7 @@ export append, base, combine, increment!, increment,
        Paired, pair
 export ΩProj, parentω, resolve
 export TaggedΩ, tag, Tags, hastags
-export SimpleΩ, LinearΩ, Segment
+export SimpleΩ, LinearΩ, Segment, randunifkey, resample!
 
 include("idgen.jl")         # Id generation
 include("index.jl")         # Pairing functions for omega ids

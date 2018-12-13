@@ -12,13 +12,13 @@ defΩProj(args...; OT = defΩ(args...)) = ΩProj{OT, idtype(OT)}
 defcb(args...) = donothing
 
 "Sample `n` from `x`"
-function Base.rand(x::RandVar, n::Integer; alg::Algorithm = defalg(x), ω = defΩ(alg)(), kwargs...)
-  rand(x, n, alg, ω; kwargs...)
+function Base.rand(x::RandVar, n::Integer; alg::Algorithm = defalg(x), ΩT = defΩ(alg), kwargs...)
+  rand(x, n, alg, ΩT; kwargs...)
 end
 
 "Sample 1 from `x`"
-function Base.rand(x::RandVar; alg::Algorithm = defalg(x), ω = defΩ(alg)(), kwargs...)
-  first(rand(x, 1, alg, ω; kwargs...))
+function Base.rand(x::RandVar; alg::Algorithm = defalg(x), ΩT = defΩ(alg), kwargs...)
+  first(rand(x, 1, alg, ΩT; kwargs...))
 end
 
 # "Sample from `x`"
