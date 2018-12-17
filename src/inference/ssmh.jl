@@ -2,24 +2,8 @@ struct SSMHAlg <: Algorithm end
 "Single Site Metropolis Hastings"
 const SSMH = SSMHAlg()
 
-struct SSMHDriftAlg <: Algorithm end
-"Single Site Metropolis Hastings with drift"
-const SSMHDrift = SSMHDriftAlg()
-defΩ(::SSMHDriftAlg) = SimpleΩ{Vector{Int}, Float64}
+defΩ(::SSMH) = SimpleΩ{Vector{Int}, Float64}
 
-defcb(::Union{SSMHAlg, SSMHDriftAlg}) = default_cbs()
-
-# function resample!(sω::SO, tomodify, proposal)  where {SO <: SimpleΩ}
-#   elements = map(sω.vals |> keys |> enumerate) do (i,k)
-#     val = if i == tomodify
-#       (sω.vals[k] |> transform) + noiseσ*randn() |> inv_transform
-#     else
-#       sω.vals[k]
-#     end
-#     k => val
-#   end
-#   elements |> Dict |> SO
-# end
 
 normalkernel(x, σ = 0.1) = inv_transform(transform(x) + σ * randn())
 normalkernel(x::Array, σ = 0.1) = normalkernel.(x, σ)
