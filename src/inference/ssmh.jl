@@ -1,9 +1,9 @@
-struct SSMHAlg <: Algorithm end
+struct SSMHAlg <: SamplingAlgorithm end
 "Single Site Metropolis Hastings"
 const SSMH = SSMHAlg()
+isapproximate(::SSMHAlg) = true
 
-defΩ(::SSMH) = SimpleΩ{Vector{Int}, Float64}
-
+# defΩ(::SSMH) = SimpleΩ{Vector{Int}, Float64}
 
 normalkernel(x, σ = 0.1) = inv_transform(transform(x) + σ * randn())
 normalkernel(x::Array, σ = 0.1) = normalkernel.(x, σ)
@@ -16,15 +16,15 @@ function Base.rand(x::RandVar,
                    cb = donothing) where {OT <: Ω}
   ω = ΩT()
   xω, sb = applytrackerr(x, ω)
-  plast = logerr(sb)
+  plast = logerr(sb) # FIXME, rather than do transformaiton here, make function depend on real-valued random variable (maybe?)
   qlast = 1.0
   samples = [] #FIXME: Type
   accepted = 0
   for i = 1:n
-    
     ω_ = if isempty(ω)
       ω
     else
+      # FIXME: move randunifkey into propsoal
       resample(ω, randunifkey(ω), proposal)
     end
     xω_, sb = applytrackerr(x, ω_)

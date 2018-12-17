@@ -1,5 +1,5 @@
 "Rejection Sampling"
-struct RejectionSampleAlg <: Algorithm end
+struct RejectionSampleAlg <: SamplingAlgorithm end
 
 "Rejection Sampling"
 const RejectionSample = RejectionSampleAlg()

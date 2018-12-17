@@ -1,5 +1,5 @@
 "Hamiltonian Monte Carlo Sampling"
-struct HMCAlg <: Algorithm end
+struct HMCAlg <: SamplingAlgorithm end
 
 "Hamiltonian Monte Carlo Sampling"
 const HMC = HMCAlg()

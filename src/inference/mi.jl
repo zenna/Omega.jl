@@ -1,5 +1,5 @@
 "Metropolized Independent Sampling"
-struct MIAlg <: Algorithm end
+struct MIAlg <: SamplingAlgorithm end
 
 "Metropolized Independent Sampling"
 const MI = MIAlg()

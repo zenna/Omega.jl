@@ -1,7 +1,7 @@
 "Stochastic Gradient Hamiltonian Monte Carlo Sampling"
 abstract type SGHMC <: Algorithm end
 
-isapproximate(::Type{<:Algorithm}) = true
+isapproximate(::Type{<:SamplingAlgorithm}) = true
 
 defΩ(::Type{SGHMC}) = Omega.SimpleΩ{Int, Float64}
 

@@ -13,7 +13,7 @@ function simple(ALG, op, v = 1.0)
 end
 
 function testall()
-  algs = [ALG() for ALG in subtypes(Omega.Inference.Algorithm)]
+  algs = [ALG() for ALG in subtypes(Omega.Inference.SamplingAlgorithm)]
   for ALG in filter(Omega.isapproximate, algs), op in [⪅, ⪆, ≊]
     println("Testing $ALG on $op")
     simple(ALG, op)

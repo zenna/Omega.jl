@@ -1,6 +1,6 @@
 import NLopt
 
-struct NLoptArgmaxAlg <: Algorithm end
+struct NLoptArgmaxAlg <: OptimAlgorithm end
 "NLopt based optimization"
 const NLoptArgmax = NLoptArgmaxAlg()
 defΩ(NLoptArgmax) = LinearΩ{Vector{Int}, Segment, Float64}

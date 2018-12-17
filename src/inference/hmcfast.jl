@@ -1,5 +1,5 @@
 "Flux based Hamiltonian Monte Carlo Sampling"
-struct HMCFASTAlg <: Algorithm end
+struct HMCFASTAlg <: SamplingAlgorithm end
 
 "Flux based Hamiltonian Monte Carlo Sampling"
 const HMCFAST = HMCFASTAlg()

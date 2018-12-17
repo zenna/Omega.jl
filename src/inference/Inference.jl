@@ -10,8 +10,11 @@ using Flux
 using Callbacks
 import UnicodePlots
 
-"Inference Algorithm"
-abstract type Algorithm end
+"Optimization Algorithm"
+abstract type OptimAlgorithm end
+
+"Posterior Sampling Algorithm"
+abstract type SamplingAlgorithm end
 
 "Is the inference algorithm approximate?"
 function isapproximate end
@@ -50,7 +53,6 @@ export  isapproximate,
         RejectionSampleAlg,
         MIAlg,
         SSMHAlg,
-        SSMHDriftAlg,
         HMCAlg,
         # SGHMCAlg,
         HMCFASTAlg,

@@ -17,14 +17,10 @@ test_ssmc_1()
 function test_ssmc_2()
   x = logistic(1.0, 2.0, (2, 3, 4))
   y = sum(x)
-  ΩT = Omega.SimpleΩ{Vector{Int}, Array{Float64, 3}}
-  rand(x, y ≊ 5.0; alg = SSMH, ΩT=ΩT)
+  rand(x, y ≊ 5.0; alg = SSMH)
 end
 
 test_ssmc_2()
-
-
-
 
 function test_sshm_drift()
   x_(rnd) = normal(rnd, 0.0, 1.0)
@@ -32,7 +28,7 @@ function test_sshm_drift()
 
   x = x_ |> ciid
   y = y_ |> ciid
-  z = rand(x-y, x ==ₛ y, 10000; alg=SSMHDrift)
+  z = rand(x-y, x ==ₛ y, 10000; alg=SSMH)
   z = convert(Array{Float64}, z)
   println(histogram([z[300:end]...]))
   println(mean(z[300:end]))
