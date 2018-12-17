@@ -37,10 +37,11 @@ function Base.rand(x::RandVar,
   samples = [] #FIXME: Type
   accepted = 0
   for i = 1:n
+    
     ω_ = if isempty(ω)
       ω
     else
-      resample!(ω, randunifkey(ω), proposal)
+      resample(ω, randunifkey(ω), proposal)
     end
     xω_, sb = applytrackerr(x, ω_)
     p_ = logerr(sb)

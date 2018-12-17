@@ -3,7 +3,7 @@ module Inference
 
 using Spec
 using ..Omega: RandVar, applytrackerr, indomain, Wrapper, logerr,
-               UTuple, Ω, applynotrackerr, SimpleΩ, LinearΩ, Segment, randunifkey, resample!, cond, randtuple,
+               UTuple, Ω, applynotrackerr, SimpleΩ, LinearΩ, Segment, randunifkey, resample, resample!, cond, randtuple,
                fluxgradient, gradient, linearize, unlinearize, err
   using ProgressMeter
 using Flux

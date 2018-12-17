@@ -35,9 +35,14 @@ unlinearize(ωvec, lω::LinearΩ{I, AB, V}) where {I, AB, V}  = LinearΩ{I, AB, 
 "Sample a random component"
 randunifkey(lω::LinearΩ) = rand(keys(lω.ids))
 
+"ω where ω[id] has been resampled with `proposal`"
+resample(lω::LinearΩ, id, proposal) = resample!(deepcopy(lω), id, proposal)
+
+"Mutative `resample`"
 function resample!(lω::LinearΩ, id, proposal)
   segrng = segrange(lω.ids[id])
   lω.ωvec[segrng] .= proposal(lω.ωvec[segrng])
+  lω
 end
 
 # Resolve
