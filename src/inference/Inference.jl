@@ -3,8 +3,11 @@ module Inference
 
 using Spec
 using ..Omega: RandVar, applytrackerr, indomain, Wrapper, logerr,
-               UTuple, Ω, applynotrackerr, SimpleΩ, LinearΩ, Segment, randunifkey, resample, resample!, cond, randtuple,
+               UTuple, Ω, applynotrackerr, SimpleΩ, LinearΩ, Segment, randunifkey,
+              resample, resample!, update, cond, randtuple, nelem,
                fluxgradient, gradient, linearize, unlinearize, err
+
+import ..Omega
   using ProgressMeter
 using Flux
 using Callbacks
@@ -49,6 +52,7 @@ export  isapproximate,
         HMC,
         # SGHMC,
         HMCFAST,
+        Replica,
 
         RejectionSampleAlg,
         MIAlg,

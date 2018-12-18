@@ -2,6 +2,10 @@
 "A Library for Causal and Higher-Order Probabilistic Programming"
 module Omega
 
+# @assert false
+
+hello() = 3
+
 using Flux
 using Spec
 using UnicodePlots
@@ -92,6 +96,7 @@ export  isapproximate,
         # SGHMC,
         HMCFAST,
         Relandscape,
+        Replica,
 
         RejectionSampleAlg,
         MIAlg,
@@ -101,6 +106,7 @@ export  isapproximate,
         # SGHMCAlg,
         HMCFASTAlg,
         RelandscapeAlg,
+        ReplicaAlg,
 
         defalg,
         defcb,

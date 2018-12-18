@@ -15,6 +15,8 @@ struct LinearΩ{I, AB, V} <: ΩBase{I}
   ωvec::Vector{V}
 end
 
+nelem(lω::LinearΩ) = length(lω.ωvec)
+
 "Array of a linear array"
 struct Segment
   startidx::Int
@@ -32,8 +34,15 @@ LinearΩ{I, AB, V}() where {I, AB, V} = LinearΩ{I, AB, V}(Dict{I, V}(), V[])
 linearize(lω::LinearΩ) = lω.ωvec
 unlinearize(ωvec, lω::LinearΩ{I, AB, V}) where {I, AB, V}  = LinearΩ{I, AB, V}(lω.ids, ωvec)
 
-"Sample a random component"
+"Sample a key"
 randunifkey(lω::LinearΩ) = rand(keys(lω.ids))
+
+"Apply `kernel` to ith component" 
+function update(lω::LinearΩ, i::Int, kernel)
+  lω_ = deepcopy(lω)
+  lω_.ωvec[i] = kernel(lω_.ωvec[i])
+  lω_
+end
 
 "ω where ω[id] has been resampled with `proposal`"
 resample(lω::LinearΩ, id, proposal) = resample!(deepcopy(lω), id, proposal)
