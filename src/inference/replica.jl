@@ -14,13 +14,16 @@ k -
 """
 function doexchange(Ei, Ej, k, Ti, Tj)
   p = rand()
-  p > exp((Ei - Ej)*(1/k*Ti - 1/k*Tj))
+  k = min(1, exp((Ei - Ej)*(1/k*Ti - 1/k*Tj)))
+  p < k
 end
 
 "Swap adjacent chains"
 function exchange!(ωs, temps, es; k = 1.0)
+  @show es, temps
   for i in 1:2:length(ωs)
     j = i + 1
+    # @showes[i], es[j], k, temps[i], temps[j]
     if doexchange(es[i], es[j], k, temps[i], temps[j])
       temp = ωs[i]
       ωs[i] = ωs[j]
@@ -53,7 +56,7 @@ function Base.rand(x::RandVar,  # This should just be the error randvar
                    algargs = NamedTuple(),
                    swapevery = 1,
                    nreplicas = 4,
-                   temps = exp.(10*range(0.0, stop = 1.0, length = nreplicas)),
+                   temps = exp.(23*range(0.0, stop = 1.0, length = nreplicas)),
                    kernel = Omega.kseα,
                    cb = donothing) where {OT <: Ω}
   # @pre issorted(temps)
@@ -69,7 +72,7 @@ function Base.rand(x::RandVar,  # This should just be the error randvar
       ωst = Omega.withkernel(kernel(temps[i])) do
         rand(x, swapevery, inneralg, ΩT; ω = ωs[i], cb = cb, algargs...)
       end
-      if i == 1 # keep lowest temperatre
+      if i == length(ωs) # keep lowest temperatre
         append!(ωsamples, ωst)
       end
       ωs[i] = ωst[end]
