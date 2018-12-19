@@ -20,22 +20,22 @@ end
 
 "Swap adjacent chains"
 function exchange!(ωs, temps, es; k = 1.0)
-  @show es, temps
+  # @show es, temps
   for i in 1:2:length(ωs)
     j = i + 1
     # @showes[i], es[j], k, temps[i], temps[j]
     if doexchange(es[i], es[j], k, temps[i], temps[j])
-      temp = ωs[i]
+      temp = ωs[i] 
       ωs[i] = ωs[j]
       ωs[j] = temp
-      println("Swapping $i with $j")
-    else
-      println("Not swapping!")
+      # println("Swapping $i with $j")
+    # else
+    #   println("Not swapping!")
     end
   end
 end
 
-"""Sample from `x` using Replica Exchange
+"""Sample from `density` using Replica Exchange
 
 Replica exchange (aka parallel tempemring) runs `nreplicas` independent mcmc
 chains in parallel.
@@ -48,21 +48,20 @@ Returns samples from lowest temperature chain
 # Returns
 
 """
-function Base.rand(x::RandVar,  # This should just be the error randvar
+function Base.rand(ΩT::Type{OT},
+                   density::RandVar,
                    n::Integer,
-                   alg::ReplicaAlg,
-                   ΩT::Type{OT};
+                   alg::ReplicaAlg;
                    inneralg = SSMH,
                    algargs = NamedTuple(),
                    swapevery = 1,
                    nreplicas = 4,
-                   temps = exp.(23*range(0.0, stop = 1.0, length = nreplicas)),
+                   temps = exp.(10*range(0.0, stop = 1.0, length = nreplicas)),
                    kernel = Omega.kseα,
                    cb = donothing) where {OT <: Ω}
-  # @pre issorted(temps)
-  # @pre n % swapevery == 0
-  # @pre nreplicas == length(temps)
-
+  @pre issorted(temps)
+  @pre n % swapevery == 0
+  @pre nreplicas == length(temps)
   ωsamples = OT[]
   ωs = [ΩT() for i = 1:nreplicas]
 
@@ -70,14 +69,29 @@ function Base.rand(x::RandVar,  # This should just be the error randvar
   for j = 1:div(n, swapevery)
     for i = 1:nreplicas
       ωst = Omega.withkernel(kernel(temps[i])) do
-        rand(x, swapevery, inneralg, ΩT; ω = ωs[i], cb = cb, algargs...)
+        rand(ΩT, density, swapevery, inneralg; ωinit = ωs[i], cb = cb, algargs...)
       end
       if i == length(ωs) # keep lowest temperatre
         append!(ωsamples, ωst)
       end
       ωs[i] = ωst[end]
     end
-    exchange!(ωs, temps, map(ω -> logerr(indomain(x, ω)), ωs))
+    exchange!(ωs, temps, map(density, ωs))
   end
-  ωsamples
+  @show ωsamples
 end
+
+function Base.rand(x::RandVar,
+                   n::Integer,
+                   alg::ReplicaAlg,
+                   ΩT::Type{OT};
+                   kwargs...)  where {OT <: Ω}
+  density = logerr(indomain(x))
+  map(ω -> applynotrackerr(x, ω),
+    rand(ΩT, density, n, alg; kwargs...))
+end
+
+# FIXME
+# Make it take rng as Argument
+# Allow it to take ωinit so you can use replica exchange recursively!
+# DRY reuse code here and in SSMH

@@ -1,24 +1,39 @@
 using Plots
 using Omega
+import Omega: 
+import Omega.Space
+
 
 """
-μ = normal(0.0, 1.0)
-x = normal(μ, 1.0)
-y = x == 0.0
-viz(y)
+Contour Plot of two dimensions of Ω
+
+```
+x = normal(0.0, 1.0)
+y = normal(0.0, 1.0)
+c1 = err(x ==ₛ y)
+c2 = err(x >ₛ y)
+ωcontour(c2)
+```
+
 """
-function ucontours(y::Omega.RandVar, xdim, ydim, ω::Omega.Ω; xrng = 0:0.01:1, yrng = 0:0.01:1, plt = plot())
-  ω_ = deepcopy(ω)
-  function f(x_, y_)
-    # @show x, y, ω_
-    ω_.vals[xdim] = x_
-    ω_.vals[ydim] = y_
-    Omega.err(y(ω_))
+function ωcontour(xrv::RandVar;
+                  ΩT = defΩ(),
+                  xdim = 1,
+                  ydim = 2,
+                  xrng = 0:0.005:1,
+                  yrng = 0:0.005:1,
+                  plt = plot(),
+                  fill = true,
+                  kwargs...)
+  ω = ΩT()
+  xrv(ω)
+  function f(x, y)
+    ω = Space.update(ω, xdim, x)
+    ω = Space.update(ω, ydim, y)
+    xrv(ω)
   end
-  # p = plot!(plt, xrng, yrng, f, st = [:contourf])
-  p = contour!(plt, xrng, yrng, f, fill = false)
+  contour!(plt, xrng, yrng, f; fill = fill, kwargs...)
 end
-
 
 "x ∈ [0, 1]?"
 isunit(x) = 0.0 <= x <= 1.0
@@ -52,7 +67,7 @@ function testcb2(;alg = HMC, n = 1000, kwargs...)
   rand(μ, y, n; alg = alg, cb = cb, kwargs...)
   qpdata = cbdata[2]
   plt = plot()
-  ucontours(y, x.id, μ.id, Omega.defΩ(HMC)(), plt = plt)
+  ωcontour(y, x.id, μ.id, Omega.defΩ(HMC)(), plt = plt)
   print(plottraces(qpdata, plt))
   qpdata, plt
 end
@@ -69,7 +84,7 @@ function testcb2(;kwargs...)
   rand(μ, y, HMC; n = n, cb = cb, kwargs...)
   qpdata = cbdata[2]
   plt = plot()
-  ucontours(y, x.id, μ.id, Omega.defΩ(HMC)(), plt = plt)
+  ωcontour(y, x.id, μ.id, Omega.defΩ(HMC)(), plt = plt)
   plottraces(qpdata, plt)
   qpdata, plt
 end

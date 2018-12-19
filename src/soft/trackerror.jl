@@ -35,6 +35,7 @@ end
 
 "Is `ω` in the domain of `x`?"
 indomain(x, ω, wrap = SoftBoolWrapper(trueₛ)) = applytrackerr(x, ω, wrap)[2]
+indomain(x::RandVar) = ciid(ω -> indomain(x, ω))
 
 "Is `ω` in the domain of `x`?"
-applynotrackerr(x, ω, wrap = SoftBoolWrapper(trueₛ)) = x(tagerror(ω, wrap))
+applynotrackerr(x, ω, wrap = SoftBoolWrapper(trueₛ)) = x(tagerror(ω, wrap))  # FIXME: This could be made more efficient but actually not tracking

@@ -38,9 +38,15 @@ unlinearize(ωvec, lω::LinearΩ{I, AB, V}) where {I, AB, V}  = LinearΩ{I, AB, 
 randunifkey(lω::LinearΩ) = rand(keys(lω.ids))
 
 "Apply `kernel` to ith component" 
-function update(lω::LinearΩ, i::Int, kernel)
+function update(lω::LinearΩ, i::Int, kernel::Function)
   lω_ = deepcopy(lω)
   lω_.ωvec[i] = kernel(lω_.ωvec[i])
+  lω_
+end
+
+function update(lω::LinearΩ, i::Int, val)
+  lω_ = deepcopy(lω)
+  lω_.ωvec[i] = val
   lω_
 end
 
