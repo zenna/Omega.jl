@@ -15,6 +15,9 @@ struct LinearΩ{I, AB, V} <: ΩBase{I}
   ωvec::Vector{V}
 end
 
+LinearΩ() = LinearΩ{Vector{Int}, Segment, Float64}(Dict{Vector{Int}, Segment}(), Float64[])
+LinearΩ{I, AB, V}() where {I, AB, V} = LinearΩ{I, AB, V}(Dict{I, V}(), V[])
+
 nelem(lω::LinearΩ) = length(lω.ωvec)
 
 "Array of a linear array"
@@ -28,11 +31,10 @@ nelem(seg::Segment) = prod(seg.shape)
 "lb:ub indices of ωvec subsumed by segment"
 segrange(seg::Segment) = seg.startidx:seg.startidx+nelem(seg) - 1
 
-LinearΩ() = LinearΩ{Vector{Int}, Segment, Float64}(Dict{Vector{Int}, Segment}(), Float64[])
-LinearΩ{I, AB, V}() where {I, AB, V} = LinearΩ{I, AB, V}(Dict{I, V}(), V[])
-
 linearize(lω::LinearΩ) = lω.ωvec
 unlinearize(ωvec, lω::LinearΩ{I, AB, V}) where {I, AB, V}  = LinearΩ{I, AB, V}(lω.ids, ωvec)
+
+flat(rv, ω::T) where T <: LinearΩ = floatvec -> rv(T(ω.ids, floatvec))
 
 "Sample a key"
 randunifkey(lω::LinearΩ) = rand(keys(lω.ids))

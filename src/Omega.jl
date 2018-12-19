@@ -107,6 +107,8 @@ export  isapproximate,
         HMCFASTAlg,
         RelandscapeAlg,
         ReplicaAlg,
+        DynamicHMC,
+        DynamicHMCAlg,
 
         defalg,
         defcb,
