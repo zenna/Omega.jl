@@ -21,20 +21,20 @@ Arguments
 - `ωinit`: Initial omega to start chain from
 """
 function Base.rand(ΩT::Type{OT},
-                   density::RandVar,
+                   logdensity::RandVar,
                    n::Integer,
                    alg::SSMHAlg;
                    proposal = swapsinglesite,
                    cb = donothing,
                    ωinit = ΩT()) where {OT <: Ω}
   ω = ωinit
-  plast = density(ω)
+  plast = logdensity(ω)
   qlast = 1.0
   ωsamples = OT[]
   accepted = 0
   for i = 1:n
     ω_ = isempty(ω) ? ω : proposal(ω)
-    p_ = density(ω_)
+    p_ = logdensity(ω_)
     ratio = p_ - plast
     if log(rand()) < ratio
       ω = ω_
@@ -54,7 +54,7 @@ function Base.rand(x::RandVar,
                    proposal = swapsinglesite,
                    cb = donothing,
                    ωinit = ΩT())  where {OT <: Ω}
-  density = logerr(indomain(x))
+  logdensity = logerr(indomain(x))
   map(ω -> applynotrackerr(x, ω),
-      rand(ΩT, density, n, alg; proposal = proposal, cb = cb, ωinit = ωinit))
+      rand(ΩT, logdensity, n, alg; proposal = proposal, cb = cb, ωinit = ωinit))
 end

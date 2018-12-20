@@ -15,25 +15,33 @@ k -
 function doexchange(Ei, Ej, k, Ti, Tj)
   p = rand()
   k = min(1, exp((Ei - Ej)*(1/k*Ti - 1/k*Tj)))
-  p < k
+  p < k 
+end
+
+function swap!(v, i, j)
+  temp = v[i] 
+  v[i] = v[j]
+  v[j] = temp
 end
 
 "Swap adjacent chains"
 function exchange!(ωs, temps, es; k = 1.0)
-  # @show es, temps
-  for i in 1:2:length(ωs)
+  es, temps
+  for i in 1:length(ωs) - 1
     j = i + 1
     # @showes[i], es[j], k, temps[i], temps[j]
     if doexchange(es[i], es[j], k, temps[i], temps[j])
-      temp = ωs[i] 
-      ωs[i] = ωs[j]
-      ωs[j] = temp
+      swap!(ωs, i, j)
+      swap!(es, i, j)
       # println("Swapping $i with $j")
     # else
     #   println("Not swapping!")
     end
   end
 end
+
+"Logarithmically spaced temperatures"
+logtemps(n, k = 10) = exp.(k * range(-1.0, stop = 1.0, length = n))
 
 """Sample from `density` using Replica Exchange
 
@@ -56,29 +64,32 @@ function Base.rand(ΩT::Type{OT},
                    algargs = NamedTuple(),
                    swapevery = 1,
                    nreplicas = 4,
-                   temps = exp.(10*range(0.0, stop = 1.0, length = nreplicas)),
+                   temps = logtemps(nreplicas),
                    kernel = Omega.kseα,
                    cb = donothing) where {OT <: Ω}
-  @pre issorted(temps)
-  @pre n % swapevery == 0
-  @pre nreplicas == length(temps)
+  # @pre issorted(temps)
+  # @pre n % swapevery == 0
+  # @pre nreplicas == length(temps)
+  # @show temps
   ωsamples = OT[]
   ωs = [ΩT() for i = 1:nreplicas]
+  es = zeros(nreplicas)
 
   # Do swapevery steps for each chain, then swap ωs
   for j = 1:div(n, swapevery)
     for i = 1:nreplicas
-      ωst = Omega.withkernel(kernel(temps[i])) do
-        rand(ΩT, density, swapevery, inneralg; ωinit = ωs[i], cb = cb, algargs...)
+      Omega.withkernel(kernel(temps[i])) do
+        ωst = rand(ΩT, density, swapevery, inneralg; ωinit = ωs[i], cb = cb, algargs...)
+        if i == length(ωs) # keep lowest temperatre
+          append!(ωsamples, ωst)
+        end
+        ωs[i] = ωst[end]
+        es[i] = density(ωs[i])
       end
-      if i == length(ωs) # keep lowest temperatre
-        append!(ωsamples, ωst)
-      end
-      ωs[i] = ωst[end]
     end
-    exchange!(ωs, temps, map(density, ωs))
+    exchange!(ωs, temps, es)
   end
-  @show ωsamples
+  ωsamples
 end
 
 function Base.rand(x::RandVar,
@@ -87,8 +98,8 @@ function Base.rand(x::RandVar,
                    ΩT::Type{OT};
                    kwargs...)  where {OT <: Ω}
   density = logerr(indomain(x))
-  map(ω -> applynotrackerr(x, ω),
-    rand(ΩT, density, n, alg; kwargs...))
+  ωsamples = rand(ΩT, density, n, alg; kwargs...) 
+  map(ω -> applynotrackerr(x, ω), ωsamples)
 end
 
 # FIXME

@@ -34,10 +34,14 @@ segrange(seg::Segment) = seg.startidx:seg.startidx+nelem(seg) - 1
 linearize(lω::LinearΩ) = lω.ωvec
 unlinearize(ωvec, lω::LinearΩ{I, AB, V}) where {I, AB, V}  = LinearΩ{I, AB, V}(lω.ids, ωvec)
 
-flat(rv, ω::T) where T <: LinearΩ = floatvec -> rv(T(ω.ids, floatvec))
+using ZenUtils
+pass(x) = (@grab x; x)
+flat(rv, ω::T) where T <: LinearΩ = floatvec -> rv(T(ω.ids, pass(floatvec)))
 
 "Sample a key"
 randunifkey(lω::LinearΩ) = rand(keys(lω.ids))
+
+getdim(lω, i) = lω.ωvec[i]
 
 "Apply `kernel` to ith component" 
 function update(lω::LinearΩ, i::Int, kernel::Function)

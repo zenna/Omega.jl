@@ -9,7 +9,10 @@ lift(:kf1β, 1)
 "Squared exponential kernel `α = 1/2l^2`, higher α is lower temperature  "
 kse(d, α = 1000.0) = α * d
 # kse(d, α = 10000.0) = α * d
-# REMOVEMEkse(d, α = 10000.0) = @show(α) * @show(d)
+# function kse(d, α = 10000.0)
+#   α == 10000.0 && @assert false 
+#   @show(α) * d
+# end
 kseα(α) = d -> kse(d, α) 
 lift(:kseα, 1)
 lift(:logkseα, 1)
