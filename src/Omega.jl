@@ -2,13 +2,14 @@
 "A Library for Causal and Higher-Order Probabilistic Programming"
 module Omega
 
-# @assert false
 
-hello() = 3
 
 using Flux
 using Spec
 using UnicodePlots
+using DocStringExtensions: FIELDS, SIGNATURES, TYPEDEF
+using Cassette  
+
 
 import Random
 import Random: GLOBAL_RNG, AbstractRNG
@@ -57,9 +58,6 @@ export  SoftBool,
         softeq,
         softlt,
         softgt,
-        ≊,
-        ⪆,
-        ⪅,
         >ₛ,
         >=ₛ,
         <=ₛ,
@@ -74,8 +72,10 @@ export  SoftBool,
         kf1,
         kf1β,
         withkernel,
+        atα,
+        @atα,
 
-        indomain,
+        indomainₛ,
         applynotrackerr,
         applytrackerr
 

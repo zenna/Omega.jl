@@ -12,6 +12,22 @@ function increment(a::Vector{Int})
   b
 end
 
+## Linked List
+## ===========
+
+
+
+# struct LinkedList{T, TT <: L}
+#   head::T
+#   tail::
+
+# end
+
+# import DataStructures: nil, cons, LinkedList
+# @inline append(a::LinkedList, b::Int) = cons(b, a)
+# @inline base(::Type{LinkedList}, i) = cons(i, nil())
+
+
 ## Pairing Indices
 ## ===============
 const Paired = Int

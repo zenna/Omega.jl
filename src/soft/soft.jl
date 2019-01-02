@@ -7,7 +7,7 @@ end
 @invariant 0 <= err(b::SoftBool) <= 1
 
 "Error in [0, 1]"
-err(x::SoftBool) = x.logerr |> exp
+err(x::SoftBool) = exp(x.logerr)
 
 "Log error"
 logerr(x::SoftBool) = x.logerr
@@ -30,12 +30,8 @@ function d end
 @inline d(x::Array{<:Real}, y::Array{<:Real}) = norm(x[:] - y[:])
 
 "Soft Equality"
+# softeq(x, y, k = globalkernel()) = SoftBool(-k(d(@show(x), @show(y))))
 softeq(x, y, k = globalkernel()) = SoftBool(-k(d(x, y)))
-
-"Unbounded soft equality"
-usofteq(x, y, k = globalkernel()) = SoftBool(k(d(x, y)))
-
-# softeq(x::Vector{<:Real}, y::Vector{<:Real}) = SoftBool(1 - mean(f1.(x - y)))
 
 function bound_loss(x, a, b)
   # @pre b >= a
@@ -56,7 +52,8 @@ softlt(x::Real, y::Real, k = globalkernel()) = SoftBool(-k(bound_loss(x, -Inf, y
 function Base.:&(x::SoftBool, y::SoftBool)
   a = logerr(x)
   b = logerr(y)
-  c = min(a, b)
+  # c = min(a, b)
+  c = a + b
   SoftBool(c)
 end
 # Base.:&(x::SoftBool, y::SoftBool) = SoftBool(logerr(x) +  logerr(y))
@@ -71,17 +68,11 @@ const <=ₛ = softlt
 const <ₛ = softlt
 const ==ₛ = softeq
 
-const ⪆ = softgt
-const ⪅ = softlt
-const ≊ = softeq
-const ueq = usofteq
 
 ## Lifts
 ## =====
 
 Omega.lift(:softeq, 2)
-Omega.lift(:usofteq, 2)
-Omega.lift(:usofteq, 3)
 Omega.lift(:softeq, 3)
 Omega.lift(:softgt, 2)
 Omega.lift(:softlt, 2)

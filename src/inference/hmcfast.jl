@@ -83,7 +83,7 @@ function Base.rand(y::RandVar,
                    cb = default_cbs(n * takeevery),
                    stepsize = 0.001) where {OT <: Ω}
   ω = ΩT()        # Current Ω state of chain
-  indomain(y, ω)  # Initialize omega
+  indomainₛ(y, ω)  # Initialize omega
   qvals = [x.data for x in values(ω)]   # Values as a vector
 
   prop_ω = deepcopy(ω)                          # Ω proposal
@@ -93,7 +93,7 @@ function Base.rand(y::RandVar,
   pvals = [x.data for x in values(p)] # as vector
   
   ωsamples = ΩT[] 
-  U(ω) = -logerr(indomain(y, ω))
+  U(ω) = -logerr(indomainₛ(y, ω))
   ∇U(ω) = fluxgradient(y, ω)
 
   accepted = 0

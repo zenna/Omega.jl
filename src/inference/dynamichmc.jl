@@ -16,34 +16,40 @@ defΩ(::NUTSAlg) = Omega.LinearΩ{Vector{Int64}, Omega.Space.Segment, Real}
 
 """Dynamic Hamiltonian Monte Carlo
 
+$(SIGNATURES)
+
 Sample `n` `ω::ΩT` 
 
 # Arguments
-- logdensity: Real valued `RandVar` defining log-density
+- `rng`: Random nubmer generator
+- `logdensity`: Real valued `RandVar` defining log-density
+- `n`: Number of samples
+- `ωinit`: starting position
+- `ϵ`: Initial step size
+
+# Returns
+- `ωs::Vector{ΩT}`: Samples from `logdensity`
 
 """
-function Base.rand(ΩT::Type{OT},
+function Base.rand(rng,
+                   ΩT::Type{OT},
                    logdensity::RandVar,
                    n::Integer,
                    alg::NUTSAlg;
-                   cb = donothing) where {OT <: Ω}
-  ω = ΩT()
+                   cb = donothing,
+                   ωinit = ΩT(),
+                   ϵ = 0.0001) where {OT <: Ω}
+  
+  ω = ωinit
   logdensity(ω) # init
   t = as(Array, as𝕀, Omega.Space.nelem(ω))
+  # @grab t
   flatlogdensity = flat(logdensity, ω)
   P = TransformedLogDensity(t, flatlogdensity)
   ∇P = ADgradient(:ForwardDiff, P)
-  chain, NUTS_tuned = NUTS_init_tune_mcmc(∇P, n)
+  # NUTS_init(rng, ℓ; q = initpos, κ = init, p, max_depth, ϵ, report)
+
+  chain, NUTS_tuned = NUTS_init_tune_mcmc(∇P, n, ϵ = ϵ)
   vecsamples = TransformVariables.transform.(Ref(∇P.transformation), get_position.(chain));
   [unlinearize(floatvec, ω) for floatvec in vecsamples]
-end
-
-function Base.rand(x::RandVar,
-                   n::Integer,
-                   alg::NUTSAlg,
-                   ΩT::Type{OT};
-                   cb = donothing)  where {OT <: Ω}
-  logdensity = logerr(indomain(x))
-  map(ω -> applynotrackerr(x, ω),
-      rand(ΩT, logdensity, n, alg; cb = cb))
 end

@@ -15,6 +15,12 @@ struct LinearΩ{I, AB, V} <: ΩBase{I}
   ωvec::Vector{V}
 end
 
+# function Base.rand(rng::AbstractRNG, ::Type{LT}) where {LT <: LinearΩ}
+# end
+
+# Option 1, embed it  
+# Base.rand(rng, ΩT::Type{OT}) where OT = LinearΩ
+
 LinearΩ() = LinearΩ{Vector{Int}, Segment, Float64}(Dict{Vector{Int}, Segment}(), Float64[])
 LinearΩ{I, AB, V}() where {I, AB, V} = LinearΩ{I, AB, V}(Dict{I, V}(), V[])
 
@@ -35,7 +41,11 @@ linearize(lω::LinearΩ) = lω.ωvec
 unlinearize(ωvec, lω::LinearΩ{I, AB, V}) where {I, AB, V}  = LinearΩ{I, AB, V}(lω.ids, ωvec)
 
 using ZenUtils
-pass(x) = (@grab x; x)
+function pass(x)
+  # @grab x
+  # display((x->x.value).(x   ))
+  x
+end
 flat(rv, ω::T) where T <: LinearΩ = floatvec -> rv(T(ω.ids, pass(floatvec)))
 
 "Sample a key"
@@ -69,7 +79,7 @@ end
 # Resolve
 function resolve(lω::LinearΩ{I, Int, V}, id::I, T) where {I, V}
   if id in keys(lω.ids)
-    lω.ωvec[lω.ids[id]]
+    lω.ωvec[lω.ids[id]]::randrtype(T)
   else
     val = rand(GLOBAL_RNG, T)
     push!(lω.ωvec, val)
@@ -78,26 +88,26 @@ function resolve(lω::LinearΩ{I, Int, V}, id::I, T) where {I, V}
   end
 end
 
-function resolve(lω::LinearΩ{I, Segment, V}, id::I, T, dims::Dims) where {I, V}
+function resolve(lω::LinearΩ{I, Segment, V}, id::I, T, dims::Dims{N}) where {N, I, V}
   if id in keys(lω.ids)
     seg = lω.ids[id]
     n = prod(seg.shape) # Fixme: Store this?
     ωvec = lω.ωvec[seg.startidx:seg.startidx+n-1]
-    reshape(ωvec, dims)
+    reshape(ωvec, dims)::Array{randrtype(T), N}
   else
     n = prod(dims)
     ωvec = rand(GLOBAL_RNG, T, dims)#::Array{randrtype(T), N}
     startidx = length(lω.ωvec) + 1
     append!(lω.ωvec, ωvec)
     lω.ids[id] = Segment(startidx, dims)
-    reshape(ωvec, dims)
+    reshape(ωvec, dims)::Array{randrtype(T), N}
   end
 end
 
 function resolve(lω::LinearΩ{I, Segment, V}, id::I, T) where {I, V}
   if id in keys(lω.ids)
     seg = lω.ids[id]
-    ωvec = lω.ωvec[seg.startidx]
+    lω.ωvec[seg.startidx]::randrtype(T)
   else
     val = rand(GLOBAL_RNG, T)
     startidx = length(lω.ωvec) + 1

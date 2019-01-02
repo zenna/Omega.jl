@@ -56,11 +56,11 @@ function Base.rand(y::RandVar,
                    stepsize = 0.001,
                    cb = default_cbs(n)) where {OT <: Ω}
   ω = ΩT()
-  indomain(y, ω) # Initialize omega
+  indomainₛ(y, ω) # Initialize omega
   ωvec = linearize(ω)
 
   ωsamples = ΩT[]
-  U(ω) = -logerr(indomain(y, ω))
+  U(ω) = -logerr(indomainₛ(y, ω))
   U(ωvec::Vector) = U(unlinearize(ωvec, ω))
   ∇U(ωvec) = gradient(y, ω, ωvec)
 

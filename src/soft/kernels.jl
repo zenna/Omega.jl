@@ -1,18 +1,20 @@
 ## Kernels 
 ## =======
 
+
 "Real+ -> [0, 1]"
 kf1(x, β = 0.0001) = x / (x + β)
 kf1β(β) = d -> kf1(d, β)
 lift(:kf1β, 1)
 
 "Squared exponential kernel `α = 1/2l^2`, higher α is lower temperature  "
-kse(d, α = 1000.0) = α * d
 # kse(d, α = 10000.0) = α * d
-# function kse(d, α = 10000.0)
-#   α == 10000.0 && @assert false 
-#   @show(α) * d
-# end
+# kse(d, α = 10000.0) = α * d
+function kse(d, α = 10000.0)
+  # @show α
+  α * d
+  # @assert false
+end
 kseα(α) = d -> kse(d, α) 
 lift(:kseα, 1)
 lift(:logkseα, 1)
@@ -26,6 +28,8 @@ kpareto2(x, xm = 1.0, α = 11) = log(α) + log(xm)  - log(x+xm^(α + 1))
 kpareto3(x, xm = 1.0, α = 3) = log(xm) - log(x+xm^(α + 1))
 
 burr(x, c = 1, k = 40) =  log(c) + log(k) +  (c - 1) * log(x) - (k + 1)*log(1 + x^c)
+
+# Temperature Modulation
 
 const GLOBALKERNEL_ = Function[kse]
 
@@ -47,4 +51,34 @@ function withkernel(thunk, k)
   res = thunk()
   globalkernel!(kse)
   res
+end
+
+# (Cassette-ased) Temperature Modulation
+Cassette.@context AlphaCtx
+
+"""
+`f(args)` where temperature controlled with temperature `α`
+
+```julia
+x = normal(0.0, 1.0)
+atα(10, rand, x ==ₛ 0.3)
+```
+"""
+function atα(α, f, args...)
+  ctx = AlphaCtx(metadata = α)
+  Cassette.overdub(ctx, f, args...)
+end
+
+Cassette.overdub(ctx::AlphaCtx, ::typeof(kse), x, α) = kse(x, ctx.metadata)
+
+"""
+
+```julia
+x = normal(0.0, 1.0)
+@atα 100 rand(y ==ₛ 0.0)
+```
+"""
+macro atα(a, fexpr)
+  @pre fexpr.head == :call
+  :(atα($(esc(a)), $(esc.(fexpr.args)...)))
 end

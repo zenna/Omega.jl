@@ -5,7 +5,9 @@ version = "0.1.0"
 
 [deps]
 Callbacks = "5c501fca-fc9b-11e8-1fb9-dbe118bb7e64"
+Cassette = "7057c7e9-c182-5462-911a-8362d720325c"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 NLopt = "76087f3c-5699-56af-9a33-bf431cd00edd"

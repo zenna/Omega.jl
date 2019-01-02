@@ -2,22 +2,27 @@
 module Inference
 
 using Spec
-using ..Omega: RandVar, applytrackerr, indomain, Wrapper, logerr,
+using Random
+using ..Omega: RandVar, applytrackerr, indomainₛ, Wrapper, logerr,
                UTuple, Ω, applynotrackerr, SimpleΩ, LinearΩ, Segment, randunifkey,
               resample, resample!, update, cond, randtuple, nelem,
                fluxgradient, gradient, linearize, unlinearize, err
 
 import ..Omega
-  using ProgressMeter
+using ProgressMeter
 using Flux
 using Callbacks
 import UnicodePlots
+using DocStringExtensions: SIGNATURES
 
 "Optimization Algorithm"
 abstract type OptimAlgorithm end
 
-"Posterior Sampling Algorithm"
+"Sampling Algorithm"
 abstract type SamplingAlgorithm end
+
+"Density Sampling Algorithm"
+abstract type DensitySamplingAlgorithm <: SamplingAlgorithm end
 
 "Is the inference algorithm approximate?"
 function isapproximate end

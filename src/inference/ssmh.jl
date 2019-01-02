@@ -5,22 +5,26 @@ isapproximate(::SSMHAlg) = true
 
 # defΩ(::SSMH) = SimpleΩ{Vector{Int}, Float64}
 
-normalkernel(x, σ = 0.1) = inv_transform(transform(x) + σ * randn())
-normalkernel(x::Array, σ = 0.1) = normalkernel.(x, σ)
+normalkernel(rng, x, σ = 0.1) = inv_transform(transform(x) + σ * randn(rng))
+normalkernel(rng, x::Array, σ = 0.1) = normalkernel.(x, σ)
 
-"Changes a single site with kernel"
-swapsinglesite(ω, kernel = normalkernel) = update(ω, rand(1:nelem(ω)), kernel)
+"Changes a uniformly chosen single site with kernel"
+swapsinglesite(rng, ω, kernel = x -> normalkernel(rng, x)) = update(ω, rand(1:nelem(ω)), kernel)
 
 """
 Sample from `x` conditioned on any constraints its conditioned on.
 
-Arguments
+$(SIGNATURES)
+
+# Arguments
 - `x`: Real valued random variable
 - `n`: Number of samples
+- `logdensity`:  τ-valued `RandVar` s.t. logerr(τ) is defined
 - `propsal`: function ω::Omega -> ω::Omega
 - `ωinit`: Initial omega to start chain from
 """
-function Base.rand(ΩT::Type{OT},
+function Base.rand(rng,
+                   ΩT::Type{OT},
                    logdensity::RandVar,
                    n::Integer,
                    alg::SSMHAlg;
@@ -33,10 +37,10 @@ function Base.rand(ΩT::Type{OT},
   ωsamples = OT[]
   accepted = 0
   for i = 1:n
-    ω_ = isempty(ω) ? ω : proposal(ω)
+    ω_ = isempty(ω) ? ω : proposal(rng, ω)
     p_ = logdensity(ω_)
     ratio = p_ - plast
-    if log(rand()) < ratio
+    if log(rand(rng)) < ratio
       ω = ω_
       plast = p_
       accepted += 1
@@ -45,16 +49,4 @@ function Base.rand(ΩT::Type{OT},
     cb((ω = ω, accepted = accepted, p = plast, i = i), IterEnd)
   end
   ωsamples
-end
-
-function Base.rand(x::RandVar,
-                   n::Integer,
-                   alg::SSMHAlg,
-                   ΩT::Type{OT};
-                   proposal = swapsinglesite,
-                   cb = donothing,
-                   ωinit = ΩT())  where {OT <: Ω}
-  logdensity = logerr(indomain(x))
-  map(ω -> applynotrackerr(x, ω),
-      rand(ΩT, logdensity, n, alg; proposal = proposal, cb = cb, ωinit = ωinit))
 end
