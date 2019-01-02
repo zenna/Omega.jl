@@ -21,9 +21,6 @@ abstract type OptimAlgorithm end
 "Sampling Algorithm"
 abstract type SamplingAlgorithm end
 
-"Density Sampling Algorithm"
-abstract type DensitySamplingAlgorithm <: SamplingAlgorithm end
-
 "Is the inference algorithm approximate?"
 function isapproximate end
 
@@ -36,9 +33,8 @@ include("callbacks.jl") # Common Inference Functions
 # Sampling
 include("rand.jl")      # Sampling
 include("rs.jl")        # Rejection Sampling
-include("mi.jl")        # Metropolized Independent Sampling
 include("ssmh.jl")      # Single Site Metropolis Hastings
-include("hmc.jl")       # Hamiltonian Monte Carlo
+# include("hmc.jl")       # Hamiltonian Monte Carlo
 include("hmcfast.jl")   # Faster Hamiltonian Monte Carlo
 include("replica.jl")   # Replica Exchange
 include("dynamichmc.jl")# Dynamic Hamiltonion Monte Carlo
@@ -52,16 +48,13 @@ include("nlopt.jl")     # NLopt based optimization
 export  isapproximate,
 
         RejectionSample,
-        MI,
         SSMH,
-        SSMHDrift,
         HMC,
         # SGHMC,
         HMCFAST,
         Replica,
 
         RejectionSampleAlg,
-        MIAlg,
         SSMHAlg,
         HMCAlg,
         # SGHMCAlg,

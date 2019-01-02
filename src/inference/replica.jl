@@ -7,6 +7,8 @@ struct ReplicaAlg <: SamplingAlgorithm end
 const Replica = ReplicaAlg()
 defΩ(::ReplicaAlg) = Omega.LinearΩ{Vector{Int64}, Omega.Space.Segment, Real}
 
+isapproximate(::ReplicaAlg) = true
+
 function swap!(v, i, j)
   temp = v[i] 
   v[i] = v[j]
@@ -14,7 +16,7 @@ function swap!(v, i, j)
 end
 
 "Swap adjacent chains"
-function exchange!(logdensity, ωs, temps)
+function exchange!(rng, logdensity, ωs, temps)
   for i in length(ωs):-1:2
     j = i - 1
     E_i_x = withkernel(kseα(temps[i])) do
@@ -30,7 +32,7 @@ function exchange!(logdensity, ωs, temps)
       logdensity(ωs[j])
     end
     k = (E_i_y + E_j_x) - (E_i_x + E_j_y)
-    if log(rand()) < k
+    if log(rand(rng)) < k
       swap!(ωs, i, j)
     end
   end
@@ -93,7 +95,7 @@ function Base.rand(rng,
         ωs[i] = ωst[end]
       end
     end
-    exchange!(logdensity, ωs, temps)
+    exchange!(rng, logdensity, ωs, temps)
   end
   ωsamples
 end

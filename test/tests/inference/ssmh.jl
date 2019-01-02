@@ -7,7 +7,7 @@ using Statistics: mean
 function test_ssmc_1()
   μ = uniform(0.0, 1.0)
   x = normal(μ, 5.0)
-  samples = rand(μ, x ≊ 7.0, 10000; alg= SSMH)
+  samples = rand(μ, x ==ₛ 7.0, 10000; alg= SSMH)
   println(histogram([samples...]))
   println(mean(samples))
 end
@@ -17,7 +17,7 @@ test_ssmc_1()
 function test_ssmc_2()
   x = logistic(1.0, 2.0, (2, 3, 4))
   y = sum(x)
-  rand(x, y ≊ 5.0; alg = SSMH)
+  rand(x, y ==ₛ 5.0; alg = SSMH)
 end
 
 test_ssmc_2()

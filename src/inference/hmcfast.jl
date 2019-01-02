@@ -96,7 +96,6 @@ function Base.rand(rng::AbstractRNG,
   
   ωsamples = ΩT[] 
   U = -logdensity
-  # U(ω) = -logerr(indomainₛ(yy, ω))
   ∇U(ω) = fluxgradient(U, ω)
 
   accepted = 0

@@ -19,11 +19,19 @@ function Base.rand(x::RandVar;
   first(rand(Random.GLOBAL_RNG, x, 1, alg; ΩT = ΩT, kwargs...))
 end
 
+function Base.rand(rng::AbstractRNG,
+                   x::RandVar;
+                   alg::SamplingAlgorithm = defalg(x),
+                   ΩT::Type{OT} = defΩ(alg),
+                   kwargs...) where {OT <: Ω}
+  first(rand(rng, x, 1, alg; ΩT = ΩT, kwargs...))
+end
+
 
 function Base.rand(rng::AbstractRNG,
                    x::RandVar,
                    n::Integer,
-                   alg::SamplingAlgorithm = defalg(x);
+                   alg::SamplingAlgorithm;
                    ΩT::Type{OT} = defΩ(alg),
                    kwargs...) where {OT <: Ω}
   logdensity = logerr(indomainₛ(x))
@@ -39,6 +47,17 @@ function Base.rand(x::RandVar,
                    kwargs...) where {OT <: Ω}
   rand(Random.GLOBAL_RNG, x, n, alg; ΩT = ΩT, kwargs...)
 end
+
+function Base.rand(rng::AbstractRNG,
+                   x::RandVar,
+                   n::Integer;
+                   alg::SamplingAlgorithm = defalg(x),
+                   ΩT::Type{OT} = defΩ(alg),
+                   kwargs...) where {OT <: Ω}
+  rand(rng, x, n, alg; ΩT = ΩT, kwargs...)
+end
+
+
 
 function Base.rand(x::RandVar,
                    n::Integer,

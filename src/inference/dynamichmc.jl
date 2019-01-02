@@ -9,6 +9,8 @@ using Omega.Space: flat
 "No U-Turn Sampler"
 struct NUTSAlg <: SamplingAlgorithm end
 
+isapproximate(::NUTSAlg) = true
+
 "No U-Turn Sampler"
 const NUTS = NUTSAlg()
 defcb(::NUTSAlg) = default_cbs()
