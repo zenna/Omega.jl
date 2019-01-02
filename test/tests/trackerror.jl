@@ -7,8 +7,8 @@ function testtrackerror()
   x_ = cond(x, x ⪅ 1.0)
   lt = x ⪅ 1.0
   Omega.applytrackerr(x_, Omega.defΩ()())
-  gt = x ⪆ -1.0
-  x__ = cond(x_, x ⪆ -1.0)
+  gt = x >ₛ -1.0
+  x__ = cond(x_, x >ₛ -1.0)
   Omega.applytrackerr(x__, Omega.defΩ()())
 end
 testtrackerror()

@@ -11,7 +11,7 @@ defcb(::HMCFASTAlg) = default_cbs()
 
 """Hamiltonian monte carlo with leapfrog integration:
 https://arxiv.org/pdf/1206.1901.pdf"""
-function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsize, cb)
+function hmcfast(rng, U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsize, cb)
   # Initialise proposal as unbounded of current state
   foreach(qvals, prop_qvals) do q, prop_q @. prop_q = (q) end
 
@@ -66,7 +66,7 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
 
   #@show current_U, proposed_U, current_K, proposed_K
   # Accept or reject
-  if log(rand()) < current_U - proposed_U + current_K - proposed_K
+  if log(rand(rng)) < current_U - proposed_U + current_K - proposed_K
     (proposed_U, true)
   else
     (current_U, false)
@@ -74,16 +74,18 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
 end
 
 "Sample from `x | y == true` with Hamiltonian Monte Carlo"
-function Base.rand(y::RandVar,
+function Base.rand(rng::AbstractRNG,
+                   ΩT::Type{OT},
+                   logdensity::RandVar,
                    n::Integer,
-                   alg::HMCFASTAlg,
-                   ΩT::Type{OT};
+                   alg::HMCFASTAlg;
                    takeevery = 1,
                    nsteps = 10,
                    cb = default_cbs(n * takeevery),
-                   stepsize = 0.001) where {OT <: Ω}
-  ω = ΩT()        # Current Ω state of chain
-  indomainₛ(y, ω)  # Initialize omega
+                   stepsize = 0.001,
+                   ωinit = ΩT()) where {OT <: Ω}
+  ω = ωinit # Current Ω state of chain
+  logdensity(ω)  # Initialize omega
   qvals = [x.data for x in values(ω)]   # Values as a vector
 
   prop_ω = deepcopy(ω)                          # Ω proposal
@@ -93,12 +95,13 @@ function Base.rand(y::RandVar,
   pvals = [x.data for x in values(p)] # as vector
   
   ωsamples = ΩT[] 
-  U(ω) = -logerr(indomainₛ(y, ω))
-  ∇U(ω) = fluxgradient(y, ω)
+  U = -logdensity
+  # U(ω) = -logerr(indomainₛ(yy, ω))
+  ∇U(ω) = fluxgradient(U, ω)
 
   accepted = 0
   for i = 1:n*takeevery
-    p_, wasaccepted = hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω,
+    p_, wasaccepted = hmcfast(rng, U, ∇U, qvals, prop_qvals, pvals, ω,
                           prop_ω, nsteps, stepsize, cb)
     if wasaccepted
       i % takeevery == 0 && push!(ωsamples, deepcopy(prop_ω))
@@ -110,5 +113,5 @@ function Base.rand(y::RandVar,
     end
     cb((ω = prop_ω, accepted = accepted, p = Flux.data(p_), i = i), IterEnd)
   end
-  [applynotrackerr(y, ω_) for ω_ in ωsamples]
+  ωsamples
 end

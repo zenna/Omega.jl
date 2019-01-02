@@ -11,7 +11,7 @@ function testcb()
   testnoz(data, stage) = (println("in testz"); @test !haskey(data, :z))
 
   cb = CbNode(idcb, (CbNode(addz, (testz,)), testnoz))
-  rand(x, x ⪆ 0.0, 1, alg = HMCFAST, cb = cb)
+  rand(x, x >ₛ 0.0, 1, alg = HMCFAST, cb = cb)
 end
 
 testcb()

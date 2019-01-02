@@ -5,7 +5,7 @@ using Spec
 using Random
 using ..Omega: RandVar, applytrackerr, indomainₛ, Wrapper, logerr,
                UTuple, Ω, applynotrackerr, SimpleΩ, LinearΩ, Segment, randunifkey,
-              resample, resample!, update, cond, randtuple, nelem,
+               update, cond, randtuple, nelem,
                fluxgradient, gradient, linearize, unlinearize, err
 
 import ..Omega

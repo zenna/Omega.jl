@@ -16,8 +16,9 @@ function Base.rand(x::RandVar;
                    alg::SamplingAlgorithm = defalg(x),
                    ΩT = defΩ(alg),
                    kwargs...)
-  first(rand(x, 1, alg, ΩT; kwargs...))
+  first(rand(Random.GLOBAL_RNG, x, 1, alg; ΩT = ΩT, kwargs...))
 end
+
 
 function Base.rand(rng::AbstractRNG,
                    x::RandVar,
@@ -30,9 +31,18 @@ function Base.rand(rng::AbstractRNG,
   map(ω -> applynotrackerr(x, ω), ωsamples)
 end
 
+
+function Base.rand(x::RandVar,
+                   n::Integer;
+                   alg::SamplingAlgorithm = defalg(x),
+                   ΩT::Type{OT} = defΩ(alg),
+                   kwargs...) where {OT <: Ω}
+  rand(Random.GLOBAL_RNG, x, n, alg; ΩT = ΩT, kwargs...)
+end
+
 function Base.rand(x::RandVar,
                    n::Integer,
-                   alg::SamplingAlgorithm = defalg(x);
+                   alg::SamplingAlgorithm;
                    ΩT::Type{OT} = defΩ(alg),
                    kwargs...) where {OT <: Ω}
   rand(Random.GLOBAL_RNG, x, n, alg; ΩT = ΩT, kwargs...)
