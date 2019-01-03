@@ -1,6 +1,4 @@
-# Soft Logic
-
-"Soft Boolean"
+"Soft Boolean.  Value in [o, 1]"
 struct SoftBool{ET <: Real}
   logerr::ET
 end
@@ -19,31 +17,9 @@ const trueₛ = SoftBool(Val{true})
 const falseₛ = SoftBool(Val{false})
 
 ## (In)Equalities
-
-"Distance between two values"
-function d end
-
-@inline d(x::Real, y::Real) = (xy = (x - y); xy * xy)
-# @inline d(x::Vector{<:Real}, y::Vector{<:Real}) = norm(x - y)
-@inline d(x::Vector{<:Real}, y::Vector{<:Real}) = sum(d.(x,y))
-@inline d(x::NTuple{N, <: Real}, y::NTuple{N, <:Real}) where N = sum(d.(x,y))
-@inline d(x::Array{<:Real}, y::Array{<:Real}) = norm(x[:] - y[:])
-
 "Soft Equality"
 # softeq(x, y, k = globalkernel()) = SoftBool(-k(d(@show(x), @show(y))))
 softeq(x, y, k = globalkernel()) = SoftBool(-k(d(x, y)))
-
-function bound_loss(x, a, b)
-  # @pre b >= a
-  if x < a
-    a - x
-  elseif x > b
-    x - b
-  else
-    zero(x)
-  end
-end
-
 softgt(x::Real, y::Real, k = globalkernel()) = SoftBool(-k(bound_loss(x, y, Inf)))
 softlt(x::Real, y::Real, k = globalkernel()) = SoftBool(-k(bound_loss(x, -Inf, y)))
 
