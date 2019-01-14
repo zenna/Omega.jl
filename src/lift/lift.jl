@@ -55,6 +55,7 @@ fnms = [:(Base.:-),
         :(Base.:>=),
         :(Base.:<=),
         :(Base.:<),
+        :(Base.:!),
         ]
 
 # Base.:^(x1::RandVar, x2::MaybeRV) = ciid(^, x1, x2) # FIXME: Only for 0.7 deprecations

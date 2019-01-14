@@ -7,6 +7,7 @@ function d end
 @inline d(x::NTuple{N, <: Real}, y::NTuple{N, <:Real}) where N = sum(d.(x,y))
 @inline d(x::Array{<:Real}, y::Array{<:Real}) = norm(x[:] - y[:])
 
+"Distance from x to [a, b]"
 function bound_loss(x, a, b)
   # @pre b >= a
   if x < a

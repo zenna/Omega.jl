@@ -8,11 +8,15 @@ isapproximate(::SSMHAlg) = true
 normalkernel(rng, x, σ = 0.1) = inv_transform(transform(x) + σ * randn(rng))
 normalkernel(rng, x::Array, σ = 0.1) = normalkernel.(x, σ)
 
+"Metropolized Independent sample"
+mi(rng, x::T) where T = rand(rng, T)
+
 "Changes a uniformly chosen single site with kernel"
-swapsinglesite(rng, ω, kernel = x -> normalkernel(rng, x)) = update(ω, rand(1:nelem(ω)), kernel)
+swapsinglesite(rng, ω, kernel = x -> mi(rng, x)) =
+  update(ω, rand(1:nelem(ω)), kernel)
 
 """
-Sample from `x` conditioned on any constraints its conditioned on.
+Sample from `ω::Ω` conditioned on any constraints its conditioned on.
 
 $(SIGNATURES)
 

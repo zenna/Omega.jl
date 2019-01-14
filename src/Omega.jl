@@ -51,11 +51,7 @@ include("lift/lift.jl")
 export @lift, lift
 
 # Soft Inference
-include("soft/kernels.jl")        # Kernels
 include("soft/soft.jl")           # Soft Booleans / logic
-include("soft/dsb.jl")            # Dual Soft Booleans / logic
-include("soft/distances.jl")      # Standard Distance Functions
-include("soft/trackerror.jl")     # Tracking error
 export  SoftBool,
         softeq,
         softlt,
@@ -113,15 +109,10 @@ export  isapproximate,
         defΩ,
         defΩProj,
 
-        everyn,
-        →,
-        idcb,
-        throttle,
         plotrv,
         plotscalar,
         default_cbs,
         HMCStep,
-        IterEnd,
         default_cbs_tpl,
         default_cbs
 

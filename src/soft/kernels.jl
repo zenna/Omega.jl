@@ -1,36 +1,29 @@
 ## Kernels 
 ## =======
 
-
 "Real+ -> [0, 1]"
 kf1(x, β = 0.0001) = x / (x + β)
 kf1β(β) = d -> kf1(d, β)
 lift(:kf1β, 1)
 
-"Squared exponential kernel `α = 1/2l^2`, higher α is lower temperature  "
-# kse(d, α = 10000.0) = α * d
-# kse(d, α = 10000.0) = α * d
-function kse(d, α = 1000.0)
-  # @show α
-  α * d
-  # @assert false
-end
+"(Log) Squared exponential kernel `α = 1/2l^2`, higher α is lower temperature  "
+kse(d, α = 1000.0) = - α * d
 kseα(α) = d -> kse(d, α) 
 lift(:kseα, 1)
 lift(:logkseα, 1)
 
+"γ exponential" 
+γe(x, l = 1, γ = 1) = exp(-(x/l)^γ)
+
+"Rational Quadratic"
+rquad(x, l = 1, α = 1) = (1 + (x^2)/(2*α*l^2))^(-α)
+
 "Power law kernel"
 kpow(d, α = 1.0, k = 2) = -k * log(d) + log(α)
-
-"Parento Kernel"
-kpareto(x, xm = 0, α = 1.0) = log(α) + log(xm) - (α + 1) * log(x)
-kpareto2(x, xm = 1.0, α = 11) = log(α) + log(xm)  - log(x+xm^(α + 1))
-kpareto3(x, xm = 1.0, α = 3) = log(xm) - log(x+xm^(α + 1))
 
 burr(x, c = 1, k = 40) =  log(c) + log(k) +  (c - 1) * log(x) - (k + 1)*log(1 + x^c)
 
 # Temperature Modulation
-
 const GLOBALKERNEL_ = Function[kse]
 
 "Global Kernel"
@@ -53,7 +46,7 @@ function withkernel(thunk, k)
   res
 end
 
-# (Cassette-ased) Temperature Modulation
+# (Cassette-based) Temperature Modulation
 Cassette.@context AlphaCtx
 
 """

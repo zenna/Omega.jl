@@ -87,7 +87,6 @@ function Base.rand(rng,
   for j = 1:div(n, swapevery)
     for i = 1:nreplicas
       withkernel(kernel(temps[i])) do
-        @show temps[i]
         ωst = rand(rng, ΩT, logdensity, swapevery, inneralg; ωinit = ωs[i], cb = cb, algargs...)
         if i == length(ωs) # keep lowest temperatre
           append!(ωsamples, ωst)

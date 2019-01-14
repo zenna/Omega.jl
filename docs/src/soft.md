@@ -48,7 +48,7 @@ In the soft version we would write `x ==ₛ y` (or `softeq(x, y)`).
 
 !!! note
 
-    In the Julia REPL and most IDEs ==ₛ is constructed by typing ==\_s [tab].
+    In the Julia REPL and most IDEs ==ₛ is constructed by typing ==\\_s [tab].
 
 Softened predicates return values in unit interval `[0, 1]` as opposed to a simply `true` or `false`.
 Intuitively, `1` corresponds to `true`, and a high value (such as 0.999) corresonds to "nearly true".
@@ -58,9 +58,9 @@ Mathematicallty, they have the form:
 k(\rho(x, y))
 ```
 
-If ``\rho(x, y)`` denote a notion of distance between ``x`` and ``y``.
+If ``\rho(x, y)`` denotes a notion of distance between ``x`` and ``y``.
 
-Rather than actually output values of type `Float64`, soft predicate output values of type `SoftBool`.
+Rather than output values of type `Float64`, soft predicate output values of type `SoftBool`.
 As stated a `SoftBool` represents a value in `[0, 1]`, but in log scale for numerical reasons.
 
 ```@docs
