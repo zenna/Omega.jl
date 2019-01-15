@@ -14,6 +14,7 @@ https://arxiv.org/pdf/1206.1901.pdf"""
 function hmcfast(rng, U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsize, cb)
   # Initialise proposal as unbounded of current state
   foreach(qvals, prop_qvals) do q, prop_q @. prop_q = (q) end
+  @show typeof.([qvals, prop_qvals, pvals])
 
   # Randomize the momentum
   foreach(p -> @.(p = randn()), pvals)
@@ -22,7 +23,7 @@ function hmcfast(rng, U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, st
   current_K =  sum(map(p->sum(p.^2), pvals)) / 2.0
   ∇qvals = [x.grad for x in values(prop_ω)]
   function ∇step()
-    foreach(∇qvals) do ∇q @. ∇q = 0 end  #reset gradients
+    foreach(∇qvals) do ∇q @. ∇q = 0 end  # reset gradients
     ∇U(prop_ω)  # Gradient step
   end
   
@@ -83,7 +84,8 @@ function Base.rand(rng::AbstractRNG,
                    nsteps = 10,
                    cb = default_cbs(n * takeevery),
                    stepsize = 0.001,
-                   ωinit = ΩT()) where {OT <: Ω}
+                   ωinit = ΩT(),
+                   gradalg = Omega.FluxGrad) where {OT <: Ω}
   ω = ωinit # Current Ω state of chain
   logdensity(ω)  # Initialize omega
   qvals = [x.data for x in values(ω)]   # Values as a vector
@@ -96,7 +98,7 @@ function Base.rand(rng::AbstractRNG,
   
   ωsamples = ΩT[] 
   U = -logdensity
-  ∇U(ω) = fluxgradient(U, ω)
+  ∇U(ω) = gradient(gradalg, U, ω)
 
   accepted = 0
   for i = 1:n*takeevery

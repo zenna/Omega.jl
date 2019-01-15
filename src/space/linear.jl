@@ -62,6 +62,8 @@ function randrtype(T::Type{Float64}, lω::LinearΩ{I, AB, V}) where {I, AB, V}
   Any
 end
 
+Base.values(lω::LinearΩ) = [lω.ωvec]
+
 # Resolve
 function resolve(lω::LinearΩ{I, Int, V}, id::I, T) where {I, V}
   if id in keys(lω.ids)

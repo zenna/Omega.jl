@@ -113,3 +113,8 @@ end
 # #   # p3 = scatterxy(samples, xlims = (0, 1), ylims = (0, 1))
 # #   # plot(p1, p3, markersize = 0.01, aspectratio = 1)
 # # end
+
+x = normal(0, 1)
+y = normal(0, 1)
+# rand((x, y), x ==ₛ y, alg = Replica, inneralg = HMCFAST)
+rand((x, y), x ==ₛ y, 1000, alg = HMCFAST)

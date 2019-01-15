@@ -36,7 +36,10 @@ function gradient(y::RandVar, sω::SimpleΩ{I, V}, vals) where {I, V <: Abstract
   linearize(sω_)
 end
 
-function fluxgradient(U, sω::SimpleΩ{I, V}) where {I, V <: AbstractArray}
+struct FluxGradAlg end
+const FluxGrad = FluxGradAlg()
+
+function gradient(::FluxGradAlg, U, sω::SimpleΩ{I, V}) where {I, V <: AbstractArray}
   l = U(sω)
   Flux.back!(l)
 end
