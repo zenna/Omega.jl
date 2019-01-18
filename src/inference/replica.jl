@@ -32,7 +32,8 @@ function exchange!(rng, logdensity, ωs, temps)
       logdensity(ωs[j])
     end
     k = (E_i_y + E_j_x) - (E_i_x + E_j_y)
-    if log(rand(rng)) < k
+    doswap = log(rand(rng)) < k
+    if doswap
       swap!(ωs, i, j)
     end
   end
@@ -85,13 +86,19 @@ function Base.rand(rng,
 
   # Do swapevery steps for each chain, then swap ωs
   for j = 1:div(n, swapevery)
+    @show j
     for i = 1:nreplicas
+      @show i
       withkernel(kernel(temps[i])) do
-        ωst = rand(rng, ΩT, logdensity, swapevery, inneralg; ωinit = ωs[i], cb = cb, algargs...)
-        if i == length(ωs) # keep lowest temperatre
-          append!(ωsamples, ωst)
+        try
+          ωst = rand(rng, ΩT, logdensity, swapevery, inneralg; ωinit = ωs[i], cb = cb, algargs...)
+          if i == length(ωs) # keep lowest temperatre
+            append!(ωsamples, ωst)
+          end
+          ωs[i] = ωst[end]
+        catch e
+          println("Chain at temp $(temps[i]) Failed due to:", e)
         end
-        ωs[i] = ωst[end]
       end
     end
     exchange!(rng, logdensity, ωs, temps)

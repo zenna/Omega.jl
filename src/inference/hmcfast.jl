@@ -14,7 +14,6 @@ https://arxiv.org/pdf/1206.1901.pdf"""
 function hmcfast(rng, U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsize, cb)
   # Initialise proposal as unbounded of current state
   foreach(qvals, prop_qvals) do q, prop_q @. prop_q = (q) end
-  @show typeof.([qvals, prop_qvals, pvals])
 
   # Randomize the momentum
   foreach(p -> @.(p = randn()), pvals)
