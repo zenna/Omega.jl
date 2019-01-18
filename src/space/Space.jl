@@ -4,6 +4,7 @@ using ..Util
 import ..Util: increment!
 using Spec
 import Flux     # FIXME: Can we excise this from this submodule?
+import ForwardDiff
 import Random
 using Random: GLOBAL_RNG
 
