@@ -2,7 +2,7 @@
 "A Library for Causal and Higher-Order Probabilistic Programming"
 module Omega
 
-
+t = 3
 
 using Flux
 using Spec

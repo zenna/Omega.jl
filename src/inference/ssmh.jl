@@ -34,7 +34,8 @@ function Base.rand(rng,
                    alg::SSMHAlg;
                    proposal = swapsinglesite,
                    cb = donothing,
-                   ωinit = ΩT()) where {OT <: Ω}
+                   ωinit = ΩT(),
+                   offset = 0) where {OT <: Ω}
   ω = ωinit
   plast = logdensity(ω)
   qlast = 1.0
@@ -50,7 +51,7 @@ function Base.rand(rng,
       accepted += 1
     end
     push!(ωsamples, deepcopy(ω))
-    cb((ω = ω, accepted = accepted, p = plast, i = i), IterEnd)
+    cb((ω = ω, accepted = accepted, p = plast, i = i + offset), IterEnd)
   end
   ωsamples
 end

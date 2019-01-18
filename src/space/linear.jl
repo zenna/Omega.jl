@@ -56,15 +56,18 @@ function update(lω::LinearΩ, i::Int, val)
 end
 
 function randrtype(::Type{T}, lω::LinearΩ{I, AB, V}) where {T, I, AB, V}
+  # @show V
+  # @show T
+  # @assert false
   T
 end
 
 function randrtype(::Type{T}, lω::LinearΩ{I, AB, <:ForwardDiff.Dual}) where {T, I, AB}
-  # That's teh nuts and bolts of it.
-  # @assert false
-  #   
-  # @assert false
-  @show lω
+  # # That's teh nuts and bolts of it.
+  # # @assert false
+  # #   
+  # # @assert false
+  # @show lω
   ForwardDiff.Dual
 end
 
@@ -83,16 +86,15 @@ function resolve(lω::LinearΩ{I, Int, V}, id::I, T) where {I, V}
 end
 
 function resolve(lω::LinearΩ{I, Segment, V}, id::I, T, dims::Dims{N}) where {N, I, V}
-  @show T
-  @show dims
   if id in keys(lω.ids)
     seg = lω.ids[id]
     n = prod(seg.shape) # Fixme: Store this?
-    ωvec = lω.ωvec[seg.startidx:seg.startidx+n-1]
+    ωvec::Array{randrtype(T, lω), N} = lω.ωvec[seg.startidx:seg.startidx+n-1]
     reshape(ωvec, dims)::Array{randrtype(T, lω), N}
   else
     n = prod(dims)
     ωvec = rand(GLOBAL_RNG, T, dims)#::Array{randrtype(T, lω), N}
+    @show typeof(ωvec)
     startidx = length(lω.ωvec) + 1
     append!(lω.ωvec, ωvec)
     lω.ids[id] = Segment(startidx, dims)
