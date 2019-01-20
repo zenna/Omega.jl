@@ -14,7 +14,7 @@ proj(ω::ΩBase, x::RandVar) = ω[x.id][1] # FIXME, change to ω[x.id, 1]
 proj(tω::TaggedΩ, x::RandVar) = tag(proj(tω.taggedω, x), tω.tags)
 @spec _res.tags == tω.tags "tags are preserved in projection"
 
-# @inline apl(rv::RandVar, ω::ΩBaseGroup) =  ppapl(rv, proj(ω, rv))
+"Project `ω` to `rv` then apply"
 @inline apl(rv::RandVar, ω::ΩBase) =  ppapl(rv, proj(ω, rv))
 
 "Reproject back to parent random variable"

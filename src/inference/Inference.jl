@@ -11,6 +11,7 @@ using ..Omega: RandVar, applytrackerr, indomainₛ, Wrapper, logerr,
 import ..Omega
 using ProgressMeter
 using Flux
+import ForwardDiff
 using Callbacks
 import UnicodePlots
 using DocStringExtensions: SIGNATURES

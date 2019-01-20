@@ -14,7 +14,8 @@ isapproximate(::NUTSAlg) = true
 "No U-Turn Sampler"
 const NUTS = NUTSAlg()
 defcb(::NUTSAlg) = default_cbs()
-defΩ(::NUTSAlg) = Omega.LinearΩ{Vector{Int64}, Omega.Space.Segment, Real}
+# defΩ(::NUTSAlg) = Omega.LinearΩ{Vector{Int64}, Omega.Space.Segment, Real}
+defΩ(::NUTSAlg) = Omega.LinearΩ{Vector{Int64}, Omega.Space.Segment, ForwardDiff.Dual}
 
 """Dynamic Hamiltonian Monte Carlo
 
@@ -49,6 +50,8 @@ function Base.rand(rng,
   flatlogdensity = flat(logdensity, ω)
   P = TransformedLogDensity(t, flatlogdensity)
   ∇P = ADgradient(:ForwardDiff, P)
+  # Can we know what tpye forward diff will return?
+  # 
   # NUTS_init(rng, ℓ; q = initpos, κ = init, p, max_depth, ϵ, report)
 
   chain, NUTS_tuned = NUTS_init_tune_mcmc(∇P, n, ϵ = ϵ)

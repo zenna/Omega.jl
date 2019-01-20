@@ -2,7 +2,7 @@
 "A Library for Causal and Higher-Order Probabilistic Programming"
 module Omega
 
-
+t = 3
 
 using Flux
 using Spec
@@ -189,5 +189,8 @@ export  lsuccprob,
 # Neural Network Stuff
 include("flux.jl")
 export Dense
+
+# Memoize
+include("memoize.jl")
 
 end

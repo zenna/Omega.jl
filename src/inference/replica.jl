@@ -86,13 +86,15 @@ function Base.rand(rng,
 
   # Do swapevery steps for each chain, then swap ωs
   for j = 1:div(n, swapevery)
-    @show j
     for i = 1:nreplicas
-      @show i
       withkernel(kernel(temps[i])) do
         try
-          ωst = rand(rng, ΩT, logdensity, swapevery, inneralg; ωinit = ωs[i], cb = cb, algargs...)
-          if i == length(ωs) # keep lowest temperatre
+          ωst = rand(rng, ΩT, logdensity, swapevery, inneralg;
+                    ωinit = ωs[i],
+                    cb = i == nreplicas ? cb : donothing,
+                    offset = (j - 1) * swapevery,
+                    algargs...)
+          if i == nreplicas # keep lowest temperatre
             append!(ωsamples, ωst)
           end
           ωs[i] = ωst[end]

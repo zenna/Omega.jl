@@ -55,11 +55,20 @@ function update(lω::LinearΩ, i::Int, val)
   lω_
 end
 
-function randrtype(T::Type{Float64}, lω::LinearΩ{I, AB, V}) where {I, AB, V}
+function randrtype(::Type{T}, lω::LinearΩ{I, AB, V}) where {T, I, AB, V}
   # @show V
+  # @show T
   # @assert false
-  #   
-  Any
+  T
+end
+
+function randrtype(::Type{T}, lω::LinearΩ{I, AB, <:ForwardDiff.Dual}) where {T, I, AB}
+  # # That's teh nuts and bolts of it.
+  # # @assert false
+  # #   
+  # # @assert false
+  # @show lω
+  ForwardDiff.Dual
 end
 
 Base.values(lω::LinearΩ) = [lω.ωvec]
@@ -67,7 +76,7 @@ Base.values(lω::LinearΩ) = [lω.ωvec]
 # Resolve
 function resolve(lω::LinearΩ{I, Int, V}, id::I, T) where {I, V}
   if id in keys(lω.ids)
-    lω.ωvec[lω.ids[id]]#::randrtype(T, lω)
+    lω.ωvec[lω.ids[id]]::randrtype(T, lω)
   else
     val = rand(GLOBAL_RNG, T)
     push!(lω.ωvec, val)
@@ -81,21 +90,23 @@ function resolve(lω::LinearΩ{I, Segment, V}, id::I, T, dims::Dims{N}) where {N
     seg = lω.ids[id]
     n = prod(seg.shape) # Fixme: Store this?
     ωvec = lω.ωvec[seg.startidx:seg.startidx+n-1]
-    reshape(ωvec, dims)#::Array{randrtype(T, lω), N}
+    b::Array{randrtype(T, lω), N} = reshape(ωvec, dims)
+    b
   else
     n = prod(dims)
     ωvec = rand(GLOBAL_RNG, T, dims)#::Array{randrtype(T, lω), N}
+    @show typeof(ωvec)
     startidx = length(lω.ωvec) + 1
     append!(lω.ωvec, ωvec)
     lω.ids[id] = Segment(startidx, dims)
-    reshape(ωvec, dims)#::Array{randrtype(T, lω), N}
+    reshape(ωvec, dims)::Array{randrtype(T, lω), N}
   end
 end
 
 function resolve(lω::LinearΩ{I, Segment, V}, id::I, T) where {I, V}
   if id in keys(lω.ids)
     seg = lω.ids[id]
-    lω.ωvec[seg.startidx]#::randrtype(T, lω)
+    lω.ωvec[seg.startidx]::randrtype(T, lω)
   else
     val = rand(GLOBAL_RNG, T)
     startidx = length(lω.ωvec) + 1
