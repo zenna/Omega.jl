@@ -57,8 +57,6 @@ function Base.rand(rng::AbstractRNG,
   rand(rng, x, n, alg; ΩT = ΩT, kwargs...)
 end
 
-
-
 function Base.rand(x::RandVar,
                    n::Integer,
                    alg::SamplingAlgorithm;

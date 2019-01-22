@@ -95,11 +95,13 @@ function resolve(lω::LinearΩ{I, Segment, V}, id::I, T, dims::Dims{N}) where {N
   else
     n = prod(dims)
     ωvec = rand(GLOBAL_RNG, T, dims)#::Array{randrtype(T, lω), N}
-    @show typeof(ωvec)
+    # @show typeof(ωvec)
+    # @show V
     startidx = length(lω.ωvec) + 1
     append!(lω.ωvec, ωvec)
     lω.ids[id] = Segment(startidx, dims)
-    reshape(ωvec, dims)::Array{randrtype(T, lω), N}
+    a::Array{randrtype(T, lω), N} = reshape(ωvec, dims)
+    a
   end
 end
 

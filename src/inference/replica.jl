@@ -6,6 +6,7 @@ struct ReplicaAlg <: SamplingAlgorithm end
 "Single Site Metropolis Hastings"
 const Replica = ReplicaAlg()
 defΩ(::ReplicaAlg) = Omega.LinearΩ{Vector{Int64}, Omega.Space.Segment, Real}
+defΩ(x, ::ReplicaAlg; inneralg...) = defΩ(inneralg)
 
 isapproximate(::ReplicaAlg) = true
 
@@ -81,8 +82,12 @@ function Base.rand(rng,
   @pre n % swapevery == 0
   @pre nreplicas == length(temps)
   @show temps
+  # @show OT
+  # @show ΩT()
+  # @show ΩT[]
   ωsamples = OT[]
   ωs = [ΩT() for i = 1:nreplicas]
+  # @show ΩT()
 
   # Do swapevery steps for each chain, then swap ωs
   for j = 1:div(n, swapevery)
@@ -99,6 +104,7 @@ function Base.rand(rng,
           end
           ωs[i] = ωst[end]
         catch e
+          # rethrow(e)
           println("Chain at temp $(temps[i]) Failed due to:", e)
         end
       end

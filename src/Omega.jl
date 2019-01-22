@@ -193,4 +193,8 @@ export Dense
 # Memoize
 include("memoize.jl")
 
+# Memoize
+include("scaling.jl")
+
+
 end

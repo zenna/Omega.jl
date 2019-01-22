@@ -41,8 +41,8 @@ function Base.rand(rng,
                    alg::NUTSAlg;
                    cb = donothing,
                    ωinit = ΩT(),
-                   ϵ = 0.0001) where {OT <: Ω}
-  
+                   ϵ = 0.0001,
+                   offset = 0) where {OT <: Ω}
   ω = ωinit
   logdensity(ω) # init
   t = as(Array, as𝕀, Omega.Space.nelem(ω))
