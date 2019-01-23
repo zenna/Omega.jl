@@ -36,6 +36,7 @@ Base.all(xs::Vector{<:RandVar}) = RandVar(all, (xs, ))
 
 # Arithmetic
 Base.:*(x::SoftBool{T}, y::T) where T = SoftBool{T}(x.logerr * y)
+Base.:*(x::T, y::SoftBool{T}) where T = SoftBool{T}(x * y.logerr)
 
 ## Show
 ## ====
