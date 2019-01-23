@@ -84,7 +84,8 @@ function Base.rand(rng::AbstractRNG,
                    cb = default_cbs(n * takeevery),
                    stepsize = 0.001,
                    ωinit = ΩT(),
-                   gradalg = Omega.FluxGrad) where {OT <: Ω}
+                   gradalg = Omega.FluxGrad,
+                   offset = 0) where {OT <: Ω}
   ω = ωinit # Current Ω state of chain
   logdensity(ω)  # Initialize omega
   qvals = [x.data for x in values(ω)]   # Values as a vector
@@ -111,7 +112,7 @@ function Base.rand(rng::AbstractRNG,
       # QVALS need to reflect
       i % takeevery == 0 && push!(ωsamples, deepcopy(ω))
     end
-    cb((ω = prop_ω, accepted = accepted, p = Flux.data(p_), i = i), IterEnd)
+    cb((ω = prop_ω, accepted = accepted, p = Flux.data(p_), i = i + offset), IterEnd)
   end
   ωsamples
 end

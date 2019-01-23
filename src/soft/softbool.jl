@@ -34,6 +34,9 @@ Base.:|(x::SoftBool, y::SoftBool) = SoftBool(max(logerr(x), logerr(y)))
 Base.all(xs::Vector{<:SoftBool}) = SoftBool(minimum(logerr.(xs)))
 Base.all(xs::Vector{<:RandVar}) = RandVar(all, (xs, ))
 
+# Arithmetic
+Base.:*(x::SoftBool{T}, y::T) where T = SoftBool{T}(x.logerr * y)
+
 ## Show
 ## ====
 Base.show(io::IO, sb::SoftBool) = print(io, "ϵ:$(logerr(sb))")
