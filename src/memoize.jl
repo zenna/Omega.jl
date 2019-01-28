@@ -13,26 +13,27 @@ function Cassette.posthook(ctx::MemoizeCtx, retval, x::RandVar, args...)
   ctx.metadata[x.id] = retval
 end
 
-## Tagging Based
+# Ω Based Memoization
+
+"Memoized Ω: Records values of random variables"
 struct MemΩ{ΩT, V}
   ω::ΩT
   cache::Dict{Int, V}
 end
-
-# Ω Based Memoization
 
 mem(ω::ΩT, ::Type{V} = Any) where {ΩT, V} = MemΩ{ΩT, V}(ω, Dict{Int, V}())
 
 "Cache this type of RandVar? (for some types it maybe be faster to not cache)"
 willcache(rv::RandVar) = true
 
-@inline ppapl(rv::RandVar, mω::MemΩ) =  rv.f(ωπ, rv.args...)
+proj(mω::MemΩ, rv::RandVar) = MemΩ(proj(mω.ω, rv), mω.cache)
 
 function apl(rv::RandVar, mω::MemΩ)
-  if haskey(mω.cache, x.id)
+  # @assert false
+  if haskey(mω.cache, rv.id)
     mω.cache[x.id]::(Core.Compiler).return_type(x, typeof((mω.ω,)))
   else
-    mω.cache[x.id] = apl(x, mω.ω)
+    mω.cache[x.id] = ppapl(rv, proj(mω, rv))
   end
 end
 
@@ -45,7 +46,7 @@ h(x) = (println("call!"); svd(x).S)
 y = lift(h)(x)
 vars = randtuple((y, y*10, y*20))
 @benchmark vars(ω) setup = (ω = defΩ()())
-@benchmark mcall(vars, ω) setup = (ω = defΩ()())
+@benchmark Omega.mcall(vars, ω) setup = (ω = defΩ()())
 ```
 """
 function mcall(x::RandVar, ω::Ω, ::Type{T} = Any) where T
