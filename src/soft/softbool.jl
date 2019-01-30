@@ -17,9 +17,9 @@ ssoftfalse() = SoftBool(-Inf)
 ## (In)Equalities
 "Soft Equality"
 # softeq(x, y, k = globalkernel()) = SoftBool(-k(d(@show(x), @show(y))))
-ssofteq(x, y, k = globalkernel()) = SoftBool(k(d(x, y)))
-ssoftgt(x::Real, y::Real, k = globalkernel()) = SoftBool(k(bound_loss(x, y, Inf)))
-ssoftlt(x::Real, y::Real, k = globalkernel()) = SoftBool(k(bound_loss(x, -Inf, y)))
+ssofteq(x, y, k = globalkernel()) = SoftBool(k(d(x, y))::Float64)
+ssoftgt(x::Real, y::Real, k = globalkernel()) = SoftBool(k(bound_loss(x, y, Inf))::Float64)
+ssoftlt(x::Real, y::Real, k = globalkernel()) = SoftBool(k(bound_loss(x, -Inf, y))::Float64)
 
 ## Boolean Operators
 ## =================

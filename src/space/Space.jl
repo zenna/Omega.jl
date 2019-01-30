@@ -26,5 +26,6 @@ include("tagged.jl")        # Space space Tagged with metadata
 include("common.jl")
 include("simple.jl")        # Simple Ω
 include("linear.jl")        # Simple Ω
+include("shell.jl")
 
 end

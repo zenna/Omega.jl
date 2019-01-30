@@ -17,8 +17,8 @@ params(rv::ReplaceRandVar) = map(p -> replace(p, rv.replmap), params(rv.x))
 @generated function apl(rv::RandVar, tω::TaggedΩ{I, Tags{K, V}, ΩT}) where {I, K, V, ΩT <: ΩBase}
   if hastags(tω, :replmap)
     quote
-    if id(rv) ∈ keys(tω.tags.tags.replmap) 
-      return tω.tags.tags.replmap[rv.id](tω)
+    if id(rv) ∈ keys(tω.tags.replmap) 
+      return tω.tags.replmap[rv.id](tω)
     else
       tω_ = maybetag(rv, tω)
       ppapl(rv, proj(tω_, rv))

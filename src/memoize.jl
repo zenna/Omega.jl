@@ -1,25 +1,14 @@
-# Cassette Based Memoization
-Cassette.@context MemoizeCtx
-
-function Cassette.overdub(ctx::MemoizeCtx, x::RandVar, args...)
-  if x.id in keys(ctx.metadata)
-    ctx.metadata[x.id]  
-  else
-    Cassette.recurse(ctx, x, args...)
-  end
-end
-
-function Cassette.posthook(ctx::MemoizeCtx, retval, x::RandVar, args...)
-  ctx.metadata[x.id] = retval
-end
-
-# Ω Based Memoization
+tagmem(ω, ::Type{V} = Any) where V = tag(ω, (cache = Dict{Int, V}(),))
 
 "Memoized Ω: Records values of random variables"
-struct MemΩ{ΩT, V}
+struct MemΩ{I, ΩT, V} <: ShellΩ{I, ΩT}
   ω::ΩT
   cache::Dict{Int, V}
+  MemΩ(ω::ΩT , ::Type{V} = Any) where {ΩT, V} = MemΩ{ΩT, V}(ω, Dict{Int, V}())
+
 end
+
+Omega.shell(ω, mω::MemΩ) = MemΩ(ω, mω.cache)
 
 mem(ω::ΩT, ::Type{V} = Any) where {ΩT, V} = MemΩ{ΩT, V}(ω, Dict{Int, V}())
 

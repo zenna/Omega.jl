@@ -3,7 +3,7 @@ module Inference
 
 using Spec
 using Random
-using ..Omega: RandVar, applytrackerr, indomainₛ, Wrapper, logerr,
+using ..Omega: RandVar, applytrackerr, indomainₛ, logerr,
                UTuple, Ω, applynotrackerr, SimpleΩ, LinearΩ, Segment, randunifkey,
                update, cond, randtuple, nelem,
                gradient, linearize, unlinearize, err
