@@ -11,7 +11,7 @@
     <ₛ
     ```
 
-    Soft predicates are supported (and required) by inference algorithms: SSMH, HMC, HMCFAST, MI.
+    Soft predicates are supported (and required) by inference algorithms: SSMH, HMCFAST, NUTS, Replica.
 
     If the values `x` and `y` are not standard numeric types you will need to define a notion of distance (even if they are, you may want to wrap them and define a distance for this type).  Override `Omega.d` for the relevant types
 
@@ -34,7 +34,9 @@ rand(y)
 From this perspective, conditioning means to solve a constraint.
 It can be difficult to solve these constraints exactly, and so Omega supports softened constraints to make inference more tractable.
 
-There are two ways to make soft constraints.  The first way is explicitly:
+To soften predicates, use soft counterparts to primitive predicates.
+Suppose we construct a random variable of the form `x == y`.
+In the soft version we would write `x ==ₛ y` (or `softeq(x, y)`).
 
 ```julia
 julia> x = normal(0.0, 1.0)
@@ -43,31 +45,33 @@ julia> rand(y)
 ϵ:-47439.72956833765
 ```
 
-Suppose we construct a random variable of the form `x == y`.
-In the soft version we would write `x ==ₛ y` (or `softeq(x, y)`).
-
 !!! note
 
     In the Julia REPL and most IDEs ==ₛ is constructed by typing ==\\_s [tab].
 
 Softened predicates return values in unit interval `[0, 1]` as opposed to a simply `true` or `false`.
 Intuitively, `1` corresponds to `true`, and a high value (such as 0.999) corresonds to "nearly true".
-Mathematicallty, they have the form:
+In practice, we encode this number in log scale `[-Inf, 0]` for numerical reasons.
+Mathematicallty, soft predicates they have the form:
 
 ```math
-k(\rho(x, y))
+k_\alpha(\rho(x, y))
 ```
 
 If ``\rho(x, y)`` denotes a notion of distance between ``x`` and ``y``.
+Distances are determined by the method `Omega.d`
+
+```@docs
+Omega.d
+```
 
 Rather than output values of type `Float64`, soft predicate output values of type `SoftBool`.
-As stated a `SoftBool` represents a value in `[0, 1]`, but in log scale for numerical reasons.
 
 ```@docs
 SoftBool
 ```
 
-## Controlling the kernel
+## Distances and Kernels
 
 Omega has a number of built-in kernels:
 
@@ -77,7 +81,7 @@ kf1
 kpareto
 ```
 
-By default, the squared exponential kernel is used with a default temperature parameter.
+By default, the squared exponential kernel `kse` is used with a default temperature parameter.
 The method `withkernel` can be used to choose which kernel is being applied within the context of a soft boolean operator.
 
 ```@docs

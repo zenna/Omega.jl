@@ -1,4 +1,4 @@
-abstract type AbstractSoftBool end
+abstract type AbstractSoftBool <: Real end
 const AbstractBool = Union{AbstractSoftBool, Bool}
 
 include("kernels.jl")        # Kernels

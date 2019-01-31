@@ -5,11 +5,11 @@ module Omega
 t = 3
 
 using Flux
+import ForwardDiff
 using Spec
 using UnicodePlots
 using DocStringExtensions: FIELDS, SIGNATURES, TYPEDEF
 using Cassette  
-
 
 import Random
 import Random: GLOBAL_RNG, AbstractRNG

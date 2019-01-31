@@ -8,7 +8,7 @@ It was developed by [Zenna Tavares](http://zenna.org) with help from Javier Burr
 Omega is built in Julia 1.0.  You can easily install it from a Julia repl with:
 
 ```julia
-(v1.0) pkg> add https://github.com/zenna/Omega.jl.git
+(v1.0) pkg> add Omega
 ```
 
 Check Omega is working and gives reasonable results with: 

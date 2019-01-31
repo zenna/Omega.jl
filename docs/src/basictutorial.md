@@ -28,7 +28,7 @@ beta_samples = rand(weight, 10000)
 Let's see what this distribution looks like using UnicodePlots.  If you don't have it installed already install with:
 
 ```julia
-(v0.7) pkg> add UnicodePlots
+] add UnicodePlots
 ```
 
 To visualize the distribution, plot a histogram of the samples:
@@ -63,10 +63,11 @@ Since a coin can be heads or tales, the appropriate distribution is the [bernoul
 
 ```julia
 nflips = 4
-coinflips_ = [bernoulli(weight) for i = 1:nflips]
+coinflips_ = [bernoulli(weight, Bool) for i = 1:nflips]
 ```
 
 Take note that `weight` is the random variable defined previously.
+`bernoulli` takes a type as its secoond argument; `Bool` indicates the result will be a `Bool` rather than an `Int`.
 
 `coinflips` is a normal Julia array of Random Variables (`RandVar`s).
 For reasons we will elaborate in later sections, it will be useful to have an `Array`-valued `RandVar` (instead of an `Array` of `RandVar`).
@@ -113,14 +114,14 @@ observations = [true, true, true, false]
 and then use `rand` to draw conditional samples:
 
 ```julia
-weight_samples = rand(weight, coinflips == observations, 10, RejectionSample)
+weight_samples = rand(weight, coinflips == observations, 10; alg = RejectionSample)
 ```
 
 `weight_samples` is a set of `10` samples from the conditional (sometimes called posterior) distribution of `weight` condition on the fact that coinflips == observations.
 
 In this case, `rand` takes
 - A random variable we want to sample from
-- A predicate (type `RandVar{Bool}`) that we want to condition on, i.e. assert that it is true
+- A predicate (type `RandVar` which evaluates to a `Bool`) that we want to condition on, i.e. assert that it is true
 - An inference algorithm.  Here we use rejection sampling
 
 Plot a histogram of the weights like before:

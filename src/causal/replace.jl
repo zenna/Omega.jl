@@ -1,11 +1,7 @@
 # Causal Intervention (using TaggedΩ) #
-
-# Reason we have this struct is to preserve type for conversion to Distribution
-# 
-
 "Intervened Random Variable x | do(theta)"
 struct ReplaceRandVar{R1 <: RandVar, R2 <: RandVar} <: RandVar
-  x::R1                     # Intervend Random Variable
+  x::R1                     # Intervened Random Variable
   replmap::Dict{ID, R2}     # Intervention map
   id::ID
   ReplaceRandVar(rv::R22, replmap::Dict{ID, T2}, id = uid()) where {R22 <: RandVar, T2 <: RandVar} = 
@@ -13,27 +9,18 @@ struct ReplaceRandVar{R1 <: RandVar, R2 <: RandVar} <: RandVar
 end
 @inline (rv::ReplaceRandVar)(ω::Ω) = apl(rv, ω)
 id(x::ReplaceRandVar) = x.id
-
 ppapl(rv::ReplaceRandVar, ω::Ω) = apl(rv.x, tag(ω, (replmap = rv.replmap,)))
-
 params(rv::ReplaceRandVar) = map(p -> replace(p, rv.replmap), params(rv.x))
 
 @inline function replaceapl(rv::RandVar, tω::TaggedΩ{I, Tags{K, V}, ΩT}) where {I, K, V, ΩT <: ΩBase}
-  if haskey(tω.tags.replmap, rv.id) 
-    tω.tags.replmap[rv.id](tω)
+  if haskey(tω.tags.replmap, rv.id) # FIXME, double look up
+    apl(tω.tags.replmap[rv.id], tω) # FIXME: add Type constriant!
   else
-    tω_ = maybetag(rv, tω)
-    ppapl(rv, proj(tω_, rv))
+    ppapl(rv, proj(tω, rv))
   end
 end
 
-# maybetag(rv::ReplaceRandVar, ω::Ω) = tag(ω, (replmap = rv.replmap,))
-# maybetag(rv::RandVar, ω::Ω) = ω # tag(ω, (replmap = rv.replmap,))
-
-# apl(rv::ReplaceRandVar, ω::ΩBase) = rv.x(tag(ω, (replmap = rv.replmap,)))
-# ppapl(rv::ReplaceRandVar, ωpi) = rv.x(ωpi)
-
-## Conversion
+# Conversions #
 mcv(x::RandVar) = x
 mcv(x) = constant(x)
 upconv(x::Dict{RV}) where RV = Dict(k.id => mcv(v) for (k, v) in x)

@@ -48,7 +48,7 @@ proj(tω::TaggedΩ, x::RandVar) = tag(proj(tω.taggedω, x), tω.tags)
 # Generated funtion for typed dispatch on different tags (might be unnecssary)
 @generated function apl(rv::RandVar, tω::TaggedΩ{I, Tags{K, V}, ΩT}) where {I, K, V, ΩT <: ΩBase}
   if hastags(tω, :replmap)
-    :(replaceapl(rv, tω))
+    :(Omega.Causal.replaceapl(rv, tω))
   elseif hastags(tω, :cache)
     :(memapl(rv, tω))
   else
