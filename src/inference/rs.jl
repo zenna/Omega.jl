@@ -13,13 +13,11 @@ function Base.rand(rng,
                    n::Integer,
                    alg::RejectionSampleAlg;
                    cb = donothing) where {OT <: Ω}
-  ωsamples = ΩT[]
+  ωsamples = OT[]
   accepted = 0
   i = 1
   while accepted < n
     ω = ΩT() # FIXME, use rng to select random points
-    # ω = rand(rng, ΩT) # Problem with this is that
-    # What on earth is this
     issat = pred(ω)
     if issat
       push!(ωsamples, ω)
@@ -37,8 +35,9 @@ function Base.rand(rng::AbstractRNG,
                    n::Integer,
                    alg::RejectionSampleAlg;
                    ΩT::Type{OT} = defΩ(alg),
-                   cb = donothing) where {OT <: Ω}
-  pred = Omega.indomain(x)
+                   cb = donothing,
+                   memoize = true) where {OT <: Ω}
+  pred = Omega.mem(Omega.indomain(x))
   ωsamples = rand(rng, ΩT, pred, n, alg; cb = cb)
-  map(x, ωsamples)
+  map(Omega.mem(x), ωsamples)
 end

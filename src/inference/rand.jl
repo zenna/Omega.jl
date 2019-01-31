@@ -34,9 +34,9 @@ function Base.rand(rng::AbstractRNG,
                    alg::SamplingAlgorithm;
                    ΩT::Type{OT} = defΩ(alg),
                    kwargs...) where {OT <: Ω}
-  logdensity = logerr(indomainₛ(x))
+  logdensity = Omega.mem(logerr(indomainₛ(x)))
   ωsamples = rand(rng, ΩT, logdensity, n, alg; kwargs...) 
-  map(ω -> applynotrackerr(x, ω), ωsamples)
+  map(ω -> applynotrackerr(Omega.mem(x), ω), ωsamples)
 end
 
 
