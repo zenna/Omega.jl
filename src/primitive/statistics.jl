@@ -95,7 +95,7 @@ mayberand(c) = c
 "Convert an RID into a Distributions.jl `Distribution``"
 function distribution(rv::RandVar)
   θs = params(rv)
-  θisconst = isconstant.(θs)
+  @show θisconst = isconstant.(θs)
   θsc = mayberand.(θs)
   djldist(rv, θsc...)
 end

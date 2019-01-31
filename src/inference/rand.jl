@@ -1,5 +1,5 @@
 "Default inference algorithm"
-defalg(args...) = RejectionSample
+defalg(args...) = FailUnsat
 
 "Default Ω to use"
 # defΩ(args...) = SimpleΩ{Vector{Int}, Any}
