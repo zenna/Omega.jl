@@ -20,13 +20,11 @@ include("idgen.jl")         # Id generation
 include("index.jl")         # Pairing functions for omega ids
 include("omega.jl")         # Sample Space
 include("proj.jl")          # Sample Space Projection
-# include("tags.jl")          # Metadata
 include("tagged.jl")        # Space space Tagged with metadata
 
 
 include("common.jl")
 include("simple.jl")        # Simple Ω
 include("linear.jl")        # Linear Ω
-# include("shell.jl")
 
 end
