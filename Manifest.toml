@@ -57,7 +57,9 @@ version = "0.2.2"
 
 [[Callbacks]]
 deps = ["ProgressMeter"]
-path = "/home/zenna/repos/Callbacks.jl"
+git-tree-sha1 = "786f61341e29ad9e24e04054d82405c30457fbf1"
+repo-rev = "master"
+repo-url = "https://github.com/zenna/Callbacks.jl"
 uuid = "5c501fca-fc9b-11e8-1fb9-dbe118bb7e64"
 version = "0.1.0"
 
@@ -339,9 +341,11 @@ deps = ["LinearAlgebra", "Random"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [[Spec]]
-deps = ["Cassette", "Test"]
-git-tree-sha1 = "f1839be7daf5bf850406255be00490273eb380ee"
-uuid = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
+deps = ["Cassette", "Pkg", "Random"]
+git-tree-sha1 = "83b79af58ae5930a49789200d355cc503e398b5a"
+repo-rev = "master"
+repo-url = "https://github.com/zenna/Spec.jl.git"
+uuid = "526a04b8-654b-11e8-1588-db2a414f95b5"
 version = "0.1.3"
 
 [[SpecialFunctions]]
