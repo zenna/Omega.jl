@@ -4,6 +4,14 @@ Distributions
 PDMats
 ProgressMeter
 Spec
+Cassette
+DocStringExtensions
+DynamicHMC
+ForwardDiff
+LogDensityProblems
+TransformVariables
+Statistics
+Random
 
 # Will probably remove
 UnicodePlots
