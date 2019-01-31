@@ -6,7 +6,6 @@ function ppapl end
 "Apply function to argument"
 function apl end
 
-
 "Apply if randvar otherwise just return value (treat as constant randvar"
 subapl(x, ω) = x
 @inline subapl(rv::RandVar, ω) = apl(rv, ω)
