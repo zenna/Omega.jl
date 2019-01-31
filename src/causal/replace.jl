@@ -1,4 +1,7 @@
-# Causal Intervention (using TaggedΩ)
+# Causal Intervention (using TaggedΩ) #
+
+# Reason we have this struct is to preserve type for conversion to Distribution
+# 
 
 "Intervened Random Variable x | do(theta)"
 struct ReplaceRandVar{R1 <: RandVar, R2 <: RandVar} <: RandVar
@@ -11,32 +14,24 @@ end
 @inline (rv::ReplaceRandVar)(ω::Ω) = apl(rv, ω)
 id(x::ReplaceRandVar) = x.id
 
+ppapl(rv::ReplaceRandVar, ω::Ω) = apl(rv.x, tag(ω, (replmap = rv.replmap,)))
+
 params(rv::ReplaceRandVar) = map(p -> replace(p, rv.replmap), params(rv.x))
 
-# Use generated funtion to get typed dispatch on different tags
-@generated function apl(rv::RandVar, tω::TaggedΩ{I, Tags{K, V}, ΩT}) where {I, K, V, ΩT <: ΩBase}
-  if hastags(tω, :replmap)
-    quote
-    if id(rv) ∈ keys(tω.tags.replmap) 
-      return tω.tags.replmap[rv.id](tω)
-    else
-      tω_ = maybetag(rv, tω)
-      ppapl(rv, proj(tω_, rv))
-    end
-    end
+@inline function replaceapl(rv::RandVar, tω::TaggedΩ{I, Tags{K, V}, ΩT}) where {I, K, V, ΩT <: ΩBase}
+  if haskey(tω.tags.replmap, rv.id) 
+    tω.tags.replmap[rv.id](tω)
   else
-    quote
     tω_ = maybetag(rv, tω)
     ppapl(rv, proj(tω_, rv))
-    end
   end
 end
 
-maybetag(rv::ReplaceRandVar, ω::Ω) = tag(ω, (replmap = rv.replmap,))
-maybetag(rv::RandVar, ω::Ω) = ω # tag(ω, (replmap = rv.replmap,))
+# maybetag(rv::ReplaceRandVar, ω::Ω) = tag(ω, (replmap = rv.replmap,))
+# maybetag(rv::RandVar, ω::Ω) = ω # tag(ω, (replmap = rv.replmap,))
 
-apl(rv::ReplaceRandVar, ω::ΩBase) = rv.x(tag(ω, (replmap = rv.replmap,)))
-ppapl(rv::ReplaceRandVar, ωpi) = rv.x(ωpi)
+# apl(rv::ReplaceRandVar, ω::ΩBase) = rv.x(tag(ω, (replmap = rv.replmap,)))
+# ppapl(rv::ReplaceRandVar, ωpi) = rv.x(ωpi)
 
 ## Conversion
 mcv(x::RandVar) = x
@@ -53,6 +48,5 @@ Base.replace(x::RandVar, replmap::Dict{Int, <: RandVar}) = ReplaceRandVar(x, rep
 Base.replace(x::RandVar, tochange::Union{Dict, Pair}...) = replace(x, upconv(tochange...))
 
 ## Show
-
 Base.show(io::IO, rv::ReplaceRandVar) = 
   (print(io, rv.x); print(io, " | intervened "))

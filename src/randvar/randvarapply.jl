@@ -1,4 +1,4 @@
-# Random Variable Application
+# Random Variable Application #
 
 "Post-projection application"
 function ppapl end
@@ -46,8 +46,14 @@ proj(tω::TaggedΩ, x::RandVar) = tag(proj(tω.taggedω, x), tω.tags)
 @inline apl(rv::RandVar, tω::TaggedΩ{I, T, ΩT}) where {I, T, ΩT <: ΩProj}  =
   rv(TaggedΩ(parentω(tω.taggedω), tω.tags))
 
-# Shell
-proj(sω::Space.ShellΩ, rv::RandVar) = shell(proj(sω.ω, rv), sω)
-Space.parentω(sπω::Space.ShellΩ{I, <: ΩProj}) where I = shell(parentω(sπω.ω), sπω)
-@inline apl(rv::RandVar, sπω::Space.ShellΩ{I, <: ΩProj}) where I = apl(rv, parentω(sπω))
-@inline apl(rv::RandVar, sω::Space.ShellΩ{I, <: ΩBase}) where I =  ppapl(rv, proj(sω, rv))
+# Generated funtion for typed dispatch on different tags (might be unnecssary)
+@generated function apl(rv::RandVar, tω::TaggedΩ{I, Tags{K, V}, ΩT}) where {I, K, V, ΩT <: ΩBase}
+  if hastags(tω, :replmap)
+    :(replaceapl(rv, tω))
+  elseif hastags(tω, :cache)
+    :(memapl(rv, tω))
+  else
+    :(ppapl(rv, proj(tω, rv)))
+  end
+end
+ 

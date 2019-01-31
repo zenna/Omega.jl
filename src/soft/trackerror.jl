@@ -1,30 +1,28 @@
-import Omega.Space: ShellΩ, shell
+# # No Tracking
 
-# No Tracking
+# "Ignore all `cond` statements"
+# struct IgnoreCondΩ{I, ΩT} <: ShellΩ{I, ΩT}
+#   ω::ΩT
+#   IgnoreCondΩ(ω::ΩT) where {I, ΩT <: Ω{I}} = new{I, ΩT}(ω)
+# end
+# Omega.shell(ω, ::IgnoreCondΩ) = IgnoreCondΩ(ω)
 
-"Ignore all `cond` statements"
-struct IgnoreCondΩ{I, ΩT} <: ShellΩ{I, ΩT}
-  ω::ΩT
-  IgnoreCondΩ(ω::ΩT) where {I, ΩT <: Ω{I}} = new{I, ΩT}(ω)
-end
-Omega.shell(ω, ::IgnoreCondΩ) = IgnoreCondΩ(ω)
+# condf(ω::IgnoreCondΩ, x, y) = x(ω)
 
-condf(ω::IgnoreCondΩ, x, y) = x(ω)
+# "Is `ω` in the domain of `x`?"
+# applynotrackerr(x, ω) = x(IgnoreCondΩ(ω))
 
-"Is `ω` in the domain of `x`?"
-applynotrackerr(x, ω) = x(IgnoreCondΩ(ω))
+# # Tracking
+# "Omega which keeps track of error `err`"
+# struct ErrΩ{I, ΩT, SB <: AbstractSoftBool} <: ShellΩ{I, ΩT}
+#   ω::ΩT
+#   err::Base.RefValue{SB}
+#   ErrΩ(ω::ΩT, sb::SB) where {I, ΩT <: Ω{I}, SB} = new{I, ΩT, SB}(ω, Ref(sb))
+#   ErrΩ(ω::ΩT, sb::Base.RefValue{SB}) where {I, ΩT <: Ω{I}, SB} = new{I, ΩT, SB}(ω, sb)
+# end
 
-# Tracking
-"Omega which keeps track of error `err`"
-struct ErrΩ{I, ΩT, SB <: AbstractSoftBool} <: ShellΩ{I, ΩT}
-  ω::ΩT
-  err::Base.RefValue{SB}
-  ErrΩ(ω::ΩT, sb::SB) where {I, ΩT <: Ω{I}, SB} = new{I, ΩT, SB}(ω, Ref(sb))
-  ErrΩ(ω::ΩT, sb::Base.RefValue{SB}) where {I, ΩT <: Ω{I}, SB} = new{I, ΩT, SB}(ω, sb)
-end
-
-using ZenUtils
-Omega.shell(ω, eω::ErrΩ) = ErrΩ(ω, eω.err)
+# using ZenUtils
+# Omega.shell(ω, eω::ErrΩ) = ErrΩ(ω, eω.err)
 
 # # General Wrapping
 # proj(eω::ErrΩ, rv::RandVar) = ErrΩ(proj(eω.ω, rv), eω.err)
@@ -44,28 +42,31 @@ Omega.shell(ω, eω::ErrΩ) = ErrΩ(ω, eω.err)
 
 # @inline rng(eω::ErrΩ) = rng(eω.ω)
 
-function condf(eω::ErrΩ, x, y)
-  res = y(eω)
-  conjoinerror!(eω, res)
-  x(eω)
-end
+# function condf(eω::ErrΩ, x, y)
+#   res = y(eω)
+#   conjoinerror!(eω, res)
+#   x(eω)
+# end
 
-cond(eω::ErrΩ, bool) = conjoinerror!(eω, bool)
-conjoinerror!(eω::ErrΩ, b) = eω.err[] &= b
+# cond(eω::ErrΩ, bool) = conjoinerror!(eω, bool)
+conjoinerror!(err::Ref{<:AbstractBool}, b) = err[] &= b
 
 "Is `ω` in the domain of `x`?"
 function applytrackerr(x, ω, errinit = softtrue())
-  ω_ = ErrΩ(ω, errinit)
+  ω_ = tagerror(ω, errinit)
   fx = apl(x, ω_)
-  (fx = fx, err = ω_.err)
+  (fx = fx, err = ω_.tags.err.x)
 end
 
+tagnotrackerr(ω) = tag(ω, (donttrack = true,))
+applynotrackerr(x, ω) = apl(x, tagnotrackerr(ω))
+
 "Soft `indomain`: distance from `ω` to the domain of `x`"
-indomainₛ(x, ω, errinit = softtrue()) = applytrackerr(x, ω, errinit).err.x
+indomainₛ(x, ω, errinit = softtrue()) = applytrackerr(x, ω, errinit).err
 indomainₛ(x::RandVar) = ciid(ω -> indomainₛ(x, ω))
 
 "Is `ω` in the domain of `x`?"
-indomain(x, ω, errinit = true) = applytrackerr(x, ω, errinit).err.x
+indomain(x, ω, errinit = true) = applytrackerr(x, ω, errinit).err
 indomain(x::RandVar) = ciid(ω -> indomain(x, ω))
 
 
@@ -113,16 +114,14 @@ indomain(x::RandVar) = ciid(ω -> indomain(x, ω))
 # conjoinerror!(wrap::Wrapper{Bool}, yω::Bool) = wrap.elem &= yω
 
 function condf(tω::TaggedΩ, x, y)
-  if haskey(tω.tags, :err)
-    res = y(tω)
-    conjoinerror!(tω.tags.err, res)
-    x(tω)
-  else
+  if !haskey(tω.tags, :donttrack) && haskey(tω.tags, :err)
+    conjoinerror!(tω.tags.err, apl(y, tω))
   end
+  apl(x, tω)
 end
 
 "Tag `ω` with `err`" 
-tagerror(ω, errinit::AbstractSoftBool = softtrue()) = tag(ω, (err = Ref(errinit),))
+tagerror(ω, errinit::AbstractBool = softtrue()) = tag(ω, (err = Ref(errinit),))
 
 # function cond(tω::TaggedΩ, bool)
 #   conjoinerror!(tω.tags.err, bool)

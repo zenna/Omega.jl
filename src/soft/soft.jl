@@ -1,10 +1,12 @@
 abstract type AbstractSoftBool end
+const AbstractBool = Union{AbstractSoftBool, Bool}
 
 include("kernels.jl")        # Kernels
 include("softbool.jl")       # Soft Boolean
 include("dualsoftbool.jl")   # Dual Soft Boolean
 include("distances.jl")      # Standard Distance Functions
 include("trackerror.jl")     # Tracking error
+
 
 # Using Dual Soft Bools
 # const softeq = dsofteq
