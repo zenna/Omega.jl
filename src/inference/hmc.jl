@@ -1,5 +1,5 @@
 "Hamiltonian Monte Carlo Sampling"
-struct HMCAlg <: Algorithm end
+struct HMCAlg <: SamplingAlgorithm end
 
 "Hamiltonian Monte Carlo Sampling"
 const HMC = HMCAlg()
@@ -19,7 +19,7 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
   p = p - stepsize * ∇U(invq) .* jacobian.(q) / 2.0
 
   for i = 1:nsteps
-    cb((q = q, p = p), Inside)
+    cb((q = q, p = p), HMCStep)
 
     # Half step for the position and momentum
     q = q .+ stepsize .* p
@@ -56,11 +56,11 @@ function Base.rand(y::RandVar,
                    stepsize = 0.001,
                    cb = default_cbs(n)) where {OT <: Ω}
   ω = ΩT()
-  indomain(y, ω) # Initialize omega
+  indomainₛ(y, ω) # Initialize omega
   ωvec = linearize(ω)
 
   ωsamples = ΩT[]
-  U(ω) = -logepsilon(indomain(y, ω))
+  U(ω) = -logerr(indomainₛ(y, ω))
   U(ωvec::Vector) = U(unlinearize(ωvec, ω))
   ∇U(ωvec) = gradient(y, ω, ωvec)
 
@@ -72,7 +72,7 @@ function Base.rand(y::RandVar,
     if wasaccepted
       accepted += 1
     end
-    cb((ω = ω_, accepted = accepted, p = p_, i = i), Outside)
+    cb((ω = ω_, accepted = accepted, p = p_, i = i), IterEnd)
   end
-  [applywoerror(y, ω_) for ω_ in ωsamples]
+  [applynotrackerr(y, ω_) for ω_ in ωsamples]
 end

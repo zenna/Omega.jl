@@ -4,9 +4,9 @@ using Flux
 "Gradient ∇Y()"
 function gradient(y::RandVar, ω::Ω, vals = linearize(ω))
   # y(ω)
-  indomain(y, ω)
+  indomainₛ(y, ω)
   function unpackcall(xs)
-    -logepsilon(indomain(y, unlinearize(xs, ω)))
+    -logerr(indomainₛ(y, unlinearize(xs, ω)))
   end
   ForwardDiff.gradient(unpackcall, vals)
 end
@@ -16,7 +16,7 @@ function gradient(y::RandVar, sω::SimpleΩ{I, V}, vals) where {I, V <: Abstract
   sω = unlinearize(vals, sω)
   sωtracked = SimpleΩ(Dict(i => param(v) for (i, v) in sω.vals))
   # @grab vals
-  l = -epsilon(y(sωtracked))
+  l = -err(y(sωtracked))
   # @grab sωtracked
   # @grab y
   # @grab l
@@ -36,7 +36,10 @@ function gradient(y::RandVar, sω::SimpleΩ{I, V}, vals) where {I, V <: Abstract
   linearize(sω_)
 end
 
-function fluxgradient(y::RandVar, sω::SimpleΩ{I, V}) where {I, V <: AbstractArray}
-  l = -logepsilon(indomain(y, sω))
+struct FluxGradAlg end
+const FluxGrad = FluxGradAlg()
+
+function gradient(::FluxGradAlg, U, sω::SimpleΩ{I, V}) where {I, V <: AbstractArray}
+  l = U(sω)
   Flux.back!(l)
 end

@@ -18,12 +18,6 @@ SimpleΩ{I, V}() where {I, V} = SimpleΩ{I, V}(Dict{I, V}())
 Base.values(sω::SimpleΩ) = values(sω.vals)
 Base.keys(sω::SimpleΩ) = keys(sω.vals)
 
-# For Type Inference when V is Any
-randrtype(::Type{T}) where T = T
-randrtype(::Type{Float64}) = Float64
-randrtype(::UnitRange{T}) where T = T
-randrtype(::Array{T}) where T = T
-
 function Base.setindex!(sω::SimpleΩ{I,V}, v::V, i::I) where {I, V}
   sω.vals[i] = v
 end

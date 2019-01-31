@@ -2,9 +2,14 @@
 "A Library for Causal and Higher-Order Probabilistic Programming"
 module Omega
 
+t = 3
+
 using Flux
+import ForwardDiff
 using Spec
 using UnicodePlots
+using DocStringExtensions: FIELDS, SIGNATURES, TYPEDEF
+using Cassette  
 
 import Random
 import Random: GLOBAL_RNG, AbstractRNG
@@ -18,7 +23,7 @@ export ntranspose
 # Core
 include("space/Space.jl")         # UIDs
 using .Space
-export Ω, uid, @id, SimpleΩ
+export Ω, uid, @id, SimpleΩ, LinearΩ
 
 # RandVar
 include("randvar/randvar.jl" )            # Random variables
@@ -46,21 +51,18 @@ include("lift/lift.jl")
 export @lift, lift
 
 # Soft Inference
-include("soft/kernels.jl")        # Kernels
-include("soft/soft.jl")           # Soft logic
-include("soft/trackerror.jl")     # Tracking error
+include("soft/soft.jl")           # Soft Booleans / logic
 export  SoftBool,
         softeq,
         softlt,
         softgt,
-        ≊,
-        ⪆,
-        ⪅,
         >ₛ,
         >=ₛ,
         <=ₛ,
         <ₛ,
         ==ₛ,
+        err,
+        logerr,
 
         # Kernels
         kse,
@@ -68,10 +70,12 @@ export  SoftBool,
         kf1,
         kf1β,
         withkernel,
+        atα,
+        @atα,
 
-        indomain,
-        applywoerror,
-        trackerrorapply
+        indomainₛ,
+        applynotrackerr,
+        applytrackerr
 
 # Gradient
 include("gradient.jl")
@@ -83,33 +87,32 @@ using .Inference
 export  isapproximate,
 
         RejectionSample,
-        MI,
         SSMH,
         HMC,
         # SGHMC,
         HMCFAST,
+        Relandscape,
+        Replica,
 
         RejectionSampleAlg,
-        MIAlg,
         SSMHAlg,
         HMCAlg,
         # SGHMCAlg,
         HMCFASTAlg,
+        RelandscapeAlg,
+        ReplicaAlg,
+        NUTS,
+        NUTSAlg,
 
         defalg,
         defcb,
         defΩ,
         defΩProj,
 
-        everyn,
-        →,
-        idcb,
-        throttle,
         plotrv,
         plotscalar,
         default_cbs,
-        Inside,
-        Outside,
+        HMCStep,
         default_cbs_tpl,
         default_cbs
 
@@ -186,5 +189,12 @@ export  lsuccprob,
 # Neural Network Stuff
 include("flux.jl")
 export Dense
+
+# Memoize
+include("memoize.jl")
+
+# Memoize
+include("scaling.jl")
+
 
 end

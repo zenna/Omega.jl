@@ -32,13 +32,13 @@ julia> rand((x1, x1))
 ```
 
 ### Composition
-Statistical style is convenient because it allows us to treat a `RandVar{T}` as if it is a value of type `T`.  For instance the `typeof(uniform(0.0, 1.0))` is `RandVar{Float64}`.  Using the statistical style, we can add, multiply, divide them as if they were values of type `Float64`.
+Statistical style is convenient because it allows us to treat a `RandVar` which returns values of type `T` (its `elemtype`) as if it is a value of type `T`.  For instance the `elemtype(uniform(0.0, 1.0))` is `Float64`.  Using the statistical style, we can add, multiply, divide them as if they were values of type `Float64`.
 
 ```julia
 x3 = x1 + x2
 ```
 
-Note `x3` is a `RandVar{Float64}` like `x1` and `x2`
+Note `x3` is a `RandVar` like `x1` and `x2`
 
 This includes inequalities:
 
@@ -46,15 +46,14 @@ This includes inequalities:
 p = x3 > 1.0
 ```
 
-`p` is of type `RandVar{Bool}`
+`elemtype(p)` is `Bool`
 
 ```julia
 julia> rand(p)
 false
 ```
 
-
-A particularly useful case is that primitive distributions which take parameters of type `T`, also accept `RandVar{T}`
+A particularly useful case is that primitive distributions which take parameters of type `T`, also accept `RandVar` with `elemtype` `T`
 
 ```julia
 n = normal(x3, 1.0)
@@ -104,7 +103,7 @@ One way to do this (we discuss others in [conditonalindependence]) is using `cii
 x = ciid(x_)
 ```
 
-All of the primitive distributions can be used in explicit style by passing the `rng` object as the first parameter (type constraints are added just to show that the return values are not random variables but elements): 
+All of the primitive distributions can be used in explicit style by passing the `rng` object as the first parameter (type constraints are added just to show that the return values are not random variables but elements.  But don't do this! It will prevent automatic differentiation based inference procedures from working): 
 
 ```julia
 function x_(rng)

@@ -1,5 +1,5 @@
 "Flux based Hamiltonian Monte Carlo Sampling"
-struct HMCFASTAlg <: Algorithm end
+struct HMCFASTAlg <: SamplingAlgorithm end
 
 "Flux based Hamiltonian Monte Carlo Sampling"
 const HMCFAST = HMCFASTAlg()
@@ -11,7 +11,7 @@ defcb(::HMCFASTAlg) = default_cbs()
 
 """Hamiltonian monte carlo with leapfrog integration:
 https://arxiv.org/pdf/1206.1901.pdf"""
-function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsize, cb)
+function hmcfast(rng, U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsize, cb)
   # Initialise proposal as unbounded of current state
   foreach(qvals, prop_qvals) do q, prop_q @. prop_q = (q) end
 
@@ -22,7 +22,7 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
   current_K =  sum(map(p->sum(p.^2), pvals)) / 2.0
   ∇qvals = [x.grad for x in values(prop_ω)]
   function ∇step()
-    foreach(∇qvals) do ∇q @. ∇q = 0 end  #reset gradients
+    foreach(∇qvals) do ∇q @. ∇q = 0 end  # reset gradients
     ∇U(prop_ω)  # Gradient step
   end
   
@@ -35,7 +35,7 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
   pvals, ∇qvals, prop_qvals)
   
   for i = 1:nsteps
-    cb((q = prop_qvals, p = pvals), Inside)
+    cb((q = prop_qvals, p = pvals), HMCStep)
     # @show prop_qvals
     # Half step p and q
     # @show prop_qvals 
@@ -66,7 +66,7 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
 
   #@show current_U, proposed_U, current_K, proposed_K
   # Accept or reject
-  if log(rand()) < current_U - proposed_U + current_K - proposed_K
+  if log(rand(rng)) < current_U - proposed_U + current_K - proposed_K
     (proposed_U, true)
   else
     (current_U, false)
@@ -74,16 +74,20 @@ function hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
 end
 
 "Sample from `x | y == true` with Hamiltonian Monte Carlo"
-function Base.rand(y::RandVar,
+function Base.rand(rng::AbstractRNG,
+                   ΩT::Type{OT},
+                   logdensity::RandVar,
                    n::Integer,
-                   alg::HMCFASTAlg,
-                   ΩT::Type{OT};
+                   alg::HMCFASTAlg;
                    takeevery = 1,
                    nsteps = 10,
                    cb = default_cbs(n * takeevery),
-                   stepsize = 0.001) where {OT <: Ω}
-  ω = ΩT()        # Current Ω state of chain
-  indomain(y, ω)  # Initialize omega
+                   stepsize = 0.001,
+                   ωinit = ΩT(),
+                   gradalg = Omega.FluxGrad,
+                   offset = 0) where {OT <: Ω}
+  ω = ωinit # Current Ω state of chain
+  logdensity(ω)  # Initialize omega
   qvals = [x.data for x in values(ω)]   # Values as a vector
 
   prop_ω = deepcopy(ω)                          # Ω proposal
@@ -93,12 +97,12 @@ function Base.rand(y::RandVar,
   pvals = [x.data for x in values(p)] # as vector
   
   ωsamples = ΩT[] 
-  U(ω) = -logepsilon(indomain(y, ω))
-  ∇U(ω) = fluxgradient(y, ω)
+  U = -logdensity
+  ∇U(ω) = gradient(gradalg, U, ω)
 
   accepted = 0
   for i = 1:n*takeevery
-    p_, wasaccepted = hmcfast(U, ∇U, qvals, prop_qvals, pvals, ω,
+    p_, wasaccepted = hmcfast(rng, U, ∇U, qvals, prop_qvals, pvals, ω,
                           prop_ω, nsteps, stepsize, cb)
     if wasaccepted
       i % takeevery == 0 && push!(ωsamples, deepcopy(prop_ω))
@@ -108,7 +112,7 @@ function Base.rand(y::RandVar,
       # QVALS need to reflect
       i % takeevery == 0 && push!(ωsamples, deepcopy(ω))
     end
-    cb((ω = prop_ω, accepted = accepted, p = Flux.data(p_), i = i), Outside)
+    cb((ω = prop_ω, accepted = accepted, p = Flux.data(p_), i = i + offset), IterEnd)
   end
-  [applywoerror(y, ω_) for ω_ in ωsamples]
+  ωsamples
 end

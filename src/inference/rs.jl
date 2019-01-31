@@ -1,5 +1,5 @@
 "Rejection Sampling"
-struct RejectionSampleAlg <: Algorithm end
+struct RejectionSampleAlg <: SamplingAlgorithm end
 
 "Rejection Sampling"
 const RejectionSample = RejectionSampleAlg()
@@ -7,25 +7,37 @@ const RejectionSample = RejectionSampleAlg()
 isapproximate(::RejectionSampleAlg) = false
 
 "`n` samples from `x` with rejection sampling"
-function Base.rand(x::RandVar,
+function Base.rand(rng,
+                   ΩT::Type{OT},
+                   pred::RandVar,
                    n::Integer,
-                   alg::RejectionSampleAlg,
-                   ΩT::Type{OT};
-                   cb = donothing) where {OT}
-  samples = []
+                   alg::RejectionSampleAlg;
+                   cb = donothing) where {OT <: Ω}
+  ωsamples = OT[]
   accepted = 0
   i = 1
   while accepted < n
-    ω = ΩT()
-    xω, sat = trackerrorapply(x, ω, Wrapper(true))
-    if sat
-      push!(samples, xω)
+    ω = ΩT() # FIXME, use rng to select random points
+    issat = pred(ω)
+    if issat
+      push!(ωsamples, ω)
       accepted += 1
-      cb((ω = ω, sample = xω, accepted = accepted, p = 0.0, i = i), Outside)
-    else
-      cb((ω = ω, sample = xω, accepted = accepted, p = 1.0, i = i), Outside)
     end
+    cb((ω = ω, accepted = accepted, p = float(issat), i = i), IterEnd)
+    # lens(:loopend, (ω = ω, accepted = accepted, p = float(sat), i = i))
     i += 1
   end
-  [samples...]
+  ωsamples
+end
+    
+function Base.rand(rng::AbstractRNG,
+                   x::RandVar,
+                   n::Integer,
+                   alg::RejectionSampleAlg;
+                   ΩT::Type{OT} = defΩ(alg),
+                   cb = donothing,
+                   memoize = true) where {OT <: Ω}
+  pred = Omega.mem(Omega.indomain(x))
+  ωsamples = rand(rng, ΩT, pred, n, alg; cb = cb)
+  map(Omega.mem(x), ωsamples)
 end

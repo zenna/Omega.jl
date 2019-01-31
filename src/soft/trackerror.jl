@@ -1,37 +1,35 @@
-# Tagged Omega Tracking
+# Issue is that type of err value depends on
+# gradient method used
+# Solutions
+# Specialize: indomain/applytrackerr based on type of Omega
 
-mutable struct Wrapper{T}
-  elem::T
+conjoinerror!(err::Ref{<:Real}, b) = err[] &= b
+
+"Is `ω` in the domain of `x`?"
+function applytrackerr(x, ω, errinit = softtrue())
+  ω_ = tagerror(ω, errinit)
+  fx = apl(x, ω_)
+  (fx = fx, err = ω_.tags.err.x)
 end
 
-SoftBoolWrapper = Wrapper{SoftBool}
+tagnotrackerr(ω) = tag(ω, (donttrack = true,))
+applynotrackerr(x, ω) = apl(x, tagnotrackerr(ω))
 
-conjoinerror!(sbw::SoftBoolWrapper, y::Nothing) = nothing
-conjoinerror!(sbw::SoftBoolWrapper, yω::SoftBool) = sbw.elem &= yω
-conjoinerror!(sbw::SoftBoolWrapper, yω::Bool) = conjoinerror!(sbw, SoftBool(log(yω)))
-conjoinerror!(wrap::Wrapper{Bool}, yω::Bool) = wrap.elem &= yω
+"Soft `indomain`: distance from `ω` to the domain of `x`"
+indomainₛ(x, ω, errinit = softtrue()) = applytrackerr(x, ω, errinit).err
+indomainₛ(x::RandVar) = ciid(ω -> indomainₛ(x, ω))
+
+"Is `ω` in the domain of `x`?"
+indomain(x, ω, errinit = true) = applytrackerr(x, ω, errinit).err
+indomain(x::RandVar) = ciid(ω -> indomain(x, ω))
 
 function condf(tω::TaggedΩ, x, y)
-  res = y(tω)
-  conjoinerror!(tω.tags.tags.err, res)
-  x(tω)
+  if !haskey(tω.tags, :donttrack) && haskey(tω.tags, :err)
+    conjoinerror!(tω.tags.err, apl(y, tω))
+  end
+  apl(x, tω)
 end
 
-function cond(tω::TaggedΩ, bool)
-  conjoinerror!(tω.tags.tags.err, bool)
-end
-
-tagerror(ω, wrap) = tag(ω, (err = wrap,))
-
-"Is `ω` in the domain of `x`?"
-function trackerrorapply(x, ω, wrap = SoftBoolWrapper(trueₛ))
-  ω_ = tagerror(ω, wrap)
-  fx = x(ω_)
-  (fx, ω_.tags.tags.err.elem)
-end
-
-"Is `ω` in the domain of `x`?"
-indomain(x, ω, wrap = SoftBoolWrapper(trueₛ)) = trackerrorapply(x, ω, wrap)[2]
-
-"Is `ω` in the domain of `x`?"
-applywoerror(x, ω, wrap = SoftBoolWrapper(trueₛ)) = x(tagerror(ω, wrap))
+"Tag `ω` with `err`" 
+# tagerror(ω, errinit::AbstractBool) = tag(ω, (err = Ref(errinit),)) #FIXME UNCOMMENT THIS AND SPECIALISE BELOW TO OMEGA
+tagerror(ω, errinit::AbstractBool) = tag(ω, (err = Ref{Real}(errinit),))

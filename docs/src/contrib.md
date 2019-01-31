@@ -45,12 +45,12 @@ function Base.rand(ΩT::Type{OT}, y::RandVar, alg::Type{MyRejectionSample};
   i = 1
   while accepted < n
     ω = ΩT()
-    if epsilon(y(ω)) == 1.0
+    if err(y(ω)) == 1.0
       push!(samples, ω)
       accepted += 1
-      cb(RunData(ω, accepted, 0.0, accepted), Outside)
+      cb(RunData(ω, accepted, 0.0, accepted), IterEnd)
     else
-      cb(RunData(ω, accepted, 1.0, i), Outside)
+      cb(RunData(ω, accepted, 1.0, i), IterEnd)
     end
     i += 1
   end

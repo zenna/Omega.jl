@@ -1,49 +1,57 @@
-"Single Site Metropolis Hastings"
-struct SSMHAlg <: Algorithm end
-
+struct SSMHAlg <: SamplingAlgorithm end
 "Single Site Metropolis Hastings"
 const SSMH = SSMHAlg()
-defcb(::SSMHAlg) = default_cbs()
-
 isapproximate(::SSMHAlg) = true
 
-function update_random(sω::SO)  where {SO <: SimpleΩ}
-  k = rand(1:length(sω))
-  filtered = Iterators.filter(sω.vals |> keys |> enumerate) do x
-    x[1] != k end
-  SO(Dict(k => sω.vals[k] for (i, k) in filtered))
-end
+# defΩ(::SSMH) = SimpleΩ{Vector{Int}, Float64}
 
-"Sample from `x | y == true` with Single Site Metropolis Hasting"
-function Base.rand(x::RandVar,
+normalkernel(rng, x, σ = 0.1) = inv_transform(transform(x) + σ * randn(rng))
+normalkernel(rng, x::Array, σ = 0.1) = normalkernel.(x, σ)
+
+"Metropolized Independent sample"
+mi(rng, x::T) where T = rand(rng, T)
+
+"Changes a uniformly chosen single site with kernel"
+swapsinglesite(rng, ω, kernel = x -> mi(rng, x)) =
+  update(ω, rand(1:nelem(ω)), kernel)
+
+"""
+Sample from `ω::Ω` conditioned on any constraints its conditioned on.
+
+$(SIGNATURES)
+
+# Arguments
+- `x`: Real valued random variable
+- `n`: Number of samples
+- `logdensity`:  τ-valued `RandVar` s.t. logerr(τ) is defined
+- `propsal`: function ω::Omega -> ω::Omega
+- `ωinit`: Initial omega to start chain from
+"""
+function Base.rand(rng,
+                   ΩT::Type{OT},
+                   logdensity::RandVar,
                    n::Integer,
-                   alg::SSMHAlg,
-                   ΩT::Type{OT};
+                   alg::SSMHAlg;
+                   proposal = swapsinglesite,
                    cb = donothing,
-                   hack = true) where {OT <: Ω}
-  ω = ΩT()
-  xω, sb = trackerrorapply(x, ω)
-  plast = logepsilon(sb)
+                   ωinit = ΩT(),
+                   offset = 0) where {OT <: Ω}
+  ω = ωinit
+  plast = logdensity(ω)
   qlast = 1.0
-  samples = []
+  ωsamples = OT[]
   accepted = 0
   for i = 1:n
-    ω_ = if isempty(ω)
-      ω
-    else
-      update_random(ω)
-    end
-    xω_, sb = trackerrorapply(x, ω_)
-    p_ = logepsilon(sb)
+    ω_ = isempty(ω) ? ω : proposal(rng, ω)
+    p_ = logdensity(ω_)
     ratio = p_ - plast
-    if log(rand()) < ratio
+    if log(rand(rng)) < ratio
       ω = ω_
       plast = p_
       accepted += 1
-      xω = xω_
     end
-    push!(samples, xω)
-    cb((ω = ω, sample = xω, accepted = accepted, p = plast, i = i), Outside)
+    push!(ωsamples, deepcopy(ω))
+    cb((ω = ω, accepted = accepted, p = plast, i = i + offset), IterEnd)
   end
-  [samples...]
+  ωsamples
 end
