@@ -26,34 +26,34 @@ function Base.:(==)(sω1::SimpleΩ{I,V}, sω2::SimpleΩ{I,V}) where {I, V}
   sω1.vals == sω2.vals
 end
 
-# Resolve
+# memrand
 
-@inline function resolve(ω::SimpleΩ{I, Any}, id::I, T) where {I}
+@inline function memrand(ω::SimpleΩ{I, Any}, id::I, T) where {I}
   get!(()->rand(GLOBAL_RNG, T), ω.vals, id)::randrtype(T)
 end
 
-@inline function resolve(ω::SimpleΩ{I, Any}, id::I, ::Type{T}, dims::NTuple{N, Int}) where {I, T, N}
+@inline function memrand(ω::SimpleΩ{I, Any}, id::I, ::Type{T}, dims::NTuple{N, Int}) where {I, T, N}
   get!(()->rand(GLOBAL_RNG, T, dims), ω.vals, id)::Array{randrtype(T), N}
 end
 
-@inline function resolve(ω::SimpleΩ{I}, id::I, T) where {I}
+@inline function memrand(ω::SimpleΩ{I}, id::I, T) where {I}
   get!(()->rand(GLOBAL_RNG, T), ω.vals, id)
 end
 
-@inline function resolve(ω::SimpleΩ{I}, id::I, ::Type{T}, dims::NTuple{N, Int}) where {I, T, N}
+@inline function memrand(ω::SimpleΩ{I}, id::I, ::Type{T}, dims::NTuple{N, Int}) where {I, T, N}
   get!(()->rand(GLOBAL_RNG, T, dims), ω.vals, id)
 end
 
-@inline function resolve(ωπ::SimpleΩ{I, A}, ::Type{T}) where {T, I, A<:AbstractArray}
+@inline function memrand(ωπ::SimpleΩ{I, A}, ::Type{T}) where {T, I, A<:AbstractArray}
   val = get!(()->[rand(GLOBAL_RNG, T)], ωπ.ω.vals, ωπ.id)
   first(val)
 end
 
-@inline function resolve(ω::SimpleΩ{I, A}, id::I, ::Type{T},  dims::Dims) where {T, I, A<:Flux.TrackedArray}
+@inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T},  dims::Dims) where {T, I, A<:Flux.TrackedArray}
   get!(()->Flux.param(rand(GLOBAL_RNG, T, dims)), ω.vals, id)
 end
 
-@inline function resolve(ω::SimpleΩ{I, A}, id::I, ::Type{T}) where {T, I, A<:Flux.TrackedArray}
+@inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T}) where {T, I, A<:Flux.TrackedArray}
   val = get!(()->Flux.param([rand(GLOBAL_RNG, T)]), ω.vals, id)
   first(val)
 end

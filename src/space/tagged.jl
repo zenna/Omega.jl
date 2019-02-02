@@ -20,10 +20,11 @@ tag(tω::TaggedΩ, tag_::Tags) = TaggedΩ(tω.taggedω, merge(combinetag, tag_, 
 
 # Pass-throughs (tω::TaggedΩ should work like its tω.taggedω, but preserve tags)
 
-Base.getindex(tω::TaggedΩ, i) = TaggedΩ(getindex(tω.taggedω, i), tω.tags)
-Base.rand(tω::TaggedΩ, args...) = rand(tω.taggedω, args...)
-Base.rand(tω::TaggedΩ, dims::Integer...) = rand(tω.taggedω, dims...)
-Base.rand(tω::TaggedΩ, dims::Dims) = rand(tω.taggedω, dims)
-Base.rand(tω::TaggedΩ, arr::Array) = rand(tω.taggedω, arr)
+@inline Base.getindex(tω::TaggedΩ, i) = TaggedΩ(getindex(tω.taggedω, i), tω.tags)
+# Base.rand(tω::TaggedΩ, args...) = rand(tω.taggedω, args...; rng = rng(tω))
 
-parentω(tω::TaggedΩ) = TaggedΩ(parentω(tω), tω.tags)
+@inline Base.rand(tω::TaggedΩ) = rand(tω.taggedω; rng = rng(tω))
+@inline Base.rand(tω::TaggedΩ, dim::Integer, dims::Integer...) = rand(tω.taggedω, dim, dims...; rng = rng(tω))
+@inline Base.rand(tω::TaggedΩ, dims::Dims) = rand(tω.taggedω, dims; rng = rng(tω))
+@inline Base.rand(tω::TaggedΩ, arr::Array) = rand(tω.taggedω, arr; rng = rng(tω))
+@inline parentω(tω::TaggedΩ) = TaggedΩ(parentω(tω), tω.tags)

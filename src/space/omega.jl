@@ -11,7 +11,7 @@ idtype(::Type{OT}) where {I, OT <: Ω{I}} = I
 # * Base.isempty
 # * Base.merge! ( -- currently unused)
 # ? others
-function resolve end
+function memrand end
 
 "Linearize ω into flat vector"
 function linearize end

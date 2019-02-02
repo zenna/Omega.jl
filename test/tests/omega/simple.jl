@@ -8,7 +8,7 @@ using TestLib.Omega.Space
 using Omega
 using Omega.Space
 
-@testset "Simple.resolve" begin
+@testset "Simple.memrand" begin
   ω = SimpleΩ()
   startIdx = Omega.Space.base(Vector{Int},0)
   nextIdx = increment
@@ -18,7 +18,7 @@ using Omega.Space
   ω = SimpleΩ{Vector{Int}, Bool}()
   @test test_resolve_uniform(ω, startIdx, nextIdx)
 
-  #TODO: Add tests for the other variants of resolve
+  #TODO: Add tests for the other variants of memrand
 end
 
 idx(i::Int) = base(Vector{Int}, i)

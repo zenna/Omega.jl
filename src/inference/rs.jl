@@ -18,7 +18,7 @@ function Base.rand(rng,
   i = 1
   while accepted < n
     ω = ΩT() # FIXME, use rng to select random points
-    issat = pred(ω)
+    issat = pred(Omega.Space.tagrng(ω, rng))
     if issat
       push!(ωsamples, ω)
       accepted += 1

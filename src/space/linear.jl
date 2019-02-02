@@ -1,68 +1,87 @@
+# zt: should Liner Omega be default?
 """
-LinearΩ: Stores Data in Linear Vector
+LinearΩ: Stores data in single `Vector{V}`
 
-# Properties
+`lω[i] = lω.ωvec[lω.ids[i]]`
+
 - No overhead for linearization / delinearization
 - Good for optimization / inference methods which require linear interface
+- If heterogenous elements are used, must convert (which can be slow)
 """
-struct LinearΩ{I, AB, V} <: ΩBase{I}
-  ids::Dict{I, AB}
+struct LinearΩ{I, SEG, V} <: ΩBase{I}
+  ids::Dict{I, SEG} # Map from Ω index I to segment of omvec
   ωvec::Vector{V}
 end
 
-# function Base.rand(rng::AbstractRNG, ::Type{LT}) where {LT <: LinearΩ}
-# end
+"$(SIGNATURES) Empty `LinearΩ`"
+LinearΩ{I, SEG, V}() where {I, SEG, V} = LinearΩ{I, SEG, V}(Dict{I, V}(), V[])
 
-# Option 1, embed it  
-# Base.rand(rng, ΩT::Type{OT}) where OT = LinearΩ
-
-LinearΩ() = LinearΩ{Vector{Int}, Segment, Float64}(Dict{Vector{Int}, Segment}(), Float64[])
-LinearΩ{I, AB, V}() where {I, AB, V} = LinearΩ{I, AB, V}(Dict{I, V}(), V[])
-
+"$(SIGNATURES) Number of components of `lω`"
 nelem(lω::LinearΩ) = length(lω.ωvec)
 
-"Array of a linear array"
-struct Segment
-  startidx::Int
-  shape::Dims
+# zt: clarify docstring
+"""Represents a segment (i.e. SubVector) of a `lω.ωvec` where `lω::LinearΩ`
+`lω.ωvec[seg.startidx:seg.startidx + prod(seg.shape) - 1]`"""
+struct Segment{D <: Dims}
+  startidx::Int # 
+  shape::D
 end
 
+length(seg::Segment) = prod(seg.shape) # Fixme: Store this ?
+
+"Number of elements of "
 nelem(seg::Segment) = prod(seg.shape)
+
+function segment(lω, seg::Int, RT)
+
+end
+
+"Segment of `lω.ωvec` indicated by `seg`"
+segment(lω, seg::Segment) = lω.ωvec[seg.startidx:seg.startidx+ nelem(seg)-1]
+
+function addsegment!(lω, ωvec, id)
+  startidx = length(lω.ωvec) + 1
+  append!(lω.ωvec, ωvec)
+  lω.ids[id] = Segment(startidx, dims)
+end
 
 "lb:ub indices of ωvec subsumed by segment"
 segrange(seg::Segment) = seg.startidx:seg.startidx+nelem(seg) - 1
 
 linearize(lω::LinearΩ) = lω.ωvec
-unlinearize(ωvec, lω::LinearΩ{I, AB, V}) where {I, AB, V}  = LinearΩ{I, AB, V}(lω.ids, ωvec)
+unlinearize(ωvec, lω::LinearΩ{I, SEG, V}) where {I, SEG, V}  = LinearΩ{I, SEG, V}(lω.ids, ωvec)
 
 flat(rv, ω::T) where T <: LinearΩ = floatvec -> rv(T(ω.ids, floatvec))
 
-"Sample a key"
-randunifkey(lω::LinearΩ) = rand(keys(lω.ids))
-
+# zt: renamed this? Wanted to distinguish getting ith Omega value from
+# projection. Maybe projection shouldnt overload getindex?
 getdim(lω, i) = lω.ωvec[i]
 
 "Apply `kernel` to ith component" 
-function update(lω::LinearΩ, i::Int, kernel::Function)
+function update(lω::LinearΩ, i::Int, kernel::Function) # zt: use name other than kernel
+  # zt: `kernel` Might be a callable
+  # zt: isn't there a more efficient version which just copies ωvec?
   lω_ = deepcopy(lω)
   lω_.ωvec[i] = kernel(lω_.ωvec[i])
   lω_
 end
 
 function update(lω::LinearΩ, i::Int, val)
+  # This update != previous update, dont pun!
   lω_ = deepcopy(lω)
   lω_.ωvec[i] = val
   lω_
 end
 
-function randrtype(::Type{T}, lω::LinearΩ{I, AB, V}) where {T, I, AB, V}
+# zt: docstring!
+function randrtype(::Type{T}, lω::LinearΩ{I, SEG, V}) where {T, I, SEG, V}
   # @show V
   # @show T
   # @assert false
   T
 end
 
-function randrtype(::Type{T}, lω::LinearΩ{I, AB, <:ForwardDiff.Dual}) where {T, I, AB}
+function randrtype(::Type{T}, lω::LinearΩ{I, SEG, <:ForwardDiff.Dual}) where {T, I, SEG}
   # # That's teh nuts and bolts of it.
   # # @assert false
   # #   
@@ -71,21 +90,44 @@ function randrtype(::Type{T}, lω::LinearΩ{I, AB, <:ForwardDiff.Dual}) where {T
   ForwardDiff.Dual
 end
 
+# zt: is this a puN? Maybe not?
 Base.values(lω::LinearΩ) = [lω.ωvec]
 
-# Resolve
-function resolve(lω::LinearΩ{I, Int, V}, id::I, T) where {I, V}
-  if id in keys(lω.ids)
-    lω.ωvec[lω.ids[id]]::randrtype(T, lω)
-  else
-    val = rand(GLOBAL_RNG, T)
+Random.gentype(typeof(1:10))
+
+# There's a design decision.
+# If I intercept rand, then I'll need to intercept all combinations
+# Including randn, etc, etc
+
+# OTOH we can then the omega pass all the way through
+# But if we do that then (i) we need to leave the tags on
+# And it's lower then that what we probably want in most cases.
+
+# So I shoudl do both!
+
+memrand(lωπ::ΩProj{I, <:LinearΩ}, dims::Integer...) where I = memrand(lωπ, Float64, Dims(dims))
+memrand(lωπ::ΩProj{I, <:LinearΩ}, X, dims::Dims) where I  = rand!(lωπ, Array{Random.gentype(X)}(undef, dims), X)
+memrand(lωπ::ΩProj{I, <:LinearΩ}, X, d::Integer, dims::Integer...) where I = memrand(lωπ, X, Dims((d, dims...)))  
+
+# Hypothetical solution
+function memrand(lωπ::ΩProj{I, <:LinearΩ}, T, dims::Integer; rng) where {I, V}
+  # @pre do we expect the id to be in 
+  lω, id  = lωπ.ω, lωπ.id
+  seg = get(lω.ids, id, 0)
+  if seg == 0
+    res = rand(rng, T)
     push!(lω.ωvec, val)
     lω.ids[id] = length(lω.ωvec) # Store length explicitly?
-    val
+    res
+  else
+    val::randrtype(T, lω)
   end
 end
 
-function resolve(lω::LinearΩ{I, Segment, V}, id::I, T, dims::Dims{N}) where {N, I, V}
+
+
+
+function memrand(lω::LinearΩ{I, Segment, V}, id::I, T, dims::Dims{N}; rng) where {N, I, V}
   if id in keys(lω.ids)
     seg = lω.ids[id]
     n = prod(seg.shape) # Fixme: Store this?
@@ -94,7 +136,8 @@ function resolve(lω::LinearΩ{I, Segment, V}, id::I, T, dims::Dims{N}) where {N
     b
   else
     n = prod(dims)
-    ωvec = rand(GLOBAL_RNG, T, dims)#::Array{randrtype(T, lω), N}
+    ωvec = rand(rng, T, dims)#::Array{randrtype(T, lω), N}
+    addsegment!()
     # @show typeof(ωvec)
     # @show V
     startidx = length(lω.ωvec) + 1
@@ -105,7 +148,7 @@ function resolve(lω::LinearΩ{I, Segment, V}, id::I, T, dims::Dims{N}) where {N
   end
 end
 
-function resolve(lω::LinearΩ{I, Segment, V}, id::I, T) where {I, V}
+function memrand(lω::LinearΩ{I, Segment, V}, id::I, T) where {I, V}
   if id in keys(lω.ids)
     seg = lω.ids[id]
     lω.ωvec[seg.startidx]::randrtype(T, lω)

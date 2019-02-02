@@ -2,7 +2,7 @@
 
 Conceptually if ω::Ω represents the unit hypercube id -> [0, 1], an ωπ::ΩProj
 represets the element `ω(id)`.  However:
-- The application is lazy to actually get element in `[0, 1]`, we use `resolve`
+- The application is lazy to actually get element in `[0, 1]`, we use `memrand`
 - The application is lazy and can be 'undone', ω can be recovered with parentω(ωπ)
 - ΩProj supports rand which (i) resolves ωπ at its index, (ii) increments the id
 """
@@ -14,37 +14,57 @@ end
 increment!(ωπ::ΩProj) = ωπ.id = increment(ωπ.id)
 parentω(ωπ::ΩProj) = ωπ.ω
 
-"Resolve ωπ::ΩProj to a concrete value"
-function resolve end
+"memrand ωπ::ΩProj to a concrete value"
+function memrand end
 
-@spec rand(ωπ::ΩProj, args...) _res == resolve(_pre(ωπ), args...) "result is resolution of ωπ"
+@spec rand(ωπ::ΩProj, args...) _res == memrand(_pre(ωπ), args...) "result is resolution of ωπ"
 @spec rand(ωπ::ΩProj, args...) _res == ωπ.id == increment(_pre(ωπ.id)) "ωπ id is incremented"
 
-resolve(ωπ::ΩProj, args...) = resolve(ωπ.ω, ωπ.id, args...)
+memrand(ωπ::ΩProj, args...) = memrand(ωπ.ω, ωπ.id, args...)
 
-function Base.rand(ωπ::ΩProj, dims::Dims)
-  res = resolve(ωπ.ω, ωπ.id, Float64, dims)
-  increment!(ωπ)
-  res
-end
+# Ideally
+Base.rand(ωπ::ΩProj, args...; rng = Random.GLOBAL_RNG) =
+  (res = memrand(ωπ.ω, args...); increment!(ωπ); res)
 
-function Base.rand(ωπ::ΩProj, arr::Array)
-  res = resolve(ωπ.ω, ωπ.id, arr)
-  increment!(ωπ)
-  res
-end
+# function Base.rand(ωπ::ΩProj, dims::Dims; rng = Random.GLOBAL_RNG)
+#   res = memrand(ωπ.ω, ωπ.id, Float64, dims; rng = rng)
+#   increment!(ωπ)
+#   res
+# end
 
-function Base.rand(ωπ::ΩProj, T)
-  res = resolve(ωπ.ω, ωπ.id, T)
-  increment!(ωπ)
-  res
-end
+# function Base.rand(ωπ::ΩProj, arr::Array; rng = Random.GLOBAL_RNG)
+#   res = memrand(ωπ.ω, ωπ.id, arr; rng = rng)
+#   increment!(ωπ)
+#   res
+# end
 
-function Base.rand(ωπ::ΩProj, ::Type{T}) where T
-  res = resolve(ωπ.ω, ωπ.id, T)
-  increment!(ωπ)
-  res
-end
+# function Base.rand(ωπ::ΩProj, T; rng = Random.GLOBAL_RNG)
+#   res = memrand(ωπ.ω, ωπ.id, T; rng = rng)
+#   increment!(ωπ)
+#   res
+# end
+
+# function Base.rand(ωπ::ΩProj, ::Type{T}; rng = Random.GLOBAL_RNG) where T
+#   @show "hi", rng, T
+#   res = memrand(ωπ.ω, ωπ.id, T; rng = rng)
+#   increment!(ωπ)
+#   res
+# end
+
+# function Base.rand(ωπ::ΩProj, ::Type{T}; rng = Random.GLOBAL_RNG) where T
+#   @show "hi", rng, T
+#   res = memrand(ωπ.ω, ωπ.id, T; rng = rng)
+#   increment!(ωπ)
+#   res
+# end
+
+# function Base.rand(ωπ::ΩProj; rng = Random.GLOBAL_RNG)
+#   @show "hi", rng
+#   res = memrand(ωπ.ω, ωπ.id, Float64; rng = rng)
+#   increment!(ωπ)
+#   res
+# end
+
 
 ## Projection
 
