@@ -1,5 +1,13 @@
-"Element type of a random variable"
-function elemtype(x::RandVar)
-  Base.promote_op(apl, typeof(x), Omega.defΩ())
+"""$(SIGNATURES) Element type of a `rv::RandVar`
+
+The element type of a RandVar is the type of value you get when you sample from it.
+from it.  Since `RandVar`s are normal julia functions, this may not be a single concrete type.
+
+Warning.  `elemtype` relies on Julia's type inference.
+We use it mostly only for printing and debugging.
+Relying on it as part of an algorithm is inadvisable.
+"""
+function elemtype(rv::RandVar)
+  Base.promote_op(apl, typeof(rv), Omega.defΩ())
 end
-@spec rand(x) isa _res
+@spec rand(rv) isa _res

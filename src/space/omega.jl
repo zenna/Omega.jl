@@ -11,6 +11,7 @@ idtype(::Type{OT}) where {I, OT <: Ω{I}} = I
 # * Base.isempty
 # * Base.merge! ( -- currently unused)
 # ? others
+"menrand(ωπ, args...).  Memoized `rand`.  If ωπ.i ∈ ωπ.ω, return ωπ.ω[ωπ.i] otherwise call `rand(args...)`"
 function memrand end
 
 "Linearize ω into flat vector"
@@ -18,6 +19,8 @@ function linearize end
 
 "Inverse of `linearize`, structure vector into ω"
 function unlinearize end
+
+function nelem end
 
 ## Rand
 

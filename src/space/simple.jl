@@ -26,7 +26,7 @@ function Base.:(==)(sω1::SimpleΩ{I,V}, sω2::SimpleΩ{I,V}) where {I, V}
   sω1.vals == sω2.vals
 end
 
-# memrand
+# memrand #
 
 @inline function memrand(ω::SimpleΩ{I, Any}, id::I, T) where {I}
   get!(()->rand(GLOBAL_RNG, T), ω.vals, id)::randrtype(T)
@@ -61,16 +61,15 @@ end
 Base.isempty(sω::SimpleΩ) = isempty(sω.vals)
 Base.length(sω::SimpleΩ) = length(sω.vals)
 
-## Linearlization
-## ==============
+# Linearlization #
+
 linearize(sω::SimpleΩ{I, V}) where {I, V <: Real} = collect(values(sω.vals))
 
 function linearize(sω::SimpleΩ{I, V}) where {I, V <: AbstractArray}
   # warn("Are keys in order?")
   # vcat((view(a, :) for a in values(sω.vals))...)
-  vcat((a[:] for a in values(sω.vals))...)
+  vcat((vec(a) for a in values(sω.vals))...)
 end
-
 
 "Inverse of `linearize`, structure vector into ω.
 Precondition: ωvec and sω are the same length."

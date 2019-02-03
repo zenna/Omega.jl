@@ -14,8 +14,8 @@ end
 increment!(ωπ::ΩProj) = ωπ.id = increment(ωπ.id)
 parentω(ωπ::ΩProj) = ωπ.ω
 
-"memrand ωπ::ΩProj to a concrete value"
-function memrand end
+# "memrand ωπ::ΩProj to a concrete value"
+# function memrand end
 
 @spec rand(ωπ::ΩProj, args...) _res == memrand(_pre(ωπ), args...) "result is resolution of ωπ"
 @spec rand(ωπ::ΩProj, args...) _res == ωπ.id == increment(_pre(ωπ.id)) "ωπ id is incremented"
@@ -24,7 +24,21 @@ memrand(ωπ::ΩProj, args...) = memrand(ωπ.ω, ωπ.id, args...)
 
 # Ideally
 Base.rand(ωπ::ΩProj, args...; rng = Random.GLOBAL_RNG) =
-  (res = memrand(ωπ.ω, args...); increment!(ωπ); res)
+  (res = memrand(ωπ.ω, ωπ.id, args...; rng = rng); increment!(ωπ); res)
+
+Base.rand(ωπ::ΩProj, dims::Dims; rng = Random.GLOBAL_RNG) =
+  (@show res = memrand(ωπ.ω, ωπ.id, dims; rng = rng); increment!(ωπ); res)
+
+Base.rand(ωπ::ΩProj, dims::Integer...; rng = Random.GLOBAL_RNG) =
+  (res = memrand(ωπ.ω, ωπ.id, dims...; rng = rng); increment!(ωπ); res)
+
+# Base.rand(ωπ::ΩProj; rng = rng) =
+#   (res = memrand(ωπ.ω, dims...); increment!(ωπ); res)
+
+Base.rand(ωπ::ΩProj, ::Type{X} = Float64; rng = Random.GLOBAL_RNG) where {X} =
+  (res = memrand(ωπ.ω, ωπ.id, X; rng = rng); increment!(ωπ); res)
+
+
 
 # function Base.rand(ωπ::ΩProj, dims::Dims; rng = Random.GLOBAL_RNG)
 #   res = memrand(ωπ.ω, ωπ.id, Float64, dims; rng = rng)

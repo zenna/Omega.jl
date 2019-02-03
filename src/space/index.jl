@@ -1,33 +1,21 @@
-## Vector Indices
-## ==============
+# Vector Indices #
 
 @inline combine(a::Vector{Int}, b::Vector{Int}) = vcat(a, b)
 @inline append(a::Vector{Int}, b::Int) = vcat(a, Int[b])
 @inline base(::Type{Vector{Int}}, i::Int) = Int[i]
 
-increment!(a::Vector{Int}) = a[end] += 1
 function increment(a::Vector{Int})
   b = copy(a)
   b[end] += 1
   b
 end
 
-## Linked List
-## ===========
+# Linked List #
+@inline base(::Type{LinkedList{T}}) where T = nil(T)
+@inline append(a::LinkedList, b)  = cons(b, a)
+@inline increment(a::LinkedList) =  cons(head(a) + 1, tail(a))
 
-
-
-# struct LinkedList{T, TT <: L}
-#   head::T
-#   tail::
-
-# end
-
-# import DataStructures: nil, cons, LinkedList
-# @inline append(a::LinkedList, b::Int) = cons(b, a)
-# @inline base(::Type{LinkedList}, i) = cons(i, nil())
-
-
+combine(a::LinkedList, b::LinkedList) = cat(a, b)
 ## Pairing Indices
 ## ===============
 const Paired = Int
