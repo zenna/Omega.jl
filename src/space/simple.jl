@@ -3,7 +3,7 @@ Fast SimpleΩ
 
 # Properties
 - Fast tracking (50 ns overhead)
-- Fast to get linear view
+- Some overhead for get linear view
 - Hence easy to sample from
 - Unique index for each rand value and hence:
   (i) Memory intensive
@@ -12,7 +12,6 @@ struct SimpleΩ{I, V} <: ΩBase{I}
   vals::Dict{I, V}
 end
 
-SimpleΩ() = SimpleΩ(Dict{Vector{Int}, Float64}())
 SimpleΩ{I, V}() where {I, V} = SimpleΩ{I, V}(Dict{I, V}())
 
 Base.values(sω::SimpleΩ) = values(sω.vals)
@@ -27,34 +26,38 @@ function Base.:(==)(sω1::SimpleΩ{I,V}, sω2::SimpleΩ{I,V}) where {I, V}
 end
 
 # memrand #
+randrtype(ω::SimpleΩ, ::Type{T}, ::Dims{N}) where {T, N} = Array{T, N}
 
-@inline function memrand(ω::SimpleΩ{I, Any}, id::I, T) where {I}
-  get!(()->rand(GLOBAL_RNG, T), ω.vals, id)::randrtype(T)
+
+# @inline function memrand(ω::SimpleΩ{I, Any}, id::I, T; rng) where {I}
+#   get!(()->rand(rng, T), ω.vals, id)::randrtype(ω, T)
+# end
+
+@inline function memrand(ω::SimpleΩ, id, ::Type{T}, dims::Dims; rng) where {T}
+  get!(()->rand(rng, T, dims), ω.vals, id)::randrtype(ω, T, dims)
 end
 
-@inline function memrand(ω::SimpleΩ{I, Any}, id::I, ::Type{T}, dims::NTuple{N, Int}) where {I, T, N}
-  get!(()->rand(GLOBAL_RNG, T, dims), ω.vals, id)::Array{randrtype(T), N}
+@inline function memrand(ω::SimpleΩ, id, ::Type{T}; rng) where {T}
+  get!(()->rand(rng, T), ω.vals, id)::randrtype(ω, T)
 end
 
-@inline function memrand(ω::SimpleΩ{I}, id::I, T) where {I}
-  get!(()->rand(GLOBAL_RNG, T), ω.vals, id)
+# @inline function memrand(ω::SimpleΩ, id, ::Type{T}, dims::Dims{N}) where {T, N}
+#   get!(()->rand(rng, T, dims), ω.vals, id)
+# end
+
+@inline function memrand(ω::SimpleΩ{I, A}, id, ::Type{T}; rng) where {V, T, I, A <: AbstractArray{V}}
+  val = get!(()->V[rand(rng, T)], ω.vals, id)
+  first(val)::randrtype(ω, T)
 end
 
-@inline function memrand(ω::SimpleΩ{I}, id::I, ::Type{T}, dims::NTuple{N, Int}) where {I, T, N}
-  get!(()->rand(GLOBAL_RNG, T, dims), ω.vals, id)
+# Flux-specific #
+
+@inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T}, dims::Dims; rng) where {T, I, A<:Flux.TrackedArray}
+  get!(()->Flux.param(rand(rng, T, dims)), ω.vals, id)
 end
 
-@inline function memrand(ωπ::SimpleΩ{I, A}, ::Type{T}) where {T, I, A<:AbstractArray}
-  val = get!(()->[rand(GLOBAL_RNG, T)], ωπ.ω.vals, ωπ.id)
-  first(val)
-end
-
-@inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T},  dims::Dims) where {T, I, A<:Flux.TrackedArray}
-  get!(()->Flux.param(rand(GLOBAL_RNG, T, dims)), ω.vals, id)
-end
-
-@inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T}) where {T, I, A<:Flux.TrackedArray}
-  val = get!(()->Flux.param([rand(GLOBAL_RNG, T)]), ω.vals, id)
+@inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T}; rng) where {T, I, A<:Flux.TrackedArray}
+  val = get!(()->Flux.param([rand(rng, T)]), ω.vals, id)
   first(val)
 end
 

@@ -8,19 +8,15 @@ LinearΩ: Stores data in single `Vector{V}`
 - Good for optimization / inference methods which require linear interface
 - If heterogenous elements are used, must convert (which can be slow)
 """
-struct LinearΩ{I, SEG, V} <: ΩBase{I}
+struct LinearΩ{I, SEG, V <: AbstractArray} <: ΩBase{I}
   ids::Dict{I, SEG} # zt: too precise, any associable will do. Map from Ω index I to segment of omvec
-  ωvec::Vector{V}   # zt: too precise, what about static vector?
+  ωvec::V           # zt: too precise, what about static vector?
 end
+
+emp(a::Type{<:Array}) = a()
 
 "$(SIGNATURES) Empty `LinearΩ`"
-LinearΩ{I, SEG, V}() where {I, SEG, V} = LinearΩ{I, SEG, V}(Dict{I, V}(), V[])
-
-function addsegment!(lω, ωvec, id)
-  startidx = length(lω.ωvec) + 1
-  append!(lω.ωvec, ωvec)
-  lω.ids[id] = Segment(startidx, dims)
-end
+LinearΩ{I, SEG, V}() where {I, SEG, V} = LinearΩ{I, SEG, V}(Dict{I, SEG}(), emp(V))
 
 linearize(lω::LinearΩ) = lω.ωvec
 unlinearize(ωvec, lω::LinearΩ{I, SEG, V}) where {I, SEG, V}  = LinearΩ{I, SEG, V}(lω.ids, ωvec)
@@ -53,14 +49,14 @@ function update(lω::LinearΩ, i::Int, val)
 end
 
 # zt: docstring!
-function randrtype(::Type{T}, lω::LinearΩ{I, SEG, V}) where {T, I, SEG, V}
+function randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}) where {T, I, SEG, V}
   # @show V
   # @show T
   # @assert false
   T
 end
 
-function randrtype(::Type{T}, lω::LinearΩ{I, SEG, DT}) where {T, I, SEG, DT <: ForwardDiff.Dual}
+function randrtype(lω::LinearΩ{I, SEG, DT}, ::Type{T}) where {T, I, SEG, DT <: ForwardDiff.Dual}
   # # That's teh nuts and bolts of it.
   # # @assert false
   # #   
@@ -69,9 +65,7 @@ function randrtype(::Type{T}, lω::LinearΩ{I, SEG, DT}) where {T, I, SEG, DT <:
   DT
 end
 
-randrtype(::Type{T}, ω, ::Dims{N}) where {T, N} = Array{randrtype(T, ω), N}
-randrtype(::Type{T}, lω::LinearΩ{I, SEG, V <: TrackedArray} , ::Dims{N}) where {T, N} = Array{randrtype(T, ω), N}
-
+randrtype(ω, ::Type{T}, ::Dims{N}) where {T, N} = Array{randrtype(ω, T), N}
 
 nelem(lω) = length(lω.ωvec)
 Base.values(lω::LinearΩ) = [lω.ωvec]
@@ -83,26 +77,33 @@ Base.isempty(lω::LinearΩ) = isempty(lω.ωvec)
 # RT: Return type
 # X: (not quite, right, because might be dual,etc )
 
+# Flux-specific #
+
+emp(a::Type{Flux.TrackedArray{A, B, C}}) where {A, B, C} = C()
+
+Base.append!(ta::Flux.TrackedArray, a::Array) =
+  (append!(ta.data, a); append!(ta.grad, zero(a)))
+
+function randrtype(::Type{T}, lω::LinearΩ{I, SEG, V}, ::Dims{N}) where {I, SEG, V<: Flux.TrackedArray, T, N}
+  @assert false
+  Flux.TrackedArray{T, N, }
+   Array{randrtype(T, ω), N}
+end
+  
+
 # memrand(lω::LinearΩ, id, ::Type{X}, dims::Dims; rng) where X =
 #   memrand(lω, id, X, dims; rng = rng)
-memrand(lω::LinearΩ, id, ::Type{X}, dims::Integer...; rng) where X =
-  memrand(lω, id, X, Dims(dims); rng = rng)
-memrand(lω::LinearΩ, id, ::Type{X}, d::Integer, dims::Integer...; rng) where X =
-  memrand(lω, id, X, Dims((d, dims...)); rng = rng)
-
-memrand(lω::LinearΩ, id, args...; rng) where X =
-  memrand(lω, id, Float64, args...; rng = rng)
 
 # Hypothetical solution
 function memrand(lω::LinearΩ, id, ::Type{X}, dims::Dims; rng) where X
-  @show RT = randrtype(X, lω, dims)
+  RT = randrtype(lω,  X,  dims)
   seg = get(lω.ids, id, 0)
   if seg == 0
     res = rand(rng, X, dims)
     startidx = length(lω.ωvec) + 1
     lω.ids[id] = startidx:startidx + prod(dims) - 1
     res_::RT = res
-    @show res_
+    res_
     append!(lω.ωvec, res_)
     res_
   else
@@ -113,15 +114,46 @@ function memrand(lω::LinearΩ, id, ::Type{X}, dims::Dims; rng) where X
   end
 end
 
-function test()
-  lω = defΩ()()
-  Omega.Space.memrand(lω, [1], Float64, (100,))
-  lω = LinearΩ{Vector{Int}, UnitRange{Int}, TrackedArray{Float64, 1, Array{Float64, 1}}}
-  x = normal(0, 1, (100,))
-end
+const GOBY{A,B,C, I, TAGS} = Union{LinearΩ{A,B,C}, TaggedΩ{I, TAGS, LinearΩ{A, B, C}}}
+
+
+# function test()
+#   function x_(ω)
+#     a = randexp(ω)
+#     a2 = randexp(ω, (1, 2, 3))
+#     b = randcycle(ω, 6)
+#     c = randn(ω)
+#     c2 = randn(ω, (1, 2, 3))
+#     d = randstring(ω, 'a':'z', 6)
+#     e = randsubseq(ω, collect(1:8), 0.3)
+#     f = randperm(ω, 10)
+#     (a, a2, b, c, c2, d, e, f)
+#   end
+#   x = ciid(x_)
+#   lω = defΩ()()
+#   x(lω)
+
+#   # Issued: if we go inside the rng we lose track of the baserng
+#   # Which means we need to either pass through the tagged thing
+#   # or intercept randexp
+#   # But if we intercept randexp we need to capture the log likelihood
+
+#   # Sols
+#   # 1. Ignore randexp, randn, etc, force users to use my functions
+#   # 2. intercept randexp,etc  to use quantiles
+#   # 3. intercept randexp, etc record ll
+#   # 4. dont intercept, pass through taggedω
+  
+#   # Passing through the taggedΩ would not be a bad idea
+
+#   Omega.Space.memrand(lω, [1], Float64, (100,))
+#   lω = LinearΩ{Vector{Int}, UnitRange{Int}, Flux.TrackedArray{Float64, 1, Array{Float64, 1}}}()
+#   x = normal(0, 1, (100,))
+#   x(lω)
+# end
 
 function memrand(lω::LinearΩ, id, ::Type{X}; rng) where X
-  @show RT = randrtype(X, lω)
+  RT = randrtype(lω, X)
   seg = get(lω.ids, id, 0)
   if seg == 0
     res::RT = rand(rng, X)
