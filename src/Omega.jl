@@ -1,11 +1,7 @@
-# __precompile__(false)
-"A Library for Causal and Higher-Order Probabilistic Programming"
+"A Expressive Library for Probabilistic Programming"
 module Omega
 
-t = 3
-
-using Flux
-import ForwardDiff
+import ForwardDiff, Zygote, Flux
 using Spec
 using UnicodePlots
 using DocStringExtensions: FIELDS, SIGNATURES, TYPEDEF
@@ -88,7 +84,6 @@ export  isapproximate,
 
         RejectionSample,
         SSMH,
-        HMC,
         # SGHMC,
         HMCFAST,
         Relandscape,

@@ -27,7 +27,7 @@ Base.rand(ωπ::ΩProj, args...; rng = Random.GLOBAL_RNG) =
   (res = memrand(ωπ.ω, ωπ.id, args...; rng = rng); increment!(ωπ); res)
 
 Base.rand(ωπ::ΩProj, dims::Dims; rng = Random.GLOBAL_RNG) =
-  (@show res = memrand(ωπ.ω, ωπ.id, dims; rng = rng); increment!(ωπ); res)
+  (res = memrand(ωπ.ω, ωπ.id, dims; rng = rng); increment!(ωπ); res)
 
 Base.rand(ωπ::ΩProj, dims::Integer...; rng = Random.GLOBAL_RNG) =
   (res = memrand(ωπ.ω, ωπ.id, dims...; rng = rng); increment!(ωπ); res)
@@ -90,6 +90,6 @@ Base.getindex(ωπ::ΩProj{O, I}, i::SI) where {O, I, SI} =
 
 Base.getindex(ωπ::ΩProj{O, Paired}, i::Int) where O = ΩProj{O, Paired}(ωπ.ω, pair(ωπ.id, i))
 
-function Base.getindex(sω::SO, i::Int) where {I, SO <: ΩBase{I}}
-  ΩProj{SO, I}(sω, base(I, i))
+function Base.getindex(sω::O, i::Int) where {I, O <: ΩBase{I}}
+  ΩProj{O, I}(sω, base(I, i))
 end

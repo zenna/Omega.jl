@@ -1,6 +1,3 @@
-import ForwardDiff
-using Flux
-
 "Gradient ∇Y()"
 function gradient(y::RandVar, ω::Ω, vals = linearize(ω))
   # y(ω)
@@ -36,10 +33,63 @@ function gradient(y::RandVar, sω::SimpleΩ{I, V}, vals) where {I, V <: Abstract
   linearize(sω_)
 end
 
+# The New #
+
+"`lineargradient(::RandVar, ω::Ω, ::Alg)` Returns as vector gradient of ω components"
+function lineargradient end
+
+# zt: flux/fd have different signature
+# and different return type., difficult to interchange because
+# flux just mutates san array while fd returns a value
+# flux doesn't assume evaluated 
+# fd does
+
+# Flux #
 struct FluxGradAlg end
 const FluxGrad = FluxGradAlg()
+
+function back!(rv, ω)
+  l = rv(ω)
+  Flux.back!(l)
+end
+
+lineargradient(rv, ω, ::FluxGradAlg) = (back!(rv, ω); linearize(ω))
+
+# FIXME: Remove this
 
 function gradient(::FluxGradAlg, U, sω::SimpleΩ{I, V}) where {I, V <: AbstractArray}
   l = U(sω)
   Flux.back!(l)
+end
+
+# Forward Diff based # 
+struct ForwardDiffGradAlg end
+const ForwardDiffGrad = ForwardDiffGradAlg()
+
+function lineargradient(rv, ω::Ω, ::ForwardDiffGradAlg)
+  rv(ω) # Init
+  function unlinearizeapl(xs)
+    @show typeof(xs)
+    apl(rv, unlinearize(xs, ω))
+  end
+  xs = linearize(ω)
+  ForwardDiff.gradient(unlinearizeapl, xs)
+end
+
+# Zygote #
+struct ZygoteGradAlg end
+const ZygoteGrad = ZygoteGradAlg()
+
+function gradmap(rv, ω::Ω)
+  l = apl(rv, ω)
+  params = Params(values(ω)) # We can avoid doing this every time.
+  g = gradient(params) do
+    rv(ω)
+  end
+  g
+end
+
+function lineargradient(rv, ω, ::ZygoteGradAlg)
+  g = gradmap(rv, ω)
+  [gradmap[p] for p in values(ω)]
 end

@@ -1,9 +1,11 @@
+"`base(::Type{T}, i)` singleton (`i`,) of collection type `T` "
+function base end
+
 # Vector Indices #
-
-@inline combine(a::Vector{Int}, b::Vector{Int}) = vcat(a, b)
-@inline append(a::Vector{Int}, b::Int) = vcat(a, Int[b])
-@inline base(::Type{Vector{Int}}, i::Int) = Int[i]
-
+# zt: rename combine -> cat or concat, append -> push, base -> singleton
+@inline combine(a::Vector{T}, b::Vector{T}) where T = vcat(a, b)
+@inline append(a::Vector{T}, b::T) where T = vcat(a, T[b])
+@inline base(::Type{Vector{T}}, i::Vararg{T, N}) where {T, N} = Int[i...]
 function increment(a::Vector{Int})
   b = copy(a)
   b[end] += 1
@@ -11,13 +13,12 @@ function increment(a::Vector{Int})
 end
 
 # Linked List #
-@inline base(::Type{LinkedList{T}}) where T = nil(T)
+@inline base(::Type{LinkedList}, i...) = list(i...)
 @inline append(a::LinkedList, b)  = cons(b, a)
 @inline increment(a::LinkedList) =  cons(head(a) + 1, tail(a))
+@inline combine(a::LinkedList, b::LinkedList) = cat(a, b)
 
-combine(a::LinkedList, b::LinkedList) = cat(a, b)
-## Pairing Indices
-## ===============
+# Pairing Indices #
 const Paired = Int
 
 "Cantor Pairing Function"
