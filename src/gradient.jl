@@ -1,3 +1,5 @@
+# the old
+
 "Gradient ∇Y()"
 function gradient(y::RandVar, ω::Ω, vals = linearize(ω))
   # y(ω)
@@ -69,7 +71,6 @@ const ForwardDiffGrad = ForwardDiffGradAlg()
 function lineargradient(rv, ω::Ω, ::ForwardDiffGradAlg)
   rv(ω) # Init
   function unlinearizeapl(xs)
-    @show typeof(xs)
     apl(rv, unlinearize(xs, ω))
   end
   xs = linearize(ω)
@@ -77,19 +78,19 @@ function lineargradient(rv, ω::Ω, ::ForwardDiffGradAlg)
 end
 
 # Zygote #
-struct ZygoteGradAlg end
-const ZygoteGrad = ZygoteGradAlg()
+# struct ZygoteGradAlg end
+# const ZygoteGrad = ZygoteGradAlg()
 
-function gradmap(rv, ω::Ω)
-  l = apl(rv, ω)
-  params = Params(values(ω)) # We can avoid doing this every time.
-  g = gradient(params) do
-    rv(ω)
-  end
-  g
-end
+# function gradmap(rv, ω::Ω)
+#   l = apl(rv, ω)
+#   params = Params(values(ω)) # We can avoid doing this every time.
+#   g = gradient(params) do
+#     rv(ω)
+#   end
+#   g
+# end
 
-function lineargradient(rv, ω, ::ZygoteGradAlg)
-  g = gradmap(rv, ω)
-  [gradmap[p] for p in values(ω)]
-end
+# function lineargradient(rv, ω, ::ZygoteGradAlg)
+#   g = gradmap(rv, ω)
+#   [gradmap[p] for p in values(ω)]
+# end

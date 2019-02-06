@@ -104,7 +104,7 @@ function memrand(lω::LinearΩ, id, ::Type{X}, dims::Dims; rng) where X
   end
 end
 
-using ZenUtils
+# using ZenUtils
 
 function memrand(lω::LinearΩ, id, ::Type{X}; rng) where X
   RT = randrtype(lω, X)

@@ -1,7 +1,8 @@
 "A Expressive Library for Probabilistic Programming"
 module Omega
 
-import ForwardDiff, Zygote, Flux
+import ForwardDiff, Flux
+# Zygote,
 using Spec
 using UnicodePlots
 using DocStringExtensions: FIELDS, SIGNATURES, TYPEDEF

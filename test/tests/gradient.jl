@@ -10,7 +10,10 @@ import ForwardDiff
 const ΩTs = [LinearΩ{Vector{Int}, UnitRange{Int64}, Vector{Float64}},
              Omega.SimpleΩ{Vector{Int}, Float64}]
 
-const gradalgs = [Omega.FluxGrad, Omega.ForwardDiffGrad, Omega.ZygoteGrad]
+const gradalgs = [Omega.FluxGrad,
+                  Omega.ForwardDiffGrad,
+                  # Omega.ZygoteGrad
+                  ]
 
 function testgrad(OT = Omega.SimpleΩ{Vector{Int}, Float64})
   μ = uniform(0.0, 1.0)
