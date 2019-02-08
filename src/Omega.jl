@@ -28,7 +28,7 @@ include("randvar/urandvar.jl")            # Random variables
 include("randvar/randvarapply.jl")        # Random variable application to ω::Ω
 include("randvar/ciid.jl")                # Conditionally i.i.d. RandVars
 include("randvar/elemtype.jl")            # Infer Element Type
-export RandVar, MaybeRV, ciid, isconstant, elemtype, params
+export RandVar, MaybeRV, ciid, isconstant, elemtype, params, constant
 
 # Conditioning
 include("cond.jl")                # Conditioning
@@ -115,7 +115,9 @@ export  isapproximate,
 # Causal Inference
 include("causal/Causal.jl")
 using .Causal
-export replace
+export replace,
+       iscausebf,
+       cf
 
 # Library
 include("primitive/Prim.jl")

@@ -7,7 +7,7 @@ conjoinerror!(err::Ref{<:Real}, b) = err[] &= b
 
 "Is `ω` in the domain of `x`?"
 function applytrackerr(x, ω, errinit = softtrue())
-  ω_ = tagerror(ω, errinit)
+  ω_ = tagerror(ω, errinit) # zt: surprisingly expensive
   fx = apl(x, ω_)
   (fx = fx, err = ω_.tags.err.x)
 end

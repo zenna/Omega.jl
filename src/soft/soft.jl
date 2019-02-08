@@ -9,20 +9,20 @@ include("trackerror.jl")     # Tracking error
 
 
 # Using Dual Soft Bools
-# const softeq = dsofteq
-# const softgt = dsoftgt
-# const softlt = dsoftlt
+const softeq = dsofteq
+const softgt = dsoftgt
+const softlt = dsoftlt
 
-# const softtrue = dsofttrue
-# const softfalse = dsoftfalse
+const softtrue = dsofttrue
+const softfalse = dsoftfalse
 
 # Using Not Dual Soft Bools
-const softeq = ssofteq
-const softgt = ssoftgt
-const softlt = ssoftlt
+# const softeq = ssofteq
+# const softgt = ssoftgt
+# const softlt = ssoftlt
 
-const softtrue = ssofttrue
-const softfalse = ssoftfalse
+# const softtrue = ssofttrue
+# const softfalse = ssoftfalse
 
 const >ₛ = softgt
 const >=ₛ = softgt

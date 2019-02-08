@@ -4,4 +4,6 @@ authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.1.0"
 
 [deps]
-Omega = "1af16e33-887a-59b3-8344-18f1671b3ade"
+Callbacks = "5c501fca-fc9b-11e8-1fb9-dbe118bb7e64"
+Omega = "f05e9b56-6544-11e8-2dc8-1fe18f3ca5da"
+Spec = "526a04b8-654b-11e8-1588-db2a414f95b5"
