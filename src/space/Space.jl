@@ -8,7 +8,7 @@ import ForwardDiff
 import Random
 using Random: GLOBAL_RNG, AbstractRNG
 using DocStringExtensions
-using DataStructures: LinkedList, cons, nil
+using DataStructures: LinkedList, cons, nil, list, head, tail
 
 export Ω, uid, @id, ID
 export ΩBase, memrand, linearize, unlinearize

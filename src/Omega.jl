@@ -60,6 +60,8 @@ export  SoftBool,
         ==ₛ,
         err,
         logerr,
+        anyₛ,
+        allₛ,
 
         # Kernels
         kse,

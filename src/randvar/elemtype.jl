@@ -7,7 +7,7 @@ Warning.  `elemtype` relies on Julia's type inference.
 We use it mostly only for printing and debugging.
 Relying on it as part of an algorithm is inadvisable.
 """
-function elemtype(rv::RandVar)
-  Base.promote_op(apl, typeof(rv), Omega.defΩ())
+function elemtype(rv::RandVar, ΩT::Type{OT} = Omega.defΩ()) where OT
+  Base.promote_op(apl, typeof(rv), OT())
 end
 @spec rand(rv) isa _res

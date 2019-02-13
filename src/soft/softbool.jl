@@ -1,5 +1,5 @@
 
-"Soft Boolean.  Value in [o, 1]"
+"Soft Boolean.  Value in [0, 1]"
 struct SoftBool{ET <: Real} <: AbstractSoftBool
   logerr::ET
   SoftBool(l::T) where {T} = new{T}(l)
@@ -10,13 +10,13 @@ end
 "Error in [0, 1]"
 err(x::SoftBool) = exp(x.logerr)
 
-"Log error"
+"Log error in `[-Inf, 0]`"
 logerr(x::SoftBool) = x.logerr
 Bool(x::SoftBool) = logerr(x) == 0.0
-ssofttrue() = SoftBool(0.0)
-ssoftfalse() = SoftBool(-Inf)
+ssofttrue(::Type{T} = Float64) where T = SoftBool(zero(t))
+ssoftfalse(::Type{T} = Float64) where T = SoftBool(-inf(T))
 
-## (In)Equalities
+# (In)Equalities #
 
 "Kernel return type as function of arguments"
 kernelrettype(x::T, y::T) where T = T
@@ -39,8 +39,7 @@ function ssoftlt(x::Real, y::Real, k = globalkernel())
   SoftBool(k(r)::typeof(r))
 end
 
-## Boolean Operators
-## =================
+# Boolean Operators #
 function Base.:&(x::SoftBool, y::SoftBool)
   a = logerr(x)
   b = logerr(y)
@@ -52,10 +51,9 @@ Base.:|(x::SoftBool, y::SoftBool) = SoftBool(max(logerr(x), logerr(y)))
 Base.all(xs::Vector{<:SoftBool}) = SoftBool(minimum(logerr.(xs)))
 Base.all(xs::Vector{<:RandVar}) = RandVar(all, (xs, ))
 
-# Arithmetic
+# Arithmetic #
 Base.:*(x::SoftBool{T}, y::T) where T <: Real = SoftBool(x.logerr * y)
 Base.:*(x::T, y::SoftBool{T}) where T <: Real = SoftBool(x * y.logerr)
 
-## Show
-## ====
+# Show #
 Base.show(io::IO, sb::SoftBool) = print(io, "ϵ:$(logerr(sb))")

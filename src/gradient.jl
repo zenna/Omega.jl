@@ -71,7 +71,14 @@ const ForwardDiffGrad = ForwardDiffGradAlg()
 function lineargradient(rv, ω::Ω, ::ForwardDiffGradAlg)
   rv(ω) # Init
   function unlinearizeapl(xs)
-    apl(rv, unlinearize(xs, ω))
+    # Replace the tag tag here
+    # ω_ = tag(ω, dsofttrue(ForwardDiff.Dual))
+    T = ForwardDiff.Dual{Any,Float64,0}
+    rv2 = ciid(ω -> apl(rv, @show(Omega.tagerror(ω, dsofttrue(T)))))
+    # ω_ = Omega.tagerror(ω, dsofttrue(T))
+    # then we dont want to override the tag
+    # because rv is going to add a tagz
+    apl(rv2, unlinearize(xs, ω))
   end
   xs = linearize(ω)
   ForwardDiff.gradient(unlinearizeapl, xs)

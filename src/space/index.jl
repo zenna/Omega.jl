@@ -1,6 +1,9 @@
 "`base(::Type{T}, i)` singleton (`i`,) of collection type `T` "
 function base end
 
+# Fast construction, append a new element, hash
+# dont need random access, delete arbitrary element
+
 # Vector Indices #
 # zt: rename combine -> cat or concat, append -> push, base -> singleton
 @inline combine(a::Vector{T}, b::Vector{T}) where T = vcat(a, b)
@@ -13,10 +16,23 @@ function increment(a::Vector{Int})
 end
 
 # Linked List #
-@inline base(::Type{LinkedList}, i...) = list(i...)
-@inline append(a::LinkedList, b)  = cons(b, a)
-@inline increment(a::LinkedList) =  cons(head(a) + 1, tail(a))
 @inline combine(a::LinkedList, b::LinkedList) = cat(a, b)
+@inline append(a::LinkedList, b)  = cons(b, a)
+@inline base(::Type{<:LinkedList}, i::Vararg{T, N}) where {T, N} = list(i...)
+@inline increment(a::LinkedList) =  cons(head(a) + 1, tail(a))
+
+# Tuple #
+# @inline combine(x) = x
+# @inline tuplejoin(x, y) = (x..., y...)
+# @inline tuplejoin(x, y, z...) = (x..., tuplejoin(y, z...)...)
+# @inline append(a::Tuple, b) = (a..., b)
+# @inlne base(::Type{<:Tuple}, i::Vararg{T, N}) where {T, N} = i
+# # @inline increment(a::Tuple) = (rest(a)..., first(a) + 1)
+# @generated function rest(x::NTuple{N, Int}) where N
+#   # :($([x[i] for i = 1:N-1])...)
+#   Expr(:tuple, [Expr(:ref, :x, i) for i = 1:N-1]...)
+# end
+
 
 # Pairing Indices #
 const Paired = Int

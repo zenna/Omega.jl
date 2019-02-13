@@ -11,7 +11,7 @@ let c_, e_ = replace(c, e, (isset[i] => inter[i] for i = 1:length(inter))
 end
 ```
 
-```jldoctest
+```jldoctest  
 temp = constant(101.0)
 icetemp = lift(identity)(temp) # identity necessary to make them different variables
 chairtemp = lift(identity)(temp)
@@ -27,31 +27,51 @@ false
 
 ```
 """
-function iscausebf(ω::Ω, c::RandVar, e::RandVar, iset...)
-  @pre Bool(c(ω)) && Bool(e(ω))
-# @pre noche ck fo
-  # 1. How to setup Optimization problem over intervention set
-  # May want some indirection between values searched over (e.g. linear vector)
-  # And actual interventions
-  # Fix type inference on elemtype
-  losser = let butfor = Omega.ciid(ω -> !c(ω) & !e(ω))
+function iscausebf(ω::Ω, c::RandVar, e::RandVar, iset;
+                   sizes = [size(i(ω)) for i in iset],
+                   proj = identity)
+  @pre Bool(c(ω)) && Bool(e(ω)) "Both cause and effect must be true in ω"
+  loss = let rngs = splitvec(sizes), butfor = Omega.ciid(ω -> !c(ω) & !e(ω)), proj = proj
     function loss(vec, grad)
-      # @show "hi"
-      replmap = Dict(iset[i] => vec[i] for i = 1:length(vec))
-      butforint = replace(butfor, replmap)
-      Omega.logerr(butforint(ω))
+      @show typeof(proj(vec[rngs[1]]))
+      @show replmap = Dict(iset[i] => proj(vec[rng]) for (i, rng) in enumerate(rngs))
+      @show butforint = replace(butfor, replmap)
+      @show Omega.logerr(butforint(ω))
     end 
   end
-  # opt = NLopt.Opt(alg, n)
-  # losser(x) = (println("hi", x); sum(x))
-  opt = NLopt.Opt(:LN_COBYLA, length(iset))
-  NLopt.max_objective!(opt, losser)
-  # NLopt.lower_bounds!(opt, -1000)
-  # NLopt.upper_bounds!(opt, 1000)
-  initreplaces = [i(ω) for i in iset]
-  (minf, ωvecoptim, ret) = NLopt.optimize(opt, initreplaces)
-  minf == 0.0
+  nlopt(loss, ω, iset, sizes)
 end
 
+"Sequence of ranges of lengths in lengths"
+function splitvec(lengths)
+  i = 1
+  ll = UnitRange{Int}[]
+  for l in lengths
+    b = i + l
+    push!(ll, i:b - 1)
+    i = b
+  end
+  ll
+end
+
+function nlopt(loss, ω, iset, sizes;
+               eq = isapprox,
+               NlOptAlg = :LN_COBYLA,
+               init = rand)
+  n = prod(sizes)
+  opt = NLopt.Opt(NlOptAlg, n)
+  NLopt.max_objective!(opt, loss)
+  initreplaces = init(n)
+  @show loss(initreplaces, rand(3))
+  (minf, ωvecoptim, ret) = NLopt.optimize(opt, initreplaces)
+  eq(minf, 0.0)
+end
+
+
+# Specify map from vector of values to intervention values
 # Separate optimization criteria
 # Return true false
+# Have some tolerance in equality?
+# Is the fact that the temperature is warm  
+# Implement Pearl things.  leep other things constant?
+# 

@@ -29,11 +29,13 @@ function testgrad(OT = Omega.SimpleΩ{Vector{Int}, Float64})
 end
 
 testgrad(LinearΩ{Vector{Int}, UnitRange{Int64}, Vector{Float64}})
+
+# Test them all
 istracked(::Type{LinearΩ{I, SEG, T}}) where {I, SEG, T <: TrackedArray} = true
 istracked(ΩT) = false
 
 function testgrad2(; modelcond, ΩT, gradalg)
-  @show ΩT
+  @show ΩT  
   println()
   Omega.lineargradient(modelcond, ΩT(), gradalg)
 end
