@@ -33,10 +33,10 @@ function iscausebf(ω::Ω, c::RandVar, e::RandVar, iset;
   @pre Bool(c(ω)) && Bool(e(ω)) "Both cause and effect must be true in ω"
   loss = let rngs = splitvec(sizes), butfor = Omega.ciid(ω -> !c(ω) & !e(ω)), proj = proj
     function loss(vec, grad)
-      @show typeof(proj(vec[rngs[1]]))
-      @show replmap = Dict(iset[i] => proj(vec[rng]) for (i, rng) in enumerate(rngs))
-      @show butforint = replace(butfor, replmap)
-      @show Omega.logerr(butforint(ω))
+      # typeof(proj(vec[rngs[1]]))
+      replmap = Dict(iset[i] => proj(vec[rng]) for (i, rng) in enumerate(rngs))
+      butforint = replace(butfor, replmap)
+      Omega.logerr(butforint(ω))
     end 
   end
   nlopt(loss, ω, iset, sizes)
@@ -61,8 +61,9 @@ function nlopt(loss, ω, iset, sizes;
   n = prod(sizes)
   opt = NLopt.Opt(NlOptAlg, n)
   NLopt.max_objective!(opt, loss)
+  NLopt.stopval!(opt, -0.0)
   initreplaces = init(n)
-  @show loss(initreplaces, rand(3))
+  loss(initreplaces, rand(3))
   (minf, ωvecoptim, ret) = NLopt.optimize(opt, initreplaces)
   eq(minf, 0.0)
 end

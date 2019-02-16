@@ -60,6 +60,8 @@ function randrtype(lω::LinearΩ{I, SEG, DT}, ::Type{T}) where {Q<:ForwardDiff.D
 end
 
 randrtype(ω, ::Type{T}, ::Dims{N}) where {T, N} = Array{randrtype(ω, T), N}
+randrtype(ω, T, ::Dims{N}) where N = Array{randrtype(ω, T), N}
+
 
 nelem(lω) = length(lω.ωvec)
 Base.values(lω::LinearΩ) = [lω.ωvec]
@@ -74,7 +76,7 @@ emp(a::Type{Flux.TrackedArray{A, B, C}}) where {A, B, C} = C()
 Base.append!(ta::Flux.TrackedArray, a::Array) =
   (append!(ta.data, a); append!(ta.grad, zero(a)))
 
-function randrtype(::Type{T}, lω::LinearΩ{I, SEG, V}, ::Dims{N}) where {I, SEG, V<: Flux.TrackedArray, T, N}
+function randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}, ::Dims{N}) where {I, SEG, V<: Flux.TrackedArray, T, N}
   @assert false
   Flux.TrackedArray{T, N, }
    Array{randrtype(T, ω), N}
@@ -104,6 +106,25 @@ function memrand(lω::LinearΩ, id, ::Type{X}, dims::Dims; rng) where X
   end
 end
 
+function memrand(lω::LinearΩ, id, X, dims::Dims; rng)
+  RT = randrtype(lω,  X,  dims)
+  seg = get(lω.ids, id, 0)
+  if seg == 0
+    res = rand(rng, X, dims)
+    startidx = length(lω.ωvec) + 1
+    lω.ids[id] = startidx:startidx + prod(dims) - 1
+    res_::RT = res
+    res_
+    append!(lω.ωvec, res_)
+    res_
+  else
+    seg = lω.ids[id]
+    subωvec = lω.ωvec[seg]
+    res::RT = reshape(subωvec, dims)
+    res
+  end
+end
+
 # using ZenUtils
 
 function memrand(lω::LinearΩ, id, ::Type{X}; rng) where X
@@ -115,7 +136,7 @@ function memrand(lω::LinearΩ, id, ::Type{X}; rng) where X
   seg = get(lω.ids, id, 0)
   if seg == 0
     res::RT = rand(rng, X)
-    append!(lω.ωvec, res)
+    push!(lω.ωvec, res)
     startidx = length(lω.ωvec) 
     lω.ids[id] = startidx:startidx
     res
@@ -124,3 +145,23 @@ function memrand(lω::LinearΩ, id, ::Type{X}; rng) where X
     subωvec = lω.ωvec[first(seg)]::RT
   end
 end
+
+function memrand(lω::LinearΩ, id, X; rng)
+  RT = randrtype(lω, X)
+  # @show typeof(lω)
+  # @show X
+  # @show RT
+  # @grab lω
+  seg = get(lω.ids, id, 0)
+  if seg == 0
+    res::RT = rand(rng, X)
+    push!(lω.ωvec, res)
+    startidx = length(lω.ωvec) 
+    lω.ids[id] = startidx:startidx
+    res
+  else
+    seg = lω.ids[id]
+    subωvec = lω.ωvec[first(seg)]::RT
+  end
+end
+

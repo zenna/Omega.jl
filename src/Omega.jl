@@ -6,7 +6,7 @@ import ForwardDiff, Flux
 using Spec
 using UnicodePlots
 using DocStringExtensions: FIELDS, SIGNATURES, TYPEDEF
-using Cassette  
+using Cassette
 
 import Random
 import Random: GLOBAL_RNG, AbstractRNG
@@ -49,6 +49,7 @@ export @lift, lift
 
 # Soft Inference
 include("soft/soft.jl")           # Soft Booleans / logic
+using .Soft
 export  SoftBool,
         softeq,
         softlt,
@@ -75,6 +76,16 @@ export  SoftBool,
         indomainₛ,
         applynotrackerr,
         applytrackerr
+
+Omega.lift(:softeq, 2)
+Omega.lift(:softeq, 3)
+Omega.lift(:softgt, 2)
+Omega.lift(:softlt, 2)
+Omega.lift(:logerr, 1)
+Omega.lift(:err, 1)
+Omega.lift(:kf1β, 1)
+Omega.lift(:kseα, 1)
+Omega.lift(:logkseα, 1)
 
 # Gradient
 include("gradient.jl")

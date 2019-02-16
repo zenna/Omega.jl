@@ -38,49 +38,7 @@ Base.rand(ωπ::ΩProj, dims::Integer...; rng = Random.GLOBAL_RNG) =
 Base.rand(ωπ::ΩProj, ::Type{X} = Float64; rng = Random.GLOBAL_RNG) where {X} =
   (res = memrand(ωπ.ω, ωπ.id, X; rng = rng); increment!(ωπ); res)
 
-
-
-# function Base.rand(ωπ::ΩProj, dims::Dims; rng = Random.GLOBAL_RNG)
-#   res = memrand(ωπ.ω, ωπ.id, Float64, dims; rng = rng)
-#   increment!(ωπ)
-#   res
-# end
-
-# function Base.rand(ωπ::ΩProj, arr::Array; rng = Random.GLOBAL_RNG)
-#   res = memrand(ωπ.ω, ωπ.id, arr; rng = rng)
-#   increment!(ωπ)
-#   res
-# end
-
-# function Base.rand(ωπ::ΩProj, T; rng = Random.GLOBAL_RNG)
-#   res = memrand(ωπ.ω, ωπ.id, T; rng = rng)
-#   increment!(ωπ)
-#   res
-# end
-
-# function Base.rand(ωπ::ΩProj, ::Type{T}; rng = Random.GLOBAL_RNG) where T
-#   @show "hi", rng, T
-#   res = memrand(ωπ.ω, ωπ.id, T; rng = rng)
-#   increment!(ωπ)
-#   res
-# end
-
-# function Base.rand(ωπ::ΩProj, ::Type{T}; rng = Random.GLOBAL_RNG) where T
-#   @show "hi", rng, T
-#   res = memrand(ωπ.ω, ωπ.id, T; rng = rng)
-#   increment!(ωπ)
-#   res
-# end
-
-# function Base.rand(ωπ::ΩProj; rng = Random.GLOBAL_RNG)
-#   @show "hi", rng
-#   res = memrand(ωπ.ω, ωπ.id, Float64; rng = rng)
-#   increment!(ωπ)
-#   res
-# end
-
-
-## Projection
+# Projection #
 
 Base.getindex(ωπ::ΩProj{O, I}, i::I) where {O, I} =
   ΩProj{O, I}(ωπ.ω, combine(ωπ.id, i))

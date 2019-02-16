@@ -6,8 +6,7 @@ using Random
 using ..Omega: RandVar, applytrackerr, indomainₛ, logerr,
                UTuple, Ω, applynotrackerr, SimpleΩ, LinearΩ,
                update, cond, randtuple, nelem,
-               gradient, linearize, unlinearize, err
-
+               gradient, linearize, unlinearize, err, indomainₛ, indomain
 import ..Omega
 using ProgressMeter
 using Flux

@@ -8,6 +8,6 @@ We use it mostly only for printing and debugging.
 Relying on it as part of an algorithm is inadvisable.
 """
 function elemtype(rv::RandVar, ΩT::Type{OT} = Omega.defΩ()) where OT
-  Base.promote_op(apl, typeof(rv), OT())
+  Base.promote_op(apl, typeof(rv), OT)
 end
 @spec rand(rv) isa _res

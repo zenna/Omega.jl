@@ -20,7 +20,6 @@ Since this is a new concept, it requires some explanation.
 # Random Distributional Properties
 Distributional properties are fixed (often real) values, but in a sense they are random variables too.
 For example, rainfall depends on temperature, the season, the presence of clouds, and so on.
-Probabilistic models are routinely used to capture uncertainty over these factors and their complex interactions.
 With respect to a model, expected rainfall is a real value, but it changes if we obtain new information.
 For example it rises if we observe clouds and falls to zero if we observe their absence.
 These two expectations becomes a random variable over expectations -- a conditional expectation -- when we take into account the probabilities of the presence or absence of clouds.
@@ -42,3 +41,5 @@ rcd
 rid
 ```
 ## rcd or rid?
+In many cases `rcd` and `rid` are equivalent.  In these cases you should prefer `rid`, since it is much more efficient. 
+The conditions with which they are equivalent are a bit subtle.
