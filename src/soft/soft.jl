@@ -7,7 +7,8 @@ import ForwardDiff
 import Cassette
 
 using DocStringExtensions
-export  SoftBool,
+export  d,
+        SoftBool,
         softeq,
         softlt,
         softgt,
@@ -46,11 +47,10 @@ include("distances.jl")      # Standard Distance Functions
 include("trackerror.jl")     # Tracking error
 include("any.jl")            # any, all
 
-
 # Using Dual Soft Bools
-const softeq = dsofteq
-const softgt = dsoftgt
-const softlt = dsoftlt
+softeq(x, y) = dsofteq(x, y)
+softgt(x, y) = dsoftgt(x, y)
+softlt(x, y) = dsoftlt(x, y)
 
 const softtrue = dsofttrue
 const softfalse = dsoftfalse

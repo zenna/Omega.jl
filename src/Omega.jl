@@ -50,7 +50,9 @@ export @lift, lift
 # Soft Inference
 include("soft/soft.jl")           # Soft Booleans / logic
 using .Soft
-export  SoftBool,
+
+export  d,
+        SoftBool,
         softeq,
         softlt,
         softgt,
@@ -76,6 +78,9 @@ export  SoftBool,
         indomainₛ,
         applynotrackerr,
         applytrackerr
+
+# Soft.logerr(x::RandVar) = 3
+import .Soft: logerr, softeq, softgt, softlt, err, kf1β, kseα, logkseα
 
 Omega.lift(:softeq, 2)
 Omega.lift(:softeq, 3)

@@ -23,7 +23,7 @@ indomainₛ(x::RandVar) = ciid(ω -> indomainₛ(x, ω))
 indomain(x, ω, errinit = true) = applytrackerr(x, ω, errinit).err
 indomain(x::RandVar) = ciid(ω -> indomain(x, ω))
 
-function condf(tω::TaggedΩ, x, y)
+function Omega.condf(tω::TaggedΩ, x, y)
   if !haskey(tω.tags, :donttrack) && haskey(tω.tags, :err)
     conjoinerror!(tω.tags.err, apl(y, tω))
   end
@@ -32,7 +32,7 @@ end
 
 "Tag `ω` with `err`" 
 # tagerror(ω, errinit::AbstractBool) = tag(ω, (err = Ref(errinit),)) #FIXME UNCOMMENT THIS AND SPECIALISE BELOW TO OMEGA
-tagerror(ω, errinit::AbstractBool) = tag(@show(ω), (err = Ref{Real}(errinit),))
+tagerror(ω, errinit::AbstractBool) = tag(ω, (err = Ref{Real}(errinit),))
 
 # If error already there, use that!
 function tagerror(tω::TaggedΩ, errinit::AbstractBool)

@@ -203,7 +203,7 @@ uniform(vals) = UniformChoice(vals)
 uniform(vals, sz::Dims) = UniformChoice(lift(fill)(vals, sz))
 
 "Discrete uniform distribution over unit range `range`"
-uniform(range::MaybeRV{UnitRange}) = UniformChoice(range)
+uniform(range::MaybeRV{UnitRange}) = UniformChoice(range) #FIXME
 
 "Discrete uniform distribution over array"
 uniform(arr::MaybeRV{Array}) = UniformChoice(arr)
