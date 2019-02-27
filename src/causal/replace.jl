@@ -27,22 +27,22 @@ upconv(x::Dict{RV}) where RV = Dict(k.id => mcv(v) for (k, v) in x)
 upconv(pairs::Pair...) = Dict(k.id => mcv(v) for (k, v) in pairs)
 upconv(pair::Pair) = Dict(pair.first.id => mcv(pair.second))
 
-"""`replace(x::RandVar, replmap)`
-Causal intervention.
+# """`replace(x::RandVar, replmap)`
+# Causal intervention.
 
-Returns a randvar that is like `x` but where random variables it depend on
-(its parents) are changed to those specified in replmap
+# Returns a randvar that is like `x` but where random variables it depend on
+# (its parents) are changed to those specified in replmap
 
-```julia
-θ = normal(0, 1)
-x = normal(θ, 1)
-xdo1 = replace(x, θ => 100.0)
-xdo2 = replace(x, θ => uniform(1000.0, 2000.0))
-rand((x, xdo1, xdo2))
-```
+# ```julia
+# θ = normal(0, 1)
+# x = normal(θ, 1)
+# xdo1 = replace(x, θ => 100.0)
+# xdo2 = replace(x, θ => uniform(1000.0, 2000.0))
+# rand((x, xdo1, xdo2))
+# ```
 
-"""
-function replace end
+# """
+# function Base.replace end
 
 "Causal Intervention: Set `θold` to `θnew` in `x`"
 Base.replace(x::RandVar, replmap::Dict{Int, <: RandVar}) = ReplaceRandVar(x, replmap)

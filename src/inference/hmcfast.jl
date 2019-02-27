@@ -98,7 +98,7 @@ function Base.rand(rng::AbstractRNG,
   
   ωsamples = ΩT[] 
   U = -logdensity
-  ∇U(ω) = gradient(gradalg, U, ω)
+  ∇U(ω) = Omega.back!(U, ω, gradalg)
 
   accepted = 0
   for i = 1:n*takeevery

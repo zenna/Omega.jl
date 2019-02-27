@@ -1,5 +1,5 @@
 """
-Fast SimpleΩ
+SimpleΩ: Stores map from indices to values
 
 # Properties
 - Fast tracking (50 ns overhead)
@@ -52,8 +52,12 @@ end
 
 # Flux-specific #
 
+randrtype(ω::SimpleΩ{I, A}, ::Type{T}) where {T <: AbstractFloat, I, A<:Flux.TrackedArray} = Flux.Tracker.TrackedReal{T}
+randrtype(ω::SimpleΩ{I, A}, ::Type{T}, ::Dims{N}) where {N, T <: AbstractFloat, I, A<:Flux.TrackedArray} = Flux.Tracker.TrackedReal{T}
+# zt: Issue here is how do you specify that it should be say a static vector
+
 @inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T}, dims::Dims; rng) where {T, I, A<:Flux.TrackedArray}
-  get!(()->Flux.param(rand(rng, T, dims)), ω.vals, id)
+  get!(()->Flux.param(rand(rng, T, dims)), ω.vals, id)::randrtype(ω, T)
 end
 
 @inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T}; rng) where {T, I, A<:Flux.TrackedArray}

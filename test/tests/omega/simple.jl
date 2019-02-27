@@ -1,5 +1,3 @@
-module TestNamespace
-
 using Test
 
 using TestLib.Lens
@@ -36,6 +34,4 @@ idx(i::Int) = base(Vector{Int}, i)
 
   @test test_lens_put_put(linearize, unlinearize, test_ωs_len_3, test_vals_len_3)
   @test test_lens_get_put(linearize, unlinearize, test_ωs_len_3, test_vals_len_3)
-end
-
 end

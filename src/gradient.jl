@@ -35,10 +35,13 @@ function gradient(y::RandVar, sω::SimpleΩ{I, V}, vals) where {I, V <: Abstract
   linearize(sω_)
 end
 
-# The New #
+
 
 "`lineargradient(::RandVar, ω::Ω, ::Alg)` Returns as vector gradient of ω components"
 function lineargradient end
+
+"`back!(::RandVar, ω::Ω, ::FluxGradAlg)` update values of ω with gradients"
+function back! end
 
 # zt: flux/fd have different signature
 # and different return type., difficult to interchange because
@@ -50,19 +53,19 @@ function lineargradient end
 struct FluxGradAlg end
 const FluxGrad = FluxGradAlg()
 
-function back!(rv, ω)
+function back!(rv, ω, ::FluxGradAlg)
   l = rv(ω)
   Flux.back!(l)
 end
 
-lineargradient(rv, ω, ::FluxGradAlg) = (back!(rv, ω); linearize(ω))
+# # FIXME: Remove this
+# function gradient(::FluxGradAlg, U, sω::SimpleΩ{I, V}) where {I, V <: AbstractArray}
+#   l = U(sω)
+#   Flux.back!(l)
+# end
+# # The New #
 
-# FIXME: Remove this
-
-function gradient(::FluxGradAlg, U, sω::SimpleΩ{I, V}) where {I, V <: AbstractArray}
-  l = U(sω)
-  Flux.back!(l)
-end
+lineargradient(rv, ω, ::FluxGradAlg) = (back!(rv, ω, FluxGrad); linearize(ω))
 
 # Forward Diff based # 
 struct ForwardDiffGradAlg end
@@ -70,15 +73,17 @@ const ForwardDiffGrad = ForwardDiffGradAlg()
 
 function lineargradient(rv, ω::Ω, ::ForwardDiffGradAlg)
   rv(ω) # Init
+
+  # Unlinearizes xs into ω::Ω and applies rv(ω)
   function unlinearizeapl(xs)
     # Replace the tag tag here
     # ω_ = tag(ω, dsofttrue(ForwardDiff.Dual))
-    T = ForwardDiff.Dual{Any,Float64,0}
-    rv2 = ciid(ω -> apl(rv, @show(Omega.tagerror(ω, dsofttrue(T)))))
+    # T = ForwardDiff.Dual{Any,Float64,0}
+    # rv2 = ciid(ω -> apl(rv, @show(Omega.Soft.tagerror(ω, dsofttrue(T)))))
     # ω_ = Omega.tagerror(ω, dsofttrue(T))
     # then we dont want to override the tag
     # because rv is going to add a tagz
-    apl(rv2, unlinearize(xs, ω))
+    apl(rv, unlinearize(xs, ω))
   end
   xs = linearize(ω)
   ForwardDiff.gradient(unlinearizeapl, xs)

@@ -34,8 +34,8 @@ end
 # tagerror(ω, errinit::AbstractBool) = tag(ω, (err = Ref(errinit),)) #FIXME UNCOMMENT THIS AND SPECIALISE BELOW TO OMEGA
 tagerror(ω, errinit::AbstractBool) = tag(ω, (err = Ref{Real}(errinit),))
 
-# If error already there, use that!
+"Tag tω with error"
 function tagerror(tω::TaggedΩ, errinit::AbstractBool)
-  # @assert false
+  # If error already there, use that!
   haskey(tω.tags, :err) ? tω : tag(tω, (err = Ref{Real}(errinit),))
 end

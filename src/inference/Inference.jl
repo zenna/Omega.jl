@@ -9,7 +9,7 @@ using ..Omega: RandVar, applytrackerr, indomainₛ, logerr,
                gradient, linearize, unlinearize, err, indomainₛ, indomain
 import ..Omega
 using ProgressMeter
-using Flux
+import Flux
 import ForwardDiff
 using Callbacks
 import UnicodePlots

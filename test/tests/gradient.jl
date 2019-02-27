@@ -3,15 +3,9 @@ using TestModels
 import ForwardDiff
 using Flux
 
-# Add to test, more complex models,
-# Different Om typ
-
 const ΩTs = [LinearΩ{Vector{Int}, UnitRange{Int64}, Vector{Float64}},
              Omega.SimpleΩ{Vector{Int}, Float64},
              LinearΩ{Vector{Int}, UnitRange{Int64}, TrackedArray{Float64, 1, Array{Float64,1}}}]
-
-             
-
 
 const gradalgs = [Omega.FluxGrad,
                   Omega.ForwardDiffGrad,
@@ -24,7 +18,6 @@ function testgrad(OT = Omega.SimpleΩ{Vector{Int}, Float64})
   y = logerr(x ==ₛ 1.0)
   ω = OT()
   y(ω)
-  Omega.lineargradient(y, ω, Omega.ForwardDiffGrad)
   Omega.lineargradient(y, ω, Omega.ForwardDiffGrad)
 end
 

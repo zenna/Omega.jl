@@ -1,5 +1,3 @@
-module TestNamespace
-
 using Omega
 
 function testw()
@@ -39,4 +37,3 @@ function testlogistic()
 end
 
 testlogistic()
-end

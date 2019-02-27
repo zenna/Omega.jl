@@ -51,14 +51,9 @@ function update(lω::LinearΩ, i::Int, val)
   lω_
 end
 
-function randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}) where {T, I, SEG, V}
-  T
-end
-
-function randrtype(lω::LinearΩ{I, SEG, DT}, ::Type{T}) where {Q<:ForwardDiff.Dual, T, I, SEG, DT <: AbstractArray{Q}}
-  Q
-end
-
+# randtype #
+randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}) where {T, I, SEG, V} = T
+randrtype(lω::LinearΩ{I, SEG, DT}, ::Type{T}) where {Q<:ForwardDiff.Dual, T, I, SEG, DT <: AbstractArray{Q}} = Q
 randrtype(ω, ::Type{T}, ::Dims{N}) where {T, N} = Array{randrtype(ω, T), N}
 randrtype(ω, T, ::Dims{N}) where N = Array{randrtype(ω, T), N}
 
@@ -77,35 +72,19 @@ Base.append!(ta::Flux.TrackedArray, a::Array) =
   (append!(ta.data, a); append!(ta.grad, zero(a)))
 
 function randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}, ::Dims{N}) where {I, SEG, V<: Flux.TrackedArray, T, N}
+  @show V
   @assert false
-  Flux.TrackedArray{T, N, }
+  Flux.TrackedArray{T, N,  }
    Array{randrtype(T, ω), N}
 end
+
+# function randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}) where {I, SEG, V<: Flux.TrackedArray, T <: AbstractFloat}
+#   Flux.Tracker.TrackedReal{T}
+# end
+
+# coerce(::Type{T}, x) where T = convert(T, x)
+# coerse(::Type{T}, x) where T 
   
-
-# memrand(lω::LinearΩ, id, ::Type{X}, dims::Dims; rng) where X =
-#   memrand(lω, id, X, dims; rng = rng)
-
-# Hypothetical solution
-function memrand(lω::LinearΩ, id, ::Type{X}, dims::Dims; rng) where X
-  RT = randrtype(lω,  X,  dims)
-  seg = get(lω.ids, id, 0)
-  if seg == 0
-    res = rand(rng, X, dims)
-    startidx = length(lω.ωvec) + 1
-    lω.ids[id] = startidx:startidx + prod(dims) - 1
-    res_::RT = res
-    res_
-    append!(lω.ωvec, res_)
-    res_
-  else
-    seg = lω.ids[id]
-    subωvec = lω.ωvec[seg]
-    res::RT = reshape(subωvec, dims)
-    res
-  end
-end
-
 function memrand(lω::LinearΩ, id, X, dims::Dims; rng)
   RT = randrtype(lω,  X,  dims)
   seg = get(lω.ids, id, 0)
@@ -113,52 +92,35 @@ function memrand(lω::LinearΩ, id, X, dims::Dims; rng)
     res = rand(rng, X, dims)
     startidx = length(lω.ωvec) + 1
     lω.ids[id] = startidx:startidx + prod(dims) - 1
-    res_::RT = res
+    res_::RT = res  # zt: issue si that might need to convert into correct format
     res_
     append!(lω.ωvec, res_)
     res_
   else
     seg = lω.ids[id]
     subωvec = lω.ωvec[seg]
-    res::RT = reshape(subωvec, dims)
+    res::RT = reshape(subωvec, dims) # reshaping a thing might produce a vector
     res
   end
 end
 
-# using ZenUtils
-
-function memrand(lω::LinearΩ, id, ::Type{X}; rng) where X
-  RT = randrtype(lω, X)
-  # @show typeof(lω)
-  # @show X
-  # @show RT
-  # @grab lω
-  seg = get(lω.ids, id, 0)
-  if seg == 0
-    res::RT = rand(rng, X)
-    push!(lω.ωvec, res)
-    startidx = length(lω.ωvec) 
-    lω.ids[id] = startidx:startidx
-    res
-  else
-    seg = lω.ids[id]
-    subωvec = lω.ωvec[first(seg)]::RT
-  end
-end
+memrand(lω::LinearΩ{I, SEG, V}, id, X; rng) where {I, SEG, V<: Flux.TrackedArray} = 
+  first(memrand(lω, id, X, (1,); rng = rng))
 
 function memrand(lω::LinearΩ, id, X; rng)
   RT = randrtype(lω, X)
   # @show typeof(lω)
   # @show X
-  # @show RT
+  # @show RT, X, lω
   # @grab lω
   seg = get(lω.ids, id, 0)
   if seg == 0
     res::RT = rand(rng, X)
-    push!(lω.ωvec, res)
+    res_::RT = res
+    push!(lω.ωvec, res_)
     startidx = length(lω.ωvec) 
     lω.ids[id] = startidx:startidx
-    res
+    res_
   else
     seg = lω.ids[id]
     subωvec = lω.ωvec[first(seg)]::RT

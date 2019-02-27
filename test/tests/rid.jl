@@ -1,5 +1,3 @@
-module TestNamespace
-
 using Omega
 using Test
 using Statistics: mean
@@ -30,5 +28,3 @@ function testrid2()
 end
 
 testrid2()
-
-end
