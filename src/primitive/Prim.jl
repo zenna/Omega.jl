@@ -10,6 +10,7 @@ using Spec
 import Distributions
 const Djl = Distributions
 import Base: minimum, maximum
+import Random
 
 export  bernoulli,
         betarv,
@@ -60,6 +61,7 @@ end
 include("univariate.jl")      # Univariate Distributions
 include("multivariate.jl")    # Multivariate Distributions
 include("statistics.jl")      # Distributional properties: mean, variance, etc
+include("randx.jl")      # Distributional properties: mean, variance, etc
 export  succprob,
         failprob,
         maximum,
