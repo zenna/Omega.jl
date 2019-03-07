@@ -15,12 +15,12 @@ Bool(x::DualSoftBool) = Bool(x.b1)
 err(x::DualSoftBool) = err(x.b1)
 logerr(x::DualSoftBool) = logerr(x.b1)
 
-dsofteq(x, y, k = globalkernel()) = DualSoftBool(SoftBool(x == y ? globalkernel(1) : 1), ssofteq(x, y, k)) # FIXME
+dsofteq(x, y, k = globalkernel()) = DualSoftBool(SoftBool(x == y ? k(1.0) : 0.0), ssofteq(x, y, k)) # FIXME
 dsoftgt(x, y, k = globalkernel()) = DualSoftBool(ssoftlt(x, y, k), ssoftgt(x, y, k))
 dsoftlt(x, y, k = globalkernel()) = DualSoftBool(ssoftgt(x, y, k), ssoftlt(x, y, k))
 
-Base.:&(x::DualSoftBool, y::DualSoftBool) = DualSoftBool(x.b0 & y.b0, x.b1 & y.b1)
-Base.:|(x::DualSoftBool, y::DualSoftBool) = DualSoftBool(x.b0 | y.b0, x.b1 | y.b1)
+Base.:&(x::DualSoftBool, y::DualSoftBool) = DualSoftBool(x.b0 | y.b0, x.b1 & y.b1)
+Base.:|(x::DualSoftBool, y::DualSoftBool) = DualSoftBool(x.b0 & y.b0, x.b1 | y.b1)
 
 dsofttrue(::Type{T} = Float64) where T = DualSoftBool(SoftBool(-inf(T)), SoftBool(zero(T)))
 dsoftfalse(::Type{T} = Float64) where T = DualSoftBool(SoftBool(zero(T)), SoftBool(-inf(T)))
