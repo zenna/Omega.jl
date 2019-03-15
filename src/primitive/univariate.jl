@@ -136,6 +136,7 @@ end
 rvtransform(::Logistic) = logistic
 logistic(p::Real, μ::Real, s::Real) = μ + s * log(p / (1 - p))
 logistic(ω::Ω, μ::Real, s::Real) = logistic(rand(ω), μ, s)
+logistic(ω::Ω, μ::Real, s::Real, dims::Dims) = logistic.(rand(ω, dims), μ, s)
 logistic(ω::Ω, μ, s) = (p = rand(ω, anysize(μ, s)); logistic.(p, μ, s))
 
 logistic(μ, s) = Logistic(μ, s)

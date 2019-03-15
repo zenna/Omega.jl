@@ -29,17 +29,29 @@ false
 """
 function iscausebf(ω::Ω, c::RandVar, e::RandVar, iset;
                    sizes = [size(i(ω)) for i in iset],
-                   proj = identity)
+                   proj = identity,
+                   cb = donothing,
+                   optargs...)
   @pre Bool(c(ω)) && Bool(e(ω)) "Both cause and effect must be true in ω"
   loss = let rngs = splitvec(sizes), butfor = Omega.ciid(ω -> !c(ω) & !e(ω)), proj = proj
+    ii = 1
     function loss(vec, grad)
       # typeof(proj(vec[rngs[1]]))
       replmap = Dict(iset[i] => proj(vec[rng]) for (i, rng) in enumerate(rngs))
       butforint = replace(butfor, replmap)
-      Omega.logerr(butforint(ω))
+      loss = Omega.logerr(butforint(ω))
+      # @show cb, IterEnd
+      cb((loss = loss, replmap = replmap), IterEnd)
+      # @show ii
+      if loss == -0.0 && ii > 10
+        @show ii, loss
+        error()
+      end
+      ii += 1
+      loss
     end 
   end
-  nlopt(loss, ω, iset, sizes)
+  nlopt(loss, ω, iset, sizes; optargs...)
 end
 
 "Sequence of ranges of lengths in lengths"
@@ -55,17 +67,22 @@ function splitvec(lengths)
 end
 
 function nlopt(loss, ω, iset, sizes;
+               n = prod(sizes),
                eq = isapprox,
                NlOptAlg = :LN_COBYLA,
-               init = rand)
-  n = prod(sizes)
+               init = () -> rand(n))
+  # n = prod(sizes)
   opt = NLopt.Opt(NlOptAlg, n)
   NLopt.max_objective!(opt, loss)
   NLopt.stopval!(opt, -0.0)
-  initreplaces = init(n)
-  loss(initreplaces, rand(3))
-  (minf, ωvecoptim, ret) = NLopt.optimize(opt, initreplaces)
-  eq(minf, 0.0)
+  NLopt.initial_step!(opt, 0.5)
+  initreplaces = init()
+  # loss(initreplaces, rand(3))
+  @show (minf, ωvecoptim, ret) = NLopt.optimize(opt, initreplaces)
+  if ret == :FORCED_STOP
+    error("Forced Stop")
+  end
+  @show eq(minf, 0.0)
 end
 
 
