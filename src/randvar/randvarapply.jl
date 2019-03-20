@@ -11,7 +11,10 @@ subapl(x, ω) = x
 @inline subapl(rv::RandVar, ω) = apl(rv, ω)
 
 "Project ω to `x`"
-proj(ω::ΩBase, x::RandVar) = ω[x.id][1] # FIXME, change to ω[x.id, 1]
+proj(ω::ΩBase, x::RandVar) = proj(ω, x.id, 1)
+
+proj(ω::O, i...) where {I, O <: ΩBase{I}} = 
+  ΩProj{O, I}(ω, base(I, i...))
 
 proj(tω::TaggedΩ, x::RandVar) = tag(proj(tω.taggedω, x), tω.tags)
 @spec _res.tags == tω.tags "tags are preserved in projection"

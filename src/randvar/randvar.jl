@@ -1,4 +1,4 @@
-"Random Variable: a function `Ω -> T`"
+"Random Variable: a function `Ω -> T` on a probability space"
 abstract type RandVar end
 
 MaybeRV{T} = Union{T, RandVar} where T
@@ -45,8 +45,7 @@ end
 
 isconstant(x) = true
 
-## Printing
-## ========
+# Printing #
 name(x) = x
 Base.show(io::IO, rv::RandVar) =
   print(io, "$(id(rv)):$(name(rv))($(join(map(name, params(rv)), ", ")))::$(elemtype(rv))")

@@ -24,10 +24,11 @@ Counter() = Counter(0)
 
 "Increment counter"
 increment!(c::Counter) = x::Int = c.count += 1
-@spec c.count == _pre(c.count) += 1
+@spec UTupleec c.count == _pre(c.count) += 1
 
 UTuple{T} = Tuple{Vararg{T, N}} where N
 
+# FIXME, dynamic dispatch
 "merge using combine if key is shared.
 Assumes result of combine same type as in `b`
 

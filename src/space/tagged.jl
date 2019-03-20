@@ -20,10 +20,24 @@ tag(tω::TaggedΩ, tag_::Tags) = TaggedΩ(tω.taggedω, merge(combinetag, tag_, 
 
 # Pass-throughs (tω::TaggedΩ should work like its tω.taggedω, but preserve tags)
 
-Base.getindex(tω::TaggedΩ, i) = TaggedΩ(getindex(tω.taggedω, i), tω.tags)
-Base.rand(tω::TaggedΩ, args...) = rand(tω.taggedω, args...)
-Base.rand(tω::TaggedΩ, dims::Integer...) = rand(tω.taggedω, dims...)
-Base.rand(tω::TaggedΩ, dims::Dims) = rand(tω.taggedω, dims)
-Base.rand(tω::TaggedΩ, arr::Array) = rand(tω.taggedω, arr)
+@inline Base.getindex(tω::TaggedΩ, i) = TaggedΩ(getindex(tω.taggedω, i), tω.tags)
+# Base.rand(tω::TaggedΩ, args...) = rand(tω.taggedω, args...; rng = rng(tω))
 
-parentω(tω::TaggedΩ) = TaggedΩ(parentω(tω), tω.tags)
+# Just pass through rand to tω.taggedω (have to repeat due to ambiguities with Random)
+@inline Base.rand(tω::TaggedΩ) = rand(tω.taggedω; rng = rng(tω))
+@inline Base.rand(tω::TaggedΩ, dims::Dims) = rand(tω.taggedω, dims; rng = rng(tω))
+@inline Base.rand(tω::TaggedΩ, dim::Integer, dims::Integer...) = rand(tω.taggedω, dim, dims...; rng = rng(tω))
+
+@inline Base.rand(tω::TaggedΩ, ::Type{T}) where T = rand(tω.taggedω, T; rng = rng(tω))
+@inline Base.rand(tω::TaggedΩ, ::Type{T}, dims::Dims) where T = rand(tω.taggedω, T, dims; rng = rng(tω))
+@inline Base.rand(tω::TaggedΩ, ::Type{T}, dim::Integer, dims::Integer...) where T= rand(tω.taggedω, T, dim, dims...; rng = rng(tω))
+
+@inline Base.rand(tω::TaggedΩ, arr::Array) = rand(tω.taggedω, arr; rng = rng(tω))
+@inline Base.rand(tω::TaggedΩ, arr::Array, dims::Dims) = rand(tω.taggedω, arr, dims; rng = rng(tω))
+@inline Base.rand(tω::TaggedΩ, arr::Array, dim::Integer, dims::Integer...) = rand(tω.taggedω, arr, dim, dims...; rng = rng(tω))
+
+@inline Base.rand(tω::TaggedΩ, ur::UnitRange) = rand(tω.taggedω, ur; rng = rng(tω))
+@inline Base.rand(tω::TaggedΩ, ur::UnitRange, dims::Dims) = rand(tω.taggedω, ur, dims; rng = rng(tω))
+@inline Base.rand(tω::TaggedΩ, ur::UnitRange, dim::Integer, dims::Integer...) = rand(tω.taggedω, ur, dim, dims...; rng = rng(tω))
+
+@inline parentω(tω::TaggedΩ) = TaggedΩ(parentω(tω), tω.tags)

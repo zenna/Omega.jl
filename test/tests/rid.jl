@@ -1,5 +1,3 @@
-module TestNamespace
-
 using Omega
 using Test
 using Statistics: mean
@@ -25,10 +23,8 @@ function testrid2()
   t1 = normal(0.0, 1.0)
   t2 = normal(0.0, 1.0)
   x = normal(t1 + t2, 1.0)
-  xrcd = rid(x, t1, t2)
-  samples = rand(t1, mean(xrcd) ==ₛ 0.0, 1000; alg = SSMH)
+  xrid = rid(x, t1, t2)
+  samples = rand(t1, lmean(xrid) ==ₛ 0.0, 1000; alg = SSMH)
 end
 
 testrid2()
-
-end

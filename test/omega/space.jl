@@ -11,7 +11,7 @@ function randvec(ω::Ω{I}, startIdx, nextIdx, n, T::Type) where {I}
   id = startIdx
   vec = []
   for i in 1:n
-    push!(vec, resolve(ω, id, T))
+    push!(vec, memrand(ω, id, T))
     id = nextIdx(id)
   end
   vec

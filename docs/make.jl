@@ -15,13 +15,14 @@ makedocs(
     "Soft Execution"=>"soft.md",
     "Inference Algorithms"=>"inferencealgorithms.md",
     "Causal Inference" => "causal.md",
-    "Higher Order Inference" => "higher.md",
+    "Distributional Inference" => "higher.md",
     "Built-in Distributions" => "distributions.md",
     "Cheat Sheet" => "cheatsheet.md",
     "Internals" => ["Overview" => "internalsoverview.md",
                     "Ω" => "omega.md",
                     "RandVar" => "randvar.md"],
     "Contribution Guide" => "contrib.md",
+    "Omega vs other PPLs" => "omegavsotherppls.md",
   ]
 )
 

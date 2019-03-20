@@ -7,7 +7,7 @@ conjoinerror!(err::Ref{<:Real}, b) = err[] &= b
 
 "Is `ω` in the domain of `x`?"
 function applytrackerr(x, ω, errinit = softtrue())
-  ω_ = tagerror(ω, errinit)
+  ω_ = tagerror(ω, errinit) # zt: surprisingly expensive
   fx = apl(x, ω_)
   (fx = fx, err = ω_.tags.err.x)
 end
@@ -23,7 +23,7 @@ indomainₛ(x::RandVar) = ciid(ω -> indomainₛ(x, ω))
 indomain(x, ω, errinit = true) = applytrackerr(x, ω, errinit).err
 indomain(x::RandVar) = ciid(ω -> indomain(x, ω))
 
-function condf(tω::TaggedΩ, x, y)
+function Omega.condf(tω::TaggedΩ, x, y)
   if !haskey(tω.tags, :donttrack) && haskey(tω.tags, :err)
     conjoinerror!(tω.tags.err, apl(y, tω))
   end
@@ -33,3 +33,9 @@ end
 "Tag `ω` with `err`" 
 # tagerror(ω, errinit::AbstractBool) = tag(ω, (err = Ref(errinit),)) #FIXME UNCOMMENT THIS AND SPECIALISE BELOW TO OMEGA
 tagerror(ω, errinit::AbstractBool) = tag(ω, (err = Ref{Real}(errinit),))
+
+"Tag tω with error"
+function tagerror(tω::TaggedΩ, errinit::AbstractBool)
+  # If error already there, use that!
+  haskey(tω.tags, :err) ? tω : tag(tω, (err = Ref{Real}(errinit),))
+end

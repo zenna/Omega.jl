@@ -10,7 +10,15 @@ end
 @inline (rv::ReplaceRandVar)(ω::Ω) = apl(rv, ω)
 id(x::ReplaceRandVar) = x.id
 ppapl(rv::ReplaceRandVar, ω::Ω) = apl(rv.x, tag(ω, (replmap = rv.replmap,)))
-params(rv::ReplaceRandVar) = map(p -> replace(p, rv.replmap), params(rv.x))
+
+
+maybereplace(x::RandVar, replmap) = replace(x, replmap)
+
+# If x is a constant, do nothing
+maybereplace(x, replmap) = x
+
+# Params of intervened RandVar should themselves be intervened (if not const)
+params(rv::ReplaceRandVar) = map(p -> maybereplace(p, rv.replmap), params(rv.x))
 
 @inline function replaceapl(rv::RandVar, tω::TaggedΩ{I, Tags{K, V}, ΩT}) where {I, K, V, ΩT <: ΩBase}
   if haskey(tω.tags.replmap, rv.id) # FIXME, double look up
@@ -26,6 +34,23 @@ mcv(x) = constant(x)
 upconv(x::Dict{RV}) where RV = Dict(k.id => mcv(v) for (k, v) in x)
 upconv(pairs::Pair...) = Dict(k.id => mcv(v) for (k, v) in pairs)
 upconv(pair::Pair) = Dict(pair.first.id => mcv(pair.second))
+
+# """`replace(x::RandVar, replmap)`
+# Causal intervention.
+
+# Returns a randvar that is like `x` but where random variables it depend on
+# (its parents) are changed to those specified in replmap
+
+# ```julia
+# θ = normal(0, 1)
+# x = normal(θ, 1)
+# xdo1 = replace(x, θ => 100.0)
+# xdo2 = replace(x, θ => uniform(1000.0, 2000.0))
+# rand((x, xdo1, xdo2))
+# ```
+
+# """
+# function Base.replace end
 
 "Causal Intervention: Set `θold` to `θnew` in `x`"
 Base.replace(x::RandVar, replmap::Dict{Int, <: RandVar}) = ReplaceRandVar(x, replmap)

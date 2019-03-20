@@ -9,7 +9,7 @@ The `replace` operator models an intervention to a model.
 It changes the model.
 
 ```@docs
-replace
+Omega.replace
 ```
 
 In Omega we use the syntax:

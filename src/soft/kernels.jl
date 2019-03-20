@@ -4,13 +4,10 @@
 "Real+ -> [0, 1]"
 kf1(x, β = 0.0001) = x / (x + β)
 kf1β(β) = d -> kf1(d, β)
-lift(:kf1β, 1)
 
 "(Log) Squared exponential kernel `α = 1/2l^2`, higher α is lower temperature  "
 kse(d, α = 1000.0) = - α * d
 kseα(α) = d -> kse(d, α) 
-lift(:kseα, 1)
-lift(:logkseα, 1)
 
 "γ exponential" 
 γe(x, l = 1, γ = 1) = exp(-(x/l)^γ)

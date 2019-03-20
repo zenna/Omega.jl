@@ -136,6 +136,7 @@ end
 rvtransform(::Logistic) = logistic
 logistic(p::Real, μ::Real, s::Real) = μ + s * log(p / (1 - p))
 logistic(ω::Ω, μ::Real, s::Real) = logistic(rand(ω), μ, s)
+logistic(ω::Ω, μ::Real, s::Real, dims::Dims) = logistic.(rand(ω, dims), μ, s)
 logistic(ω::Ω, μ, s) = (p = rand(ω, anysize(μ, s)); logistic.(p, μ, s))
 
 logistic(μ, s) = Logistic(μ, s)
@@ -203,7 +204,7 @@ uniform(vals) = UniformChoice(vals)
 uniform(vals, sz::Dims) = UniformChoice(lift(fill)(vals, sz))
 
 "Discrete uniform distribution over unit range `range`"
-uniform(range::MaybeRV{UnitRange}) = UniformChoice(range)
+uniform(range::MaybeRV{UnitRange}) = UniformChoice(range) #FIXME
 
 "Discrete uniform distribution over array"
 uniform(arr::MaybeRV{Array}) = UniformChoice(arr)

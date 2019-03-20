@@ -5,7 +5,7 @@ struct ReplicaAlg <: SamplingAlgorithm end
 
 "Single Site Metropolis Hastings"
 const Replica = ReplicaAlg()
-defΩ(::ReplicaAlg) = Omega.LinearΩ{Vector{Int64}, Omega.Space.Segment, Real}
+defΩ(::ReplicaAlg) = Omega.LinearΩ{Vector{Int}, UnitRange{Int64}, Vector{Real}}
 defΩ(x, ::ReplicaAlg; inneralg...) = defΩ(inneralg)
 
 isapproximate(::ReplicaAlg) = true

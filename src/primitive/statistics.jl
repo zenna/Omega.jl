@@ -1,31 +1,52 @@
-## Distributional Functions
-## ========================
-# "Sample approximation (using `n` samples)  to expectation of `x`"
-# mean(x::RandVar{<:Real}, n=10000) = sum((rand(x, alg = RejectionSample) for i = 1:n)) / n
-# mean(x::RandVar{T}, n=10000) where {T <: RandVar{<:Real}} =
-#   RandVar{Float64, false}(mean, (x, n), 0)
+# When can we convert a RandVar to a Distributions.jl RandVar?
+# What inference algorithm if any do we want to use when using mean in model
+# Options: 1. user specifies
+# 2. No inference algorithm: we do samples on the outside
+# Need to take into account conditions on x
 
-# "Sample approximation (using `n` samples) to variance of `x`"
-# function var(x::RandVar{<:Real}, n=10000)
-#   var([rand(x) for i = 1:n])
-# end
+function test()
+  θ = uniform(-1, 1)
+  x = normal(θ, 1)
+  samplemeanᵣ(x ∥ θ) > 0.5
+end
 
-# "Sample variusing ..Omega: ance (using `n` samples)"
-# function var(x::RandVar{T}, n=10000) where {T <: RandVar{<:Real}}
-#   RandVar{Float64, false}(var, (x, n))
-# end
 
 # mean(xs::RandVar{<:Array}) = RandVar{Float64, false}(mean, (xs,))
-"Sample Mean"
-mean(x::RandVar, n) = sum((rand(x, alg = RejectionSample) for i = 1:n)) / n
+"Expectation of `x` from `n` samples"
+function samplemean(x::RandVar, n; alg = RejectionSample)
+  sum((rand(x, alg = alg) for i = 1:n)) / n
+end
+
+samplemeanᵣ(x, n; alg = RejectionSample) = ciid(ω -> samplemean(x(ω), n; alg = alg))
+
+# function samplemean(ω, x, n)
+#   ω1 = ω[@uid]
+#   x_ = x(ω1)
+#   for i = 1:n-1
+#     x_ += x(ω[@uid, i])
+#   end
+#   x_ / n
+# end
+
+# What do you want?
+# 
+
+# Track or no track?
+# If we don't track, we might not know the error associated with the expectation
+# That is, if x is conditoned, then in a sense the function is wrong
+# Is this the same kind of error as conditioning?
+# In a sense,
+# OTOH if i want to accumulate error 
+
+const sampleprob = samplemean
+
+# zt: Default to RejectionSample is problematic 
 
 "Probability x is true"
 prob(x::RandVar, n, israndvar::Type{Val{false}}) =
   sum((rand(x, alg = RejectionSample) for i = 1:n)) / n
 lprob(x::RandVar, n = 1000) = ciid(prob, x, n, Val{false})
 prob(x::RandVar, n) = prob(x, n, Val{elemtype(x) <: RandVar})
-
-# const lmean = lprob
 
 # Specializations
 const unidistattrs = [:succprob, :failprob, :maximum, :minimum, :islowerbounded,

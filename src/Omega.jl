@@ -1,15 +1,12 @@
-# __precompile__(false)
-"A Library for Causal and Higher-Order Probabilistic Programming"
+"A Expressive Library for Probabilistic Programming"
 module Omega
 
-t = 3
-
-using Flux
-import ForwardDiff
+import ForwardDiff, Flux
+# Zygote,
 using Spec
 using UnicodePlots
 using DocStringExtensions: FIELDS, SIGNATURES, TYPEDEF
-using Cassette  
+using Cassette
 
 import Random
 import Random: GLOBAL_RNG, AbstractRNG
@@ -31,28 +28,30 @@ include("randvar/urandvar.jl")            # Random variables
 include("randvar/randvarapply.jl")        # Random variable application to ω::Ω
 include("randvar/ciid.jl")                # Conditionally i.i.d. RandVars
 include("randvar/elemtype.jl")            # Infer Element Type
-export RandVar, MaybeRV, ciid, isconstant, elemtype, params
+export RandVar, MaybeRV, ciid, isconstant, elemtype, params, constant
 
 # Conditioning
 include("cond.jl")                # Conditioning
 export cond
 
 # Lifted random variable operatiosn
-include("lift/containers.jl")     # Array/Tuple primitives
-export randarray, randtuple
 
-# Higher-Order Inference
-include("higher/Higher.jl")
-using .Higher
-export rcd, rid, ∥
+include("lift/r.jl")
+export ᵣ
+include("lift/containers.jl")     # Array/Tuple primitives
+export randarray, randtuple, ==ᵣ, tupleᵣ, arrayᵣ
 
 # Lifting functions to RandVar domain
 include("lift/lift.jl")           
 export @lift, lift
 
+
 # Soft Inference
 include("soft/soft.jl")           # Soft Booleans / logic
-export  SoftBool,
+using .Soft
+
+export  d,
+        SoftBool,
         softeq,
         softlt,
         softgt,
@@ -63,6 +62,8 @@ export  SoftBool,
         ==ₛ,
         err,
         logerr,
+        anyₛ,
+        allₛ,
 
         # Kernels
         kse,
@@ -77,6 +78,23 @@ export  SoftBool,
         applynotrackerr,
         applytrackerr
 
+# Soft.logerr(x::RandVar) = 3
+import .Soft: logerr, softeq, softgt, softlt, err, kf1β, kseα
+
+Omega.lift(:softeq, 2)
+Omega.lift(:softeq, 3)
+Omega.lift(:softgt, 2)
+Omega.lift(:softlt, 2)
+Omega.lift(:logerr, 1)
+Omega.lift(:err, 1)
+Omega.lift(:kf1β, 1)
+Omega.lift(:kseα, 1)
+
+# Higher-Order Inference
+include("higher/Higher.jl")
+using .Higher
+export rcd, rid, ∥, ∥ₛ
+
 # Gradient
 include("gradient.jl")
 export gradient
@@ -88,7 +106,6 @@ export  isapproximate,
 
         RejectionSample,
         SSMH,
-        HMC,
         # SGHMC,
         HMCFAST,
         Relandscape,
@@ -119,7 +136,9 @@ export  isapproximate,
 # Causal Inference
 include("causal/Causal.jl")
 using .Causal
-export replace
+export replace,
+       iscausebf,
+       cf
 
 # Library
 include("primitive/Prim.jl")

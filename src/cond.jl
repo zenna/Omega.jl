@@ -1,21 +1,34 @@
 
 condf(ω, x, y) = Bool(y(ω)) ? x(ω) : error("Condition unsatisfied")
 
-"""Condition random variable `x` with random predicate RandVar which returns
-Bool or SoftBool.
+"""$(SIGNATURES)
+Condition RandVar `x` with random predicate `y` whose `elemtype`
+is an `AbstractBool`
 
 ```julia
 x = normal(0.0, 1.0)
 x_ = cond(x, x > 0)
 ```
 """
-cond(x::RandVar, y::RandVar) where T = URandVar(ω -> condf(ω, x, y))
+cond(x::RandVar, y::RandVar) = URandVar(ω -> condf(ω, x, y))
 
-"Condition random variable with predicate: cond(x, p) = cond(x, p(x))
-`cond(poisson(0.5), iseven`"
-cond(x::RandVar, f::Function) = cond(x, lift(f)(x))
+"""
+$(SIGNATURES)
 
-"""Condition within a function
+Convenience function to condition with a predicate
+
+`cond(x, p(x))`
+
+```jldoctest
+cond(poisson(0.5), iseven)
+```
+
+"""
+cond(x::RandVar, p) = cond(x, lift(p)(x))
+
+"""$(SIGNATURES)
+
+Condition intermediate values from within the functional definition of a `RandVar`
 
 ```
 function x_(ω)

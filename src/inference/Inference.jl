@@ -4,13 +4,12 @@ module Inference
 using Spec
 using Random
 using ..Omega: RandVar, applytrackerr, indomainₛ, logerr,
-               UTuple, Ω, applynotrackerr, SimpleΩ, LinearΩ, Segment, randunifkey,
+               UTuple, Ω, applynotrackerr, SimpleΩ, LinearΩ,
                update, cond, randtuple, nelem,
-               gradient, linearize, unlinearize, err
-
+               gradient, linearize, unlinearize, err, indomainₛ, indomain
 import ..Omega
 using ProgressMeter
-using Flux
+import Flux
 import ForwardDiff
 using Callbacks
 import UnicodePlots
@@ -39,6 +38,8 @@ include("ssmh.jl")      # Single Site Metropolis Hastings
 include("hmcfast.jl")   # Faster Hamiltonian Monte Carlo
 include("replica.jl")   # Replica Exchange
 include("dynamichmc.jl")# Dynamic Hamiltonion Monte Carlo
+include("fail.jl")# Dynamic Hamiltonion Monte Carlo
+
 # include("sghmc.jl")     # Stochastic Gradient Hamiltonian Monte Carlo
 # include("relandscape.jl")  # Variantional Sampling through relandscape
 
@@ -64,6 +65,7 @@ export  isapproximate,
         Relandscape,
         NUTS,
         NUTSAlg,
+        FailUnsat,
 
         defalg,
         defcb,

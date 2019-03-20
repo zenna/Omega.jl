@@ -1,18 +1,15 @@
 """
-Fast SimpleΩ
+SimpleΩ: Stores map from indices to values
 
 # Properties
-- Fast tracking (50 ns overhead)
-- Fast to get linear view
-- Hence easy to sample from
-- Unique index for each rand value and hence:
-  (i) Memory intensive
+- Fast tracking (~50 ns overhead)
+- Linear view is expensive
+- Unique index for each rand value and hence can be memory intensive
 """
 struct SimpleΩ{I, V} <: ΩBase{I}
   vals::Dict{I, V}
 end
 
-SimpleΩ() = SimpleΩ(Dict{Vector{Int}, Float64}())
 SimpleΩ{I, V}() where {I, V} = SimpleΩ{I, V}(Dict{I, V}())
 
 Base.values(sω::SimpleΩ) = values(sω.vals)
@@ -26,51 +23,62 @@ function Base.:(==)(sω1::SimpleΩ{I,V}, sω2::SimpleΩ{I,V}) where {I, V}
   sω1.vals == sω2.vals
 end
 
-# Resolve
+# memrand #
+randrtype(ω::SimpleΩ, ::Type{T}, ::Dims{N}) where {T, N} = Array{T, N}
 
-@inline function resolve(ω::SimpleΩ{I, Any}, id::I, T) where {I}
-  get!(()->rand(GLOBAL_RNG, T), ω.vals, id)::randrtype(T)
+# If V <: A dual number, return V
+randrtype(ω::SimpleΩ{I, V}, ::Type{T}) where {I, T,  V <: ForwardDiff.Dual} = V
+
+# @inline function memrand(ω::SimpleΩ{I, Any}, id::I, T; rng) where {I}
+#   get!(()->rand(rng, T), ω.vals, id)::randrtype(ω, T)
+# end
+
+@inline function memrand(ω::SimpleΩ, id, ::Type{T}, dims::Dims; rng) where {T}
+  get!(()->rand(rng, T, dims), ω.vals, id)::randrtype(ω, T, dims)
 end
 
-@inline function resolve(ω::SimpleΩ{I, Any}, id::I, ::Type{T}, dims::NTuple{N, Int}) where {I, T, N}
-  get!(()->rand(GLOBAL_RNG, T, dims), ω.vals, id)::Array{randrtype(T), N}
+@inline function memrand(ω::SimpleΩ, id, ::Type{T}; rng) where {T}
+  get!(()->rand(rng, T), ω.vals, id)::randrtype(ω, T)
 end
 
-@inline function resolve(ω::SimpleΩ{I}, id::I, T) where {I}
-  get!(()->rand(GLOBAL_RNG, T), ω.vals, id)
+# @inline function memrand(ω::SimpleΩ, id, ::Type{T}, dims::Dims{N}) where {T, N}
+#   get!(()->rand(rng, T, dims), ω.vals, id)
+# end
+
+@inline function memrand(ω::SimpleΩ{I, A}, id, ::Type{T}; rng) where {V, T, I, A <: AbstractArray{V}}
+  val = get!(()->V[rand(rng, T)], ω.vals, id)
+  first(val)::randrtype(ω, T)
 end
 
-@inline function resolve(ω::SimpleΩ{I}, id::I, ::Type{T}, dims::NTuple{N, Int}) where {I, T, N}
-  get!(()->rand(GLOBAL_RNG, T, dims), ω.vals, id)
+# Flux-specific #
+
+randrtype(ω::SimpleΩ{I, A}, ::Type{T}) where {T <: AbstractFloat, I, A<:Flux.TrackedArray} = Flux.Tracker.TrackedReal{T}
+randrtype(ω::SimpleΩ{I, A}, ::Type{T}, ::Dims{N}) where {N, T <: AbstractFloat, I, A <: Flux.TrackedArray{T}} =
+  Flux.TrackedArray{T, N, Array{T, N}}
+# zt: Issue here is how do you specify that it should be say a static vector
+# Am using abstract TrackedArray
+
+@inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T}, dims::Dims; rng) where {T, I, A<:Flux.TrackedArray}
+  get!(()->Flux.param(rand(rng, T, dims)), ω.vals, id)::randrtype(ω, T, dims)
 end
 
-@inline function resolve(ωπ::SimpleΩ{I, A}, ::Type{T}) where {T, I, A<:AbstractArray}
-  val = get!(()->[rand(GLOBAL_RNG, T)], ωπ.ω.vals, ωπ.id)
-  first(val)
-end
-
-@inline function resolve(ω::SimpleΩ{I, A}, id::I, ::Type{T},  dims::Dims) where {T, I, A<:Flux.TrackedArray}
-  get!(()->Flux.param(rand(GLOBAL_RNG, T, dims)), ω.vals, id)
-end
-
-@inline function resolve(ω::SimpleΩ{I, A}, id::I, ::Type{T}) where {T, I, A<:Flux.TrackedArray}
-  val = get!(()->Flux.param([rand(GLOBAL_RNG, T)]), ω.vals, id)
+@inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T}; rng) where {T, I, A<:Flux.TrackedArray}
+  val = get!(()->Flux.param([rand(rng, T)]), ω.vals, id)
   first(val)
 end
 
 Base.isempty(sω::SimpleΩ) = isempty(sω.vals)
 Base.length(sω::SimpleΩ) = length(sω.vals)
 
-## Linearlization
-## ==============
+# Linearlization #
+
 linearize(sω::SimpleΩ{I, V}) where {I, V <: Real} = collect(values(sω.vals))
 
 function linearize(sω::SimpleΩ{I, V}) where {I, V <: AbstractArray}
   # warn("Are keys in order?")
   # vcat((view(a, :) for a in values(sω.vals))...)
-  vcat((a[:] for a in values(sω.vals))...)
+  vcat((vec(a) for a in values(sω.vals))...)
 end
-
 
 "Inverse of `linearize`, structure vector into ω.
 Precondition: ωvec and sω are the same length."

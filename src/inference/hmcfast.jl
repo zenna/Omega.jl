@@ -4,8 +4,8 @@ struct HMCFASTAlg <: SamplingAlgorithm end
 "Flux based Hamiltonian Monte Carlo Sampling"
 const HMCFAST = HMCFASTAlg()
 isapproximate(::HMCFASTAlg) = true
-defΩ(::Type{HMCFASTAlg}) = SimpleΩ{Vector{Int}, Flux.TrackedArray}
-defΩ(::HMCFASTAlg) = SimpleΩ{Vector{Int}, Flux.TrackedArray}
+defΩ(::Type{HMCFASTAlg}) = SimpleΩ{Vector{Int}, Flux.TrackedArray{Float64, 1, Array{Float64,1}}}
+defΩ(::HMCFASTAlg) = SimpleΩ{Vector{Int}, Flux.TrackedArray{Float64, 1, Array{Float64,1}}}
 defcb(::HMCFASTAlg) = default_cbs()
 # defcb = default_cbs(n)
 
@@ -98,7 +98,7 @@ function Base.rand(rng::AbstractRNG,
   
   ωsamples = ΩT[] 
   U = -logdensity
-  ∇U(ω) = gradient(gradalg, U, ω)
+  ∇U(ω) = Omega.back!(U, ω, gradalg)
 
   accepted = 0
   for i = 1:n*takeevery
