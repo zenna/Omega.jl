@@ -55,7 +55,7 @@ const FluxGrad = FluxGradAlg()
 
 function back!(rv, ω, ::FluxGradAlg)
   l = rv(ω)
-  Flux.back!(l)
+  Flux.back!(logerr(l))
 end
 
 # # FIXME: Remove this

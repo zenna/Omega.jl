@@ -1,6 +1,6 @@
 # zt: should Linear Omega be default?
 """
-LinearΩ: Stores data in single `Vector{V}`
+LinearΩ: Stores data in single `AbstractVector{V}`
 
 `lω[i] = lω.ωvec[lω.ids[i]]`
 
@@ -52,10 +52,34 @@ function update(lω::LinearΩ, i::Int, val)
 end
 
 # randtype #
+
+# Defualt behaviour: return type is T
 randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}) where {T, I, SEG, V} = T
+
+# Handle ForwardDiff: If `lω.ωvec` is a Vector of Duals then return type will be a DUal 
 randrtype(lω::LinearΩ{I, SEG, DT}, ::Type{T}) where {Q<:ForwardDiff.Dual, T, I, SEG, DT <: AbstractArray{Q}} = Q
-randrtype(ω, ::Type{T}, ::Dims{N}) where {T, N} = Array{randrtype(ω, T), N}
+
+# If Dims specified, return array of this type
 randrtype(ω, T, ::Dims{N}) where N = Array{randrtype(ω, T), N}
+
+# Specialization for when T is Type
+randrtype(ω, ::Type{T}, ::Dims{N}) where {T, N} = Array{randrtype(ω, T), N}
+
+# WHAT ABOUT Static Array
+# sol? If V is a static vector then return a StaticArray
+#    prob: reshaping it will return a reshape vector
+#    prob: what if we want an actual staticarray instead
+#  How to distingusih between staticarray rt and reshapedarray
+# 1. specify in the model code
+# 2. one issue is that Dims values aren't included in type information\: so there's no enough information in the model to specify the shape
+# 3. It's might be possible with constant propagation that you get static types
+# 4.  
+# WHAT ABOUT Float32
+# I think that's handled fine from the type of T
+# Is there ever a case when say we want values to be tracked (duals) and some not?
+# Maybe if we have some discrete parameters and dont want them to continuized
+# But what if we do want them to be.
+# 
 
 
 nelem(lω) = length(lω.ωvec)
@@ -68,14 +92,26 @@ Base.isempty(lω::LinearΩ) = isempty(lω.ωvec)
 
 emp(a::Type{Flux.TrackedArray{A, B, C}}) where {A, B, C} = C()
 
+# zt: This is type piracy: use a different method name
 Base.append!(ta::Flux.TrackedArray, a::Array) =
   (append!(ta.data, a); append!(ta.grad, zero(a)))
 
-function randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}, ::Dims{N}) where {I, SEG, V<: Flux.TrackedArray, T, N}
-  @show V
-  @assert false
-  Flux.TrackedArray{T, N,  }
-   Array{randrtype(T, ω), N}
+Base.append!(ta::Flux.TrackedArray, tb::Flux.TrackedArray) =
+  (append!(ta.data, tb.data); append!(ta.grad, tb.grad))
+
+# using ZenUtils
+
+function randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}, dims::Dims{N}) where {I, SEG, T, V <: Flux.TrackedArray{T}, N}
+  # @show V
+  # @grab T
+  # @grab V 
+  # @grab dims
+  # @assert false
+
+  # This doesn't handlem different underlying array types, e.g: StaticArrays
+  # if T is discrete
+  # And it assues underlying type is the same, e..g 
+  Flux.TrackedArray{T, N, Array{T, N}}
 end
 
 # function randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}) where {I, SEG, V<: Flux.TrackedArray, T <: AbstractFloat}
@@ -93,7 +129,11 @@ function memrand(lω::LinearΩ, id, X, dims::Dims; rng)
     startidx = length(lω.ωvec) + 1
     lω.ids[id] = startidx:startidx + prod(dims) - 1
     res_::RT = res  # zt: issue si that might need to convert into correct format
-    res_
+    typeof(res_)
+    typeof(lω.ωvec)
+    # @grab res_
+    p = lω.ωvec
+    # @grab p
     append!(lω.ωvec, res_)
     res_
   else

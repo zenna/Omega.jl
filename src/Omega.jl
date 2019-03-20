@@ -80,7 +80,7 @@ export  d,
         applytrackerr
 
 # Soft.logerr(x::RandVar) = 3
-import .Soft: logerr, softeq, softgt, softlt, err, kf1β, kseα, logkseα
+import .Soft: logerr, softeq, softgt, softlt, err, kf1β, kseα
 
 Omega.lift(:softeq, 2)
 Omega.lift(:softeq, 3)
@@ -90,7 +90,6 @@ Omega.lift(:logerr, 1)
 Omega.lift(:err, 1)
 Omega.lift(:kf1β, 1)
 Omega.lift(:kseα, 1)
-Omega.lift(:logkseα, 1)
 
 # Gradient
 include("gradient.jl")

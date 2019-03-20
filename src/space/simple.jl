@@ -2,11 +2,9 @@
 SimpleΩ: Stores map from indices to values
 
 # Properties
-- Fast tracking (50 ns overhead)
-- Some overhead for get linear view
-- Hence easy to sample from
-- Unique index for each rand value and hence:
-  (i) Memory intensive
+- Fast tracking (~50 ns overhead)
+- Linear view is expensive
+- Unique index for each rand value and hence can be memory intensive
 """
 struct SimpleΩ{I, V} <: ΩBase{I}
   vals::Dict{I, V}
@@ -55,8 +53,10 @@ end
 randrtype(ω::SimpleΩ{I, A}, ::Type{T}) where {T <: AbstractFloat, I, A<:Flux.TrackedArray} = Flux.Tracker.TrackedReal{T}
 randrtype(ω::SimpleΩ{I, A}, ::Type{T}, ::Dims{N}) where {N, T <: AbstractFloat, I, A<:Flux.TrackedArray} = Flux.Tracker.TrackedReal{T}
 # zt: Issue here is how do you specify that it should be say a static vector
+# Am using abstract TrackedArray
 
 @inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T}, dims::Dims; rng) where {T, I, A<:Flux.TrackedArray}
+  @show typeof(ω)
   get!(()->Flux.param(rand(rng, T, dims)), ω.vals, id)::randrtype(ω, T)
 end
 

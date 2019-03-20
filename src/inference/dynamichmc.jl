@@ -4,7 +4,6 @@ using TransformVariables: as𝕀, as
 import TransformVariables
 using ForwardDiff
 using Omega.Space: flat
-using ZenUtils
 
 "No U-Turn Sampler"
 struct NUTSAlg <: SamplingAlgorithm end

@@ -39,8 +39,10 @@ models = filter(hascond ∧ isdiff, allmodels)
 # Dont use FluxGrad on wrong Omegas, etc
 f1(m, ΩT, gradalg) = gradalg == Omega.FluxGrad ?  istracked(ΩT) : true
 
-for model in models, gradalg in gradalgs, ΩT in ΩTs
-  if f1(model, ΩT, gradalg)
-    testgrad2(; modelcond = model.cond, ΩT = ΩT, gradalg = gradalg)
+function runtests()
+  for model in models, gradalg in gradalgs, ΩT in ΩTs
+    if f1(model, ΩT, gradalg)
+      testgrad2(; modelcond = model.cond, ΩT = ΩT, gradalg = gradalg)
+    end
   end
 end
