@@ -1,5 +1,5 @@
 using Omega
-using TestModels
+using OmegaTestModels
 import ForwardDiff
 using Flux
 
@@ -30,7 +30,7 @@ istracked(ΩT) = false
 function testgrad2(; modelcond, ΩT, gradalg)
   @show ΩT  
   println()
-  Omega.lineargradient(modelcond, ΩT(), gradalg)
+  Omega.lineargradient(logerr(modelcond), ΩT(), gradalg)
 end
 
 # Filter to differentiable models
@@ -38,11 +38,17 @@ models = filter(hascond ∧ isdiff, allmodels)
 
 # Dont use FluxGrad on wrong Omegas, etc
 f1(m, ΩT, gradalg) = gradalg == Omega.FluxGrad ?  istracked(ΩT) : true
+f2(m, ΩT, gradalg) = gradalg == Omega.ForwardDiffGrad ? !istracked(ΩT) : true
 
 function runtests()
   for model in models, gradalg in gradalgs, ΩT in ΩTs
-    if f1(model, ΩT, gradalg)
+    if f1(model, ΩT, gradalg) && f2(model, ΩT, gradalg)
+      @show model.name
+      @show ΩT
+      @show gradalg  
       testgrad2(; modelcond = model.cond, ΩT = ΩT, gradalg = gradalg)
     end
   end
 end
+
+runtests()

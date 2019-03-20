@@ -35,17 +35,16 @@ include("cond.jl")                # Conditioning
 export cond
 
 # Lifted random variable operatiosn
-include("lift/containers.jl")     # Array/Tuple primitives
-export randarray, randtuple
 
-# Higher-Order Inference
-include("higher/Higher.jl")
-using .Higher
-export rcd, rid, ∥
+include("lift/r.jl")
+export ᵣ
+include("lift/containers.jl")     # Array/Tuple primitives
+export randarray, randtuple, ==ᵣ, tupleᵣ, arrayᵣ
 
 # Lifting functions to RandVar domain
 include("lift/lift.jl")           
 export @lift, lift
+
 
 # Soft Inference
 include("soft/soft.jl")           # Soft Booleans / logic
@@ -90,6 +89,11 @@ Omega.lift(:logerr, 1)
 Omega.lift(:err, 1)
 Omega.lift(:kf1β, 1)
 Omega.lift(:kseα, 1)
+
+# Higher-Order Inference
+include("higher/Higher.jl")
+using .Higher
+export rcd, rid, ∥, ∥ₛ
 
 # Gradient
 include("gradient.jl")

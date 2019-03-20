@@ -82,6 +82,8 @@ export  succprob,
         isleptokurtic,
         entropy,
         mean,
+        samplemean,
+        samplemeanᵣ
         prob,
         lprob
 

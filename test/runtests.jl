@@ -7,6 +7,6 @@ using Pkg
 include("TestLib.jl")
 
 # Add TestModels as submodule
-Pkg.develop(PackageSpec(url=joinpath(dirname(pathof(Omega)), "..", "test", "TestModels")))
+Pkg.develop(PackageSpec(url=joinpath(dirname(pathof(Omega)), "..", "test", "OmegaTestModels")))
 
-walktests(Omega, exclude = [])
+walktests(Omega, exclude = ["typestable.jl", "simple.jl"])

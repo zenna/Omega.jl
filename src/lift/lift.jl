@@ -62,7 +62,7 @@ fnms = [:(Base.:-),
         :(Base.:exp),
         :(Base.:log),
         :(Base.getindex),
-        :(Base.:(==)),
+        # :(Base.:(==)),
         :(Base.:>),
         :(Base.:>=),
         :(Base.:<=),
@@ -86,3 +86,11 @@ end
 end
 
 lift(f::Function) = (args...) -> maybelift(f, args...)
+
+# Special Cases $
+"""Lifted equality:
+x ==ᵣ y results in a Boolean valued random variable which asks is the
+__realization__ (hence subscript r) of `x` equal to `y`
+If either `x` (or `y`) is a constant (not a RandVar) then it determines if
+realization of `x` (or `y`) is equal to y (or `x`)"""
+x ==ᵣ y = URandVar(reifyapply, (==, x, y))

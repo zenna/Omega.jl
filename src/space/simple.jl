@@ -26,6 +26,8 @@ end
 # memrand #
 randrtype(ω::SimpleΩ, ::Type{T}, ::Dims{N}) where {T, N} = Array{T, N}
 
+# If V <: A dual number, return V
+randrtype(ω::SimpleΩ{I, V}, ::Type{T}) where {I, T,  V <: ForwardDiff.Dual} = V
 
 # @inline function memrand(ω::SimpleΩ{I, Any}, id::I, T; rng) where {I}
 #   get!(()->rand(rng, T), ω.vals, id)::randrtype(ω, T)
@@ -51,13 +53,13 @@ end
 # Flux-specific #
 
 randrtype(ω::SimpleΩ{I, A}, ::Type{T}) where {T <: AbstractFloat, I, A<:Flux.TrackedArray} = Flux.Tracker.TrackedReal{T}
-randrtype(ω::SimpleΩ{I, A}, ::Type{T}, ::Dims{N}) where {N, T <: AbstractFloat, I, A<:Flux.TrackedArray} = Flux.Tracker.TrackedReal{T}
+randrtype(ω::SimpleΩ{I, A}, ::Type{T}, ::Dims{N}) where {N, T <: AbstractFloat, I, A <: Flux.TrackedArray{T}} =
+  Flux.TrackedArray{T, N, Array{T, N}}
 # zt: Issue here is how do you specify that it should be say a static vector
 # Am using abstract TrackedArray
 
 @inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T}, dims::Dims; rng) where {T, I, A<:Flux.TrackedArray}
-  @show typeof(ω)
-  get!(()->Flux.param(rand(rng, T, dims)), ω.vals, id)::randrtype(ω, T)
+  get!(()->Flux.param(rand(rng, T, dims)), ω.vals, id)::randrtype(ω, T, dims)
 end
 
 @inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T}; rng) where {T, I, A<:Flux.TrackedArray}

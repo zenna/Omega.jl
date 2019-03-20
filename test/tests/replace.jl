@@ -1,5 +1,3 @@
-module TestNamespace
-
 using Omega
 using Test
 using Statistics: mean
@@ -33,5 +31,3 @@ function replaceconst()
 end
 
 replaceconst()
-
-end

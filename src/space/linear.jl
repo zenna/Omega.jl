@@ -102,15 +102,6 @@ Base.append!(ta::Flux.TrackedArray, tb::Flux.TrackedArray) =
 # using ZenUtils
 
 function randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}, dims::Dims{N}) where {I, SEG, T, V <: Flux.TrackedArray{T}, N}
-  # @show V
-  # @grab T
-  # @grab V 
-  # @grab dims
-  # @assert false
-
-  # This doesn't handlem different underlying array types, e.g: StaticArrays
-  # if T is discrete
-  # And it assues underlying type is the same, e..g 
   Flux.TrackedArray{T, N, Array{T, N}}
 end
 

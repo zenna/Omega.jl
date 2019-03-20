@@ -3,7 +3,7 @@ import NLopt
 struct NLoptArgmaxAlg <: OptimAlgorithm end
 "NLopt based optimization"
 const NLoptArgmax = NLoptArgmaxAlg()
-defΩ(::NLoptArgmaxAlg) = LinearΩ{Vector{Int}, Segment, Float64}
+defΩ(::NLoptArgmaxAlg) = LinearΩ{Vector{Int}, UnitRange{Int}, Vector{Float64}}
 
 "NLOpt style loss function (accepting vectors for input/grad) from RandVar `y`"
 function nllossfunc(y, ω; cb = donothing, usegrad = true)

@@ -1,20 +1,20 @@
 "Models used to test Omega"
-module TestModels
+module OmegaTestModels
 using Omega
 
 function t1()
   μ = uniform(0.0, 1.0)
   x = normal(μ, 1.0) + normal(μ, 1.0)
   y = x ==ₛ 1.0
-  (vars = (μ = μ, x = x, y = y), isfinite = true, isdiff = true, cond = y)
+  (name = :t1, vars = (μ = μ, x = x, y = y), isfinite = true, isdiff = true, cond = y)
 end
 
 function t2()
   a = uniform(0.0, 1.0, 100)
   b = normal(0.0, 1.0)
   c = a * b
-  y = c > 0.0
-  (vars = (a = a, b = b, c = c, y = y), isfinite = true, isdiff = true, cond = c)
+  y = c >ₛ 0.0
+  (name = :t2, vars = (a = a, b = b, c = c, y = y), isfinite = true, isdiff = true, cond = y)
 end
 
 function t3()
@@ -27,7 +27,7 @@ function t3()
     x
   end
   x = ciid(x_)
-  (vars = (x = x, n = n))
+  (name = :t3, vars = (x = x, n = n))
 end
 
 const allmodels = [

@@ -1,5 +1,5 @@
 using Omega
-using TestModels
+using OmegaTestModels
 using Test
 
 OT = []

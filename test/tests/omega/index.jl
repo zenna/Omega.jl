@@ -1,15 +1,10 @@
-module TestNamespace
-
 using Test
 using Omega.Space
 
 @testset "Increment" begin
   x = [1,2,3]
-  increment!(x)
-  @test x == [1,2,4]
 
-  @test increment(x) == [1,2,5]
-  @test x == [1,2,4]
+  @test increment(x) == [1,2,4]
 end
 
 # Vector indices should be a free semigroup
@@ -42,9 +37,5 @@ end
       @test append(elt, x) == combine(elt, Space.base(Vector{Int}, x))
     end
   end
-
-end
-
-# Not testing pair/Paired because they will be deleted
 
 end

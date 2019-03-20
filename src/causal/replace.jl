@@ -10,7 +10,15 @@ end
 @inline (rv::ReplaceRandVar)(ω::Ω) = apl(rv, ω)
 id(x::ReplaceRandVar) = x.id
 ppapl(rv::ReplaceRandVar, ω::Ω) = apl(rv.x, tag(ω, (replmap = rv.replmap,)))
-params(rv::ReplaceRandVar) = map(p -> replace(p, rv.replmap), params(rv.x))
+
+
+maybereplace(x::RandVar, replmap) = replace(x, replmap)
+
+# If x is a constant, do nothing
+maybereplace(x, replmap) = x
+
+# Params of intervened RandVar should themselves be intervened (if not const)
+params(rv::ReplaceRandVar) = map(p -> maybereplace(p, rv.replmap), params(rv.x))
 
 @inline function replaceapl(rv::RandVar, tω::TaggedΩ{I, Tags{K, V}, ΩT}) where {I, K, V, ΩT <: ΩBase}
   if haskey(tω.tags.replmap, rv.id) # FIXME, double look up
