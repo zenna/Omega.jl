@@ -4,7 +4,7 @@ using Omega
 makedocs(
   modules = [Omega],
   authors = "Zenna Tavares, Javier Burroni, Edgar Minaysan, Rajesh Ragananth, Armando Solar-Lezama",
-  format = :html,
+  format = Documenter.html(),
   sitename = "Omega.jl",
   pages = [
     "Home"=>"index.md",
@@ -28,8 +28,4 @@ makedocs(
 
 deploydocs(
   repo = "github.com/zenna/Omega.jl.git",
-  julia="0.7",
-  deps=nothing,
-  make=nothing,
-  target="build",
 )
