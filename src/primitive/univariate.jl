@@ -197,8 +197,9 @@ struct UniformChoice{A} <: PrimRandVar
 end
 @inline (rv::UniformChoice)(ω::Ω) = apl(rv, ω)
 rvtransform(rv::UniformChoice) = uniform
-uniform(ω::Ω, vals::Vector) = rand(ω, vals)
-uniform(ω::Ω, vals) = uniform(rand(ω, size(vals)), vals)
+uniform(ω::Ω, vals::Union{Vector, UnitRange}) = rand(ω, vals)
+uniform(ω::Ω, vals::Union{Vector, UnitRange}, dims::Dims) = rand(ω, vals, dims) 
+uniform(ω::Ω, vals::Union{Vector, UnitRange}, n::Integer) = rand(ω, vals, n) 
 
 uniform(vals) = UniformChoice(vals)
 uniform(vals, sz::Dims) = UniformChoice(lift(fill)(vals, sz))
