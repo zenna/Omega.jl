@@ -4,7 +4,7 @@ using Omega
 makedocs(
   modules = [Omega],
   authors = "Zenna Tavares, Javier Burroni, Edgar Minaysan, Rajesh Ragananth, Armando Solar-Lezama",
-  format = Documenter.html(),
+  format = Documenter.HTML(),
   sitename = "Omega.jl",
   pages = [
     "Home"=>"index.md",
