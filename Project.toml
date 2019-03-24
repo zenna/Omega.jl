@@ -27,4 +27,4 @@ Spec = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40
 
 [targets]
-test = ["Test"]
+test = ["Test", "Spec"]
