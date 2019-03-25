@@ -7,6 +7,7 @@ using Spec
 using UnicodePlots
 using DocStringExtensions: FIELDS, SIGNATURES, TYPEDEF
 using Cassette
+using Lens
 
 import Random
 import Random: GLOBAL_RNG, AbstractRNG

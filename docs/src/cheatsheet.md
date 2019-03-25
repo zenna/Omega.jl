@@ -6,34 +6,10 @@ The major functions that you will use in Omega are:
 - [ciid(x)]() : that is equal in distribution to `x` but conditionally independent given parents
 - [cond(x, y)](inference.md#cond) : condition random variable `x` on condition `y`
 - [cond(ω, ab)](inference.md#cond) : condition random variable that contains statement by force `ab` to be `true`]
-- [rand(x, n; alg=Alg)](inference.md#cond) : `n` samples from (possibly conditioned) random variable `x` using algorithm `ALG`
+- [rand(x, n; alg = Alg)](inference.md#cond) : `n` samples from (possibly conditioned) random variable `x` using algorithm `ALG`
 - [replace(x, θold => θnew)](causal.md#replace) : causal intervention in random variable
 - [rid(x, θ)]() : random interventional distribution of `x` given `θ`  
 - [rcd(x, θ) or x ∥ θ]()  : random conditional distribution of `x` given `θ`
-
-## FAQ
-
-- How to sample from a joint distribution (more than one random variable at a time)?
-Pass a tuple of random variables, e.g: `rand((x, y, z))`
-
-- How do I apply transformation `f` to a random variable 
-Some are already defined, e.g. `sqrt(uniform(0, 1))`, for everything else use `lift`, e.g. `lift(f(x))`
-
-- What's the difference between Omega and Probabilistic Programming Language X
-
-Omega is designed to be more expressive than other PPLs:
-- Omega supports allows you to condition on predicates.  This is a form of likelihood-free inference
-- Omega supports higher order inference
-- Omega supports counterfactual inference
-- Omega is fast (largely thank to Julia)
-- Omega is type stable
-
-The main techncial distinction between Omega and other PPLs is that Omega that both random variables (as opposed to stochastic samplers) and sample space objects are first class probabilistic constructs.  This choice makes the above features of Omega more straight-forward to implement. 
-
-On the other hand:
-- Omega does not support likeihood based inference (yet!)
-- Omega does not support variational inference (yet!)
-- Omega does not yet have as many inference algorithms implemented as other packages, e.g. Turing
 
 ## Terminology
 

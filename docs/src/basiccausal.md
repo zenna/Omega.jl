@@ -1,70 +1,11 @@
-# Causal Inference
-
-Omega supports causal inference through the `replace` function.  Causal inference is a topic of much confusion, we recommend this [blog post](https://www.inference.vc/untitled/) for a primer.
-
-## Causal Intervention - the `replace` operator
-
-The `replace` operator models an intervention to a model.
-It changes the model.
-
-```@docs
-Omega.replace
-```
-
-In Omega we use the syntax:
-
-```julia
-replace(X, θold => θnew)
-```
-To mean the random variable `X` where `θold` has been replaced with `θnew`.  For this to be meaningful, `θold` must be a parent of `x`.
-
-Let's look at an example:
-
-```julia
-julia> μold = normal(0.0, 1.0)
-45:Omega.normal(0.0, 1.0)::Float64
-
-julia> x = normal(μold, 1.0)
-46:Omega.normal(Omega.normal, 1.0)::Float64
-
-julia> μnew = 100.0
-47:Omega.normal(100.0, 1.0)::Float64
-
-julia> xnew = replace(x, μold => μnew)
-julia> rand((x, xnew))
-(-2.664230595692529, 96.99998702926271)
-```
-
-Observe that the sample from `xnew` is much greater, because it has the mean of the normal distribution has been changed to `100`
-
-### Replace a Random Variable with a Random Variable
-Repacing a random variable with a constant is actually a special case of replacing a random variable with another random variable.  The syntax is the same:
-
-```julia
-julia> xnewnew = replace(x, μold => normal(200.0, 1.0))
-julia> rand((x, xnew, xnewnew))
-(-1.2756627673001866, 99.1080578175426, 198.14711316585564)
-```
-
-### Changing Multiple Variables
-
-`replace` allow you to change many variables at once  Simply pass in a variable number of pairs, or a dictionary:
-
-```julia
-μ1 = normal(0, 1)
-μ2 = normal(0, 1)
-y = normal(x1 + x2, 1)
-xnewmulti = replace(y, μ1 => normal(200.0, 1.0), μ2 => normal(300.0, 1.0))
-rand((xnewmulti))
-(-1.2756627673001866, 99.1080578175426, 198.14711316585564)
-```
-
 # Counterfactuals
 
 The utility of `replace` may not be obvious at first glance.
 We can use `replace` and `cond` separately and in combination to ask lots of different kinds of questions.
 In this example, we model the relationship betwee the weather outside and teh thermostat reading inside a house.
 Broadly, the model says that the weather outside is dictataed by the time of day, while the temperature inside is determined by whether the air conditioning is on, and whether the window is open.
+
+[Notebook](https://github.com/zenna/OmegaModels.jl/blob/master/models/Thermometer/Thermometer.ipynb)
 
 First, setup simple priors over the time of day, and variables to determine whether the air conditioning is on and whether hte iwndow is open:
 

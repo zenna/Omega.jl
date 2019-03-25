@@ -1,3 +1,5 @@
+# This file is machine-generated - editing it directly is not advised
+
 [[AbstractTrees]]
 deps = ["Markdown", "Test"]
 git-tree-sha1 = "6621d9645702c1c4e6970cc6a3eae440c768000b"
@@ -126,7 +128,7 @@ uuid = "b552c78f-8df3-52c6-915a-8e097449b14b"
 version = "0.0.10"
 
 [[Distributed]]
-deps = ["LinearAlgebra", "Random", "Serialization", "Sockets"]
+deps = ["Random", "Serialization", "Sockets"]
 uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[Distributions]]
@@ -166,7 +168,7 @@ uuid = "f6369f11-7733-5829-9624-2563aa707210"
 version = "0.10.3"
 
 [[InteractiveUtils]]
-deps = ["LinearAlgebra", "Markdown"]
+deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
 [[JSON]]
@@ -180,6 +182,14 @@ deps = ["Base64", "Logging", "Media", "Profile", "Test"]
 git-tree-sha1 = "4e4a8d43aa7ecec66cadaf311fbd1e5c9d7b9175"
 uuid = "e5e0dc1b-0480-54bc-9374-aad01c23163d"
 version = "0.7.0"
+
+[[Lens]]
+deps = ["Cassette", "Spec"]
+git-tree-sha1 = "6cdd3531da4e5b92e3aa1e803ebecd72f8f85e9f"
+repo-rev = "master"
+repo-url = "https://github.com/zenna/Lens.jl.git"
+uuid = "daab1da2-a660-11e8-1509-99065d28830a"
+version = "0.1.0"
 
 [[LibGit2]]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
@@ -341,10 +351,8 @@ deps = ["LinearAlgebra", "Random"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [[Spec]]
-deps = ["Cassette", "Pkg", "Random"]
+deps = ["Cassette", "Pkg", "Random", "Test"]
 git-tree-sha1 = "01317d4b40fe250c4cd07323584070c3d2d82811"
-repo-rev = "master"
-repo-url = "https://github.com/zenna/Spec.jl.git"
 uuid = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
 version = "0.2.0"
 
@@ -409,7 +417,7 @@ uuid = "30578b45-9adc-5946-b283-645ec420af67"
 version = "0.4.0"
 
 [[UUIDs]]
-deps = ["Random"]
+deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [[Unicode]]

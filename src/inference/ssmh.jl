@@ -52,6 +52,7 @@ function Base.rand(rng,
     end
     push!(ωsamples, deepcopy(ω))
     cb((ω = ω, accepted = accepted, p = plast, i = i + offset), IterEnd)
+    lens(:iterend, (ω = ω, accepted = accepted, p = plast, i = i + offset))
   end
   ωsamples
 end

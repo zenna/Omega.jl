@@ -12,6 +12,7 @@ DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 DynamicHMC = "bbc10e6e-7c05-544b-b16e-64fede858acb"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+Lens = "daab1da2-a660-11e8-1509-99065d28830a"
 LogDensityProblems = "6fdf6af0-433a-55f7-b3ed-c6c6e0b8df7c"
 NLopt = "76087f3c-5699-56af-9a33-bf431cd00edd"
 ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
@@ -25,6 +26,3 @@ UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 Spec = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test", "Spec"]

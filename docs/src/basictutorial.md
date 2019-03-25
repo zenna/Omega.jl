@@ -99,10 +99,18 @@ First create some fake data
 observations = [true, true, true, false]
 ```
 
-and then use `rand` to draw conditional samples:
+Create a predicate that tests whether simulating from the model matches the observed data:
 
 ```julia
-weight_samples = rand(weight, coinflips == observations, 10; alg = RejectionSample)
+condition = coinflips ==ᵣ observations
+```
+
+`condition` is a random variable; we can sample from it.  The function `==ᵣ` (and more generally functions subscripted with ᵣ) should be read as "a realization of coinflips == observations"
+
+We can use `rand` to sample from the model conditioned on `condition` being true:
+
+```julia
+weight_samples = rand(weight, condition, 10; alg = RejectionSample)
 ```
 
 `weight_samples` is a set of `10` samples from the conditional (sometimes called posterior) distribution of `weight` condition on the fact that coinflips == observations.
@@ -110,7 +118,7 @@ weight_samples = rand(weight, coinflips == observations, 10; alg = RejectionSamp
 In this case, `rand` takes
 - A random variable we want to sample from
 - A predicate (type `RandVar` which evaluates to a `Bool`) that we want to condition on, i.e. assert that it is true
-- An inference algorithm.  Here we use rejection sampling
+- An inference algorithm.  Here we use rejection sampling.
 
 Plot a histogram of the weights like before:
 
