@@ -30,6 +30,12 @@ function Omega.condf(tω::TaggedΩ, x, y)
   apl(x, tω)
 end
 
+function Omega.cond(tω::TaggedΩ, bool)
+  if !haskey(tω.tags, :donttrack) && haskey(tω.tags, :err)
+    conjoinerror!(tω.tags.err, bool)
+  end
+end
+
 "Tag `ω` with `err`" 
 # tagerror(ω, errinit::AbstractBool) = tag(ω, (err = Ref(errinit),)) #FIXME UNCOMMENT THIS AND SPECIALISE BELOW TO OMEGA
 tagerror(ω, errinit::AbstractBool) = tag(ω, (err = Ref{Real}(errinit),))
