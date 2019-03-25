@@ -34,13 +34,13 @@ Please add probabilistic models and model families to https://github.com/zenna/O
 
 ## Citation
 
-If you use Omega, please cite Omega paper.
+If you use Omega, please cite Omega papers:
 
-[Soft Constraints for Inference with Declarative Knowedlge](http://www.zenna.org/publications/rcd.pdf)
+[The Random Conditional Distribution for Uncertain Distributional Properties](http://www.zenna.org/publications/rcd.pdf)
 
 ```
 @article{tavares2019rcd,
-  title={The Randmom Conditional Distribution for Uncertain Distributional Properties},
+  title={The Random Conditional Distribution for Uncertain Distributional Properties},
   author={Tavares, Zenna and Burroni, Javier and Minaysan, Edgar and Ranganath, Rajesh and Lezama, Armando Solar},
   journal={arXiv},
   year={2019}
@@ -60,7 +60,7 @@ If you use Omega, please cite Omega paper.
 
 If you use the causal inference features (`replace`), please cite:
 
-[A Language for Soft Constraints for Inference with Declarative Knowedlge](http://www.zenna.org/publications/causal.pdf)
+[A Language for Counterfactual Generative Models](http://www.zenna.org/publications/causal.pdf)
 
 ```
 @article{tavares2019counterfactual,

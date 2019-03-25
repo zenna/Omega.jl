@@ -84,25 +84,11 @@ coinflips = randarray(coinflips_)
 
 ```julia
 julia> rand(coinflips)
-4-element Array{Float64,1}:
- 0.0
- 0.0
- 0.0
- 0.0
-
-julia> rand(coinflips)
-4-element Array{Float64,1}:
- 0.0
- 1.0
- 0.0
- 0.0
-
-julia> rand(coinflips)
-4-element Array{Float64,1}:
- 1.0
- 1.0
- 1.0
- 1.0
+4-element Array{Bool,1}:
+  true
+ false
+ false
+ false
 ```
 
 Now we can condition the model.

@@ -4,7 +4,7 @@ There are two ways to construct random variables: the statistical style, which c
 
 ## Statistical Style
 In the statistical style we create random variables by combining a number of primitives.
-Omega comes with a number of built-in primitive distributions, the simplest of which is (arguably) the [standard uniform](https://en.wikipedia.org/wiki/Uniform_distribution_(continuous)#Standard_uniform):
+Omega comes with a number of built-in primitive distributions.  One example  is the [standard uniform](https://en.wikipedia.org/wiki/Uniform_distribution_(continuous)#Standard_uniform):
 
 ```
 x1 = uniform(0.0, 1.0)
@@ -17,7 +17,7 @@ To construct another random variable `x2`, we do the same.
 x2 = uniform(0.0, 1.0)
 ```
 
-`x1` and `x2` are identically distributed and independent (i.i.d.).
+`x1` and `x2` are [identically distributed and independent (i.i.d.)](https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables).
 
 ```julia
 julia> rand((x1, x2))
@@ -59,7 +59,7 @@ A particularly useful case is that primitive distributions which take parameters
 n = normal(x3, 1.0)
 ```
 
-Suppose you write your own function defined on the reals:
+Suppose you write your own function which take `Float64`s as input:
 
 ```julia
 myfunc(x::Float64, y::Float64) = (x * y)^2
@@ -103,11 +103,11 @@ One way to do this (we discuss others in [conditonalindependence]) is using `cii
 x = ciid(x_)
 ```
 
-All of the primitive distributions can be used in explicit style by passing the `rng` object as the first parameter (type constraints are added just to show that the return values are not random variables but elements.  But don't do this! It will prevent automatic differentiation based inference procedures from working): 
+All of the primitive distributions can be used in explicit style by passing the `rng` object as the first parameter (type constraints are added just to show that the return values are not random variables but elements.  But __don't add them to your own code!__ It will prevent automatic differentiation based inference procedures from working): 
 
 ```julia
 function x_(rng)
-  if bernoulli(rng, 0.5, Bool)
+  if bernoulli(rng, 0.5, Bool)::Bool
     normal(rng, 0.0, 1.0)::Float64
   else bernoulli(rng, 0.5, Bool)
     betarv(rng, 2.0, 2.0)::Float64
@@ -128,11 +128,14 @@ z = x + y
 
 ### Random Variable Families 
 
-Often we want to parameterize a random variable.  To do this we create functions with addition argument,
+Often we want to parameterize a random variable.  To do this we create functions with addition arguments,
 and pass arguments to `ciid`.
 
 ```julia
+"Uniform distribution between `a` and `b`"
 unif(rng, a, b) = rand(rng) * (b - a) + b  
+
+# x is uniformly distributed between 10 and 20
 x = ciid(unif, 10, 20)
 ```
 
@@ -140,4 +143,10 @@ And hence if we wanted to create a method that created independent uniformly dis
 
 ```julia
 uniform(a, b) = ciid(rng -> rand(rng) * (b - a) + b)
+
+# x is distributed between 30 and 40 (and independent of x)
+x = ciid(unif, 30, 40)
+
+# x is distributed between 30 and 40 (and independent of x)
+y = ciid(unif, 30, 40)
 ```
