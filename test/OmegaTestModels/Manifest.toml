@@ -250,29 +250,12 @@ uuid = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
 version = "0.3.2"
 
 [[Omega]]
+deps = ["Callbacks", "Cassette", "DataStructures", "Distributions", "DocStringExtensions", "DynamicHMC", "Flux", "ForwardDiff", "LogDensityProblems", "NLopt", "ProgressMeter", "Random", "Spec", "Statistics", "TransformVariables", "UnicodePlots"]
 git-tree-sha1 = "c4bf1757effffc382a4196d1153f4679053921e3"
 repo-rev = "master"
 repo-url = "https://github.com/zenna/Omega.jl.git"
 uuid = "f05e9b56-6544-11e8-2dc8-1fe18f3ca5da"
 version = "0.1.0"
-
-    [Omega.deps]
-    Callbacks = "5c501fca-fc9b-11e8-1fb9-dbe118bb7e64"
-    Cassette = "7057c7e9-c182-5462-911a-8362d720325c"
-    DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-    Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
-    DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
-    DynamicHMC = "bbc10e6e-7c05-544b-b16e-64fede858acb"
-    Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
-    ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
-    LogDensityProblems = "6fdf6af0-433a-55f7-b3ed-c6c6e0b8df7c"
-    NLopt = "76087f3c-5699-56af-9a33-bf431cd00edd"
-    ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
-    Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-    Spec = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
-    Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-    TransformVariables = "84d833dd-6860-57f9-a1a7-6da5db126cff"
-    UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 
 [[OrderedCollections]]
 deps = ["Random", "Serialization", "Test"]
@@ -365,13 +348,6 @@ version = "0.3.1"
 deps = ["LinearAlgebra", "Random"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
-[[Spec]]
-deps = ["Cassette", "Pkg", "Random"]
-git-tree-sha1 = "83b79af58ae5930a49789200d355cc503e398b5a"
-repo-rev = "master"
-repo-url = "https://github.com/zenna/Spec.jl.git"
-uuid = "526a04b8-654b-11e8-1588-db2a414f95b5"
-version = "0.1.3"
 [[Spec]]
 deps = ["Cassette", "Pkg", "Random"]
 git-tree-sha1 = "01317d4b40fe250c4cd07323584070c3d2d82811"
