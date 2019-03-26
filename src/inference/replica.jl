@@ -76,8 +76,7 @@ function Base.rand(rng,
                    swapevery = 1,
                    nreplicas = 4,
                    temps = logtemps(nreplicas),
-                   kernel = Omega.kseα,
-                   cb = donothing) where {OT <: Ω}
+                   kernel = Omega.kseα) where {OT <: Ω}
   @pre issorted(temps)
   @pre n % swapevery == 0
   @pre nreplicas == length(temps)
@@ -96,7 +95,6 @@ function Base.rand(rng,
         try
           ωst = rand(rng, ΩT, logdensity, swapevery, inneralg;
                     ωinit = ωs[i],
-                    cb = i == nreplicas ? cb : donothing,
                     offset = (j - 1) * swapevery,
                     algargs...)
           if i == nreplicas # keep lowest temperatre

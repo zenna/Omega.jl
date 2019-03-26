@@ -10,8 +10,7 @@ function Base.rand(rng,
                    ΩT::Type{OT},
                    pred::RandVar,
                    n::Integer,
-                   alg::FailUnsatAlg;
-                   cb = donothing) where {OT <: Ω}
+                   alg::FailUnsatAlg) where {OT <: Ω}
   ωsamples = ΩT[]
   accepted = 0
   for i = 1:n
@@ -19,7 +18,7 @@ function Base.rand(rng,
     issat = pred(Omega.Space.tagrng(ω, rng))
     !issat && error("Condition unsatisfied. Use appropriate infrence alg.")
     push!(ωsamples, ω)
-    cb((ω = ω, accepted = accepted, p = float(issat), i = i), IterEnd)
+    lens(Loop, (ω = ω, accepted = accepted, p = float(issat), i = i))
   end
   ωsamples
 end
@@ -28,9 +27,8 @@ function Base.rand(rng::AbstractRNG,
                    x::RandVar,
                    n::Integer,
                    alg::FailUnsatAlg;
-                   ΩT::Type{OT} = defΩ(alg),
-                   cb = donothing) where {OT <: Ω}
+                   ΩT::Type{OT} = defΩ(alg)) where {OT <: Ω}
   pred = Omega.indomain(x)
-  ωsamples = rand(rng, ΩT, pred, n, alg; cb = cb)
+  ωsamples = rand(rng, ΩT, pred, n, alg)
   map(x, ωsamples)
 end

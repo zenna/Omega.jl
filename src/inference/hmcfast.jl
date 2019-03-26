@@ -35,7 +35,6 @@ function hmcfast(rng, U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, st
   pvals, ∇qvals, prop_qvals)
   
   for i = 1:nsteps
-    cb((q = prop_qvals, p = pvals), HMCStep)
     # @show prop_qvals
     # Half step p and q
     # @show prop_qvals 
@@ -81,7 +80,6 @@ function Base.rand(rng::AbstractRNG,
                    alg::HMCFASTAlg;
                    takeevery = 1,
                    nsteps = 10,
-                   cb = default_cbs(n * takeevery),
                    stepsize = 0.001,
                    ωinit = ΩT(),
                    gradalg = Omega.FluxGrad,
@@ -112,7 +110,7 @@ function Base.rand(rng::AbstractRNG,
       # QVALS need to reflect
       i % takeevery == 0 && push!(ωsamples, deepcopy(ω))
     end
-    cb((ω = prop_ω, accepted = accepted, p = Flux.data(p_), i = i + offset), IterEnd)
+    lens(Loop, (ω = prop_ω, accepted = accepted, p = Flux.data(p_), i = i + offset))
   end
   ωsamples
 end

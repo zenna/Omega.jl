@@ -11,8 +11,7 @@ function Base.rand(rng,
                    ΩT::Type{OT},
                    pred::RandVar,
                    n::Integer,
-                   alg::RejectionSampleAlg;
-                   cb = donothing) where {OT <: Ω}
+                   alg::RejectionSampleAlg) where {OT <: Ω}
   ωsamples = OT[]
   accepted = 0
   i = 1
@@ -23,8 +22,8 @@ function Base.rand(rng,
       push!(ωsamples, ω)
       accepted += 1
     end
-    cb((ω = ω, accepted = accepted, p = float(issat), i = i), IterEnd)
-    # lens(:loopend, (ω = ω, accepted = accepted, p = float(sat), i = i))
+    # cb((ω = ω, accepted = accepted, p = float(issat), i = i), IterEnd)
+    lens(Loop, (ω = ω, accepted = accepted, p = float(issat), i = i))
     i += 1
   end
   ωsamples
@@ -35,9 +34,8 @@ function Base.rand(rng::AbstractRNG,
                    n::Integer,
                    alg::RejectionSampleAlg;
                    ΩT::Type{OT} = defΩ(alg),
-                   cb = donothing,
                    memoize = true) where {OT <: Ω}
   pred = Omega.mem(Omega.indomain(x))
-  ωsamples = rand(rng, ΩT, pred, n, alg; cb = cb)
+  ωsamples = rand(rng, ΩT, pred, n, alg)
   map(Omega.mem(x), ωsamples)
 end

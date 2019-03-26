@@ -6,7 +6,7 @@ const NLoptArgmax = NLoptArgmaxAlg()
 defΩ(::NLoptArgmaxAlg) = LinearΩ{Vector{Int}, UnitRange{Int}, Vector{Float64}}
 
 "NLOpt style loss function (accepting vectors for input/grad) from RandVar `y`"
-function nllossfunc(y, ω; cb = donothing, usegrad = true)
+function nllossfunc(y, ω; usegrad = true)
   i = 1
   function innernllossfunc(ωvec::Vector, grad::Vector)
     ω = unlinearize(ωvec, ω)  # FIXME: Unlinearization requires a structure (inefficient?)
@@ -14,7 +14,7 @@ function nllossfunc(y, ω; cb = donothing, usegrad = true)
     if usegrad
       # FIXME: Set the gradient
     end
-    cb((loss = loss, i = i), IterEnd)
+    Lens(Loop, (loss = loss, i = i))
     i += 1
     loss
   end
@@ -36,7 +36,6 @@ end
 function Base.argmax(x::RandVar,
                      alg::NLoptArgmaxAlg,
                      ΩT::Type{OT};
-                     cb = donothing,
                      nloptargs = ()) where {OT <: Ω}
   # initialize at random point 
   ωinit = ΩT()

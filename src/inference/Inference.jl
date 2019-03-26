@@ -3,6 +3,7 @@ module Inference
 
 using Spec
 using Random
+using Lens
 using ..Omega: RandVar, applytrackerr, indomainₛ, logerr,
                UTuple, Ω, applynotrackerr, SimpleΩ, LinearΩ,
                update, cond, randtuple, nelem,
@@ -14,6 +15,9 @@ import ForwardDiff
 using Callbacks
 import UnicodePlots
 using DocStringExtensions: SIGNATURES
+
+"Lens called at every iteration of MCMC algorithm"
+struct Loop end
 
 "Optimization Algorithm"
 abstract type OptimAlgorithm end

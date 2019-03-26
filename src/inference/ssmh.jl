@@ -33,7 +33,6 @@ function Base.rand(rng,
                    n::Integer,
                    alg::SSMHAlg;
                    proposal = swapsinglesite,
-                   cb = donothing,
                    ωinit = ΩT(),
                    offset = 0) where {OT <: Ω}
   ω = ωinit
@@ -51,7 +50,7 @@ function Base.rand(rng,
       accepted += 1
     end
     push!(ωsamples, deepcopy(ω))
-    cb((ω = ω, accepted = accepted, p = plast, i = i + offset), IterEnd)
+    lens(Loop, (ω = ω, accepted = accepted, p = plast, i = i + offset))
   end
   ωsamples
 end

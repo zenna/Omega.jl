@@ -1,36 +1,14 @@
-"Plot histogram of loss with UnicodePlots"
-function plotp()
-  alldata = Float64[]
-  ys = Int[]
-  maxseen = -Inf
-  minseen = Inf
-  
-  innerplotp(data, stage) = nothing # Do nothing in other stages
-  function innerplotp(data, stage::Type{IterEnd})
-    push!(alldata, data.p)
-    push!(ys, data.i)
-    if !isempty(alldata)
-      println(UnicodePlots.lineplot(ys, alldata, title="Time vs p"))
-    end
-    if data.p > maxseen
-      maxseen = data.p
-      printstyled("\nNew max at id $(data.i): $(data.p)\n"; color = :light_blue)
-    end
-    if data.p < minseen
-      minseen = data.p
-      printstyled("\nNew min at id $(data.i): $(data.p)\n"; color = :light_blue)
-    end
-  end
-end
+# FIXME:
+# Remove explicit names from these callbacks and add connectors which extract from NT
+# modularse.  Have one cb that accumuluates
+# 
 
-# FIXME: Redundant, make this use plotscalsr
 "Scatter plot ω values with UnicodePlots"
-function plotω(x::RandVar, y::RandVar)
-  xωs = Float64[]
-  yωs = Float64[]
+function plotω(x::RandVar, y::RandVar, T = Float64)
+  xωs = T[]
+  yωs = T[]
 
-  innerplotω(data, stage) = nothing # Do nothing in other stages
-  function innerplotω(data, stage::Type{IterEnd})
+  function innerplotω(data)
     color = :blue
     if isempty(xωs)
       color = :red
@@ -43,32 +21,14 @@ function plotω(x::RandVar, y::RandVar)
   end
 end
 
-# FIXME: Redundant, make this use plotscalsr
-"Plot histogram of loss with UnicodePlots"
-function plotrv(x::RandVar, name = string(x), display_ = display)
-  xs = []
+"Line Plot histogram of loss with UnicodePlots"
+function plotscalar(key::Symbol, name, display_ = display, ::Type{T} = Float64) where T
+  xs = T[]
   ys = Int[]
+  maxseen = typemin(T)
+  minseen = typemax(T)
 
-  innerplotω(data, stage) = nothing # Do nothing in other stages
-  function innerplotrv(data, stage::Type{IterEnd})
-    x_ = x(data.ω)
-    println("$name is:")
-    display_(x_)
-    push!(xs, x_)
-    push!(ys, data.i)
-    if !isempty(xs)
-      println(UnicodePlots.lineplot(ys, xs, title="Time vs $name"))
-    end
-  end
-end
-
-"Plot histogram of loss with UnicodePlots"
-function plotscalar(key::Symbol, name, display_ = display)
-  xs = Float64[]
-  ys = Int[]
-
-  innerplotω(data, stage) = nothing # Do nothing in other stages
-  function innerplotrv(data, stage::Type{IterEnd})
+  function innerplotrv(data)
     x_ = getfield(data, key)
     println("$name is:")
     display_(x_)
@@ -77,29 +37,19 @@ function plotscalar(key::Symbol, name, display_ = display)
     if !isempty(xs)
       println(UnicodePlots.lineplot(ys, xs, title="Time vs $name"))
     end
+    if x_ > maxseen
+      maxseen = x_
+      printstyled("\nNew max at id $(data.i): $(x_)\n"; color = :light_blue)
+    end
+    if x_ < minseen
+      minseen = x_
+      printstyled("\nNew min at id $(data.i): $(data.p)\n"; color = :light_blue)
+    end
   end
 end
 
-
-function tracecb(::Type{T}, t = identity) where T
-  ωs = T[]
-  allωs = Vector{T}[]
-  function f(qp, ::Type{HMCStep})
-    push!(ωs, t(qp))
-  end
-
-  function f(data, ::Type{IterEnd})
-    push!(allωs, copy(ωs))
-    empty!(ωs)
-  end
-  f, (ωs, allωs)
-end
-
-## Callbacks
-## =========
-"Print the p value"
-printstats(data, stage) = nothing
-function printstats(data, stage::Type{IterEnd})
+"Print acceptance statistics"
+function printstats(data)
   printstyled("\nacceptance ratio: $(data.accepted/float(data.i))\n",
               "Last p: $(data.p)\n";
               color = :light_blue)

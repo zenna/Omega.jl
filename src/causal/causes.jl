@@ -30,7 +30,7 @@ false
 function iscausebf(ω::Ω, c::RandVar, e::RandVar, iset;
                    sizes = [size(i(ω)) for i in iset],
                    proj = identity,
-                   cb = donothing,
+                  #  cb = donothing,
                    optargs...)
   @pre Bool(c(ω)) && Bool(e(ω)) "Both cause and effect must be true in ω"
   loss = let rngs = splitvec(sizes), butfor = Omega.ciid(ω -> !c(ω) & !e(ω)), proj = proj
@@ -41,7 +41,7 @@ function iscausebf(ω::Ω, c::RandVar, e::RandVar, iset;
       butforint = replace(butfor, replmap)
       loss = Omega.logerr(butforint(ω))
       # @show cb, IterEnd
-      cb((loss = loss, replmap = replmap), IterEnd)
+      # cb((loss = loss, replmap = replmap), IterEnd)
       # @show ii
       if loss == -0.0 && ii > 10
         @show ii, loss

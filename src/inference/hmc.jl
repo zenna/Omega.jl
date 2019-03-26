@@ -7,7 +7,7 @@ isapproximate(::HMCAlg) = true
 defΩ(::HMCAlg) = SimpleΩ{Vector{Int}, Float64}
 
 "Hamiltonian monte carlo with leapfrog integration: https://arxiv.org/pdf/1206.1901.pdf"
-function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
+function hmc(U, ∇U, nsteps, stepsize, current_q::Vector)
   q = transform.(current_q)
   p = randn(length(q))
   current_p = p
@@ -19,8 +19,6 @@ function hmc(U, ∇U, nsteps, stepsize, current_q::Vector, cb)
   p = p - stepsize * ∇U(invq) .* jacobian.(q) / 2.0
 
   for i = 1:nsteps
-    cb((q = q, p = p), HMCStep)
-
     # Half step for the position and momentum
     q = q .+ stepsize .* p
     if i != nsteps
@@ -53,8 +51,7 @@ function Base.rand(y::RandVar,
                    alg::HMCAlg,
                    ΩT::Type{OT};
                    nsteps = 10,
-                   stepsize = 0.001,
-                   cb = default_cbs(n)) where {OT <: Ω}
+                   stepsize = 0.001) where {OT <: Ω}
   ω = ΩT()
   indomainₛ(y, ω) # Initialize omega
   ωvec = linearize(ω)
@@ -66,13 +63,13 @@ function Base.rand(y::RandVar,
 
   accepted = 0
   for i = 1:n
-    p_, ωvec, wasaccepted = hmc(U, ∇U, nsteps, stepsize, ωvec, cb)
+    p_, ωvec, wasaccepted = hmc(U, ∇U, nsteps, stepsize, ωvec)
     ω_ = unlinearize(ωvec, ω)
     push!(ωsamples, unlinearize(ωvec, ω))
     if wasaccepted
       accepted += 1
     end
-    cb((ω = ω_, accepted = accepted, p = p_, i = i), IterEnd)
+    lens(Loop, (ω = ω_, accepted = accepted, p = p_, i = i))
   end
   [applynotrackerr(y, ω_) for ω_ in ωsamples]
 end

@@ -37,7 +37,6 @@ function Base.rand(rng,
                    logdensity::RandVar,
                    n::Integer,
                    alg::NUTSAlg;
-                   cb = donothing,
                    ωinit = ΩT(),
                    ϵ = 0.0001,
                    offset = 0) where {OT <: Ω}
