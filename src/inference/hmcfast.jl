@@ -11,7 +11,7 @@ defcb(::HMCFASTAlg) = default_cbs()
 
 """Hamiltonian monte carlo with leapfrog integration:
 https://arxiv.org/pdf/1206.1901.pdf"""
-function hmcfast(rng, U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsize, cb)
+function hmcfast(rng, U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsize)
   # Initialise proposal as unbounded of current state
   foreach(qvals, prop_qvals) do q, prop_q @. prop_q = (q) end
 
@@ -101,7 +101,7 @@ function Base.rand(rng::AbstractRNG,
   accepted = 0
   for i = 1:n*takeevery
     p_, wasaccepted = hmcfast(rng, U, ∇U, qvals, prop_qvals, pvals, ω,
-                          prop_ω, nsteps, stepsize, cb)
+                          prop_ω, nsteps, stepsize)
     if wasaccepted
       i % takeevery == 0 && push!(ωsamples, deepcopy(prop_ω))
       accepted += 1

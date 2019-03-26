@@ -13,6 +13,7 @@ using ProgressMeter
 import Flux
 import ForwardDiff
 using Callbacks
+using Lens
 import UnicodePlots
 using DocStringExtensions: SIGNATURES
 

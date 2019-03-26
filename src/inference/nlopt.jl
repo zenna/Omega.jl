@@ -14,7 +14,7 @@ function nllossfunc(y, ω; usegrad = true)
     if usegrad
       # FIXME: Set the gradient
     end
-    Lens(Loop, (loss = loss, i = i))
+    lens(Loop, (loss = loss, i = i))
     i += 1
     loss
   end
@@ -41,9 +41,9 @@ function Base.argmax(x::RandVar,
   ωinit = ΩT()
   x(ωinit)
   ωinitvec = linearize(ωinit)
-  lossf = nllossfunc(x, ωinit, cb = cb)
+  lossf = nllossfunc(x, ωinit)
 
-  # Create optimization
+  #  reate optimization
   n = length(ωinitvec)
   opt = nlopt(n, lossf; nloptargs...)
 
