@@ -59,7 +59,7 @@ version = "0.2.2"
 
 [[Callbacks]]
 deps = ["ProgressMeter"]
-git-tree-sha1 = "786f61341e29ad9e24e04054d82405c30457fbf1"
+git-tree-sha1 = "61f1584761098897b29e0669bca4504960767152"
 repo-rev = "master"
 repo-url = "https://github.com/zenna/Callbacks.jl"
 uuid = "5c501fca-fc9b-11e8-1fb9-dbe118bb7e64"
@@ -185,10 +185,10 @@ version = "0.7.0"
 
 [[Lens]]
 deps = ["Cassette", "Spec"]
-git-tree-sha1 = "674e7bbfd8b9ba947f8f5cb1ed54bac3430befed"
+git-tree-sha1 = "9603f1153b44d94e431767dd5c189a783cc50bf4"
 repo-rev = "master"
 repo-url = "https://github.com/zenna/Lens.jl.git"
-uuid = "7b0f5bfd-0cc6-57f6-8050-dca6b773b640"
+uuid = "496038af-b016-571c-b31e-8262695ac102"
 version = "0.1.0"
 
 [[LibGit2]]

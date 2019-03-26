@@ -1,5 +1,5 @@
 name = "Omega"
-uuid = "f05e9b56-6544-11e8-2dc8-1fe18f3ca5da"
+uuid = "1af16e33-887a-59b3-8344-18f1671b3ade"
 authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.1.0"
 
@@ -12,7 +12,7 @@ DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 DynamicHMC = "bbc10e6e-7c05-544b-b16e-64fede858acb"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
-Lens = "7b0f5bfd-0cc6-57f6-8050-dca6b773b640"
+Lens = "496038af-b016-571c-b31e-8262695ac102"
 LogDensityProblems = "6fdf6af0-433a-55f7-b3ed-c6c6e0b8df7c"
 NLopt = "76087f3c-5699-56af-9a33-bf431cd00edd"
 ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
@@ -28,4 +28,4 @@ Spec = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "Spec"]
+test = ["Spec"]
