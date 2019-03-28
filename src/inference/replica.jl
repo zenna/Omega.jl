@@ -17,19 +17,19 @@ function swap!(v, i, j)
 end
 
 "Swap adjacent chains"
-function exchange!(rng, logdensity, ωs, temps)
+function exchange!(rng, logdensity, ωs, temps, kernel)
   for i in length(ωs):-1:2
     j = i - 1
-    E_i_x = withkernel(kseα(temps[i])) do
+    E_i_x = withkernel(kernel(temps[i])) do
       logdensity(ωs[i])
     end
-    E_j_x = withkernel(kseα(temps[j])) do
+    E_j_x = withkernel(kernel(temps[j])) do
       logdensity(ωs[i])
     end
-    E_i_y = withkernel(kseα(temps[i])) do
+    E_i_y = withkernel(kernel(temps[i])) do
       logdensity(ωs[j])
     end
-    E_j_y = withkernel(kseα(temps[j])) do
+    E_j_y = withkernel(kernel(temps[j])) do
       logdensity(ωs[j])
     end
     k = (E_i_y + E_j_x) - (E_i_x + E_j_y)
@@ -58,7 +58,7 @@ Returns samples from lowest temperature chain
 - `swapevery` : performs swap every swapevery iterations
 - `nreplicas` : number of replica chains to run
 - `temps` : temperatures of different chains
-- `inneralg` : Algorithm uses for each chain
+- `inneralg` : Algorithm used for each chain
 - `algargs::NamedTuple` : keyword arguments to be passed to `inneralg` in:
    `rand(ΩT, density, swapevery, inneralg; algargs...)`
 - `kernel`: Kernel to use for soft constraints (DEPRECATE ME)
@@ -81,23 +81,21 @@ function Base.rand(rng,
   @pre n % swapevery == 0
   @pre nreplicas == length(temps)
   @show temps
-  # @show OT
-  # @show ΩT()
-  # @show ΩT[]
+
   ωsamples = OT[]
   ωs = [ΩT() for i = 1:nreplicas]
-  # @show ΩT()
 
   # Do swapevery steps for each chain, then swap ωs
+  lowesti = nreplicas
   for j = 1:div(n, swapevery)
     for i = 1:nreplicas
       withkernel(kernel(temps[i])) do
         try
           ωst = rand(rng, ΩT, logdensity, swapevery, inneralg;
-                    ωinit = ωs[i],
-                    offset = (j - 1) * swapevery,
-                    algargs...)
-          if i == nreplicas # keep lowest temperatre
+                     ωinit = ωs[i],
+                     offset = (j - 1) * swapevery,
+                     algargs...)
+          if i == lowesti # keep lowest temperatre
             append!(ωsamples, ωst)
           end
           ωs[i] = ωst[end]
@@ -107,7 +105,7 @@ function Base.rand(rng,
         end
       end
     end
-    exchange!(rng, logdensity, ωs, temps)
+    exchange!(rng, logdensity, ωs, temps, kernel)
   end
   ωsamples
 end

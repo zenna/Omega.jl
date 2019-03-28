@@ -58,8 +58,8 @@ uuid = "d5fb7624-851a-54ee-a528-d3f3bac0b4a0"
 version = "0.2.2"
 
 [[Callbacks]]
-deps = ["ProgressMeter"]
-git-tree-sha1 = "61f1584761098897b29e0669bca4504960767152"
+deps = ["ProgressMeter", "UnicodePlots"]
+git-tree-sha1 = "5519af5b59cf8a70ed02d5f8d993ef217c26eb64"
 repo-rev = "master"
 repo-url = "https://github.com/zenna/Callbacks.jl"
 uuid = "5c501fca-fc9b-11e8-1fb9-dbe118bb7e64"
