@@ -58,11 +58,11 @@ uuid = "d5fb7624-851a-54ee-a528-d3f3bac0b4a0"
 version = "0.2.2"
 
 [[Callbacks]]
-deps = ["ProgressMeter"]
-git-tree-sha1 = "786f61341e29ad9e24e04054d82405c30457fbf1"
+deps = ["Lens", "ProgressMeter", "UnicodePlots"]
+git-tree-sha1 = "7695e214972185e23ec1dfd78db3566254f12a3a"
 repo-rev = "master"
 repo-url = "https://github.com/zenna/Callbacks.jl"
-uuid = "5c501fca-fc9b-11e8-1fb9-dbe118bb7e64"
+uuid = "db1e321a-d383-57b4-a664-0144fd54e973"
 version = "0.1.0"
 
 [[Cassette]]
@@ -185,11 +185,11 @@ version = "0.7.0"
 
 [[Lens]]
 deps = ["Cassette", "Spec"]
-git-tree-sha1 = "674e7bbfd8b9ba947f8f5cb1ed54bac3430befed"
+git-tree-sha1 = "4d1f4bcefdbb4f2a8a2302098676b2047f9cc0f0"
 repo-rev = "master"
 repo-url = "https://github.com/zenna/Lens.jl.git"
-uuid = "7b0f5bfd-0cc6-57f6-8050-dca6b773b640"
-version = "0.1.0"
+uuid = "496038af-b016-571c-b31e-8262695ac102"
+version = "0.1.1"
 
 [[LibGit2]]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
@@ -431,6 +431,6 @@ version = "1.1.0"
 
 [[ZipFile]]
 deps = ["BinaryProvider", "Libdl", "Printf", "Test"]
-git-tree-sha1 = "4000c633efe994b2e10b31b6d91382c4b7412dac"
+git-tree-sha1 = "5f6f663890dfb9bad6af75a86a43f67904e5050e"
 uuid = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea"
-version = "0.8.0"
+version = "0.8.1"

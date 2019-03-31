@@ -24,8 +24,7 @@ jobs:
       julia: 1.0
       os: linux
       script:
-        - julia --project=docs/ -e 'using Pkg; Pkg.add(PackageSpec(name="Spec", rev="master"));
-                                               Pkg.add(PackageSpec(url="https://github.com/zenna/Callbacks.jl", rev="master"));
+        - julia --project=docs/ -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/zenna/Callbacks.jl", rev="master"));
                                                Pkg.develop(PackageSpec(path=pwd()));
                                                Pkg.instantiate()'
         - julia --project=docs/ docs/make.jl
