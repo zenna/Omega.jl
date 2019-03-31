@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial · Omega.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link href="../assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><h1>Omega.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="../search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../">Home</a></li><li><a class="toctext" href="../basictutorial/">Basic Tutorial</a></li><li><a class="toctext" href="../model/">Modeling</a></li><li><a class="toctext" href="../conditionalindependence/">(Conditional) Independence</a></li><li><a class="toctext" href="../inference/">Conditional Inference</a></li><li><a class="toctext" href="../soft/">Soft Execution</a></li><li><a class="toctext" href="../inferencealgorithms/">Inference Algorithms</a></li><li><span class="toctext">Causal Inference</span><ul><li><a class="toctext" href="../causal/">Causal Inference</a></li><li class="current"><a class="toctext" href>Tutorial</a><ul class="internal"><li><a class="toctext" href="#Counter-Factual-1">Counter Factual</a></li></ul></li><li><a class="toctext" href="../correspondence/">Preservation</a></li></ul></li><li><a class="toctext" href="../higher/">Distributional Inference</a></li><li><a class="toctext" href="../distributions/">Built-in Distributions</a></li><li><a class="toctext" href="../cheatsheet/">Cheat Sheet</a></li><li><a class="toctext" href="../faq/">FAQ</a></li><li><span class="toctext">Internals</span><ul><li><a class="toctext" href="../internalsoverview/">Overview</a></li><li><a class="toctext" href="../omega/">Ω</a></li><li><a class="toctext" href="../randvar/">RandVar</a></li></ul></li><li><a class="toctext" href="../contrib/">Contribution Guide</a></li><li><a class="toctext" href="../omegavsotherppls/">Omega vs other PPLs</a></li></ul></nav><article id="docs"><header><nav><ul><li>Causal Inference</li><li><a href>Tutorial</a></li></ul><a class="edit-page" href="https://github.com/zenna/Omega.jl/blob/master/docs/src/basiccausal.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Tutorial</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Counterfactuals-1" href="#Counterfactuals-1">Counterfactuals</a></h1><p>The utility of <code>replace</code> may not be obvious at first glance. We can use <code>replace</code> and <code>cond</code> separately and in combination to ask lots of different kinds of questions. In this example, we model the relationship betwee the weather outside and teh thermostat reading inside a house. Broadly, the model says that the weather outside is dictataed by the time of day, while the temperature inside is determined by whether the air conditioning is on, and whether the window is open.</p><p><a href="https://github.com/zenna/OmegaModels.jl/blob/master/models/Thermometer/Thermometer.ipynb">Notebook</a></p><p>First, setup simple priors over the time of day, and variables to determine whether the air conditioning is on and whether hte iwndow is open:</p><pre><code class="language-julia">timeofday = uniform([:morning, :afternoon, :evening])
+is_window_open = bernoulli(0.5)
+is_ac_on = bernoulli(0.3)</code></pre><p>Second, assume that the outside temperature depends on the time of day, being hottest in the afternoon, but cold at night:</p><pre><code class="language-julia">function outside_temp_(rng)
+  if timeofday(rng) == :morning
+    normal(rng, 20.0, 1.0)
+  elseif timeofday(rng) == :afternoon
+    normal(rng, 32.0, 1.0)
+  else
+    normal(rng, 10.0, 1.0)
+  end
+end</code></pre><p>Remember, in this style we have to use  <code>ciid</code> to convert a function into a <code>RandVar</code></p><pre><code class="language-julia">outside_temp = ciid(outside_temp_, T=Float64)</code></pre><p>The <code>inside_temp</code> before considering the effects of the window is room temperature, unless the ac is on, which makes it colder.</p><pre><code class="language-julia">function inside_temp_(rng)
+  if Bool(is_ac_on(rng))
+    normal(rng, 20.0, 1.0)
+  else
+    normal(rng, 25.0, 1.0)
+  end
+end
+
+inside_temp = ciid(inside_temp_, T=Float64)</code></pre><p>47:Omega.normal(100.0, 1.0)::Float64</p><p>Finally, the thermostat reading is <code>inside_temp</code> if the window is closed (we have perfect insulation), otherwise it&#39;s just the average of the outside and inside temperature</p><pre><code class="language-julia">function thermostat_(rng)
+  if Bool(is_window_open(rng))
+    (outside_temp(rng) + inside_temp(rng)) / 2.0
+  else
+    inside_temp(rng)
+  end
+end
+
+thermostat = ciid(thermostat_, T=Float64)</code></pre><p>Now with the model built, we can ask some questions:</p><h3><a class="nav-anchor" id="Samples-from-the-prior-1" href="#Samples-from-the-prior-1">Samples from the prior</a></h3><p>The simplest task is to sample from the prior:</p><pre><code class="language-julia">julia&gt; rand((timeofday, is_window_open, is_ac_on, outside_temp, inside_temp, thermostat), 5, alg = RejectionSample)
+5-element Array{Any,1}:
+ (:afternoon, 0.0, 0.0, 32.349, 26.441, 26.441)   
+ (:afternoon, 1.0, 0.0, 30.751, 25.143, 27.947)
+ (:morning, 1.0, 0.0, 16.928, 24.146, 20.537)     
+ (:afternoon, 1.0, 0.0, 30.521, 25.370, 27.946)
+ (:morning, 1.0, 1.0, 16.495, 20.203, 18.349) </code></pre><h3><a class="nav-anchor" id="Conditional-Inference-1" href="#Conditional-Inference-1">Conditional Inference</a></h3><ul><li>You enter the room and the thermostat reads hot. what does this tell you about the variables?</li></ul><p>samples = rand((timeofday, is<em>window</em>open, is<em>ac</em>on, outside<em>temp, inside</em>temp, thermostat),                 thermostat &gt; 30.0, 5, alg = RejectionSample)</p><pre><code class="language-julia">
+julia&gt; samples = rand((timeofday, is_window_open, is_ac_on, outside_temp, inside_temp, thermostat),
+                       thermostat &gt; 30.0, 5, alg = RejectionSample)
+5-element Array{Any,1}:
+ (:evening, 1.0, 0.0, 33.64609872046609, 26.822449458789542, 30.234274089627817) 
+ (:afternoon, 1.0, 0.0, 34.37763909867243, 26.16221853550574, 30.269928817089088)
+ (:evening, 1.0, 0.0, 34.32198183192978, 26.6773921624331, 30.499686997181442)   
+ (:afternoon, 1.0, 0.0, 34.05126597960254, 26.51833791813246, 30.2848019488675)  
+ (:afternoon, 1.0, 0.0, 32.92982568498735, 27.56800059609554, 30.248913140541447)</code></pre><h2><a class="nav-anchor" id="Counter-Factual-1" href="#Counter-Factual-1">Counter Factual</a></h2><ul><li>If I were to close the window, and turn on the AC would that make it hotter or colder&quot;</li></ul><pre><code class="language-none">thermostatnew = replace(thermostat, is_ac_on =&gt; 1.0, is_window_open =&gt; 0.0)
+diffsamples = rand(thermostatnew - thermostat, 10000, alg = RejectionSample)
+julia&gt; mean(diffsamples)
+-4.246869797640215</code></pre><p>So in expectation, that intervention will make the thermostat colder.  But we can look more closely at the distribution:</p><pre><code class="language-none">julia&gt; UnicodePlots.histogram([diffsamples...])
+
+                 ┌────────────────────────────────────────┐ 
+   (-11.0,-10.0] │ 37                                     │ 
+    (-10.0,-9.0] │▇▇▇▇ 502                                │ 
+     (-9.0,-8.0] │▇▇▇▇▇▇▇▇▇▇▇ 1269                        │ 
+     (-8.0,-7.0] │▇▇▇▇▇ 581                               │ 
+     (-7.0,-6.0] │▇▇▇▇ 497                                │ 
+     (-6.0,-5.0] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 3926 │ 
+     (-5.0,-4.0] │▇ 65                                    │ 
+     (-4.0,-3.0] │ 5                                      │ 
+     (-3.0,-2.0] │ 3                                      │ 
+     (-2.0,-1.0] │▇ 97                                    │ 
+      (-1.0,0.0] │▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1960                  │ 
+       (0.0,1.0] │▇▇▇▇ 494                                │ 
+       (1.0,2.0] │▇▇ 197                                  │ 
+       (2.0,3.0] │▇▇ 237                                  │ 
+       (3.0,4.0] │▇ 118                                   │ 
+       (4.0,5.0] │ 12                                     │ 
+                 └────────────────────────────────────────┘ </code></pre><ul><li>In what scenarios would it still be hotter after turning on the AC and closing the window?</li></ul><p>rand((timeofday, outside<em>temp, inside</em>temp, thermostat),       thermostatnew - thermostat &gt; 0.0, 10, alg = RejectionSample)</p><footer><hr/><a class="previous" href="../causal/"><span class="direction">Previous</span><span class="title">Causal Inference</span></a><a class="next" href="../correspondence/"><span class="direction">Next</span><span class="title">Preservation</span></a></footer></article></body></html>
