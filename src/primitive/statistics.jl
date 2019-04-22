@@ -4,14 +4,6 @@
 # 2. No inference algorithm: we do samples on the outside
 # Need to take into account conditions on x
 
-function test()
-  θ = uniform(-1, 1)
-  x = normal(θ, 1)
-  samplemeanᵣ(x ∥ θ) > 0.5
-end
-
-
-# mean(xs::RandVar{<:Array}) = RandVar{Float64, false}(mean, (xs,))
 "Expectation of `x` from `n` samples"
 function samplemean(x::RandVar, n; alg = RejectionSample)
   sum((rand(x, alg = alg) for i = 1:n)) / n
@@ -19,24 +11,6 @@ end
 
 samplemeanᵣ(x, n; alg = RejectionSample) = ciid(ω -> samplemean(x(ω), n; alg = alg))
 
-# function samplemean(ω, x, n)
-#   ω1 = ω[@uid]
-#   x_ = x(ω1)
-#   for i = 1:n-1
-#     x_ += x(ω[@uid, i])
-#   end
-#   x_ / n
-# end
-
-# What do you want?
-# 
-
-# Track or no track?
-# If we don't track, we might not know the error associated with the expectation
-# That is, if x is conditoned, then in a sense the function is wrong
-# Is this the same kind of error as conditioning?
-# In a sense,
-# OTOH if i want to accumulate error 
 
 const sampleprob = samplemean
 
@@ -113,12 +87,11 @@ djltype(::Type{<:ReplaceRandVar{Prim}}) where Prim = djltype(Prim)
 mayberand(x::RandVar) = rand(x)
 mayberand(c) = c
 
-"Convert an RID into a Distributions.jl `Distribution``"
+"Convert `rv` into a Distributions.jl `Distribution``"
 function distribution(rv::RandVar)
   θs = params(rv)
   θisconst = isconstant.(θs)
+  @pre all(θisconst) "All params must be constant to convert to Distributions"
   θsc = mayberand.(θs)
   djldist(rv, θsc...)
 end
-@spec all(θisconst) || throw("All params must be constant to convert to Distributions")
-

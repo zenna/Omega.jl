@@ -3,6 +3,17 @@
 # modularse.  Have one cb that accumuluates
 # 
 
+"""
+```julia
+using Lens
+x = normal(0, 1)
+@leval Loop => plotloss() rand(x, x >ₛ 0.0, 100; alg = SSMH)
+"""
+function plotloss(; title = "Loss vs Iteration", display_ = display, LTY::Type{TY} = Float64) where {TY}
+  cb = Callbacks.plotscalar(; title = title, display_ = display_, LTX = Int, LTY = LTY)
+  data -> cb((x = data.i, y = data.p))
+end
+
 "Scatter plot ω values with UnicodePlots"
 function plotω(x::RandVar, y::RandVar, T = Float64)
   xωs = T[]

@@ -58,8 +58,20 @@ randrtype(ω::SimpleΩ{I, A}, ::Type{T}, ::Dims{N}) where {N, T <: AbstractFloat
 # zt: Issue here is how do you specify that it should be say a static vector
 # Am using abstract TrackedArray
 
+# using ZenUtils
+
 @inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T}, dims::Dims; rng) where {T, I, A<:Flux.TrackedArray}
-  get!(()->Flux.param(rand(rng, T, dims)), ω.vals, id)::randrtype(ω, T, dims)
+  # @show randrtype(ω, T, dims)
+  # @show id ∈ keys(ω.vals)
+  # @show a = typeof(Flux.param(rand(rng, T, dims)))
+  # @grab ω
+  # @grab id
+  # @grab a 
+  ω.vals[id] = a
+  @assert false
+  res = get!(()->Flux.param(rand(rng, T, dims)), ω.vals, id)
+  @show typeof(res)
+  res::randrtype(ω, T, dims)
 end
 
 @inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T}; rng) where {T, I, A<:Flux.TrackedArray}

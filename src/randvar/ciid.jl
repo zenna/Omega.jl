@@ -1,8 +1,8 @@
 """`ciid(f)`
 
-`RandVar` that is *c*onditionally *i*dentical (given its parents) but *i*dentically  *d*istributed to `f`
+`RandVar` that is __c__onditionally __i__ndependent given its parents, but __i__dentically  __d__istributed to `f`
 
-ciid is the primary mechanism to construct a `RandVar` from a function.
+`ciid` is the primary mechanism to construct a `RandVar` from a function.
 
 ```julia
 function x_(ω)
@@ -35,8 +35,6 @@ allheads = ciid(allheads_)  # `allheads` and `anyheads` share `flips`
 
 rand((numflips, flips, anyheads, allheads))
 ```
-
-
 """
 ciid(f) = URandVar(f, ())
 

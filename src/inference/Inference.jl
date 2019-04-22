@@ -7,7 +7,7 @@ using Lens
 using ..Omega: RandVar, applytrackerr, indomainₛ, logerr,
                UTuple, Ω, applynotrackerr, SimpleΩ, LinearΩ,
                update, cond, randtuple, nelem,
-               gradient, linearize, unlinearize, err, indomainₛ, indomain
+               gradient, linearize, unlinearize, err, indomainₛ, indomain, apl
 import ..Omega
 using ProgressMeter
 import Flux
@@ -18,7 +18,7 @@ import UnicodePlots
 using DocStringExtensions: SIGNATURES
 
 "Lens called at every iteration of MCMC algorithm"
-struct Loop end
+abstract type Loop end
 
 "Optimization Algorithm"
 abstract type OptimAlgorithm end
@@ -81,7 +81,10 @@ export  isapproximate,
         plotscalar,
         default_cbs,
         default_cbs_tpl,
-        default_cbs
+        default_cbs,
+
+        # Lenses
+        Loop
 
 
 end

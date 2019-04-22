@@ -54,7 +54,7 @@ proj(tω::TaggedΩ, x::RandVar) = tag(proj(tω.taggedω, x), tω.tags)
 # end
 
 @inline apl(rv::RandVar, tω::TaggedΩ{I, T, ΩT}) where {I, T, ΩT <: ΩProj}  =
-  rv(TaggedΩ(parentω(tω.taggedω), tω.tags))
+  apl(rv, TaggedΩ(parentω(tω.taggedω), tω.tags))
 
 # Generated funtion for typed dispatch on different tags (might be unnecssary)
 @generated function apl(rv::RandVar, tω::TaggedΩ{I, Tags{K, V}, ΩT}) where {I, K, V, ΩT <: ΩBase}

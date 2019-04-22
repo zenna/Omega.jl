@@ -15,7 +15,7 @@ function Base.rand(rng,
   accepted = 0
   for i = 1:n
     ω = ΩT()
-    issat = pred(Omega.Space.tagrng(ω, rng))
+    issat = apl(pred, Omega.Space.tagrng(ω, rng))
     !issat && error("Condition unsatisfied. Use appropriate infrence alg.")
     push!(ωsamples, ω)
     lens(Loop, (ω = ω, accepted = accepted, p = float(issat), i = i))
@@ -30,5 +30,5 @@ function Base.rand(rng::AbstractRNG,
                    ΩT::Type{OT} = defΩ(alg)) where {OT <: Ω}
   pred = Omega.indomain(x)
   ωsamples = rand(rng, ΩT, pred, n, alg)
-  map(x, ωsamples)
+  map(ω -> apl(x, ω), ωsamples)
 end

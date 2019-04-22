@@ -18,7 +18,6 @@ Conditional sampling is done with `rand` and the algorithm are selected
 
 ```@docs
 RejectionSample
-MI
 SSMH
 NUTS
 HMCFAST

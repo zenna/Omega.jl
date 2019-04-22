@@ -11,6 +11,7 @@ import Distributions
 const Djl = Distributions
 import Base: minimum, maximum
 import Random
+using DocStringExtensions: SIGNATURES
 
 export  bernoulli,
         betarv,
@@ -20,7 +21,7 @@ export  bernoulli,
         exponential,
         gammarv,
         Γ,
-        invgamma,
+        invgammarv,
         kumaraswamy,
         logistic,
         # mvnormal,

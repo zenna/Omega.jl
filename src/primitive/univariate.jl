@@ -29,6 +29,7 @@ bernoulli(ω::Ω, p::Real, T = Int) = bernoulli(rand(ω), p, T)
 bernoulli(ω::Ω, p, T = Int) = (p_ = rand(ω, size(p)); bernoulli.(p_, p, T))
 ppapl(rv::Bernoulli{T}, ωπ) where T = bernoulli(ωπ, reify(ωπ, params(rv))..., T)
 
+"$(SIGNATURES) Bernoulli distribution with weight `p` and return type `T`"
 bernoulli(p, T::Type{RT} = Int) where RT = Bernoulli{RT}(p)
 bernoulli(p, sz::Dims, T::Type{RT} = Int) where RT = Bernoulli{RT}(lift(fill)(p, sz))
 
