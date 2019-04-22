@@ -16,7 +16,7 @@
     If the values `x` and `y` are not standard numeric types you will need to define a notion of distance (even if they are, you may want to wrap them and define a distance for this type).  Override `Omega.d` for the relevant types
 
     ```@docs
-    Omega.d
+    Omega.d(x, y)
     ```
 
 ## Relaxation

@@ -6,13 +6,12 @@ Omega comes with a number of built-in probability distributions.
 
 ```@docs
 bernoulli
-boolbernoulli
 betarv
 categorical
 constant
 exponential
 gammarv
-inversegamma
+invgammarv
 kumaraswamy
 logistic
 poisson

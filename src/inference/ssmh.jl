@@ -1,3 +1,4 @@
+abstract type SSMHLoop <: Loop end
 struct SSMHAlg <: SamplingAlgorithm end
 "Single Site Metropolis Hastings"
 const SSMH = SSMHAlg()
@@ -50,7 +51,7 @@ function Base.rand(rng,
       accepted += 1
     end
     push!(ωsamples, deepcopy(ω))
-    lens(Loop, (ω = ω, accepted = accepted, p = plast, i = i + offset))
+    lens(SSMHLoop, (ω = ω, accepted = accepted, p = plast, i = i + offset))
   end
   ωsamples
 end

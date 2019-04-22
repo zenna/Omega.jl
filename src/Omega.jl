@@ -132,7 +132,9 @@ export  isapproximate,
         default_cbs,
         HMCStep,
         default_cbs_tpl,
-        default_cbs
+        default_cbs,
+
+        Loop
 
 # Causal Inference
 include("causal/Causal.jl")
