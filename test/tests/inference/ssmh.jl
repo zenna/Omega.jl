@@ -1,6 +1,7 @@
 module TestNamespace
 
 using Omega
+using Omega.Inference: swapsinglesite, normalkernel 
 using UnicodePlots
 using Statistics: mean
 
@@ -25,7 +26,9 @@ test_ssmc_2()
 function test_sshm_drift()
   x = normal(0.0, 1.0)
   y = normal(1.0, 1.0)
-  z = rand(x - y, x ==ₛ y, 10000; alg=SSMH)
+  z = rand(x - y, x ==ₛ y, 10000; alg=SSMH, proposal = (rng, ω) -> swapsinglesite(rng, ω) do x 
+    normalkernel(rng, x, .1)
+  end)
   z = convert(Array{Float64}, z)
   println(histogram([z[300:end]...]))
   println(mean(z[300:end]))
