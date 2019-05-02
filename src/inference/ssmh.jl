@@ -9,7 +9,7 @@ isapproximate(::SSMHAlg) = true
 
 "Compute a score using the change in Prior of the *single* changed site"
 function proposalkernel(kernel::Function, x)
-  ∇logdensity(x) = Flux.gradient(inv_transform, x |> transform )[1] |> Tracker.data |> abs |> log
+  ∇logdensity(x) = x |> transform |> jacobian |> abs |> log
   before = ∇logdensity(x)
   proposed = kernel(x)
   after = ∇logdensity(proposed)
