@@ -1,4 +1,3 @@
-using Flux.Tracker
 abstract type SSMHLoop <: Loop end
 struct SSMHAlg <: SamplingAlgorithm end
 "Single Site Metropolis Hastings"
