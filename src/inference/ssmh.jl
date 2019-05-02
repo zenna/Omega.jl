@@ -1,3 +1,4 @@
+using Flux.Tracker
 abstract type SSMHLoop <: Loop end
 struct SSMHAlg <: SamplingAlgorithm end
 "Single Site Metropolis Hastings"
@@ -6,15 +7,38 @@ isapproximate(::SSMHAlg) = true
 
 # defΩ(::SSMH) = SimpleΩ{Vector{Int}, Float64}
 
-normalkernel(rng, x, σ = 0.1) = inv_transform(transform(x) + σ * randn(rng))
-normalkernel(rng, x::Array, σ = 0.1) = normalkernel.(x, σ)
+"Compute a score using the change in Prior of the *single* changed site"
+function proposalkernel(kernel::Function, x)
+  ∇logdensity(x) = Flux.gradient(inv_transform, x |> transform )[1] |> Tracker.data |> abs |> log
+  before = ∇logdensity(x)
+  proposed = kernel(x)
+  after = ∇logdensity(proposed)
+  ratio = after - before
+  proposed, ratio 
+end
+
+normalkernel(rng, x, σ = 0.1) = proposalkernel(x) do x
+        inv_transform(transform(x) + σ * randn(rng))
+      end
+# normalkernel(rng, x::Array, σ = 0.1) = normalkernel.(x, σ)
 
 "Metropolized Independent sample"
-mi(rng, x::T) where T = rand(rng, T)
+mi(rng, x::T) where T = (rand(rng, T), 0.0)
 
 "Changes a uniformly chosen single site with kernel"
-swapsinglesite(rng, ω, kernel = x -> mi(rng, x)) =
-  update(ω, rand(1:nelem(ω)), kernel)
+function swapsinglesite(transitionkernel::Function, rng, ω)
+  logtranstionp = 0.0
+  function updater(x)
+    result, logtranstionp = transitionkernel(x)
+    result
+  end
+  update(ω, rand(1:nelem(ω)), updater), logtranstionp
+end
+
+"Changes a uniformly chosen single site with kernel"
+swapsinglesite(rng, ω) = swapsinglesite(rng, ω) do x 
+  mi(rng, x) 
+end
 
 """
 Sample from `ω::Ω` conditioned on any constraints its conditioned on.
@@ -42,9 +66,9 @@ function Base.rand(rng,
   ωsamples = OT[]
   accepted = 0
   for i = 1:n
-    ω_ = isempty(ω) ? ω : proposal(rng, ω)
+    ω_, logtransitionp = isempty(ω) ? (ω,0) : proposal(rng, ω)
     p_ = logdensity(ω_)
-    ratio = p_ - plast
+    ratio = p_ - plast + logtransitionp
     if log(rand(rng)) < ratio
       ω = ω_
       plast = p_
@@ -53,5 +77,6 @@ function Base.rand(rng,
     push!(ωsamples, deepcopy(ω))
     lens(SSMHLoop, (ω = ω, accepted = accepted, p = plast, i = i + offset))
   end
+  # println("accepted, ", accepted)
   ωsamples
 end
