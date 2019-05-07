@@ -66,7 +66,7 @@ function printstats(data)
               color = :light_blue)
 end
 
-default_cbs_tpl(n) = (throttle(plotp(), 0.1),
+default_cbs_tpl(n) = (throttle(plotloss(), 0.1),
                       showprogress(n),
                       throttle(printstats, 1.0),
                       stopnanorinf)

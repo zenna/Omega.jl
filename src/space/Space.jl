@@ -1,7 +1,7 @@
 module Space
 
 using ..Util
-import ..Util: increment!
+import ..Util: increment!, reset!
 using Spec
 import Flux     # FIXME: Can we excise this from this submodule?
 import ForwardDiff

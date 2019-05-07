@@ -26,6 +26,8 @@ Counter() = Counter(0)
 increment!(c::Counter) = x::Int = c.count += 1
 @spec UTupleec c.count == _pre(c.count) += 1
 
+reset!(c::Counter) = c.count = 1
+
 UTuple{T} = Tuple{Vararg{T, N}} where N
 
 # FIXME, dynamic dispatch
