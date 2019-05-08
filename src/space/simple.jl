@@ -67,10 +67,10 @@ randrtype(ω::SimpleΩ{I, A}, ::Type{T}, ::Dims{N}) where {N, T <: AbstractFloat
   # @grab ω
   # @grab id
   # @grab a 
-  ω.vals[id] = a
-  @assert false
+  # ω.vals[id] = a
+  # @assert false
   res = get!(()->Flux.param(rand(rng, T, dims)), ω.vals, id)
-  @show typeof(res)
+  # @show typeof(res)
   res::randrtype(ω, T, dims)
 end
 

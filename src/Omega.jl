@@ -97,8 +97,9 @@ using .Higher
 export rcd, rid, ∥, ∥ₛ
 
 # Gradient
-include("gradient.jl")
-export gradient
+include("gradient/Gradient.jl")
+using .Gradient
+export back!, lineargradient, FluxGrad, ZygoteGrad, ForwardDiffGrad 
 
 # Inference Algorithms
 include("inference/Inference.jl")
