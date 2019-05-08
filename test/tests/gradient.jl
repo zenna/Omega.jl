@@ -52,3 +52,9 @@ function runtests()
 end
 
 runtests()
+
+function zygotetest()
+  x = normal(0, 1, (10,))
+  y = sum(x)
+  lineargradient(y, defΩ()(), ZygoteGrad)
+end

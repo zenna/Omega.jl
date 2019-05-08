@@ -84,7 +84,7 @@ export  isapproximate,
         default_cbs,
 
         # Lenses
-        Loop
-
+        Loop,
+        SSMHLoop
 
 end

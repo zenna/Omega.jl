@@ -5,7 +5,7 @@ function liftnoesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
   args = [isrv ?  :($(Symbol(:x, i))::Omega.RandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
   quote
   function $fnm($(args...))
-    Omega.ciid($fnm, $(args...))
+    Omega.lift($fnm)($(args...))
   end
   end
 end
@@ -14,13 +14,14 @@ function liftesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
   args = [isrv ?  :($(Symbol(:x, i))::Omega.RandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
   quote
   function $(esc(fnm))($(args...))
-    Omega.ciid($fnm, $(args...))
+    Omega.lift($fnm)($(args...))
   end
   end
 end
 
-function lift(fnm::Union{Expr, Symbol}, n::Integer;
-              mod::Module = @__MODULE__())
+"Updates methods of `mod` to add lifted counterparts to function with name fnm"
+function lift!(fnm::Union{Expr, Symbol}, n::Integer;
+               mod::Module = @__MODULE__())
   # @show mod
   combs = rvcombinations(n)
   for comb in combs
@@ -28,8 +29,8 @@ function lift(fnm::Union{Expr, Symbol}, n::Integer;
   end
 end
 
-function lift(f; n=3, mod::Module = @__MODULE__())
-  lift(:($f), n; mod=mod)
+function lift!(f; n=3, mod::Module = @__MODULE__())
+  lift!(:($f), n; mod=mod)
 end
 
 # macro lift(fnm::Union{Symbol, Expr}, n::Integer)
@@ -72,20 +73,23 @@ fnms = [:(Base.:-),
 
 const MAXN = 4
 for fnm in fnms, i = 1:MAXN
-  lift(fnm, i)
+  lift!(fnm, i)
 end
 
 # lift(f::Function) = (args...) -> ciid(f, args...)
 
-@generated function maybelift(f::Function, args...)
+@inline liftciid(f, args...) = URandVar(liftreifyapply, (f, args...))
+@inline liftreifyapply(ωπ, f, args...) = f(reify(ωπ, args)...)
+
+@generated function maybelift(f, args...)
   if any([arg <: RandVar for arg in args])
-    :(ciid(f, args...))
+    :(liftciid(f, args...))
   else
     :(f(args...))
   end
 end
 
-lift(f::Function) = (args...) -> maybelift(f, args...)
+lift(f) = (args...) -> maybelift(f, args...)
 
 # Special Cases $
 """Lifted equality:
@@ -93,4 +97,4 @@ x ==ᵣ y results in a Boolean valued random variable which asks is the
 __realization__ (hence subscript r) of `x` equal to `y`
 If either `x` (or `y`) is a constant (not a RandVar) then it determines if
 realization of `x` (or `y`) is equal to y (or `x`)"""
-x ==ᵣ y = URandVar(reifyapply, (==, x, y))
+x ==ᵣ y = lift(==)(x, y)

@@ -44,7 +44,7 @@ export randarray, randtuple, ==ᵣ, tupleᵣ, arrayᵣ
 
 # Lifting functions to RandVar domain
 include("lift/lift.jl")           
-export @lift, lift
+export @lift, lift, lift!
 
 
 # Soft Inference
@@ -82,14 +82,14 @@ export  d,
 # Soft.logerr(x::RandVar) = 3
 import .Soft: logerr, softeq, softgt, softlt, err, kf1β, kseα
 
-Omega.lift(:softeq, 2)
-Omega.lift(:softeq, 3)
-Omega.lift(:softgt, 2)
-Omega.lift(:softlt, 2)
-Omega.lift(:logerr, 1)
-Omega.lift(:err, 1)
-Omega.lift(:kf1β, 1)
-Omega.lift(:kseα, 1)
+Omega.lift!(:softeq, 2)
+Omega.lift!(:softeq, 3)
+Omega.lift!(:softgt, 2)
+Omega.lift!(:softlt, 2)
+Omega.lift!(:logerr, 1)
+Omega.lift!(:err, 1)
+Omega.lift!(:kf1β, 1)
+Omega.lift!(:kseα, 1)
 
 # Higher-Order Inference
 include("higher/Higher.jl")
@@ -135,7 +135,8 @@ export  isapproximate,
         default_cbs_tpl,
         default_cbs,
 
-        Loop
+        Loop,
+        SSMHLoop
 
 # Causal Inference
 include("causal/Causal.jl")

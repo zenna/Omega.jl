@@ -16,9 +16,3 @@ end
 function lineargradient(rv, ω, ::ZygoteGradAlg)
   Zygote.gradient(ωvec -> apl(rv, unlinearize(ωvec, ω)), linearize(ω))
 end
-
-function test()
-  x = normal(0, 1, (10,))
-  y = sum(x)
-  lineargradient(y, defΩ()(), ZygoteGrad)
-end
