@@ -6,7 +6,7 @@ using Cassette
 using ..Space
 import ..Omega
 using ..Omega: RandVar, constant, proj
-import ..Omega: apl, ppapl, id, params
+import ..Omega: apl, ppapl, id, params, ciid
 using Callbacks: donothing
 
 include("replace.jl")

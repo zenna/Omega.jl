@@ -5,6 +5,7 @@ using ..Omega:TaggedΩ, tag, apl
 import Omega
 import ForwardDiff
 import Cassette
+using LinearAlgebra: norm
 
 using DocStringExtensions
 export  d,

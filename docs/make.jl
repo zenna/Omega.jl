@@ -21,6 +21,7 @@ makedocs(
     "Built-in Distributions" => "distributions.md",
     "Cheat Sheet" => "cheatsheet.md",
     "FAQ" => "faq.md",
+    "Performance Tips" => "performance.md",
     "Internals" => ["Overview" => "internalsoverview.md",
                     "Ω" => "omega.md",
                     "RandVar" => "randvar.md"],

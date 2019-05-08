@@ -19,7 +19,7 @@ const sampleprob = samplemean
 "Probability x is true"
 prob(x::RandVar, n, israndvar::Type{Val{false}}) =
   sum((rand(x, alg = RejectionSample) for i = 1:n)) / n
-lprob(x::RandVar, n = 1000) = ciid(prob, x, n, Val{false})
+lprob(x::RandVar, n = 1000) = lift(prob)(x, n, Val{false})
 prob(x::RandVar, n) = prob(x, n, Val{elemtype(x) <: RandVar})
 
 # Specializations
@@ -33,7 +33,7 @@ for func in unidistattrs
   quote
     $func(x::RandVar, israndvar::Type{Val{false}}) = Djl.$func(distribution(x))
     $func(x::RandVar, israndvar::Type{Val{true}}) = $(:l *ₛ func)(x)
-    $(:l *ₛ func)(x::RandVar) = ciid($func, x, Val{false})
+    $(:l *ₛ func)(x::RandVar) = lift($func)(x, Val{false})
     $func(x::RandVar) = $func(x, Val{elemtype(x) <: RandVar})
   end
   eval(expr)
