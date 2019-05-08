@@ -3,6 +3,7 @@ applymany(ω::Ω, xs) = map(xi->xi(ω), xs)
 
 "RandVar{Vector} from Vector{<:RandVar}"
 randarray(x::Array{<:RandVar, N}) where N = URandVar(applymany, (x,))
+# zt: FIXME AbstractArray?
 
 randtuple(x::UTuple{RandVar}) = URandVar(applymany, (x,))
 

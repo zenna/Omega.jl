@@ -48,6 +48,7 @@ function Base.:&(x::SoftBool, y::SoftBool)
   SoftBool(c)
 end
 Base.:|(x::SoftBool, y::SoftBool) = SoftBool(max(logerr(x), logerr(y)))
+# zt: FIXME abstractvector?
 Base.all(xs::Vector{<:SoftBool}) = SoftBool(minimum(logerr.(xs)))
 Base.all(xs::Vector{<:RandVar}) = RandVar(all, (xs, ))
 
