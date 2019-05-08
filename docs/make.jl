@@ -13,7 +13,7 @@ makedocs(
     "(Conditional) Independence" => "conditionalindependence.md",
     "Conditional Inference" => "inference.md",
     "Soft Execution" => "soft.md",
-    "Inference Algorithms" => ["Sampling Algorithms" => "inferencealgorithms .md",
+    "Inference Algorithms" => ["Sampling Algorithms" => "inferencealgorithms.md",
                                "Callbacks" => "callbacks.md"],
     "Causal Inference" => ["Causal Inference" => "causal.md",
                            "Tutorial" => "basiccausal.md",
