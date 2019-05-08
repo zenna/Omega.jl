@@ -113,15 +113,15 @@ end
 # coerse(::Type{T}, x) where T 
   
 function memrand(lω::LinearΩ, id, X, dims::Dims; rng)
-  RT = randrtype(lω,  X,  dims)
-  seg = get(lω.ids, id, 0)
-  if seg == 0
+  # RT = randrtype(lω,  X,  dims)
+  if !haskey(lω.ids, id)
     res = rand(rng, X, dims)
     startidx = length(lω.ωvec) + 1
     lω.ids[id] = startidx:startidx + prod(dims) - 1
-    res_::RT = res  # zt: issue si that might need to convert into correct format
-    typeof(res_)
-    typeof(lω.ωvec)
+    res_ = res
+    # res_::RT = res  # zt: issue si that might need to convert into correct format
+    # typeof(res_)
+    # typeof(lω.ωvec)
     # @grab res_
     p = lω.ωvec
     # @grab p
@@ -130,7 +130,8 @@ function memrand(lω::LinearΩ, id, X, dims::Dims; rng)
   else
     seg = lω.ids[id]
     subωvec = lω.ωvec[seg]
-    res::RT = reshape(subωvec, dims) # reshaping a thing might produce a vector
+
+    res = reshape(subωvec, dims) # reshaping a thing might produce a vector
     res
   end
 end

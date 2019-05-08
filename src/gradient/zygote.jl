@@ -3,6 +3,7 @@ struct ZygoteGradAlg <: GradAlg end
 const ZygoteGrad = ZygoteGradAlg()
 import ..Omega
 Zygote.@nograd Omega.Space.increment
+Zygote.@nograd haskey
 
 function gradmap(rv, ω::Ω)
   l = apl(rv, ω)
