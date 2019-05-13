@@ -43,6 +43,9 @@ end
 "Logarithmically spaced temperatures"
 logtemps(n, k = 10) = exp.(k * range(-2.0, stop = 1.0, length = n))
 
+struct PreSwap end
+struct PostSwap end
+
 """Sample from `density` using Replica Exchange
 
 $(SIGNATURES)
@@ -105,7 +108,9 @@ function Base.rand(rng,
         end
       end
     end
+    lens(PreSwap, (ωs = ωs, temps = temps))
     exchange!(rng, logdensity, ωs, temps, kernel)
+    lens(PostSwap, (ωs = ωs, temps = temps))
   end
   ωsamples
 end

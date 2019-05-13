@@ -11,7 +11,7 @@ defcb(::HMCFASTAlg) = default_cbs()
 
 """Hamiltonian monte carlo with leapfrog integration:
 https://arxiv.org/pdf/1206.1901.pdf"""
-function hmcfast(rng, U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsize)
+function hmcfast(rng, U, ∇U!, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsize)
   # Initialise proposal as unbounded of current state
   foreach(qvals, prop_qvals) do q, prop_q @. prop_q = (q) end
 
@@ -23,7 +23,7 @@ function hmcfast(rng, U, ∇U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, st
   ∇qvals = [x.grad for x in values(prop_ω)]
   function ∇step()
     foreach(∇qvals) do ∇q @. ∇q = 0 end  # reset gradients
-    ∇U(prop_ω)  # Gradient step
+    ∇U!(prop_ω)  # Gradient step
   end
   
   # Make a half step for momentum at beginning
@@ -82,7 +82,7 @@ function Base.rand(rng::AbstractRNG,
                    nsteps = 10,
                    stepsize = 0.001,
                    ωinit = ΩT(),
-                   gradalg = Omega.FluxGrad,
+                   gradalg = Omega.TrackerGrad,
                    offset = 0) where {OT <: Ω}
   ω = ωinit # Current Ω state of chain
   logdensity(ω)  # Initialize omega
@@ -96,11 +96,11 @@ function Base.rand(rng::AbstractRNG,
   
   ωsamples = ΩT[] 
   U = -logdensity
-  ∇U(ω) = Omega.back!(U, ω, gradalg)
+  ∇U!(ω) = Omega.back!(U, ω, gradalg)
 
   accepted = 0
   for i = 1:n*takeevery
-    p_, wasaccepted = hmcfast(rng, U, ∇U, qvals, prop_qvals, pvals, ω,
+    p_, wasaccepted = hmcfast(rng, U, ∇U!, qvals, prop_qvals, pvals, ω,
                           prop_ω, nsteps, stepsize)
     if wasaccepted
       i % takeevery == 0 && push!(ωsamples, deepcopy(prop_ω))

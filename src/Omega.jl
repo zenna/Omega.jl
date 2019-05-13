@@ -99,7 +99,7 @@ export rcd, rid, ∥, ∥ₛ
 # Gradient
 include("gradient/Gradient.jl")
 using .Gradient
-export back!, lineargradient, FluxGrad, ZygoteGrad, ForwardDiffGrad 
+export back!, lineargradient, TrackerGrad, ZygoteGrad, ForwardDiffGrad 
 
 # Inference Algorithms
 include("inference/Inference.jl")
@@ -217,7 +217,7 @@ export Dense
 # Memoize
 include("memoize.jl")
 
-# Memoize
+# Scaling errors
 include("scaling.jl")
 
 

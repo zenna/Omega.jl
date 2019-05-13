@@ -1,3 +1,5 @@
+import ForwardDiff
+
 struct ForwardDiffGradAlg <: GradAlg end
 const ForwardDiffGrad = ForwardDiffGradAlg()
 
@@ -25,3 +27,5 @@ function lineargradient(rv, ω::Ω, ::ForwardDiffGradAlg)
   xs = linearize(ω)
   ForwardDiff.gradient(unlinearizeapl, xs)
 end
+
+value(x::ForwardDiff.Dual) = x.value

@@ -7,7 +7,7 @@ const ΩTs = [LinearΩ{Vector{Int}, UnitRange{Int64}, Vector{Float64}},
              Omega.SimpleΩ{Vector{Int}, Float64},
              LinearΩ{Vector{Int}, UnitRange{Int64}, TrackedArray{Float64, 1, Array{Float64,1}}}]
 
-const gradalgs = [Omega.FluxGrad,
+const gradalgs = [Omega.TrackerGrad,
                   Omega.ForwardDiffGrad,
                   # Omega.ZygoteGrad
                   ]
@@ -36,8 +36,8 @@ end
 # Filter to differentiable models
 models = filter(hascond ∧ isdiff, allmodels)
 
-# Dont use FluxGrad on wrong Omegas, etc
-f1(m, ΩT, gradalg) = gradalg == Omega.FluxGrad ?  istracked(ΩT) : true
+# Dont use TrackerGrad on wrong Omegas, etc
+f1(m, ΩT, gradalg) = gradalg == Omega.TrackerGrad ?  istracked(ΩT) : true
 f2(m, ΩT, gradalg) = gradalg == Omega.ForwardDiffGrad ? !istracked(ΩT) : true
 
 function runtests()
