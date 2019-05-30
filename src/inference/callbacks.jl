@@ -68,8 +68,7 @@ end
 
 default_cbs_tpl(n) = (throttle(plotloss(), 0.1),
                       showprogress(n),
-                      throttle(printstats, 1.0),
-                      stopnanorinf)
+                      throttle(printstats, 1.0))
 
 "Defautlt callbacks"
 default_cbs(n) = runall([default_cbs_tpl(n)...])
