@@ -89,6 +89,8 @@ export  isapproximate,
 
         # Lenses
         Loop,
-        SSMHLoop
+        SSMHLoop,
+
+        autorand
 
 end
