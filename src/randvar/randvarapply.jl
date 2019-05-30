@@ -6,11 +6,11 @@ function ppapl end
 "Apply function to argument"
 function apl end
 
-"Apply if randvar otherwise just return value (treat as constant randvar"
+"Apply if randvar otherwise just return value (treat as constant randvar)"
 subapl(x, ω) = x
 @inline subapl(rv::RandVar, ω) = apl(rv, ω)
 
-"Project ω to `x`"
+"Project `ω` to `x`"
 proj(ω::ΩBase, x::RandVar) = proj(ω, x.id, 1)
 
 proj(ω::O, i...) where {I, O <: ΩBase{I}} = 

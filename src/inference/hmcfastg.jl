@@ -15,7 +15,7 @@ function hmcfastG(rng, U, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsiz
   foreach(qvals, prop_qvals) do q, prop_q @. prop_q = (q) end
 
   # Randomize the momentum
-  foreach(p -> @.(p = randn()), pvals)
+  foreach(p -> @.(p = randn(rng)), pvals)
 
   # Current Kinetic Energy
   current_K =  sum(map(p->sum(p.^2), pvals)) / 2.0
@@ -65,6 +65,18 @@ end
 
 vals(x) = map(value, values(x))
 
+
+# Stop after n
+# Stop after converged
+
+# We want a procedure that determines
+# while stop(i, j)
+# record
+
+function stopaftern()
+  
+end
+
 "Sample from `x | y == true` with Hamiltonian Monte Carlo"
 function Base.rand(rng::AbstractRNG,
                    ΩT::Type{OT},
@@ -77,18 +89,18 @@ function Base.rand(rng::AbstractRNG,
                    ωinit = ΩT(),
                    gradalg = Omega.TrackerGrad,
                    offset = 0) where {OT <: Ω}
-  ω = ωinit # Current Ω state of chain
-  logdensity(ω)  # Initialize omega
-  qvals = vals(ω)                               # Values as a vector
+  ω = ωinit                     #  Current Ω state of chain
+  logdensity(ω)                 # Initialize omega
+  qvals = vals(ω)               # Values as a vector
 
-  prop_ω = deepcopy(ω)                          # Ω proposal
-  prop_qvals = vals(prop_ω)                     # as vector
+  prop_ω = deepcopy(ω)          # Ω proposal
+  prop_qvals = vals(prop_ω)     # as vector
 
-  p = deepcopy(ω)                     # Momentum, deepcopy but could just zero
-  pvals = vals(p)                     # as vector
+  p = deepcopy(ω)               # Momentum, deepcopy but could just zero
+  pvals = vals(p)               # as vector
   
-  ωsamples = ΩT[] 
-  U = -logdensity
+  ωsamples = ΩT[]               # Output samples
+  U = -logdensity               # energy is negative logdensity
 
   accepted = 0
   for i = 1:n*takeevery
@@ -97,9 +109,11 @@ function Base.rand(rng::AbstractRNG,
     if wasaccepted
       i % takeevery == 0 && push!(ωsamples, deepcopy(prop_ω))
       accepted += 1
+
+      # Make current state proposed state
       foreach(qvals, prop_qvals) do q, prop_q @. q = prop_q  end
     else
-      # QVALS need to reflect
+      # QVALS need to reflect (reflect what?)
       i % takeevery == 0 && push!(ωsamples, deepcopy(ω))
     end
     lens(Loop, (ω = prop_ω, accepted = accepted, p = p, i = i + offset))
