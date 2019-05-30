@@ -11,7 +11,7 @@ abstract type GradAlg end
 "`lineargradient(::RandVar, ω::Ω, ::Alg)` Returns as vector gradient of ω components"
 function lineargradient end
 
-"`back!(::RandVar, ω::Ω, ::TrackerGradAlg)` update values of ω with gradients"
+"`back!(::RandVar, ω::Ω, ::TrackerGradAlg)` update ω s.t ω[id].grad is gradient"
 function back! end
 
 "`grad(rv, ω)` returns ω where gradients in components"
