@@ -1,7 +1,7 @@
-"Flux based Hamiltonian Monte Carlo Sampling"
+"Hamiltonian Monte Carlo Sampling"
 struct HMCFASTGAlg <: SamplingAlgorithm end
 
-"Flux based Hamiltonian Monte Carlo Sampling"
+"Hamiltonian Monte Carlo Sampling"
 const HMCFASTG = HMCFASTGAlg()
 isapproximate(::HMCFASTGAlg) = true
 defΩ(::Type{HMCFASTGAlg}) = SimpleΩ{Vector{Int}, Flux.TrackedArray{Float64, 1, Array{Float64,1}}}
