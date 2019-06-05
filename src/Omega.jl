@@ -186,7 +186,8 @@ export  succprob,
         entropy,
         mean,
         prob,
-        lprob
+        lprob,
+        samplemean
 
 # Lifted distributional functions
 export  lsuccprob,

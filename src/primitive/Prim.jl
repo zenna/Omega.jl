@@ -84,7 +84,6 @@ export  succprob,
         entropy,
         mean,
         samplemean,
-        samplemeanᵣ
         prob,
         lprob
 

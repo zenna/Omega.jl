@@ -73,8 +73,14 @@ vals(x) = map(value, values(x))
 # while stop(i, j)
 # record
 
-function stopaftern()
-  
+function stopaftern(n)
+  function step(i)
+    if i < n
+      true
+    else
+      false
+    end
+  end
 end
 
 "Sample from `x | y == true` with Hamiltonian Monte Carlo"
@@ -89,7 +95,7 @@ function Base.rand(rng::AbstractRNG,
                    ωinit = ΩT(),
                    gradalg = Omega.TrackerGrad,
                    offset = 0) where {OT <: Ω}
-  ω = ωinit                     #  Current Ω state of chain
+  ω = ωinit                     # Current Ω state of chain
   logdensity(ω)                 # Initialize omega
   qvals = vals(ω)               # Values as a vector
 
