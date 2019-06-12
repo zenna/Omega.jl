@@ -16,11 +16,19 @@ end
 # end
 # # The New #
 
-function grad(rv, ω, ::TrackerGradAlg)
-  Tracker.gradient(() -> rv(ω), Flux.params(ω))
+struct GradView{G, O}
+  grads::G
+  vals::O
+end
+Base.getindex(gv::GradView, i) = value(gv.grads[gv.vals[i]])
+
+function grad(rv, ω::Ω, ::TrackerGradAlg)
+  v = collect(values(ω))
+  grad_ = Tracker.gradient(() -> rv(ω), Flux.params(v...))
+  GradView(grad_, v)
 end
 
-function gradarray(rv, ω, ::TrackerGradAlg)
+function gradarray(rv, ω::Ω, ::TrackerGradAlg)
   vs = values(ω)
   grads_ = grad(rv, ω, vs, TrackerGrad)
   map(v -> grads_[v], vs)

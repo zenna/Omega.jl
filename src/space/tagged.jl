@@ -20,6 +20,9 @@ tag(tω::TaggedΩ, tag_::Tags) = TaggedΩ(tω.taggedω, merge(combinetag, tag_, 
 
 # Pass-throughs (tω::TaggedΩ should work like its tω.taggedω, but preserve tags)
 
+Base.values(tω::TaggedΩ) = values(tω.taggedω)
+Base.keys(tω::TaggedΩ) = keys(tω.taggedω)
+
 @inline Base.getindex(tω::TaggedΩ, i) = TaggedΩ(getindex(tω.taggedω, i), tω.tags)
 # Base.rand(tω::TaggedΩ, args...) = rand(tω.taggedω, args...; rng = rng(tω))
 

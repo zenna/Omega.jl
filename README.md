@@ -13,7 +13,7 @@ Omega is a library for causal and probabilistic inference in Julia.
 Omega is built in Julia 1.  You can still easily install it from a Julia repl with:
 
 ```julia
-] add Omega 
+] add Omega#master 
 ```
 
 See the documentation for how to use Omega. 

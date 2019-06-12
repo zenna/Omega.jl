@@ -138,6 +138,7 @@ end
 memrand(lω::LinearΩ{I, SEG, V}, id, X; rng) where {I, SEG, V<: Flux.TrackedArray} = 
   first(memrand(lω, id, X, (1,); rng = rng))
 
+# using ZenUtils
 function memrand(lω::LinearΩ, id, X; rng)
   RT = randrtype(lω, X)
   # @show typeof(lω)
@@ -153,7 +154,8 @@ function memrand(lω::LinearΩ, id, X; rng)
     lω.ids[id] = startidx:startidx
     res_
   else
-    seg = lω.ids[id]
+    # @show seg = lω.ids[id]
+    # @show id
     subωvec = lω.ωvec[first(seg)]::RT
   end
 end
