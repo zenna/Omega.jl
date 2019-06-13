@@ -187,7 +187,8 @@ export  succprob,
         mean,
         prob,
         lprob,
-        samplemean
+        samplemean,
+        samplemeanᵣ
 
 # Lifted distributional functions
 export  lsuccprob,
