@@ -9,6 +9,10 @@ using ..Omega: RandVar, applytrackerr, indomainₛ, logerr,
                update, cond, randtuple, nelem,
                gradient, linearize, unlinearize, err, indomainₛ, indomain, apl
 import ..Omega
+using Omega.Space: tagrng
+
+using ..Gradient: value, gradient
+
 using ProgressMeter
 import Flux
 import ForwardDiff
@@ -41,6 +45,7 @@ include("rs.jl")        # Rejection Sampling
 include("ssmh.jl")      # Single Site Metropolis Hastings
 # include("hmc.jl")       # Hamiltonian Monte Carlo
 include("hmcfast.jl")   # Faster Hamiltonian Monte Carlo
+# include("hmcfastg.jl")   # Faster Hamiltonian Monte Carlo
 include("replica.jl")   # Replica Exchange
 include("dynamichmc.jl")# Dynamic Hamiltonion Monte Carlo
 include("fail.jl")# Dynamic Hamiltonion Monte Carlo
@@ -85,6 +90,8 @@ export  isapproximate,
 
         # Lenses
         Loop,
-        SSMHLoop
+        SSMHLoop,
+
+        autorand
 
 end
