@@ -1,42 +1,37 @@
 # Callbacks
 
-Omega has a useful system for passing callbacks to inference algorithms
+Omega uses [Lenses](https://github.com/zenna/Lens.jl) and Callbacks to support queries such as:
 
-Callbacks can be used to
-- Plot progress of inference algorithms
-- Save data to file
+- Time left until the simulation end
+- Convergence properties of the Markov Chains
+- Periodically saving results to disk
 
-Omega callbacks are organized into a graph of functions which take as input named tuples and return named tuples.
+Each inference procedure exports some lenses.
+Currently these are of the form `InferenceAlgLoop`.  For example, the inference procedure`SSMH` has `SSMHLoop` lens called after each sample.
 
-To define a callback simply defined a function of this form, e.g. 
+## Usage
+
 
 ```julia
-showiter(data) = println("We are at iteration $(data.i)")
+using Callbacks, Lens
+x = ciid(ω -> (sleep(0.001); normal(ω, 0, 1)))
+@leval Loop => showprogress(10000) rand(x, 10000) 
 ```
-
-Then pass this callback with the keyword argument to `cb` to `rand`:
 
 ```julia
-x = normal(0.0, 1.0)
-rand(x, x > 0.0, 5; cb = showiter)
+using Omega.Inference: SSMHLoop
+x = ciid(ω -> (sleep(0.001); normal(ω, 0, 1)))
+@leval SSMHLoop => plotloss() rand(x, x >ₛ 0.0, 10000; alg = SSMH)
+@leval SSMHLoop => default_cbs(10000) rand(x, x >ₛ 0.0, 10000; alg = SSMH)
 ```
+## Default Callbacks
 
-Callbacks can return namedtuples
+`default_cbs(n)` returns a callback that displays a bunch of information likely to be useful, such as processbar, the likelihood, etc.  It takes as input `n`, the number of samples:
+
+Example usage:
 
 ```julia
-showscore(data) = data.
+using Omega
+x = ciid(ω -> (sleep(0.001); normal(ω, 0, 1)))
+@leval SSMHLoop => default_cbs(10000) rand(x, x >ₛ 0.0, 10000; alg = SSMH)
 ```
-
-To make `showscore` be called with otuput of showiter 
-
-
-```
-callbacks(showiter => showscore)
-```
-
-
-## Callback trees
-
-Often we want to have one callback compute some information and other callbacks use that information.
-For example we may want to compute the accuracy of a Bayesian classifier on a test set, but then we may want to either log that to file, log it to tensorboard, or maybe even plot a graph using UnicodePlots.
-The callback system has a Callback Tree type to support this case.
