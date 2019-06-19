@@ -18,4 +18,4 @@ function allₛ(xs::AbstractArray{T, N}) where {T <: DualSoftBool, N}
   DualSoftBool(b0, b1)
 end
 
-softeq(a::AbstractArray, b::AbstractArray) = anyₛ(softeq.(a, b))
+softeq(a::AbstractArray, b::AbstractArray) = allₛ(softeq.(a, b))

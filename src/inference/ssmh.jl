@@ -39,6 +39,13 @@ swapsinglesite(rng, ω) = swapsinglesite(rng, ω) do x
   mi(rng, x) 
 end
 
+function moveproposal(rng, ω)
+  swapsinglesite(rng, ω) do x
+    normalkernel(rng, x, 1)
+  end
+end
+
+
 """
 Sample from `ω::Ω` conditioned on any constraints its conditioned on.
 
@@ -56,7 +63,7 @@ function Base.rand(rng,
                    logdensity::RandVar,
                    n::Integer,
                    alg::SSMHAlg;
-                   proposal = swapsinglesite,
+                   proposal = moveproposal,
                    ωinit = ΩT(),
                    offset = 0) where {OT <: Ω}
   ω = ωinit
