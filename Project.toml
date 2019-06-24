@@ -1,7 +1,7 @@
 name = "Omega"
 uuid = "1af16e33-887a-59b3-8344-18f1671b3ade"
 authors = ["Zenna Tavares <zennatavares@gmail.com>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 Callbacks = "db1e321a-d383-57b4-a664-0144fd54e973"
@@ -31,3 +31,6 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
 test = ["Spec"]
+
+[compat]
+julia = "1"

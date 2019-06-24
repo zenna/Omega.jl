@@ -214,7 +214,8 @@ export  lsuccprob,
 
 # Neural Network Stuff
 include("flux.jl")
-export Dense
+using .OmegaFlux
+export OmegaDense
 
 # Memoize
 include("memoize.jl")

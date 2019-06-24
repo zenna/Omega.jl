@@ -22,6 +22,7 @@ ssoftfalse(::Type{T} = Float64) where T = SoftBool(-inf(T))
 kernelrettype(x::T, y::T) where T = T
 
 softeq(a::Bool, b::Bool) = softeq(float(a), float(b))
+softeq(a::Integer, b::Integer) = softeq(float(a), float(b))
 
 "Soft Equality"
 function ssofteq(x, y, k = globalkernel())
