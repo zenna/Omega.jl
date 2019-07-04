@@ -41,7 +41,7 @@ end
 
 function moveproposal(rng, ω)
   swapsinglesite(rng, ω) do x
-    normalkernel(rng, x, 1)
+    normalkernel(rng, x, 0.1)
   end
 end
 

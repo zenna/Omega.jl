@@ -11,7 +11,7 @@ categorical
 constant
 exponential
 gammarv
-invgammarv
+invgamma
 kumaraswamy
 logistic
 poisson

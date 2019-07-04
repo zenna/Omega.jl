@@ -91,6 +91,7 @@ export  isapproximate,
         # Lenses
         Loop,
         SSMHLoop,
+        HMCFASTLoop,
 
         autorand
 

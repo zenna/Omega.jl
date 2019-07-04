@@ -136,7 +136,8 @@ export  isapproximate,
         default_cbs,
 
         Loop,
-        SSMHLoop
+        SSMHLoop,
+        HMCFASTLoop
 
 # Causal Inference
 include("causal/Causal.jl")

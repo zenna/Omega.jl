@@ -9,6 +9,9 @@ defΩ(::HMCFASTAlg) = SimpleΩ{Vector{Int}, Flux.TrackedArray{Float64, 1, Array{
 defcb(::HMCFASTAlg) = default_cbs()
 # defcb = default_cbs(n)
 
+abstract type HMCFASTLoop <: Loop end
+
+
 """Hamiltonian monte carlo with leapfrog integration:
 https://arxiv.org/pdf/1206.1901.pdf"""
 function hmcfast(rng, U, ∇U!, qvals, prop_qvals, pvals, ω, prop_ω, nsteps, stepsize)
@@ -110,7 +113,8 @@ function Base.rand(rng::AbstractRNG,
       # QVALS need to reflect
       i % takeevery == 0 && push!(ωsamples, deepcopy(ω))
     end
-    lens(Loop, (ω = prop_ω, accepted = accepted, p = Flux.data(p_), i = i + offset))
+    @show p
+    lens(HMCFASTLoop, (ω = prop_ω, accepted = accepted, p = Flux.data(p_), i = i + offset))
   end
   ωsamples
 end

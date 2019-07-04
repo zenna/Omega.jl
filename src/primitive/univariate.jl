@@ -73,14 +73,14 @@ struct InverseGamma{A, B} <: PrimRandVar
   InverseGamma(α::A, θ::B, id = uid()) where {A, B} = new{A, B}(α, θ, id)
 end
 @inline (rv::InverseGamma)(ω::Ω) = apl(rv, ω)
-rvtransform(rv::InverseGamma) = invgammarv
-invgammarv(p::Real, α::Real, θ::Real) = quantile(Djl.InverseGamma(α, θ), p)
-invgammarv(ω::Ω, α::Real, θ::Real) = invgammarv(rand(ω), α, θ)
-invgammarv(ω::Ω, α, θ) = (p = rand(ω, anysize(α, θ)); invgammarv.(p, α, θ))
+rvtransform(rv::InverseGamma) = invgamma
+invgamma(p::Real, α::Real, θ::Real) = quantile(Djl.InverseGamma(α, θ), p)
+invgamma(ω::Ω, α::Real, θ::Real) = invgamma(rand(ω), α, θ)
+invgamma(ω::Ω, α, θ) = (p = rand(ω, anysize(α, θ)); invgamma.(p, α, θ))
 
-invgammarv(α, θ) = InverseGamma(α, θ)
-invgammarv(α, θ, sz::Dims) = InverseGamma(lift(fill)(α, sz), lift(fill)(θ, sz))
-const invΓ = invgammarv
+invgamma(α, θ) = InverseGamma(α, θ)
+invgamma(α, θ, sz::Dims) = InverseGamma(lift(fill)(α, sz), lift(fill)(θ, sz))
+const invΓ = invgamma
 
 "Rademacher distribution"
 struct Rademacher{T} <: PrimRandVar
