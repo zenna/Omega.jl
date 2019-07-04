@@ -19,7 +19,7 @@ anyheads = ciid(anyheads_)
 allheads_(ω) = all(flips(ω))
 allheads = ciid(allheads_)  # `allheads` and `anyheads` share `flips`
 
-rand((numflips, flips, anyheads, allheads))</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/zenna/Omega.jl/blob/b99cab1326398d1f9f843f061089f03f906b79e3/src/randvar/ciid.jl#L1-L39">source</a><div><div><p>ciid(x::RandVar) </p><p><code>RandVar</code> identically distributed to <code>x</code> but conditionally independent given parents`</p></div></div><a class="source-link" target="_blank" href="https://github.com/zenna/Omega.jl/blob/b99cab1326398d1f9f843f061089f03f906b79e3/src/randvar/ciid.jl#L41-L44">source</a><div><div><pre><code class="language-julia">ciid(f, args)
+rand((numflips, flips, anyheads, allheads))</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/zenna/Omega.jl/blob/1b2f926937cb749d2c6ec68eaaa3a4c3337417ce/src/randvar/ciid.jl#L1-L39">source</a><div><div><p>ciid(x::RandVar) </p><p><code>RandVar</code> identically distributed to <code>x</code> but conditionally independent given parents`</p></div></div><a class="source-link" target="_blank" href="https://github.com/zenna/Omega.jl/blob/1b2f926937cb749d2c6ec68eaaa3a4c3337417ce/src/randvar/ciid.jl#L41-L44">source</a><div><div><pre><code class="language-julia">ciid(f, args)
 </code></pre><p>ciid with arguments</p><p>If arguments are random variables they are resolved to values.</p><p>Equivalent to:</p><p><code>ciid(ω -&gt; f(ω, (arg isa RandVar ? arg(ω) : arg for arg in args)...))</code></p><p>Example:</p><pre><code class="language-julia">function f_(ω, n)
   x = 0.0
   for i = 1:n
@@ -28,4 +28,4 @@ rand((numflips, flips, anyheads, allheads))</code></pre></div></div><a class="so
   x
 end
 
-f = ciid(f_, poisson(3))</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/zenna/Omega.jl/blob/b99cab1326398d1f9f843f061089f03f906b79e3/src/randvar/ciid.jl#L45">source</a></section><footer><hr/><a class="previous" href="../model/"><span class="direction">Previous</span><span class="title">Modeling</span></a><a class="next" href="../inference/"><span class="direction">Next</span><span class="title">Conditional Inference</span></a></footer></article></body></html>
+f = ciid(f_, poisson(3))</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/zenna/Omega.jl/blob/1b2f926937cb749d2c6ec68eaaa3a4c3337417ce/src/randvar/ciid.jl#L45">source</a></section><footer><hr/><a class="previous" href="../model/"><span class="direction">Previous</span><span class="title">Modeling</span></a><a class="next" href="../inference/"><span class="direction">Next</span><span class="title">Conditional Inference</span></a></footer></article></body></html>
