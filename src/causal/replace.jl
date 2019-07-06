@@ -22,7 +22,10 @@ params(rv::ReplaceRandVar) = map(p -> maybereplace(p, rv.replmap), params(rv.x))
 
 @inline function replaceapl(rv::RandVar, tω::TaggedΩ{I, Tags{K, V}, ΩT}) where {I, K, V, ΩT <: ΩBase}
   if haskey(tω.tags.replmap, rv.id) # FIXME, double look up
-    apl(tω.tags.replmap[rv.id], tω) # FIXME: add Type constriant!
+    # T = (Core.Compiler).return_type(rv, typeof((tω.taggedω,)))
+    # @show T
+    # @show tω.taggedω
+    apl(tω.tags.replmap[rv.id], tω)#::T
   else
     ppapl(rv, proj(tω, rv))
   end

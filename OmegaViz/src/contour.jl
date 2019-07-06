@@ -1,5 +1,32 @@
 unitrng(; eps = 1e-5) = 0 + eps:0.005:1 - eps
 
+function fx(xrv::RandVar;
+            ΩT = defΩ(),
+            xdim = 1,
+            verbose = false)
+  ω = ΩT()
+  xrv(ω)
+  function f(x)
+    ω = Space.update(ω, xdim, x)
+    y = xrv(ω)
+    verbose && println(x, " -> ", y)
+    y
+  end
+end
+
+function fxy(xrv::RandVar;
+                  ΩT = defΩ(),
+                  xdim = 1,
+                  ydim = 2)
+  ω = ΩT()
+  xrv(ω)
+  function f(x, y)
+    ω = Space.update(ω, xdim, x)
+    ω = Space.update(ω, ydim, y)
+    xrv(ω)
+  end
+end
+
 """
 Contour Plot of two dimensions of Ω
 

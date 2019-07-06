@@ -5,12 +5,16 @@
 # Need to take into account conditions on x
 
 "Expectation of `x` from `n` samples"
-function samplemean(x::RandVar, n; alg = RejectionSample)
-  sum((rand(x, alg = alg) for i = 1:n)) / n
+function samplemean(x::RandVar, n; alg = RejectionSample, kwargs...)
+    # @show kwargs
+  mean(rand(x, n; alg = alg, kwargs...))
 end
 
 samplemeanᵣ(x, n; alg = RejectionSample) = ciid(ω -> samplemean(x(ω), n; alg = alg))
 
+meanstd(x) = (m = mean(x); (mean = m, std = stdm(x, m)))
+samplemeanstd(x, n; alg, kwargs...) = meanstd(rand(x, n; alg = alg, kwargs...))
+samplemeanstdᵣ(x, n; alg = RejectionSample) = ciid(ω -> samplemeanstd(x(ω), n; alg = alg))
 
 const sampleprob = samplemean
 
