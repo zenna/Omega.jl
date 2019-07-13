@@ -18,8 +18,8 @@ end
 
 "Swap adjacent chains"
 function exchange!(rng, logdensity, ωs, temps, kernel)
-  for i in length(ωs):-1:2
-    j = i - 1
+  for i in 1:length(ωs)-1
+    j = i + 1
     E_i_x = withkernel(kernel(temps[i])) do
       logdensity(ωs[i])
     end
@@ -41,7 +41,7 @@ function exchange!(rng, logdensity, ωs, temps, kernel)
 end
 
 "Logarithmically spaced temperatures"
-logtemps(n, k = 10) = exp.(k * range(-2.0, stop = 1.0, length = n))
+logtemps(n, k = log(10)) = exp.(k*range(-2.0, stop = 1.0, length = n))
 
 struct PreSwap end
 struct PostSwap end
