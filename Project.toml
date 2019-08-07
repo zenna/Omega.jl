@@ -24,6 +24,9 @@ TransformVariables = "84d833dd-6860-57f9-a1a7-6da5db126cff"
 UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
+[compat]
+julia = "1"
+
 [extras]
 InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 Spec = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
@@ -31,6 +34,3 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
 test = ["Spec"]
-
-[compat]
-julia = "1"

@@ -17,6 +17,7 @@ samplemeanstd(x, n; alg, kwargs...) = meanstd(rand(x, n; alg = alg, kwargs...))
 samplemeanstdᵣ(x, n; alg = RejectionSample) = ciid(ω -> samplemeanstd(x(ω), n; alg = alg))
 
 const sampleprob = samplemean
+const sampleprobᵣ = samplemeanᵣ
 
 # zt: Default to RejectionSample is problematic 
 

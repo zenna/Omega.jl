@@ -85,6 +85,8 @@ export  succprob,
         mean,
         samplemean,
         samplemeanᵣ,
+        sampleprob,
+        sampleprobᵣ,
         prob,
         lprob
 
