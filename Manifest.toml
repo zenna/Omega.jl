@@ -59,15 +59,13 @@ version = "0.2.3"
 
 [[CSTParser]]
 deps = ["Tokenize"]
-git-tree-sha1 = "0ff80f68f55fcde2ed98d7b24d7abaf20727f3f8"
+git-tree-sha1 = "c69698c3d4a7255bc1b4bc2afc09f59db910243b"
 uuid = "00ebfdb7-1f24-5e51-bd34-a7502290713f"
-version = "0.6.1"
+version = "0.6.2"
 
 [[Callbacks]]
-deps = ["FileIO", "Lens", "ProgressMeter", "UnicodePlots"]
-git-tree-sha1 = "ae92cb70a8211f92055d1d2af94b916db58dbe79"
-repo-rev = "master"
-repo-url = "https://github.com/zenna/Callbacks.jl"
+deps = ["Lens", "ProgressMeter", "UnicodePlots"]
+git-tree-sha1 = "22fc345f00cd8e13c0e12bdc2695553eda882d44"
 uuid = "db1e321a-d383-57b4-a664-0144fd54e973"
 version = "0.1.0"
 
@@ -77,10 +75,10 @@ uuid = "7057c7e9-c182-5462-911a-8362d720325c"
 version = "0.2.6"
 
 [[CodecZlib]]
-deps = ["BinaryProvider", "Libdl", "Test", "TranscodingStreams"]
-git-tree-sha1 = "36bbf5374c661054d41410dc53ff752972583b9b"
+deps = ["BinaryProvider", "Libdl", "TranscodingStreams"]
+git-tree-sha1 = "05916673a2627dd91b4969ff8ba6941bc85a960e"
 uuid = "944b1d66-785c-5afd-91f1-9de20f533193"
-version = "0.5.2"
+version = "0.6.0"
 
 [[ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
@@ -161,15 +159,9 @@ version = "0.8.0"
 
 [[DynamicHMC]]
 deps = ["ArgCheck", "DataStructures", "DocStringExtensions", "LinearAlgebra", "LogDensityProblems", "Parameters", "Random", "Statistics", "StatsFuns", "TransformVariables"]
-git-tree-sha1 = "b1a272a63eebb2b58f5e370f243991244a52aa28"
+git-tree-sha1 = "0354daa83afd704976de89ab03862bbeb8f7c0fe"
 uuid = "bbc10e6e-7c05-544b-b16e-64fede858acb"
-version = "1.0.5"
-
-[[FileIO]]
-deps = ["Pkg"]
-git-tree-sha1 = "351f001a78aa1b7ad2696e386e110b5abd071c71"
-uuid = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
-version = "1.0.7"
+version = "1.0.6"
 
 [[FillArrays]]
 deps = ["LinearAlgebra", "Random", "SparseArrays", "Test"]
@@ -236,9 +228,9 @@ uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[LogDensityProblems]]
 deps = ["ArgCheck", "BenchmarkTools", "DiffResults", "DocStringExtensions", "Parameters", "Random", "Requires", "TransformVariables"]
-git-tree-sha1 = "b1c15910c01e385b9b3c2f8f29fbb2b4235354a8"
+git-tree-sha1 = "2a97dcb4e23ce0d2ae2d671dc884fb4327a9641d"
 uuid = "6fdf6af0-433a-55f7-b3ed-c6c6e0b8df7c"
-version = "0.9.0"
+version = "0.8.3"
 
 [[Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
@@ -300,9 +292,9 @@ version = "1.1.0"
 
 [[PDMats]]
 deps = ["Arpack", "LinearAlgebra", "SparseArrays", "SuiteSparse", "Test"]
-git-tree-sha1 = "8b68513175b2dc4023a564cb0e917ce90e74fd69"
+git-tree-sha1 = "f99548922adf8dd5df2f02ab0063944201a12ed8"
 uuid = "90014a1f-27ba-587c-ab20-58faa44d9150"
-version = "0.9.7"
+version = "0.9.8"
 
 [[Parameters]]
 deps = ["OrderedCollections"]
@@ -456,9 +448,9 @@ version = "0.9.5"
 
 [[TransformVariables]]
 deps = ["ArgCheck", "DocStringExtensions", "ForwardDiff", "LinearAlgebra", "MacroTools", "Parameters", "Random"]
-git-tree-sha1 = "e66c238138fdbf13bf3f316e662b7cbf013ce530"
+git-tree-sha1 = "0c138b8e82fa4e95a6e05314158c79091718b9f3"
 uuid = "84d833dd-6860-57f9-a1a7-6da5db126cff"
-version = "0.3.3"
+version = "0.3.4"
 
 [[URIParser]]
 deps = ["Test", "Unicode"]
