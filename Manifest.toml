@@ -159,9 +159,9 @@ version = "0.8.0"
 
 [[DynamicHMC]]
 deps = ["ArgCheck", "DataStructures", "DocStringExtensions", "LinearAlgebra", "LogDensityProblems", "Parameters", "Random", "Statistics", "StatsFuns", "TransformVariables"]
-git-tree-sha1 = "0354daa83afd704976de89ab03862bbeb8f7c0fe"
+git-tree-sha1 = "b1a272a63eebb2b58f5e370f243991244a52aa28"
 uuid = "bbc10e6e-7c05-544b-b16e-64fede858acb"
-version = "1.0.6"
+version = "1.0.5"
 
 [[FillArrays]]
 deps = ["LinearAlgebra", "Random", "SparseArrays", "Test"]
@@ -204,9 +204,9 @@ version = "0.21.0"
 
 [[Juno]]
 deps = ["Base64", "Logging", "Media", "Profile", "Test"]
-git-tree-sha1 = "8426e073b1676acba2aea7a4a81d7a3af97a14fe"
+git-tree-sha1 = "30d94657a422d09cb97b6f86f04f750fa9c50df8"
 uuid = "e5e0dc1b-0480-54bc-9374-aad01c23163d"
-version = "0.7.1"
+version = "0.7.2"
 
 [[Lens]]
 deps = ["Cassette", "Spec"]
@@ -228,9 +228,9 @@ uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[LogDensityProblems]]
 deps = ["ArgCheck", "BenchmarkTools", "DiffResults", "DocStringExtensions", "Parameters", "Random", "Requires", "TransformVariables"]
-git-tree-sha1 = "2a97dcb4e23ce0d2ae2d671dc884fb4327a9641d"
+git-tree-sha1 = "b1c15910c01e385b9b3c2f8f29fbb2b4235354a8"
 uuid = "6fdf6af0-433a-55f7-b3ed-c6c6e0b8df7c"
-version = "0.8.3"
+version = "0.9.0"
 
 [[Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
