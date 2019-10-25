@@ -78,4 +78,4 @@ Base.rand(x::UTuple{RandVar}, y::RandVar; kwargs...) = rand(randtuple(x), y; kwa
 
 "`autorand(x::RandVar)` Single sample from `x`.  Inference `alg` and hyperparams, chosen automatically"
 autorand(x::RandVar) = rand(x, 1000; alg = SSMH)[end]
-Base.:~(x::RandVar) = autorand(x)
+Base.getindex(x::RandVar) = autorand(x)

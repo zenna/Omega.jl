@@ -23,6 +23,11 @@ include("space/Space.jl")         # UIDs
 using .Space
 export Ω, uid, @id, SimpleΩ, LinearΩ
 
+# Var
+include("var/var.jl")
+using .Vars
+export solve, unit
+
 # RandVar
 include("randvar/randvar.jl" )            # Random variables
 include("randvar/urandvar.jl")            # Random variables
@@ -225,6 +230,8 @@ include("memoize.jl")
 
 # Scaling errors
 include("scaling.jl")
+
+include("lang/lang.jl")
 
 
 end
