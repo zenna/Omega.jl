@@ -7,5 +7,10 @@ randarray(x::Array{<:RandVar, N}) where N = URandVar(applymany, (x,))
 
 randtuple(x::UTuple{RandVar}) = URandVar(applymany, (x,))
 
+# Lift GetIndex
+Base.getindex(x::RandVar, i) = lift(getindex)(x, i)
+Base.getindex(x::RandVar, i, is...) = lift(getindex)(x, i, is...)
+
 Base.:*(tpl::Tuple, ::Type{ᵣ}) = randtuple(tpl)
 Base.:*(tpl::AbstractArray, ::Type{ᵣ}) = randarray(tpl)
+
