@@ -6,7 +6,7 @@ const FailUnsat = FailUnsatAlg()
 isapproximate(::FailUnsatAlg) = false
 
 "`n` samples from `x`"
-function Base.rand(rng,
+function Base.rand(rng::AbstractRNG,
                    ΩT::Type{OT},
                    pred::RandVar,
                    n::Integer,

@@ -14,13 +14,13 @@ Currently these are of the form `InferenceAlgLoop`.  For example, the inference 
 
 ```julia
 using Callbacks, Lens
-x = ciid(ω -> (sleep(0.001); normal(ω, 0, 1)))
+x = ~ ω -> (sleep(0.001); normal(ω, 0, 1))
 @leval Loop => showprogress(10000) rand(x, 10000) 
 ```
 
 ```julia
 using Omega.Inference: SSMHLoop
-x = ciid(ω -> (sleep(0.001); normal(ω, 0, 1)))
+x =~ ω -> (sleep(0.001); normal(ω, 0, 1))
 @leval SSMHLoop => plotloss() rand(x, x >ₛ 0.0, 10000; alg = SSMH)
 @leval SSMHLoop => default_cbs(10000) rand(x, x >ₛ 0.0, 10000; alg = SSMH)
 ```
@@ -32,6 +32,6 @@ Example usage:
 
 ```julia
 using Omega
-x = ciid(ω -> (sleep(0.001); normal(ω, 0, 1)))
+x = ω -> (sleep(0.001); normal(ω, 0, 1))
 @leval SSMHLoop => default_cbs(10000) rand(x, x >ₛ 0.0, 10000; alg = SSMH)
 ```

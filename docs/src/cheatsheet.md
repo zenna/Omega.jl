@@ -3,7 +3,7 @@
 ## Core Functions
 The major functions that you will use in Omega are:
 
-- [ciid(x)]() : that is equal in distribution to `x` but conditionally independent given parents
+- [~x]() : that is equal in distribution to `x` but conditionally independent given parents
 - [cond(x, y)](inference.md#cond) : condition random variable `x` on condition `y`
 - [cond(ω, ab)](inference.md#cond) : condition random variable that contains statement by force `ab` to be `true`]
 - [rand(x, n; alg = Alg)](inference.md#cond) : `n` samples from (possibly conditioned) random variable `x` using algorithm `ALG`

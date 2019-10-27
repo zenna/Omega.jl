@@ -58,7 +58,7 @@ $(SIGNATURES)
 - `propsal`: function ω::Omega -> ω::Omega
 - `ωinit`: Initial omega to start chain from
 """
-function Base.rand(rng,
+function Base.rand(rng::AbstractRNG,
                    ΩT::Type{OT},
                    logdensity::RandVar,
                    n::Integer,
