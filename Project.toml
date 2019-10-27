@@ -9,7 +9,6 @@ Cassette = "7057c7e9-c182-5462-911a-8362d720325c"
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
-DynamicHMC = "bbc10e6e-7c05-544b-b16e-64fede858acb"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 Lens = "496038af-b016-571c-b31e-8262695ac102"
@@ -25,14 +24,14 @@ UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [compat]
-julia = "1"
 Zygote = "0.3.4"
+julia = "1"
 
 [extras]
 InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 Spec = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 
 [targets]
 test = ["Spec", "Test", "Pkg", "InteractiveUtils"]
