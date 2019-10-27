@@ -20,8 +20,8 @@ x = normal(0, 1, (1000, 1000))
 h(x) = (println("call!"); svd(x).S)
 y = lift(h)(x)
 vars = randtuple((y, y*10, y*20))
-@benchmark vars(ω) setup = (ω = defΩ()())
-@benchmark vars(ω) setup = (ω = tagmem(defΩ()()))
+@benchmark vars(ω) setup = (ω = rand(defΩ()))
+@benchmark vars(ω) setup = (ω = tagmem(rand(defΩ())))
 ```
 """
 mem(rv::RandVar, ::Type{V} = Any) where V = ciid(ω -> apl(rv, tagmem(ω, V)))

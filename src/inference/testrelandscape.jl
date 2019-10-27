@@ -40,7 +40,7 @@ end
 
 mat(f; r = 0.1) = [f(x, y) for x in 0:r:1, y in 0:r:1]
 epsa = 1e-5
-function matw(f; r = 0.1, ω = defΩ()())
+function matw(f; r = 0.1, ω = rand(defΩ()))
   n = length(0+epsa:r:1-epsa)
   arr = Array{Float64}(undef, n, n)
   f(ω) # init
@@ -54,7 +54,7 @@ function matw(f; r = 0.1, ω = defΩ()())
 end
 
 samples, x, y = relandscapeexample(2)
-ω = defΩ()()
+ω = rand(defΩ())
 U_grab(ω)
 wave_grab(ω)
 r = 0.001
