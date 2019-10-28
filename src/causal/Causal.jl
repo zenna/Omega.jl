@@ -5,8 +5,9 @@ using DocStringExtensions
 using Cassette
 using ..Space
 import ..Omega
-using ..Omega: RandVar, constant, proj
-import ..Omega: apl, ppapl, id, params, ciid
+using ..IDS: ID
+using ..RandVars: RandVar, constant, proj
+import ..RandVars: apl, ppapl, id, params, ciid
 using Callbacks: donothing
 
 include("replace.jl")

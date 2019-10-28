@@ -1,8 +1,10 @@
+using .RandVars: URandVar, RandVar
+
 # Lifting Functions on type T to fnuctions on T-typed RandVars #
 
 # No Exists{T} yet https://github.com/JuliaLang/julia/issues/21026#issuecomment-306624369"
 function liftnoesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
-  args = [isrv ?  :($(Symbol(:x, i))::Omega.RandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
+  args = [isrv ?  :($(Symbol(:x, i))::RandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
   quote
   function $fnm($(args...))
     Omega.lift($fnm)($(args...))
@@ -11,7 +13,7 @@ function liftnoesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
 end
 
 function liftesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N
-  args = [isrv ?  :($(Symbol(:x, i))::Omega.RandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
+  args = [isrv ?  :($(Symbol(:x, i))::RandVar) : Symbol(:x, i)  for (i, isrv) in enumerate(isrv)]
   quote
   function $(esc(fnm))($(args...))
     Omega.lift($fnm)($(args...))

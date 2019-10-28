@@ -1,12 +1,17 @@
 module Prim
 
 using ..Omega
-using ..Omega: Ω, RandVar, URandVar, MaybeRV, ID, lift, uid, elemtype, isconstant
-import ..Omega: params, name, ppapl, apl, reify
+using ..IDS: ID, uid
+using ..RandVars: RandVar, URandVar, MaybeRV, isconstant, ppapl, apl, reify, elemtype
+import ..RandVars: name, ppapl
+
+import ..Omega:Ω , params, lift
 import Statistics: mean, var, quantile
+
 import ..Causal: ReplaceRandVar
 using ..Util
 using Spec
+
 import Distributions
 const Djl = Distributions
 import Base: minimum, maximum
@@ -34,9 +39,6 @@ export  bernoulli,
 
 "Primitive random variable of known distribution"
 abstract type PrimRandVar <: RandVar end  
-
-"Name of a distribution"
-function name end
 
 name(t::T) where {T <: PrimRandVar} = T.name.name
 

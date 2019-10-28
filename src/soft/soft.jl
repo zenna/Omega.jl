@@ -1,7 +1,8 @@
 module Soft
 using Spec
 using ..Omega
-using ..Omega:TaggedΩ, tag, apl
+using ..Omega: TaggedΩ, tag
+using ..RandVars: apl
 import Omega
 import ForwardDiff
 import Cassette

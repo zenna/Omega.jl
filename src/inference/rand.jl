@@ -1,13 +1,6 @@
 "Default inference algorithm"
 defalg(args...) = FailUnsat
 
-"Default Ω to use"
-# defΩ(args...) = SimpleΩ{Vector{Int}, Any}
-defΩ(args...) = LinearΩ{Vector{Int}, UnitRange{Int64}, Vector{Any}}
-
-"Default projection"
-defΩProj(args...; OT = defΩ(args...)) = ΩProj{OT, idtype(OT)}
-
 "Default callbacks"
 defcb(args...) = donothing
 
@@ -84,11 +77,11 @@ Base.rand(x::UTuple{RandVar}, y::RandVar; kwargs...) = rand(randtuple(x), y; kwa
 
 "Returns Ω object, .e.g `x = normal(0, 1); rand(Ω, x > 0)`"
 function ld(rng::AbstractRNG,
-                   ΩT::Type{OT},
-                   x::RandVar,
-                   n::Integer,
-                   alg::SamplingAlgorithm;
-                   kwargs...) where {OT <: Ω}
+            ΩT::Type{OT},
+            x::RandVar,
+            n::Integer,
+            alg::SamplingAlgorithm;
+            kwargs...) where {OT <: Ω}
   logdensity = Omega.mem(logerr(indomainₛ(x)))
   ωsamples = rand(rng, ΩT, logdensity, n, alg; kwargs...) 
 end

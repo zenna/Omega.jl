@@ -9,9 +9,9 @@ using Omega.Space
     push!(vec1, uid())
   end
 
-  vec2 = [@id, @id, @id, @id,
-          @id, @id, @id, @id,
-          @id, @id, @id]
+  vec2 = [@uid, @uid, @uid, @uid,
+          @uid, @uid, @uid, @uid,
+          @uid, @uid, @uid]
 
   @assert length(vec1) == length(vec2)
 

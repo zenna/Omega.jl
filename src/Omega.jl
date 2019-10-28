@@ -2,12 +2,12 @@
 module Omega
 
 import ForwardDiff, Flux
-# Zygote,
 using Spec
 using UnicodePlots
 using DocStringExtensions: FIELDS, SIGNATURES, TYPEDEF
 using Cassette
 using Lens
+using Reexport
 
 import Random
 import Random: GLOBAL_RNG, AbstractRNG
@@ -15,25 +15,20 @@ import Statistics: mean, var, quantile
 
 # Util
 include("util/Util.jl")
-using .Util
-export ntranspose
+@reexport using .Util
 
-# Core
+# Ids 
+include("id/id.jl")
+@reexport using .IDS
+
+# Omega Spaces
 include("space/Space.jl")         # UIDs
 using .Space
-export Ω, uid, @id, SimpleΩ, LinearΩ
-
-# Var
-include("var/var.jl")
-using .Vars
-export solve, unit
+export Ω, SimpleΩ, LinearΩ, defΩ, defΩProj
 
 # RandVar
 include("randvar/randvar.jl" )            # Random variables
-include("randvar/urandvar.jl")            # Random variables
-include("randvar/randvarapply.jl")        # Random variable application to ω::Ω
-include("randvar/ciid.jl")                # Conditionally i.i.d. RandVars
-include("randvar/elemtype.jl")            # Infer Element Type
+using .RandVars
 export RandVar, MaybeRV, ciid, isconstant, elemtype, params, constant
 
 # Conditioning
@@ -41,7 +36,6 @@ include("cond.jl")                # Conditioning
 export cond
 
 # Lifted random variable operatiosn
-
 include("lift/r.jl")
 export ᵣ
 include("lift/containers.jl")     # Array/Tuple primitives
@@ -51,38 +45,9 @@ export randarray, randtuple, ==ᵣ, tupleᵣ, arrayᵣ
 include("lift/lift.jl")           
 export @lift, lift, lift!
 
-
 # Soft Inference
 include("soft/soft.jl")           # Soft Booleans / logic
-using .Soft
-
-export  d,
-        SoftBool,
-        softeq,
-        softlt,
-        softgt,
-        >ₛ,
-        >=ₛ,
-        <=ₛ,
-        <ₛ,
-        ==ₛ,
-        err,
-        logerr,
-        anyₛ,
-        allₛ,
-
-        # Kernels
-        kse,
-        kseα,
-        kf1,
-        kf1β,
-        withkernel,
-        atα,
-        @atα,
-
-        indomainₛ,
-        applynotrackerr,
-        applytrackerr
+@reexport using .Soft
 
 # Soft.logerr(x::RandVar) = 3
 import .Soft: logerr, softeq, softgt, softlt, err, kf1β, kseα
@@ -98,135 +63,28 @@ Omega.lift!(:kseα, 1)
 
 # Higher-Order Inference
 include("higher/Higher.jl")
-using .Higher
-export rcd, rid, ∥, ∥ₛ
+@reexport using .Higher
 
 # Gradient
 include("gradient/Gradient.jl")
-using .Gradient
-export back!, lineargradient, TrackerGrad, ZygoteGrad, ForwardDiffGrad 
+@reexport using .Gradient
 
 # Inference Algorithms
 include("inference/Inference.jl")
-using .Inference
-export  isapproximate,
-
-        RejectionSample,
-        SSMH,
-        # SGHMC,
-        HMCFAST,
-        Relandscape,
-        Replica,
-
-        RejectionSampleAlg,
-        SSMHAlg,
-        HMCAlg,
-        # SGHMCAlg,
-        HMCFASTAlg,
-        RelandscapeAlg,
-        ReplicaAlg,
-        NUTS,
-        NUTSAlg,
-
-        defalg,
-        defcb,
-        defΩ,
-        defΩProj,
-
-        plotrv,
-        plotscalar,
-        default_cbs,
-        HMCStep,
-        default_cbs_tpl,
-        default_cbs,
-
-        Loop,
-        SSMHLoop,
-        HMCFASTLoop
+@reexport using .Inference
 
 # Causal Inference
 include("causal/Causal.jl")
-using .Causal
-export replace,
-       iscausebf,
-       cf
+@reexport using .Causal
 
 # Library
 include("primitive/Prim.jl")
-using .Prim
-export  bernoulli,
-        betarv,
-        β,
-        categorical,
-        # dirichlet,
-        exponential,
-        gammarv,
-        Γ,
-        invgamma,
-        kumaraswamy,
-        logistic,
-        # mvnormal,
-        normal,
-        poisson,
-        rademacher,
-        uniform
-
-export  succprob,
-        failprob,
-        maximum,
-        minimum,
-        islowerbounded,                    
-        isupperbounded,
-        isbounded,
-        std,
-        median,
-        mode,
-        modes,
-
-        skewness,
-        kurtosis,
-        isplatykurtic,
-        ismesokurtic,
-
-        isleptokurtic,
-        entropy,
-        mean,
-        prob,
-        lprob,
-        samplemean,
-        samplemeanᵣ,
-        sampleprob,
-        sampleprobᵣ
-
-# Lifted distributional functions
-export  lsuccprob,
-        lfailprob,
-        lmaximum,
-        lminimum,
-        lislowerbounded,                    
-        lisupperbounded,
-        lisbounded,
-        lstd,
-        lmedian,
-        lmode,
-        lmodes,
-
-        lskewness,
-        lkurtosis,
-        lisplatykurtic,
-        lismesokurtic,
-
-        lisleptokurtic,
-        lentropy,
-        lmean
+@reexport using .Prim
 
 # Neural Network Stuff
 include("flux.jl")
 using .OmegaFlux
 export OmegaDense
-
-# Memoize
-include("memoize.jl")
 
 # Scaling errors
 include("scaling.jl")

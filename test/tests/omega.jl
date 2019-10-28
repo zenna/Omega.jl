@@ -1,7 +1,7 @@
 using Omega
 
 function Y(rng, n)
-  [normal(rng[@id], 0.0, 1.0) for i = 1:n]
+  [normal(rng[@uid], 0.0, 1.0) for i = 1:n]
 end
 
 # function test()

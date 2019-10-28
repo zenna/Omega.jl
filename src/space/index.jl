@@ -4,7 +4,7 @@ function base end
 # Fast construction, append a new element, hash
 # dont need random access, delete arbitrary element
 
-"Id of Random Variable"
+"Id of Random Variable in projection"
 function randvarid end
 
 # Vector Indices #

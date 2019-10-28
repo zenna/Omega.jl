@@ -10,6 +10,7 @@ using ..Omega: RandVar, applytrackerr, indomainₛ, logerr,
                gradient, linearize, unlinearize, err, indomainₛ, indomain, apl
 import ..Omega
 using Omega.Space: tagrng
+import Omega.Space: defΩ, defΩProj
 
 using ..Gradient: value, gradient
 
@@ -79,8 +80,6 @@ export  isapproximate,
 
         defalg,
         defcb,
-        defΩ,
-        defΩProj,
 
         plotrv,
         plotscalar,
