@@ -9,5 +9,5 @@ function x_(rng)
   end
   (coin = coin_, b = b)
 end
-x = ciid(x_)</code></pre><p>Let&#39;s draw a sample where y is false</p><pre><code class="language-none">rand(x, )</code></pre><p>In a counterfactual world, we replace force y to be true</p><pre><code class="language-none">xnew = replace(x, y =&gt; true)</code></pre><pre><code class="language-none">label(x, nm) = ciid(w -&gt; (println(&quot;in $nm&quot;); x(w)))
+x =~ x_</code></pre><p>Let&#39;s draw a sample where y is false</p><pre><code class="language-none">rand(x, )</code></pre><p>In a counterfactual world, we replace force y to be true</p><pre><code class="language-none">xnew = replace(x, y =&gt; true)</code></pre><pre><code class="language-none">label(x, nm) =~ w -&gt; (println(&quot;in $nm&quot;); x(w))
 xsum = label(xnew, &quot;xnew&quot;) + label(x, &quot;x&quot;)</code></pre><footer><hr/><a class="previous" href="../basiccausal/"><span class="direction">Previous</span><span class="title">Tutorial</span></a><a class="next" href="../higher/"><span class="direction">Next</span><span class="title">Distributional Inference</span></a></footer></article></body></html>
