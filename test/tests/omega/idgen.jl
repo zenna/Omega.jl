@@ -1,6 +1,7 @@
 module IdGenTests
 
 using Test
+using Omega.IDS
 using Omega.Space
 
 @testset "id" begin

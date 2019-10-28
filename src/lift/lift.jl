@@ -1,6 +1,6 @@
-using .RandVars: URandVar, RandVar
+using .NonDet: URandVar, RandVar, reify
 
-# Lifting Functions on type T to fnuctions on T-typed RandVars #
+# Lifting Functions on type T to fnuctions on T-typed NonDet #
 
 # No Exists{T} yet https://github.com/JuliaLang/julia/issues/21026#issuecomment-306624369"
 function liftnoesc(fnm::Union{Symbol, Expr}, isrv::NTuple{N, Bool}) where N

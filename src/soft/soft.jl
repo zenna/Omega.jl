@@ -2,7 +2,7 @@ module Soft
 using Spec
 using ..Omega
 using ..Omega: TaggedΩ, tag
-using ..RandVars: apl
+using ..NonDet: apl
 import Omega
 import ForwardDiff
 import Cassette

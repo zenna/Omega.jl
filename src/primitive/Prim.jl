@@ -2,8 +2,8 @@ module Prim
 
 using ..Omega
 using ..IDS: ID, uid
-using ..RandVars: RandVar, URandVar, MaybeRV, isconstant, ppapl, apl, reify, elemtype
-import ..RandVars: name, ppapl
+using ..NonDet: RandVar, URandVar, MaybeRV, isconstant, ppapl, apl, reify, elemtype
+import ..NonDet: name, ppapl
 
 import ..Omega:Ω , params, lift
 import Statistics: mean, var, quantile

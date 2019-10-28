@@ -1,7 +1,7 @@
 "A Expressive Library for Probabilistic Programming"
 module Omega
 
-import ForwardDiff, Flux
+import ForwardDiff
 using Spec
 using UnicodePlots
 using DocStringExtensions: FIELDS, SIGNATURES, TYPEDEF
@@ -27,8 +27,8 @@ using .Space
 export Ω, SimpleΩ, LinearΩ, defΩ, defΩProj
 
 # RandVar
-include("randvar/randvar.jl" )            # Random variables
-using .RandVars
+include("nondet/nondet.jl" )            # Random variables
+using .NonDet
 export RandVar, MaybeRV, ciid, isconstant, elemtype, params, constant
 
 # Conditioning
@@ -83,8 +83,7 @@ include("primitive/Prim.jl")
 
 # Neural Network Stuff
 include("flux.jl")
-using .OmegaFlux
-export OmegaDense
+@reexport using .OmegaFlux
 
 # Scaling errors
 include("scaling.jl")
