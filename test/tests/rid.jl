@@ -8,12 +8,12 @@ function testrid()
   ridxθ = Omega.rid(x, θ)
   mean1, mean2 = rand((θ, lmean(ridxθ)))
   @test mean1 == mean2
-  ω1 = Omega.defΩ()()
-  ω2 = Omega.defΩ()()
+  ω1 = Omega.rand(defΩ())
+  ω2 = Omega.rand(defΩ())
   x_ = ridxθ(ω1)
   θ_ = θ(ω1)
   nsamples = 10000
-  θ_approx = mean([x_(Omega.defΩ()()) for i = 1:nsamples])
+  θ_approx = mean([x_(Omega.rand(defΩ())) for i = 1:nsamples])
   @test isapprox(θ_approx, θ_; atol = 0.01)
 end
 

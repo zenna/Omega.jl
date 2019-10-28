@@ -15,7 +15,7 @@ function x_(rng)
   end
   (coin = coin_, b = b)
 end
-x = ciid(x_)
+x =~ x_
 ```
 
 Let's draw a sample where y is false
@@ -31,6 +31,6 @@ xnew = replace(x, y => true)
 ```
 
 ```
-label(x, nm) = ciid(w -> (println("in $nm"); x(w)))
+label(x, nm) =~ w -> (println("in $nm"); x(w))
 xsum = label(xnew, "xnew") + label(x, "x")
 ```

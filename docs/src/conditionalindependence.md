@@ -14,7 +14,7 @@ Use `ciid(x)` to create a random variable that is identical in distribution to `
 ```julia
 μ = uniform(0.0, 1.0)
 y1 = normal(μ, 1.0)
-y2 = ciid(y1)
+y2 =~ y1
 rand((y1, y2))
 ```
 

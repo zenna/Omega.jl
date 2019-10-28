@@ -25,10 +25,11 @@ include("proj.jl")          # Sample Space Projection
 include("tagged.jl")        # Space space Tagged with metadata
 include("common.jl")
 include("seed.jl")          # Setting the seed
+
+# Omega Types
 include("simple.jl")        # Simple Ω
 include("linear.jl")        # Linear Ω
-
-include("rng.jl")        # Linear Ω
+include("rng.jl")           # Linear Ω
 
 
 end

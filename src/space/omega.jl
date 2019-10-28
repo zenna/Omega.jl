@@ -25,6 +25,8 @@ function nelem end
 ## Rand
 
 "Random ω ∈ Ω"
-Base.rand(x::Type{O}) where O <: ΩBase = O()()
+Base.rand(x::Type{O}) where O <: ΩBase = O()
+Base.rand(rng::AbstractRNG, ::Type{T}) where {T <: Ω} = tagrng(rand(T), rng)
+
 
 Random.rng_native_52(ω::Ω) = Random.rng_native_52(Random.GLOBAL_RNG)

@@ -3,8 +3,6 @@ abstract type RandVar end
 
 MaybeRV{T} = Union{T, RandVar} where T
 
-const ID = Int
-
 id(rv::RandVar) = rv.id
 
 "Parameters of a random variable"

@@ -17,7 +17,7 @@ end
 #     (a, a2, b, c, c2, d, e, f)
 #   end
 #   x = ciid(x_)
-#   lω = defΩ()()
+#   lω = rand(defΩ())
 #   x(lω)
 # end
 

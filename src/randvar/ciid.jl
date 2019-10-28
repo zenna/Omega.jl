@@ -68,3 +68,5 @@ ciid(f, args...) = URandVar(reifyapply, (f, args...))
 
 @inline reifyapply(ωπ, f, args...) = f(ωπ, reify(ωπ, args)...)
 @inline reifyapply(ωπ, f) = f(ωπ)
+
+Base.:~(x::Function) = ciid(x)

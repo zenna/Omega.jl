@@ -97,10 +97,10 @@ true
 ```
 
 However, in order to use `x` for conditional or causal inference we must turn it into a `RandVar`.
-One way to do this (we discuss others in [conditonalindependence]) is using `ciid`.
+One way to do this (we discuss others in [conditonalindependence]) is using `~`.
 
 ```julia
-x = ciid(x_)
+x = ~x_
 ```
 
 All of the primitive distributions can be used in explicit style by passing the `rng` object as the first parameter (type constraints are added just to show that the return values are not random variables but elements.  But __don't add them to your own code!__ It will prevent automatic differentiation based inference procedures from working): 
@@ -114,14 +114,14 @@ function x_(rng)
   end
 end
 
-ciid(x_)
+~x_
 ```
 
 Statistical style and functional style can be combined naturally.
 For example:
 
 ```julia
-x = ciid(rng -> rand(rng) > 0.5 ? rand(rng)^2 : sqrt(rand(rng)))
+x =~ rng -> rand(rng) > 0.5 ? rand(rng)^2 : sqrt(rand(rng))
 y = normal(0.0, 1.0)
 z = x + y
 ```
@@ -142,7 +142,7 @@ x = ciid(unif, 10, 20)
 And hence if we wanted to create a method that created independent uniformly distributed random variables, we could do it like so:
 
 ```julia
-uniform(a, b) = ciid(rng -> rand(rng) * (b - a) + b)
+uniform(a, b) =~ rng -> rand(rng) * (b - a) + b
 
 # x is distributed between 30 and 40 (and independent of x)
 x = ciid(unif, 30, 40)
