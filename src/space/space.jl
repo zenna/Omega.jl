@@ -15,7 +15,7 @@ export ΩBase, memrand, linearize, unlinearize
 export append, base, combine, increment!, increment,
        Paired, pair
 export ΩProj, parentω, memrand
-export TaggedΩ, tag, Tags, hastags
+export TaggedΩ, tag, Tags, hastags, transfertags
 export SimpleΩ, LinearΩ, update, nelem
 export defΩ, defΩProj
 

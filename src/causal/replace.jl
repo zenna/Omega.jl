@@ -38,6 +38,9 @@ upconv(x::Dict{RV}) where RV = Dict(k.id => mcv(v) for (k, v) in x)
 upconv(pairs::Pair...) = Dict(k.id => mcv(v) for (k, v) in pairs)
 upconv(pair::Pair) = Dict(pair.first.id => mcv(pair.second))
 
+# Merge the interventions
+combinetags(::Type{Val{:replmap}}, a, b) =  merge(a, b)
+
 # """`replace(x::RandVar, replmap)`
 # Causal intervention.
 

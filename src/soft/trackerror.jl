@@ -45,3 +45,11 @@ function tagerror(tω::TaggedΩ, errinit::AbstractBool)
   # If error already there, use that!
   haskey(tω.tags, :err) ? tω : tag(tω, (err = Ref{Real}(errinit),))
 end
+
+function combinetags(::Type{Val{:err}}, a, b)
+  # @show a
+  # @show b
+  # @assert false
+  @show a[]
+  @show a[] & b[]
+end

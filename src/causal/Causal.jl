@@ -6,6 +6,7 @@ using Cassette
 using Callbacks: donothing
 
 using ..Space
+import ..Space: combinetags
 import ..Omega
 using ..IDS: ID
 using ..NonDet: RandVar, constant, proj

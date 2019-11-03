@@ -13,7 +13,7 @@ function Base.rand(rng::AbstractRNG,
                    alg::FailUnsatAlg) where {OT <: Ω}
   ωsamples = ΩT[]
   accepted = 0
-  for i = 1:n
+  Threads.@threads for i = 1:n
     ω = ΩT()
     issat = apl(pred, Omega.Space.tagrng(ω, rng))
     !issat && error("Condition unsatisfied. Use appropriate infrence alg.")

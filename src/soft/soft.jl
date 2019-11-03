@@ -2,6 +2,7 @@ module Soft
 using Spec
 using ..Omega
 using ..Omega: TaggedΩ, tag
+import ..Space: combinetags
 using ..NonDet: apl
 import Omega
 import ForwardDiff

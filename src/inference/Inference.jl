@@ -1,6 +1,8 @@
 "Inference Algorithms"
 module Inference
 
+using Base.Threads
+
 using Spec
 using Random
 using Lens
