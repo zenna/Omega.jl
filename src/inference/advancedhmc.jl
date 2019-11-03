@@ -47,6 +47,10 @@ function Base.rand(rng,
   P = TransformedLogDensity(t, flatlogdensity)
 
   # Gradient
+  function gradlogdensity(params)
+    lineargradient(logdensity, )
+
+  end
   
   # Draw a random starting points
   θ_init = randn(D)

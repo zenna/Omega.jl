@@ -6,15 +6,12 @@ using ..NonDet: RandVar, URandVar, MaybeRV, isconstant, ppapl, apl, reify, elemt
 import ..NonDet: name, ppapl
 
 import ..Omega:Ω , params, lift
-import Statistics: mean, var, quantile
 
-import ..Causal: ReplaceRandVar
 using ..Util
 using Spec
-
+import Statistics: quantile
 import Distributions
 const Djl = Distributions
-import Base: minimum, maximum
 import Random
 using DocStringExtensions: SIGNATURES
 
@@ -33,9 +30,8 @@ export  bernoulli,
         normal,
         poisson,
         rademacher,
-        uniform,
+        uniform
 
-        mean
 
 "Primitive random variable of known distribution"
 abstract type PrimRandVar <: RandVar end  
@@ -50,6 +46,7 @@ end
 
 ppapl(rv::PrimRandVar, ωπ) = rvtransform(rv)(ωπ, reify(ωπ, params(rv))...)
 
+# Helper for having primitives with multivariate parameters
 @generated function anysize(args::Union{<:AbstractArray, Real}...)
   isarr = (arg -> arg <: AbstractArray).([args...])
   firstarr = findfirst(isarr)
@@ -63,56 +60,6 @@ end
 
 include("univariate.jl")      # Univariate Distributions
 include("multivariate.jl")    # Multivariate Distributions
-include("statistics.jl")      # Distributional properties: mean, variance, etc
-include("randx.jl")      # Distributional properties: mean, variance, etc
-export  succprob,
-        failprob,
-        maximum,
-        minimum,
-        islowerbounded,                    
-        isupperbounded,
-        isbounded,
-        std,
-        median,
-        mode,
-        modes,
-
-        skewness,
-        kurtosis,
-        isplatykurtic,
-        ismesokurtic,
-
-        isleptokurtic,
-        entropy,
-        mean,
-        samplemean,
-        samplemeanᵣ,
-        sampleprob,
-        sampleprobᵣ,
-        prob,
-        lprob
-
-# Lifted distributional functions
-export  lsuccprob,
-        lfailprob,
-        lmaximum,
-        lminimum,
-        lislowerbounded,                    
-        lisupperbounded,
-        lisbounded,
-        lstd,
-        lmedian,
-        lmode,
-        lmodes,
-
-        lskewness,
-        lkurtosis,
-        lisplatykurtic,
-        lismesokurtic,
-
-        lisleptokurtic,
-        lentropy,
-        lmean
-include("djl.jl")             # Distributions.jl interop
+include("randx.jl")           # Interfacing with normal julia code 
 
 end

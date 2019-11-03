@@ -17,12 +17,15 @@ import Statistics: mean, var, quantile
 include("util/Util.jl")
 @reexport using .Util
 
+include("ctx/ctx.jl")
+@reexport using .Ctx
+
 # Ids 
-include("id/id.jl")
+include("ids/ids.jl")
 @reexport using .IDS
 
-# Omega Spaces
-include("space/Space.jl")         # UIDs
+# Probability Spaces
+include("space/space.jl")         # UIDs
 using .Space
 export Ω, SimpleΩ, LinearΩ, defΩ, defΩProj
 
@@ -49,7 +52,6 @@ export @lift, lift, lift!
 include("soft/soft.jl")           # Soft Booleans / logic
 @reexport using .Soft
 
-# Soft.logerr(x::RandVar) = 3
 import .Soft: logerr, softeq, softgt, softlt, err, kf1β, kseα
 
 Omega.lift!(:softeq, 2)
@@ -78,8 +80,13 @@ include("causal/Causal.jl")
 @reexport using .Causal
 
 # Library
-include("primitive/Prim.jl")
+include("prim/Prim.jl")
 @reexport using .Prim
+
+# Library
+include("dist/dist.jl")
+@reexport using .Dist
+
 
 # Neural Network Stuff
 include("flux.jl")
@@ -88,6 +95,7 @@ include("flux.jl")
 # Scaling errors
 include("scaling.jl")
 
+# The Omega Lanaguage (Not Library) 
 include("lang/lang.jl")
 
 

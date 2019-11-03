@@ -55,7 +55,7 @@ atα(10, rand, x ==ₛ 0.3)
 ```
 """
 function atα(α, f, args...)
-  ctx = AlphaCtx(metadata = α)
+  ctx = Cassette.disablehooks(AlphaCtx(metadata = α))
   Cassette.overdub(ctx, f, args...)
 end
 

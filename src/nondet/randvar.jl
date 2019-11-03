@@ -1,5 +1,5 @@
 "Random Variable: a function `Ω -> T` on a probability space"
-abstract type RandVar end
+abstract type RandVar <: NonDetVar end
 
 MaybeRV{T} = Union{T, RandVar} where T
 

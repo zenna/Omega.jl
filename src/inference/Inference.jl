@@ -42,6 +42,8 @@ include("callbacks.jl") # Common Inference Functions
 
 # Sampling
 include("rand.jl")      # Sampling
+include("autorand.jl")  # Automatically choose sampler
+
 include("rs.jl")        # Rejection Sampling
 include("ssmh.jl")      # Single Site Metropolis Hastings
 # include("hmc.jl")       # Hamiltonian Monte Carlo
@@ -49,10 +51,7 @@ include("hmcfast.jl")   # Faster Hamiltonian Monte Carlo
 # include("hmcfastg.jl")   # Faster Hamiltonian Monte Carlo
 include("replica.jl")   # Replica Exchange
 # include("dynamichmc.jl")# Dynamic Hamiltonion Monte Carlo
-include("fail.jl")# Dynamic Hamiltonion Monte Carlo
-
-# include("sghmc.jl")     # Stochastic Gradient Hamiltonian Monte Carlo
-# include("relandscape.jl")  # Variantional Sampling through relandscape
+include("fail.jl")      # Fail (throw exception) on unsatisfied conditions
 
 # Optimization
 include("argmax.jl")     # NLopt based optimization

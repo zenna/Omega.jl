@@ -93,8 +93,3 @@ Base.rand(rng::AbstractRNG, ::Type{Ω}, x::RandVar, n::Integer; alg::SamplingAlg
 Base.rand(::Type{Ω}, x::RandVar, n::Integer; alg::SamplingAlgorithm = defalg(x), kwargs...) =
   ld(Random.GLOBAL_RNG, defΩ(alg), x, n, alg; kwargs...)
 
-# Autorand
-
-"`autorand(x::RandVar)` Single sample from `x`.  Inference `alg` and hyperparams, chosen automatically"
-autorand(x::RandVar) = rand(x, 1000; alg = SSMH)[end]
-Base.getindex(x::RandVar) = autorand(x)
