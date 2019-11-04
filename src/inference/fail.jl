@@ -12,12 +12,13 @@ function Base.rand(rng::AbstractRNG,
                    n::Integer,
                    alg::FailUnsatAlg) where {OT <: Ω}
   ωsamples = ΩT[]
+  ωsamples = Vector{ΩT}(undef, n)
   accepted = 0
-  Threads.@threads for i = 1:n
+  for i = 1:n
     ω = ΩT()
     issat = apl(pred, Omega.Space.tagrng(ω, rng))
     !issat && error("Condition unsatisfied. Use appropriate infrence alg.")
-    push!(ωsamples, ω)
+    @inbounds ωsamples[i] = ω
     lens(Loop, (ω = ω, accepted = accepted, p = float(issat), i = i))
   end
   ωsamples

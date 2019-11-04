@@ -25,5 +25,8 @@ x ∥ do(θ) = ω → x | do(θ = θ(ω))
 ``
 
 """
-rid(x::RandVar, θ::RandVar) = ciid(ω -> replace(inherittags(x, ω), θ => θ(ω)))
-rid(x::RandVar, θs::RandVar...) = ciid(ω -> replace(inherittags(x, ω), (θi => θi(ω) for θi in θs)...))
+rid(x::RandVar, θ::RandVar) = ciid(ω -> replace(x, θ => θ(ω)))
+rid(x::RandVar, θs::RandVar...) = ciid(ω -> replace(x, (θi => θi(ω) for θi in θs)...))
+
+# rid(x::RandVar, θ::RandVar) = ciid(ω -> replace(inherittags(x, ω), θ => θ(ω)))
+# rid(x::RandVar, θs::RandVar...) = ciid(ω -> replace(inherittags(x, ω), (θi => θi(ω) for θi in θs)...))

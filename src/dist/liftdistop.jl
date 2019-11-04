@@ -20,6 +20,5 @@
 # Lift all dist ops
 for dop in distops_names
   expr = :($(dop *ₛ :ᵣ)(x::RandVar) = lift($dop)(x))
-  @show expr
   eval(expr)
 end

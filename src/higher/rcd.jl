@@ -15,7 +15,9 @@ The random conditional distribution (rcd) of a random variable ``X: Ω → τ_1`
 ``
 """
 # rcd(x::RandVar, θ::RandVar, eq = ==ᵣ) =  ciid(ω -> cond(x, eq(θ, θ(ω))))
-rcd(x::RandVar, θ::RandVar, eq = ==ᵣ) =  ciid(ω -> cond(inherittags(x, ω), eq(θ, θ(ω))))
+# rcd(x::RandVar, θ::RandVar, eq = ==ᵣ) =  ciid(ω -> cond(inherittags(x, ω), eq(θ, θ(ω))))
+rcd(x::RandVar, θ::RandVar, eq = ==ᵣ) =  ciid(ω -> cond(x, eq(θ, θ(ω))))
+
 
 rcd(x::RandVar, θs::Tuple, eq = ==ᵣ) = rcd(x, randtuple(θs), eq)
 

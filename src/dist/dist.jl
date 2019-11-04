@@ -4,6 +4,8 @@ import Distributions
 const Djl = Distributions
 using DocStringExtensions: SIGNATURES
 
+import ..Inference: defalg
+
 import ..Omega:lift
 import ..Prim
 import ..Util: *ₛ

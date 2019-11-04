@@ -44,6 +44,7 @@ const AbstractBool = Union{AbstractSoftBool, Bool}
 
 include("inf.jl")            # Infinity
 include("kernels.jl")        # Kernels
+include("kernelctx.jl")      # Kernels context
 include("softbool.jl")       # Soft Boolean
 include("dualsoftbool.jl")   # Dual Soft Boolean
 include("distances.jl")      # Standard Distance Functions
