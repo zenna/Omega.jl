@@ -1,5 +1,6 @@
 djldist(::T, params...) where {T <: RandVar} = djltype(T)(params...)
 
+djltype(::Type{<:Prim.Uniform}) = Djl.Uniform
 djltype(::Type{<:Prim.Normal}) = Djl.Normal
 djltype(::Type{<:Prim.Beta}) = Djl.Beta
 djltype(::Type{<:Prim.Bernoulli}) = Djl.Bernoulli

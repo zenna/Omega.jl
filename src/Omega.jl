@@ -98,5 +98,5 @@ include("scaling.jl")
 # The Omega Lanaguage (Not Library) 
 include("lang/lang.jl")
 
-
+println("Warn: memoization disabled!")
 end

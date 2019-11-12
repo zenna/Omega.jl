@@ -46,6 +46,7 @@ export samplemean,
         
         # Lifted distributional functions
 export  succprobᵣ,
+        supportᵣ,     
         failprobᵣ,
         maximumᵣ,
         minimumᵣ,
@@ -65,6 +66,7 @@ export  succprobᵣ,
         isleptokurticᵣ,
         entropyᵣ,
         meanᵣ,
+        varᵣ,  
         samplemeanᵣ,
         sampleprobᵣ
 

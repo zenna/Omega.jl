@@ -39,6 +39,8 @@ function isapproximate end
 "Default probability space type to use"
 function defΩ end
 
+include("inftraits.jl") # Traits for inference procedures
+
 include("transforms.jl")# Transformations from [0, 1] to R, etc
 include("callbacks.jl") # Common Inference Functions
 

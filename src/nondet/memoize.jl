@@ -1,14 +1,19 @@
 tagmem(ω, ::Type{V} = Any) where V = tag(ω, (cache = Dict{ID, V}(),))
 
 "Don't cache this type of RandVar? (for some `RandVar`s it may be be faster to not cache)"
-dontcache(rv::RandVar) = false
+function dontcache(rv::RandVar)
+  # println("Warning! Memoization is d")
+  true
+end
 
 @inline function memapl(rv::RandVar, mω::TaggedΩ)
   if dontcache(rv)
     ppapl(rv, proj(mω, rv))
   elseif haskey(mω.tags.cache, rv.id) # FIXME: Avoid two lookups!
+    # @show (Core.Compiler).return_type(rv, typeof((mω.taggedω,)))
     mω.tags.cache[rv.id]::(Core.Compiler).return_type(rv, typeof((mω.taggedω,)))
   else
+    @show typeof(proj(mω, rv))
     mω.tags.cache[rv.id] = ppapl(rv, proj(mω, rv))
   end
 end

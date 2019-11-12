@@ -54,12 +54,14 @@ x = normal(0.0, 1.0)
 atα(10, rand, x ==ₛ 0.3)
 ```
 """
-function atα(α, f, args...)
+@inline function atα(α, f, args...)
   ctx = Cassette.disablehooks(AlphaCtx(metadata = α))
   Cassette.overdub(ctx, f, args...)
 end
 
-Cassette.overdub(ctx::AlphaCtx, ::typeof(kse), x, α) = kse(x, ctx.metadata)
+# @inline Cassette.overdub(ctx::AlphaCtx, ::typeof(kse), x, α) = kse(x, ctx.metadata)
+@inline Cassette.overdub(ctx::AlphaCtx, ::typeof(globalkernel)) = kseα(ctx.metadata)
+
 
 """
 

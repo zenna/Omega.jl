@@ -2,6 +2,9 @@ abstract type SSMHLoop <: Loop end
 struct SSMHAlg <: SamplingAlgorithm end
 "Single Site Metropolis Hastings"
 const SSMH = SSMHAlg()
+
+softhard(::Type{SSMHAlg}) = IsSoft{SSMHAlg}()
+
 isapproximate(::SSMHAlg) = true
 
 # defΩ(::SSMH) = SimpleΩ{Vector{Int}, Float64}

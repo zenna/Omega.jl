@@ -1,6 +1,8 @@
 "FailUnsat on condition"
 struct FailUnsatAlg <: SamplingAlgorithm end
 
+softhard(::Type{FailUnsatAlg}) = IsHard{FailUnsatAlg}()
+
 const FailUnsat = FailUnsatAlg()
 
 isapproximate(::FailUnsatAlg) = false

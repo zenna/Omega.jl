@@ -80,10 +80,29 @@ function ld(rng::AbstractRNG,
             ΩT::Type{OT},
             x::RandVar,
             n::Integer,
-            alg::SamplingAlgorithm;
-            kwargs...) where {OT <: Ω}
+            alg::IsSoft{ALG};
+            kwargs...) where {ALG, OT <: Ω}
   logdensity = Omega.mem(logerr(indomainₛ(x)))
-  ωsamples = rand(rng, ΩT, logdensity, n, alg; kwargs...) 
+  ωsamples = rand(rng, ΩT, logdensity, n, ALG(); kwargs...) 
+end
+
+function ld(rng::AbstractRNG,
+            ΩT::Type{OT},
+            x::RandVar,
+            n::Integer,
+            alg::IsHard{ALG};
+            kwargs...) where {ALG, OT <: Ω}
+  pred = Omega.indomain(x)
+  ωsamples = rand(rng, ΩT, pred, n, ALG())
+end
+
+function ld(rng::AbstractRNG,
+            ΩT::Type{OT},
+            x::RandVar,
+            n::Integer,
+            alg::T;
+            kwargs...) where {T, OT <: Ω}
+  ld(rng, ΩT, x, n, softhard(T); kwargs...)
 end
 
 "Returns Ω object, e.g. `x = normal(0, 1); rand(Ω, cond(x, x >ₛ 2.0), 10)`"
