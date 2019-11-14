@@ -3,7 +3,8 @@ module NonDet
 using Spec
 using DocStringExtensions
 
-import ..IDS: ID, uid
+using ..IDS
+using ..Space
 import ..Space: Ω, ΩBase, ΩProj, TaggedΩ, Tags, defΩ, hastags, base, tag, parentω
 import ..Omega
 

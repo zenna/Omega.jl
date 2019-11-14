@@ -6,6 +6,7 @@ using Base.Threads
 using Spec
 using Random
 using Lens
+using ..IDS
 using ..Omega: RandVar, applytrackerr, indomainₛ, logerr,
                UTuple, Ω, applynotrackerr, SimpleΩ, LinearΩ,
                update, cond, randtuple, nelem,

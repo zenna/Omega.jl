@@ -17,10 +17,11 @@ ntranspose(xs) = [[x[i] for x in xs] for i = 1:length(xs[1])]
 @spec :incomplete same([length(x) for x in xs])
 
 "Counter"
-mutable struct Counter
-  count::Int
+mutable struct Counter{T}
+  count::T
 end
-Counter() = Counter(0)
+Counter(::Type{T}) where T = Counter(zero(T))
+Counter() = Counter(UInt)
 
 "Increment counter"
 increment!(c::Counter) = x::Int = c.count += 1
