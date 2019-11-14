@@ -27,7 +27,7 @@ Counter() = Counter(UInt)
 increment!(c::Counter) = x::Int = c.count += 1
 @spec UTupleec c.count == _pre(c.count) += 1
 
-reset!(c::Counter) = c.count = 1
+reset!(c::Counter{T}) where T = c.count = zero(T)
 
 UTuple{T} = Tuple{Vararg{T, N}} where N
 

@@ -37,6 +37,7 @@ withscope(f, ID) = withscope(f, base(ID, hash(ID)))
 
 "Change the global scope to `id`"
 function scope!(id::ID)::ID
+  reset!(uidcounter)
   SCOPE.val = id
 end
 

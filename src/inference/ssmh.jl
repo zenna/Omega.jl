@@ -84,7 +84,7 @@ function Base.rand(rng::AbstractRNG,
       accepted += 1
     end
     push!(ωsamples, deepcopy(ω))
-    lens(SSMHLoop, (ω = ω, accepted = accepted, p = plast, i = i + offset))
+    lens(SSMHLoop, (ω = ω, ωsamples = ωsamples, accepted = accepted, p = plast, i = i + offset))
   end
   # println("accepted, ", accepted)
   ωsamples

@@ -1,7 +1,7 @@
 module IDS
 
 using Spec
-import ..Util: Counter, increment!, Wrapper
+import ..Util: Counter, increment!, Wrapper, reset!
 using DataStructures: LinkedList, cons, nil, list, head, tail
 export append, base, combine, increment!, increment,
        Paired, pair
