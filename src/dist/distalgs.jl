@@ -15,7 +15,7 @@ const SampleMean = SampleMeanAlg()
 mean(x, ::SampleMeanAlg; kwargs...) = samplemean(x; kwargs...)
 
 "Expectation of `x` from `n` samples"
-function samplemean(x::RandVar; n = 1000, alg = FailUnsat, kwargs...)
+function samplemean(x::RandVar; n = 10_000, alg = FailUnsat, kwargs...)
     # @show kwargs
   mean(rand(x, n; alg = alg, kwargs...))
 end

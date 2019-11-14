@@ -23,4 +23,26 @@ macro uid()
   uid()
 end
 
+"""
+Introduce a scope where `id` is prepended to any id created in this scope
+
+
+```
+scope(21) do
+  x =~ uniform(0, 1)
+  y =~ uniform(0, 1)
+end
+```
+"""
+function scope(f, id::ID)
+  # Issues variables are not in scope
+  # Could have a scope!() which juse changes
+  # The other issue is that we can still clash IDs
+end
+
+function scope!(id::ID)
+end
+
+scope!(id) = scope!(hash(id))
+
 end
