@@ -48,6 +48,14 @@ function moveproposal(rng, ω)
   end
 end
 
+"Normal propsoal with variance `var`"
+function varproposal(var)
+  function k(rng, ω)
+    swapsinglesite(rng, ω) do x
+      normalkernel(rng, x, var)
+    end
+  end
+end
 
 """
 Sample from `ω::Ω` conditioned on any constraints its conditioned on.

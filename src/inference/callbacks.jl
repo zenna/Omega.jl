@@ -10,7 +10,7 @@ x = normal(0, 1)
 @leval Loop => plotloss() rand(x, x >ₛ 0.0, 100; alg = SSMH)
 """
 function plotloss(; title = "Loss vs Iteration", display_ = display, LTY::Type{TY} = Float64) where {TY}
-  cb = Callbacks.plotscalar(; title = title, display_ = display_, LTX = Int, LTY = LTY)
+  @show cb = Callbacks.plotscalar(; title = title, display_ = display_, LTX = Int, LTY = LTY)
   data -> cb((x = data.i, y = data.p))
 end
 
@@ -18,7 +18,7 @@ end
 function plotω(x::RandVar, y::RandVar, T = Float64)
   xωs = T[]
   yωs = T[]
-
+  
   function innerplotω(data)
     color = :blue
     if isempty(xωs)
@@ -38,6 +38,7 @@ function plotscalar(key::Symbol, name, display_ = display, ::Type{T} = Float64) 
   ys = Int[]
   maxseen = typemin(T)
   minseen = typemax(T)
+  println("HELLO!!!!!")
 
   function innerplotrv(data)
     x_ = getfield(data, key)
@@ -71,4 +72,4 @@ default_cbs_tpl(n) = (throttle(plotloss(), 0.1),
                       throttle(printstats, 1.0))
 
 "Defautlt callbacks"
-default_cbs(n) = runall([default_cbs_tpl(n)...])
+default_cbs(n) = runall([default_cbs_tpl(n)...])  
