@@ -3,8 +3,10 @@ tagmem(ω, ::Type{V} = Any) where V = tag(ω, (cache = Dict{ID, V}(),))
 "Don't cache this type of RandVar? (for some `RandVar`s it may be be faster to not cache)"
 function dontcache(rv::RandVar)
   # println("Warning! Memoization is d")
-  true
+  false
 end
+
+# println("Warn: memoization disabled!")
 
 @inline function memapl(rv::RandVar, mω::TaggedΩ)
   if dontcache(rv)

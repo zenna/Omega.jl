@@ -34,9 +34,9 @@ end
 # Conversions #
 mcv(x::RandVar) = x
 mcv(x) = constant(x)
-upconv(x::Dict{RV}) where RV = Dict(k.id => mcv(v) for (k, v) in x)
+upconv(x::Dict{RandVar, V}) where V = Dict(k.id => mcv(v) for (k, v) in x)
 upconv(pairs::Pair...) = Dict(k.id => mcv(v) for (k, v) in pairs)
-upconv(pair::Pair) = Dict(pair.first.id => mcv(pair.second))
+upconv(pair::Pair{RandVar, T}) where T = Dict(pair.first.id => mcv(pair.second))
 
 # Merge the interventions
 combinetags(::Type{Val{:replmap}}, a, b) =  merge(a, b)
@@ -59,7 +59,7 @@ combinetags(::Type{Val{:replmap}}, a, b) =  merge(a, b)
 # function Base.replace end
 
 "Causal Intervention: Set `θold` to `θnew` in `x`"
-Base.replace(x::RandVar, replmap::Dict{Int, <: RandVar}) = ReplaceRandVar(x, replmap)
+Base.replace(x::RandVar, replmap::Dict{ID, <: RandVar}) = ReplaceRandVar(x, replmap)
 @spec :nocheck all([isparent(theta, x) for theta in values(tochange)])
 
 "Causal Intervention: Set `θold` to `θnew` in `x`"

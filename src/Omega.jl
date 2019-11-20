@@ -98,5 +98,9 @@ include("scaling.jl")
 # The Omega Lanaguage (Not Library) 
 include("lang/lang.jl")
 
-println("Warn: memoization disabled!")
+# Experimental
+
+include("symbolic/symbolic.jl")
+@reexport using .Symbolic
+
 end
