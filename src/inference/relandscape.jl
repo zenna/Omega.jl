@@ -36,7 +36,7 @@ function argmax(f, ω::Ω)
       Δ = gs[ωvec]
       l = 0.0001
       # @show Δ, Δ * l
-      Flux.Tracker.update!(ωvec, Δ * l)
+      Tracker.update!(ωvec, Δ * l)
     end
     # @show f(ω)
   end

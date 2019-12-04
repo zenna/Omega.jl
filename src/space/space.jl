@@ -4,6 +4,7 @@ using ..Util
 using ..IDS
 using Spec
 import Flux     # FIXME: Can we excise this from this submodule?
+import Tracker
 import ForwardDiff
 import Random
 using Random: GLOBAL_RNG, AbstractRNG

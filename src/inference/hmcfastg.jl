@@ -6,8 +6,8 @@ struct HMCFASTGAlg <: SamplingAlgorithm end
 
 "Hamiltonian Monte Carlo Sampling"
 const HMCFASTG = HMCFASTGAlg()
-defΩ(::Type{HMCFASTGAlg}) = SimpleΩ{ID, Flux.TrackedArray{Float64, 1, Array{Float64,1}}}
-defΩ(::HMCFASTGAlg) = SimpleΩ{ID, Flux.TrackedArray{Float64, 1, Array{Float64,1}}}
+defΩ(::Type{HMCFASTGAlg}) = SimpleΩ{ID, Tracker.TrackedArray{Float64, 1, Array{Float64,1}}}
+defΩ(::HMCFASTGAlg) = SimpleΩ{ID, Tracker.TrackedArray{Float64, 1, Array{Float64,1}}}
 defcb(::HMCFASTGAlg) = default_cbs()
 
 # Issues:

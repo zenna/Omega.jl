@@ -15,7 +15,7 @@ end
     # @show (Core.Compiler).return_type(rv, typeof((mω.taggedω,)))
     mω.tags.cache[rv.id]::(Core.Compiler).return_type(rv, typeof((mω.taggedω,)))
   else
-    @show typeof(proj(mω, rv))
+    # @show typeof(proj(mω, rv))
     mω.tags.cache[rv.id] = ppapl(rv, proj(mω, rv))
   end
 end

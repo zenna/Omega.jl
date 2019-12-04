@@ -8,7 +8,7 @@ function relandscapeexample()
   x = normal(0.0, 1.0)
   y = normal(0.0, 1.0)
   isxy = x ==ₛ y
-  ΩT =  SimpleΩ{Vector{Int}, Flux.TrackedArray}
+  ΩT =  SimpleΩ{Vector{Int}, Tracker.TrackedArray}
   rand((x, y), isxy, 100, alg = Relandscape, ΩT = ΩT)
 end
 
@@ -19,7 +19,7 @@ function relandscapeexample(n = 100)
   x = uniform(0.0, 1.0)
   y = uniform(0.0, 1.0)
   isxy = x >=ₛ y
-  ΩT =  SimpleΩ{Vector{Int}, Flux.TrackedArray}
+  ΩT =  SimpleΩ{Vector{Int}, Tracker.TrackedArray}
   rand((x, y), isxy, n, alg = Relandscape, ΩT = ΩT), x, y
 end
 
@@ -27,7 +27,7 @@ function relandscapeexample(n = 100)
   x = uniform(0.0, 1.0)
   y = uniform(0.0, 1.0)
   isxy = abs(x - y) <ₛ 0.01
-  ΩT =  SimpleΩ{Vector{Int}, Flux.TrackedArray}
+  ΩT =  SimpleΩ{Vector{Int}, Tracker.TrackedArray}
   rand((x, y), isxy, n, alg = Relandscape, ΩT = ΩT), x, y
 end
 
