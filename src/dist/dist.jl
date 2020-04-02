@@ -6,6 +6,7 @@ using DocStringExtensions: SIGNATURES
 
 import ..Inference: defalg
 
+import ..Omega
 import ..Omega:lift
 import ..Prim
 import ..Util: *ₛ

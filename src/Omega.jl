@@ -25,18 +25,19 @@ include("ids/ids.jl")
 @reexport using .IDS
 
 # Probability Spaces
-include("space/space.jl")         # UIDs
+include("space/space.jl")
 using .Space
 export Ω, SimpleΩ, LinearΩ, defΩ, defΩProj
 
 # RandVar
-include("nondet/nondet.jl" )            # Random variables
+include("nondet/nondet.jl" )
 using .NonDet
 export RandVar, MaybeRV, ciid, isconstant, elemtype, params, constant
 
 # Conditioning
-include("cond.jl")                # Conditioning
-export cond
+include("cond/cond.jl")
+@reexport using .Cond
+# export cond
 
 # Lifted random variable operatiosn
 include("lift/r.jl")
@@ -49,7 +50,7 @@ include("lift/lift.jl")
 export @lift, lift, lift!
 
 # Soft Inference
-include("soft/soft.jl")           # Soft Booleans / logic
+include("soft/soft.jl")
 @reexport using .Soft
 
 import .Soft: logerr, softeq, softgt, softlt, err, kf1β, kseα

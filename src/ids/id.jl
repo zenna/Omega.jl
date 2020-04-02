@@ -2,6 +2,7 @@
 const IDT = UInt64
 const ID = Vector{IDT}
 const uidcounter = Counter(IDT)
+toid(id::Integer) = ID([id])
 
 "Unique id, (scope 1), (scope, 2), ..."
 uid(; scope = scope()) = append(scope, increment!(uidcounter))
@@ -13,7 +14,7 @@ macro uid()
 end
 
 # Scope
-const SCOPE = Wrapper(base(ID))
+const SCOPE = Box(base(ID))
 scope()::ID = SCOPE.val
 
 """

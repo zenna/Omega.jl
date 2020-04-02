@@ -123,6 +123,7 @@ normal(p::Real, μ::Real, σ::Real) = quantile(Djl.Normal(μ, σ), p)
 normal(ω::Ω, μ::Real, σ::Real) = normal(rand(ω), μ, σ)
 normal(ω::Ω, μ, σ) = (p = rand(ω, anysize(μ, σ)); normal.(p, μ, σ))
 
+normal(μ, σ; id::ID = uid()) = Normal(μ, σ, id)
 normal(μ, σ) = Normal(μ, σ)
 normal(μ, σ, sz::Dims) = Normal(lift(fill)(μ, sz), lift(fill)(σ, sz))
 

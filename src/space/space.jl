@@ -7,6 +7,7 @@ import Flux     # FIXME: Can we excise this from this submodule?
 import Tracker
 import ForwardDiff
 import Random
+import Distributions
 using Random: GLOBAL_RNG, AbstractRNG
 using DocStringExtensions
 

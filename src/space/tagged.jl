@@ -56,4 +56,7 @@ Base.keys(tω::TaggedΩ) = keys(tω.taggedω)
 @inline Base.rand(tω::TaggedΩ, ur::UnitRange, dims::Dims) = rand(tω.taggedω, ur, dims; rng = rng(tω))
 @inline Base.rand(tω::TaggedΩ, ur::UnitRange, dim::Integer, dims::Integer...) = rand(tω.taggedω, ur, dim, dims...; rng = rng(tω))
 
+@inline Base.rand(tω::TaggedΩ, D::Distributions.Normal, args...)  =
+  rand(tω.taggedω, D, args...; rng = rng(tω))
+
 @inline parentω(tω::TaggedΩ) = TaggedΩ(parentω(tω), tω.tags)

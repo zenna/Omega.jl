@@ -5,6 +5,9 @@ struct ReplicaAlg <: SamplingAlgorithm end
 
 "Single Site Metropolis Hastings"
 const Replica = ReplicaAlg()
+
+softhard(::Type{ReplicaAlg}) = IsSoft{ReplicaAlg}()
+
 defΩ(::ReplicaAlg) = Omega.LinearΩ{ID, UnitRange{Int64}, Vector{Real}}
 defΩ(x, ::ReplicaAlg; inneralg...) = defΩ(inneralg)
 
@@ -45,6 +48,7 @@ logtemps(n, k = 10) = exp.(k * range(-2.0, stop = 1.0, length = n))
 
 struct PreSwap end
 struct PostSwap end
+struct InLoop end
 
 """Sample from `density` using Replica Exchange
 
@@ -101,6 +105,7 @@ function Base.rand(rng,
           if i == lowesti # keep lowest temperatre
             append!(ωsamples, ωst)
           end
+          lens(InLoop, (ωs = ωst, j = j, i = i, temp = temps[i]))
           ωs[i] = ωst[end]
         catch e
           # rethrow(e)

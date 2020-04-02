@@ -51,6 +51,8 @@ parentω(ωπ::ΩProj) = ωπ.ω
 @inline Base.rand(ωπ::ΩProj, ur::UnitRange, dim::Integer, dims::Integer...; rng = Random.GLOBAL_RNG) = 
   randinc!(ωπ, memrand(ωπ.ω, ωπ.id, ur, Dims((dim, dims...)); rng = rng))
 
+Base.rand(ωπ::ΩProj, D::Distributions.Normal, args...; rng = Random.GLOBAL_RNG) = 
+  randinc!(ωπ, memrand(ωπ.ω, ωπ.id, D, args...; rng = rng))
 
 # Fail Again 
 

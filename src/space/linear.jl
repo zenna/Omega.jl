@@ -138,16 +138,15 @@ end
 memrand(lω::LinearΩ{I, SEG, V}, id, X; rng) where {I, SEG, V<: Tracker.TrackedArray} = 
   first(memrand(lω, id, X, (1,); rng = rng))
 
-# using ZenUtils
+
+randrtype(lω, x::Distributions.Distribution) = eltype(x)
+
 function memrand(lω::LinearΩ, id, X; rng)
   RT = randrtype(lω, X)
-  # @show typeof(lω)
-  # @show X
-  # @show RT, X, lω
-  # @grab lω
   seg = get(lω.ids, id, 0)
   if seg == 0
-    res::RT = rand(rng, X)
+    @show X
+    @show res::RT = rand(rng, X)
     res_::RT = res
     push!(lω.ωvec, res_)
     startidx = length(lω.ωvec) 
