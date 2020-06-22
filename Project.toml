@@ -3,6 +3,15 @@ uuid = "1af16e33-887a-59b3-8344-18f1671b3ade"
 authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.1.1"
 
+[deps]
+OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
+OmegaGrad = "ffe3caee-cdf3-4560-89d0-49f2bdfcd9bf"
+OmegaMH = "89eb2d39-e1f3-436d-870a-9a4679d6d79e"
+OmegaSamplers = "270dfac3-a1ce-4ad0-a4c7-04f480250aa7"
+OmegaSyntax = "9a2f2d3c-b4b7-48b1-855a-1911187291a3"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
+SoftPredicates = "5345b20a-9614-40c4-b281-8f4998fc0f3b"
+
 [compat]
 julia = "1"
 
