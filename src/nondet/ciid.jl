@@ -69,6 +69,11 @@ ciid(f, args...; id = uid()) = URandVar(reifyapply, (f, args...), id)
 @inline reifyapply(ωπ, f, args...) = f(ωπ, reify(ωπ, args)...)
 @inline reifyapply(ωπ, f) = f(ωπ)
 
-Base.:~(x::Function) = ciid(x)
-Base.:~(id::ID, x::Function) = ciid(x; id = id)
-Base.:~(id, x::Function) = ciid(x; id = toid(id))
+Base.:~(x) = ciid(x)
+Base.:~(id::ID, x) = ciid(x; id = id)
+Base.:~(id, x) = ciid(x; id = toid(id))
+
+## Consisten
+# Distributions.jl / OmegaCore interopt
+# using Distributions: Normal, Uniform, Bernoulli
+# Base.:~(id, x::Normal) = id ~ normal(x.μ, x.σ)

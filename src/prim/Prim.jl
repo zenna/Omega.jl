@@ -3,7 +3,7 @@ module Prim
 using ..Omega
 using ..IDS: ID, uid
 using ..NonDet: RandVar, URandVar, MaybeRV, isconstant, ppapl, apl, reify, elemtype
-import ..NonDet: name, ppapl
+import ..NonDet: name, ppapl, ciid
 
 import ..Omega:Ω , params, lift
 
