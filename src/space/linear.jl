@@ -90,23 +90,23 @@ Base.isempty(lω::LinearΩ) = isempty(lω.ωvec)
 
 # Flux-specific #
 
-emp(a::Type{Flux.TrackedArray{A, B, C}}) where {A, B, C} = C()
+emp(a::Type{Tracker.TrackedArray{A, B, C}}) where {A, B, C} = C()
 
 # zt: This is type piracy: use a different method name
-Base.append!(ta::Flux.TrackedArray, a::Array) =
+Base.append!(ta::Tracker.TrackedArray, a::Array) =
   (append!(ta.data, a); append!(ta.grad, zero(a)))
 
-Base.append!(ta::Flux.TrackedArray, tb::Flux.TrackedArray) =
+Base.append!(ta::Tracker.TrackedArray, tb::Tracker.TrackedArray) =
   (append!(ta.data, tb.data); append!(ta.grad, tb.grad))
 
 # using ZenUtils
 
-function randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}, dims::Dims{N}) where {I, SEG, T, V <: Flux.TrackedArray{T}, N}
-  Flux.TrackedArray{T, N, Array{T, N}}
+function randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}, dims::Dims{N}) where {I, SEG, T, V <: Tracker.TrackedArray{T}, N}
+  Tracker.TrackedArray{T, N, Array{T, N}}
 end
 
-# function randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}) where {I, SEG, V<: Flux.TrackedArray, T <: AbstractFloat}
-#   Flux.Tracker.TrackedReal{T}
+# function randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}) where {I, SEG, V<: Tracker.TrackedArray, T <: AbstractFloat}
+#   Tracker.TrackedReal{T}
 # end
 
 # coerce(::Type{T}, x) where T = convert(T, x)
@@ -135,19 +135,18 @@ function memrand(lω::LinearΩ, id, X, dims::Dims; rng)
   end
 end
 
-memrand(lω::LinearΩ{I, SEG, V}, id, X; rng) where {I, SEG, V<: Flux.TrackedArray} = 
+memrand(lω::LinearΩ{I, SEG, V}, id, X; rng) where {I, SEG, V<: Tracker.TrackedArray} = 
   first(memrand(lω, id, X, (1,); rng = rng))
 
-# using ZenUtils
+
+randrtype(lω, x::Distributions.Distribution) = eltype(x)
+
 function memrand(lω::LinearΩ, id, X; rng)
   RT = randrtype(lω, X)
-  # @show typeof(lω)
-  # @show X
-  # @show RT, X, lω
-  # @grab lω
   seg = get(lω.ids, id, 0)
   if seg == 0
-    res::RT = rand(rng, X)
+    @show X
+    @show res::RT = rand(rng, X)
     res_::RT = res
     push!(lω.ωvec, res_)
     startidx = length(lω.ωvec) 

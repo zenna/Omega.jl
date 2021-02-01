@@ -2,6 +2,9 @@ abstract type SSMHLoop <: Loop end
 struct SSMHAlg <: SamplingAlgorithm end
 "Single Site Metropolis Hastings"
 const SSMH = SSMHAlg()
+
+softhard(::Type{SSMHAlg}) = IsSoft{SSMHAlg}()
+
 isapproximate(::SSMHAlg) = true
 
 # defΩ(::SSMH) = SimpleΩ{Vector{Int}, Float64}
@@ -45,6 +48,14 @@ function moveproposal(rng, ω)
   end
 end
 
+"Normal propsoal with variance `var`"
+function varproposal(var)
+  function k(rng, ω)
+    swapsinglesite(rng, ω) do x
+      normalkernel(rng, x, var)
+    end
+  end
+end
 
 """
 Sample from `ω::Ω` conditioned on any constraints its conditioned on.
@@ -81,7 +92,7 @@ function Base.rand(rng::AbstractRNG,
       accepted += 1
     end
     push!(ωsamples, deepcopy(ω))
-    lens(SSMHLoop, (ω = ω, accepted = accepted, p = plast, i = i + offset))
+    lens(SSMHLoop, (ω = ω, ωsamples = ωsamples, accepted = accepted, p = plast, i = i + offset))
   end
   # println("accepted, ", accepted)
   ωsamples

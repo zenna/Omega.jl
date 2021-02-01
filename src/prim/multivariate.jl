@@ -2,7 +2,7 @@
 # abstract type Dirichlet <: Dist end
 
 # function dirichlet(ω::Ω, α)
-#   gammas = [gammarv(ω[@id][i], αi, 1.0) for (i, αi) in enumerate(α)]
+#   gammas = [gammarv(ω[@uid][i], αi, 1.0) for (i, αi) in enumerate(α)]
 #   Σ = sum(gammas)
 #   [gamma/Σ for gamma in gammas]
 # end

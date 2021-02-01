@@ -1,4 +1,4 @@
-
+"if `y(ω)` then `x(ω)` else error"
 condf(ω, x, y) = Bool(y(ω)) ? x(ω) : error("Condition unsatisfied")
 
 """$(SIGNATURES)
@@ -10,21 +10,7 @@ x = normal(0.0, 1.0)
 x_ = cond(x, x > 0)
 ```
 """
-cond(x::RandVar, y::RandVar) = URandVar(ω -> condf(ω, x, y))
-
-"""
-$(SIGNATURES)
-
-Convenience function to condition with a predicate
-
-`cond(x, p(x))`
-
-```jldoctest
-cond(poisson(0.5), iseven)
-```
-
-"""
-cond(x::RandVar, p) = cond(x, lift(p)(x))
+cond(x, y) = Omega.NonDet.URandVar(ω -> condf(ω, x, y))
 
 """$(SIGNATURES)
 

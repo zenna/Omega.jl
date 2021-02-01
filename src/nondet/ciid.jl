@@ -36,10 +36,10 @@ allheads = ciid(allheads_)  # `allheads` and `anyheads` share `flips`
 rand((numflips, flips, anyheads, allheads))
 ```
 """
-ciid(f) = URandVar(f, ())
+ciid(f; id = uid()) = URandVar(f, (), id)
 
 "ciid(x::RandVar) \n\n  `RandVar` identically distributed to `x` but conditionally independent given parents`"
-ciid(x::T) where T <: RandVar =  T(params(x)..., uid())
+ciid(x::T; id = uid()) where T <: RandVar =  T(params(x)..., id)
 @spec equaldist(x, _res)
 
 """$(SIGNATURES) ciid with arguments
@@ -64,9 +64,16 @@ end
 f = ciid(f_, poisson(3))
 ```
 """
-ciid(f, args...) = URandVar(reifyapply, (f, args...))
+ciid(f, args...; id = uid()) = URandVar(reifyapply, (f, args...), id)
 
 @inline reifyapply(ωπ, f, args...) = f(ωπ, reify(ωπ, args)...)
 @inline reifyapply(ωπ, f) = f(ωπ)
 
-Base.:~(x::Function) = ciid(x)
+Base.:~(x) = ciid(x)
+Base.:~(id::ID, x) = ciid(x; id = id)
+Base.:~(id, x) = ciid(x; id = toid(id))
+
+## Consisten
+# Distributions.jl / OmegaCore interopt
+# using Distributions: Normal, Uniform, Bernoulli
+# Base.:~(id, x::Normal) = id ~ normal(x.μ, x.σ)

@@ -58,3 +58,5 @@ function zygotetest()
   y = sum(x)
   lineargradient(y, rand(defΩ()), ZygoteGrad)
 end
+
+zygotetest()

@@ -1,5 +1,5 @@
 "Random Variable: a function `Ω -> T` on a probability space"
-abstract type RandVar end
+abstract type RandVar <: NonDetVar end
 
 MaybeRV{T} = Union{T, RandVar} where T
 
@@ -7,6 +7,14 @@ id(rv::RandVar) = rv.id
 
 "Parameters of a random variable"
 function params(rv::RandVar) end
+
+"Name of a random variable"
+name(rv) = rv
+
+# 1.3 supports abstract fields for function call overload
+if VERSION >= v"1.3"
+  (rv::RandVar)(ω::Ω) = apl(rv, ω)
+end
 
 """Is `x` a constant random variable, i.e. x(ω) = c ∀ ω ∈ Ω?
 
@@ -44,6 +52,5 @@ end
 isconstant(x) = true
 
 # Printing #
-name(x) = x
 Base.show(io::IO, rv::RandVar) =
   print(io, "$(id(rv)):$(name(rv))($(join(map(name, params(rv)), ", ")))::$(elemtype(rv))")

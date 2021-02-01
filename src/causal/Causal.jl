@@ -3,11 +3,14 @@ module Causal
 using Spec
 using DocStringExtensions
 using Cassette
-using ..Space
-import ..Omega
-using ..Omega: RandVar, constant, proj
-import ..Omega: apl, ppapl, id, params, ciid
 using Callbacks: donothing
+
+using ..Space
+import ..Space: combinetags
+import ..Omega
+using ..IDS: ID
+using ..NonDet: RandVar, constant, proj
+import ..NonDet: apl, ppapl, id, params, ciid, uid
 
 include("replace.jl")
 include("counterfactual.jl")

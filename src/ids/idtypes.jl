@@ -1,18 +1,11 @@
-"`base(::Type{T}, i)` singleton (`i`,) of collection type `T` "
-function base end
-
-# Fast construction, append a new element, hash
-# dont need random access, delete arbitrary element
-
-"Id of Random Variable"
-function randvarid end
 
 # Vector Indices #
 # zt: rename combine -> cat or concat, append -> push, base -> singleton
 @inline combine(a::Vector{T}, b::Vector{T}) where T = vcat(a, b)
 @inline append(a::Vector{T}, b::T) where T = vcat(a, T[b])
-@inline base(::Type{Vector{T}}, i::Vararg{T, N}) where {T, N} = Int[i...]
-function increment(a::Vector{Int})
+@inline base(::Type{Vector{T}}, i::Vararg{T, N}) where {T, N} = T[i...]
+@inline firstelem(::Vector{T}) where T = zero(T)
+function increment(a::Vector)
   b = copy(a)
   b[end] += 1
   b

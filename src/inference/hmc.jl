@@ -4,7 +4,7 @@ struct HMCAlg <: SamplingAlgorithm end
 "Hamiltonian Monte Carlo Sampling"
 const HMC = HMCAlg()
 isapproximate(::HMCAlg) = true
-defΩ(::HMCAlg) = SimpleΩ{Vector{Int}, Float64}
+defΩ(::HMCAlg) = SimpleΩ{ID, Float64}
 
 "Hamiltonian monte carlo with leapfrog integration: https://arxiv.org/pdf/1206.1901.pdf"
 function hmc(U, ∇U, nsteps, stepsize, current_q::Vector)

@@ -11,12 +11,9 @@ subapl(x, ω) = x
 @inline subapl(rv::RandVar, ω) = apl(rv, ω)
 
 "Project `ω` to `x`"
-proj(ω::ΩBase, x::RandVar) = proj(ω, x.id, 1)
+Space.proj(ω::ΩBase, x::RandVar) = proj(ω, append(x.id, firstelem(x.id)))
 
-proj(ω::O, i...) where {I, O <: ΩBase{I}} = 
-  ΩProj{O, I}(ω, base(I, i...))
-
-proj(tω::TaggedΩ, x::RandVar) = tag(proj(tω.taggedω, x), tω.tags)
+Space.proj(tω::TaggedΩ, x::RandVar) = tag(proj(tω.taggedω, x), tω.tags)
 @spec _res.tags == tω.tags "tags are preserved in projection"
 
 "Project `ω` to `rv` then apply"
@@ -55,6 +52,7 @@ proj(tω::TaggedΩ, x::RandVar) = tag(proj(tω.taggedω, x), tω.tags)
 
 @inline apl(rv::RandVar, tω::TaggedΩ{I, T, ΩT}) where {I, T, ΩT <: ΩProj}  =
   apl(rv, TaggedΩ(parentω(tω.taggedω), tω.tags))
+
 
 # Generated funtion for typed dispatch on different tags (might be unnecssary)
 @generated function apl(rv::RandVar, tω::TaggedΩ{I, Tags{K, V}, ΩT}) where {I, K, V, ΩT <: ΩBase}

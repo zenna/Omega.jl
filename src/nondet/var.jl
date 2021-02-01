@@ -7,13 +7,7 @@ Unlike random variables the uncertainty is not quantified,
 no more value is more or less likely than any other.
 
 """
-
-module Vars
-
-import ..ID, ..uid
-export unit, solve, optim
-
-abstract type Var end
+abstract type Var <: NonDetVar end
 
 # Primitive Free Variables
 struct Unit{T <: Real} <: Var
@@ -30,6 +24,3 @@ function solve(x::Var) end
 
 "Find a solution that maps the variable values to free"
 function optim(x::Var, ℓ) end
-
-
-end

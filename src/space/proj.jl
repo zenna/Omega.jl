@@ -51,6 +51,8 @@ parentω(ωπ::ΩProj) = ωπ.ω
 @inline Base.rand(ωπ::ΩProj, ur::UnitRange, dim::Integer, dims::Integer...; rng = Random.GLOBAL_RNG) = 
   randinc!(ωπ, memrand(ωπ.ω, ωπ.id, ur, Dims((dim, dims...)); rng = rng))
 
+Base.rand(ωπ::ΩProj, D::Distributions.Normal, args...; rng = Random.GLOBAL_RNG) = 
+  randinc!(ωπ, memrand(ωπ.ω, ωπ.id, D, args...; rng = rng))
 
 # Fail Again 
 
@@ -77,14 +79,19 @@ parentω(ωπ::ΩProj) = ωπ.ω
 
 # Projection #
 
-Base.getindex(ωπ::ΩProj{O, I}, i::I) where {O, I} =
+# Shouldn't use getindex for projection, getindex should be like just get the element at the address
+
+proj(ωπ::ΩProj{O, I}, i::I) where {O, I} =
   ΩProj{O, I}(ωπ.ω, combine(ωπ.id, i))
 
-Base.getindex(ωπ::ΩProj{O, I}, i::SI) where {O, I, SI} =
+proj(ωπ::ΩProj{O, I}, i::SI) where {O, I, SI} =
   ΩProj{O, I}(ωπ.ω, append(ωπ.id, i))
 
-Base.getindex(ωπ::ΩProj{O, Paired}, i::Int) where O = ΩProj{O, Paired}(ωπ.ω, pair(ωπ.id, i))
+# zt: this shouldn't be in here
+proj(ωπ::ΩProj{O, Paired}, i::Int) where O = ΩProj{O, Paired}(ωπ.ω, pair(ωπ.id, i))
 
 function Base.getindex(sω::O, i::Int) where {I, O <: ΩBase{I}}
   ΩProj{O, I}(sω, base(I, i))
 end
+
+proj(ω::O, i::I) where {I, O <: ΩBase{I}} = ΩProj{O, I}(ω, i)

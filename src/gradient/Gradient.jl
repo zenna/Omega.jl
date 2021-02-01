@@ -33,7 +33,7 @@ export TrackerGrad
 include("forwarddiff.jl")
 export ForwardDiffGrad
 
-include("zygote.jl")
-export ZygoteGrad
+# include("zygote.jl")
+# export ZygoteGrad
 
 end

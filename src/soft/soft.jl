@@ -1,7 +1,9 @@
 module Soft
 using Spec
 using ..Omega
-using ..Omega:TaggedΩ, tag, apl
+using ..Omega: TaggedΩ, tag
+import ..Space: combinetags
+using ..NonDet: apl
 import Omega
 import ForwardDiff
 import Cassette
@@ -42,6 +44,7 @@ const AbstractBool = Union{AbstractSoftBool, Bool}
 
 include("inf.jl")            # Infinity
 include("kernels.jl")        # Kernels
+include("kernelctx.jl")      # Kernels context
 include("softbool.jl")       # Soft Boolean
 include("dualsoftbool.jl")   # Dual Soft Boolean
 include("distances.jl")      # Standard Distance Functions

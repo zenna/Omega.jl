@@ -1,13 +1,6 @@
 "Default inference algorithm"
 defalg(args...) = FailUnsat
 
-"Default Ω to use"
-# defΩ(args...) = SimpleΩ{Vector{Int}, Any}
-defΩ(args...) = LinearΩ{Vector{Int}, UnitRange{Int64}, Vector{Any}}
-
-"Default projection"
-defΩProj(args...; OT = defΩ(args...)) = ΩProj{OT, idtype(OT)}
-
 "Default callbacks"
 defcb(args...) = donothing
 
@@ -84,13 +77,32 @@ Base.rand(x::UTuple{RandVar}, y::RandVar; kwargs...) = rand(randtuple(x), y; kwa
 
 "Returns Ω object, .e.g `x = normal(0, 1); rand(Ω, x > 0)`"
 function ld(rng::AbstractRNG,
-                   ΩT::Type{OT},
-                   x::RandVar,
-                   n::Integer,
-                   alg::SamplingAlgorithm;
-                   kwargs...) where {OT <: Ω}
+            ΩT::Type{OT},
+            x::RandVar,
+            n::Integer,
+            alg::IsSoft{ALG};
+            kwargs...) where {ALG, OT <: Ω}
   logdensity = Omega.mem(logerr(indomainₛ(x)))
-  ωsamples = rand(rng, ΩT, logdensity, n, alg; kwargs...) 
+  ωsamples = rand(rng, ΩT, logdensity, n, ALG(); kwargs...) 
+end
+
+function ld(rng::AbstractRNG,
+            ΩT::Type{OT},
+            x::RandVar,
+            n::Integer,
+            alg::IsHard{ALG};
+            kwargs...) where {ALG, OT <: Ω}
+  pred = Omega.indomain(x)
+  ωsamples = rand(rng, ΩT, pred, n, ALG())
+end
+
+function ld(rng::AbstractRNG,
+            ΩT::Type{OT},
+            x::RandVar,
+            n::Integer,
+            alg::T;
+            kwargs...) where {T, OT <: Ω}
+  ld(rng, ΩT, x, n, softhard(T); kwargs...)
 end
 
 "Returns Ω object, e.g. `x = normal(0, 1); rand(Ω, cond(x, x >ₛ 2.0), 10)`"
@@ -100,8 +112,3 @@ Base.rand(rng::AbstractRNG, ::Type{Ω}, x::RandVar, n::Integer; alg::SamplingAlg
 Base.rand(::Type{Ω}, x::RandVar, n::Integer; alg::SamplingAlgorithm = defalg(x), kwargs...) =
   ld(Random.GLOBAL_RNG, defΩ(alg), x, n, alg; kwargs...)
 
-# Autorand
-
-"`autorand(x::RandVar)` Single sample from `x`.  Inference `alg` and hyperparams, chosen automatically"
-autorand(x::RandVar) = rand(x, 1000; alg = SSMH)[end]
-Base.getindex(x::RandVar) = autorand(x)
