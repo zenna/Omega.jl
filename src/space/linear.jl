@@ -145,8 +145,7 @@ function memrand(lω::LinearΩ, id, X; rng)
   RT = randrtype(lω, X)
   seg = get(lω.ids, id, 0)
   if seg == 0
-    @show X
-    @show res::RT = rand(rng, X)
+    res::RT = rand(rng, X)
     res_::RT = res
     push!(lω.ωvec, res_)
     startidx = length(lω.ωvec) 
