@@ -4,9 +4,9 @@ using Test
 using Pkg
 
 # FIXME: Make this a package
-include("TestLib.jl")
+# include("TestLib.jl")
 
 # Add TestModels as submodule
-Pkg.develop(PackageSpec(url=joinpath(dirname(pathof(Omega)), "..", "test", "OmegaTestModels")))
+# Pkg.develop(PackageSpec(url=joinpath(dirname(pathof(Omega)), "..", "test", "OmegaTestModels")))
 
-walktests(Omega, exclude = ["typestable.jl", "simple.jl"])
+# walktests(Omega, exclude = ["typestable.jl", "simple.jl"])

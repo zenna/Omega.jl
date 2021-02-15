@@ -9,7 +9,7 @@ end
 # println("Warn: memoization disabled!")
 
 @inline function memapl(rv::RandVar, mω::TaggedΩ)
-  if dontcache(rv)
+  if true #dontcache(rv)
     ppapl(rv, proj(mω, rv))
   elseif haskey(mω.tags.cache, rv.id) # FIXME: Avoid two lookups!
     # @show (Core.Compiler).return_type(rv, typeof((mω.taggedω,)))
