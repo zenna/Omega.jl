@@ -1,3 +1,4 @@
+import Tracker
 "Flux based Hamiltonian Monte Carlo Sampling"
 struct HMCFASTAlg <: SamplingAlgorithm end
 
