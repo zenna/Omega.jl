@@ -15,12 +15,16 @@ end
 
 Base.keys(ω::LazyΩ) = Base.keys(ω.data)
 Base.values(ω::LazyΩ) = Base.values(ω.data)
+Base.getindex(ω::LazyΩ, id) = ω.data[id]
+
 # Move to specific omega types
 Base.merge!(ω::LazyΩ, ω_) = error("Unimplemented")
 Basis.like(ω::LazyΩ{Tags, T}, kv::Pair) where {Tags, T} = T(kv)
 
 const EmptyTags = Tags{(),Tuple{}}
 LazyΩ{EmptyTags, T}() where T = LazyΩ(T(), Tags())
+LazyΩ{EmptyTags, T}(data) where T = LazyΩ(T(data), Tags())
+
 
 "Construct `LazyΩ` from `rng` -- `ω.data` will be generated from `rng`"
 LazyΩ{T}(rng::AbstractRNG) where T = tagrng(LazyΩ{T}(), rng)

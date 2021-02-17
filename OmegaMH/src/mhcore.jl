@@ -10,8 +10,7 @@ const MH = MHAlg()
 
 Metropolis Hastings Sampler
 
-Initialised at `ωinit` yields `n` samples `ΩT` using Metropolis Hastings algorithm.
-
+Initialised at `ωinit`, yields `n` samples `::ΩT` using Metropolis Hastings algorithm.
 
 # Arguments
 - `rng`: AbstractRng used to sample proposals in MH loop
@@ -35,12 +34,13 @@ function mh(rng,
   ω = ωinit
   plast = logdensity(ω)
   qlast = 1.0
+  # FIXME: prealloate this
   ωsamples = OT[]  # zt - FIXME: Why aren't we storing the original sample
   accepted = 0
   # zt: what about burn-in Add skip
   for i = 1:n
     # ω_, logtransitionp = isempty(ω) ? (ω,0) : proposal(rng, ω)
-    ω_, logtransitionp = propose_and_logratio(rng, ω, f, proposal)
+    ω_, logtransitionp = OmegaCore.propose_and_logratio(rng, ω, f, proposal)
     p_ = logdensity(ω_)
     ratio = p_ - plast + logtransitionp # zt: assumes symmetric?
     if log(rand(rng)) < ratio
@@ -48,6 +48,7 @@ function mh(rng,
       plast = p_
       accepted += 1
     end
+    # @show "hello"
     push!(ωsamples, deepcopy(ω))
   end
   ωsamples
