@@ -136,7 +136,7 @@ deps = ["Cassette", "Distributions", "Future", "Random", "Reexport", "Spec"]
 git-tree-sha1 = "adb13ea9d05a8f1d99819d56a656f46b181c7a38"
 repo-rev = "lang"
 repo-subdir = "OmegaCore"
-repo-url = "/home/zenna/repos/Omega.jl"
+repo-url = "."
 uuid = "84d23798-d00f-4e9b-a82e-be69778c030a"
 version = "0.1.0"
 
