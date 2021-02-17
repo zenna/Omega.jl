@@ -1,9 +1,19 @@
-import OmegaCore
+import OmegaCore: propose_and_logratio
 export MH, mh
 
 "Metropolis Hastings Samplng Algorithm"
 struct MHAlg end
 const MH = MHAlg()
+
+# Move these to MH common
+
+"`burnin(n)` keep function that ignores first `n` samples"
+ignorefirstn(n) = i -> i > n
+
+"`thin(n)` keep function that accept only every `n` samples"
+thin(n) = i -> i % n == 0
+
+@inline keepall(i) = true
 
 """
 `mh(rng, ΩT, logdensity, f, n; proposal, ωinit)`
@@ -23,33 +33,39 @@ Initialised at `ωinit`, yields `n` samples `::ΩT` using Metropolis Hastings al
     `ω_` is the proposal
     `log_pqqp` is `log(g(p|q)/g(q|p))` the transition probability of moving from q to p
 - `ωinit`: point to initialise from
+- `keep`: function from `i -> b::Bool` which says whether to keep the sample at ith iteration or not
+Useful for defining burn in or thinning.
+  Example `keep = i -> ignorefirstn(100)(i) & thin(m)(i)`
 """
-function mh(rng,
-            ΩT::Type{OT},
-            logdensity,
-            f,
-            n;
-            proposal = SSProposal(),
-            ωinit = ΩT()) where OT # should this be sat(f)
+function mh!(rng,
+             logdensity,
+             f,
+             n,
+             ωinit::OT,
+             proposal,
+             ωsamples = Array{ΩT}(undef, n),
+             ΩT::Type = OT,
+             keep = keepall) where OT # should this be sat(f)
   ω = ωinit
   plast = logdensity(ω)
   qlast = 1.0
-  # FIXME: prealloate this
-  ωsamples = OT[]  # zt - FIXME: Why aren't we storing the original sample
   accepted = 0
-  # zt: what about burn-in Add skip
-  for i = 1:n
-    # ω_, logtransitionp = isempty(ω) ? (ω,0) : proposal(rng, ω)
-    ω_, logtransitionp = OmegaCore.propose_and_logratio(rng, ω, f, proposal)
+  tot = 0
+  i = 0
+  while i < n
+    ω_, logtransitionp = propose_and_logratio(rng, ω, f, proposal)
     p_ = logdensity(ω_)
-    ratio = p_ - plast + logtransitionp # zt: assumes symmetric?
+    ratio = p_ - plast + logtransitionp
     if log(rand(rng)) < ratio
-      ω = ω_
-      plast = p_
+      if keep(i)
+        ω = ω_
+        plast = p_
+        i += 1
+        @inbounds ωsamples[i] = deepcopy(ω)
+      end
       accepted += 1
     end
-    # @show "hello"
-    push!(ωsamples, deepcopy(ω))
+    tot += 1
   end
   ωsamples
 end
