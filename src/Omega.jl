@@ -1,6 +1,8 @@
 "A Expressive Library for Probabilistic Programming"
 module Omega
+using Reexport
 
+@reexport using OmegaCore
 # import ForwardDiff
 # using Spec
 # using UnicodePlots
