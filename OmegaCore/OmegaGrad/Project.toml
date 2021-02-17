@@ -1,0 +1,10 @@
+name = "OmegaGrad"
+uuid = "ffe3caee-cdf3-4560-89d0-49f2bdfcd9bf"
+authors = ["Zenna Tavares <zennatavares@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
+ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
+Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"

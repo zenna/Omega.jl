@@ -1,0 +1,7 @@
+name = "OmegaSyntax"
+uuid = "9a2f2d3c-b4b7-48b1-855a-1911187291a3"
+authors = ["Zenna Tavares <zennatavares@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"

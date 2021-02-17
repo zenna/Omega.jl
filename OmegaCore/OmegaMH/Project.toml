@@ -1,0 +1,8 @@
+name = "OmegaMH"
+uuid = "89eb2d39-e1f3-436d-870a-9a4679d6d79e"
+authors = ["Zenna Tavares <zennatavares@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
+TransformVariables = "84d833dd-6860-57f9-a1a7-6da5db126cff"
