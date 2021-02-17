@@ -114,7 +114,7 @@ function Base.rand(rng::AbstractRNG,
       # QVALS need to reflect
       i % takeevery == 0 && push!(ωsamples, deepcopy(ω))
     end
-    lens(HMCFASTLoop, (ω = prop_ω, accepted = accepted, p = Flux.data(p_), i = i + offset))
+    lens(HMCFASTLoop, (ω = prop_ω, accepted = accepted, p = Tracker.data(p_), i = i + offset))
   end
   ωsamples
 end

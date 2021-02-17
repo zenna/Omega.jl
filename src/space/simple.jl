@@ -1,3 +1,4 @@
+import Tracker
 """
 SimpleΩ: Stores map from indices to values
 
@@ -69,13 +70,13 @@ randrtype(ω::SimpleΩ{I, A}, ::Type{T}, ::Dims{N}) where {N, T <: AbstractFloat
   # @grab a 
   # ω.vals[id] = a
   # @assert false
-  res = get!(()->Flux.param(rand(rng, T, dims)), ω.vals, id)
+  res = get!(()->Tracker.param(rand(rng, T, dims)), ω.vals, id)
   # @show typeof(res)
   res::randrtype(ω, T, dims)
 end
 
 @inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T}; rng) where {T, I, A<:Tracker.TrackedArray}
-  val = get!(()->Flux.param([rand(rng, T)]), ω.vals, id)
+  val = get!(()->Tracker.param([rand(rng, T)]), ω.vals, id)
   first(val)
 end
 

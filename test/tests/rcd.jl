@@ -1,28 +1,28 @@
 using Omega
-using Omega: samplemeanᵣ
+# using Omega: samplemeanᵣ
 using UnicodePlots
 using Distributions
 
-function test()
-  μ1 = bernoulli(0.5)
-  μ2 = bernoulli(0.5)
-  μ = μ1 + μ2
+# function test()
+#   μ1 = bernoulli(0.5)
+#   μ2 = bernoulli(0.5)
+#   μ = μ1 + μ2
 
-  c1 = rcd(normal(μ, 1.0), μ1)
-  nsamples = 100
-  means1 = [rand(samplemeanᵣ(c1, nsamples)) for i = 1:1000]
-  println(UnicodePlots.histogram(means1))
+#   c1 = rcd(normal(μ, 1.0), μ1)
+#   nsamples = 100
+#   means1 = [rand(samplemeanᵣ(c1, nsamples)) for i = 1:1000]
+#   println(UnicodePlots.histogram(means1))
   
-  c2 = rcd(normal(μ, 1.0), μ2)
-  means2 = [rand(samplemeanᵣ(c2, nsamples)) for i = 1:1000]
-  println(UnicodePlots.histogram(means2))
+#   c2 = rcd(normal(μ, 1.0), μ2)
+#   means2 = [rand(samplemeanᵣ(c2, nsamples)) for i = 1:1000]
+#   println(UnicodePlots.histogram(means2))
   
-  c3 = rcd(normal(μ, 1.0), μ)
-  means3 = [rand(samplemeanᵣ(c3, nsamples)) for i = 1:1000]
-  println(UnicodePlots.histogram(means3))
-end
+#   c3 = rcd(normal(μ, 1.0), μ)
+#   means3 = [rand(samplemeanᵣ(c3, nsamples)) for i = 1:1000]
+#   println(UnicodePlots.histogram(means3))
+# end
 
-test()
+# test()
 
 # function testbeta()
 #   plotbeta(beta) = lineplot(i->Distributions.pdf(beta, i), 0.0001, 0.999)
