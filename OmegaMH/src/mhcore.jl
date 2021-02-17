@@ -1,5 +1,6 @@
+import OmegaCore
 import OmegaCore: propose_and_logratio
-export MH, mh
+export MH, mh, mh!
 
 "Metropolis Hastings Samplng Algorithm"
 struct MHAlg end
@@ -14,6 +15,9 @@ ignorefirstn(n) = i -> i > n
 thin(n) = i -> i % n == 0
 
 @inline keepall(i) = true
+
+"`a &ₚ b` Pointwise logical `x->a(x) & b(x)`"
+a &ₚ b = (x...)->a(x...) &ₚ b(x...)
 
 """
 `mh(rng, ΩT, logdensity, f, n; proposal, ωinit)`
@@ -43,8 +47,8 @@ function mh!(rng,
              n,
              ωinit::OT,
              proposal,
-             ωsamples = Array{ΩT}(undef, n),
              ΩT::Type = OT,
+             ωsamples = Vector{ΩT}(undef, n),
              keep = keepall) where OT # should this be sat(f)
   ω = ωinit
   plast = logdensity(ω)

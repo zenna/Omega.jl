@@ -12,7 +12,8 @@ function test_bernoulli()
   βc = β |ᶜ bern ==ₚ 1.0
   logdensity(ω) = logpdf(ω)
   mh(rng, defΩ(), logdensity, 1000)
-end
+end  # stdnormalpdf(x) = logpdf(Normal(0, 1), x)
+
 
 function test_beta_bernoulli_constraint()
   β = 1 ~ Beta(0.5)
@@ -58,17 +59,18 @@ function custom_proposal()
     ωn = (x = xn_, ϵ = ϵn_, y = y_)
     (ωn, qlogpdf)
   end
-  ωinit = (y = 3.0, x = 2.0, ϵ = 1.0)
-  logenergy(x, vi) = logpdf(Normal(0, 1), vi)
-  logenergy(ω) = logenergy(ω.x)
+  ωinit = (x = 2.0, ϵ = 1.0, y = 3.0)
+  # logenergy(x, vi) = logpdf(Normal(0, 1), vi)
+  stdnormalpdf(x) = logpdf(Normal(0, 1), x)
+  logenergy(ω) = stdnormalpdf(ω.x) + stdnormalpdf(ω.ϵ)
   # logenergy(ω) = sum((logenergy(ωi, ω[ωi]) for ωi in keys(ω)))
-  @show logenergy(ωinit)
+  # logenergy(ωinit)
 
 
-  samples = mh(rng, typeof(ωinit), logenergy, y, 10000; proposal = CustomProp(prop), ωinit = ωinit)
-  xs = [ω[x] for ω in samples]
-  ϵs = [ω[ϵ] for ω in samples]
-  xs, ϵs
+  samples = mh!(rng, logenergy, y, 10000, ωinit, CustomProp(prop))
+  # xs = [ω.x for ω in samples]
+  # ϵs = [ω.ϵ for ω in samples]
+  # xs, ϵs
 end
 
 # TODO
