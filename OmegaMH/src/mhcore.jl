@@ -6,7 +6,7 @@ export MH, mh, mh!
 struct MHAlg end
 const MH = MHAlg()
 
-# Move these to MH common
+# FIXME: Move these to MH common
 
 "`burnin(n)` keep function that ignores first `n` samples"
 ignorefirstn(n) = i -> i > n
@@ -43,7 +43,7 @@ Useful for defining burn in or thinning.
 """
 function mh!(rng,
              logdensity,
-             f,
+             f,  #FIXME: Do we need f as input?
              n,
              ωinit::OT,
              proposal,
@@ -73,6 +73,8 @@ function mh!(rng,
   end
   ωsamples
 end
+
+# FIXME: move this to an interface file
 
 function OmegaCore.randsample(rng,
                               ΩT::Type{OT},

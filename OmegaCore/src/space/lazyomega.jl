@@ -47,6 +47,15 @@ function (exo::Var.ExoRandVar)(ω::LazyΩ)
   end::eltype(exo.class)
 end
 
+function Base.show(io::IO, m::MIME"text/plain", ω::LazyΩ)
+  println(io, typeof(ω))
+  println("tags:")
+  show(io, m, ω.tags)
+
+  println("\ndata:")
+  show(io, m, ω.data)
+end
+
 # function resolve(dist, id, ω::LazyΩ)
 #   id_ = convertid(idtype(ω), id)
 #   # id_ = id

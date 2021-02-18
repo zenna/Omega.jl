@@ -1,5 +1,6 @@
 import OmegaCore.Proposal
 using OmegaCore: ExoRandVar, Member, like, propose
+using Distributions: Normal
 
 "Single-site proposal: change a single variable in `ω`"
 struct SSProposal
@@ -10,17 +11,20 @@ function subpropose(qω, ::Member{<:StdNormal}, val; σ = 0.1)
 end
 
 function subpropose(qω, ::Member{<:StdUniform}, val; σ = 0.1)
-  @assert false "not implemented"
+  rand(qω, Uniform(0, 1))
+  # @assert false "not implemented"
   # rand(qω, Normal(val, σ))
 end
 
 function Proposal.propose(qω, f, ω, ::SSProposal)
   # Uniformly choose over sites
   k = rand(qω, keys(ω))
-  v = ω.data[k]
-  qv = subpropose(qω, k, v)
+
+  # Make a proposal for v
+  qv = subpropose(qω, k, ω[k])
   ω_ = like(ω, k => qv)
-  # Resimulate
+
+  # Resimulate everything
   propose(qω, f, ω, Proposal.CompProposal((Proposal.stdproposal,) ))
 end
 
