@@ -43,7 +43,7 @@ function mh!(rng,
              n,
              ωinit::OT,
              proposal,
-             ωsamples = Array{ΩT}(undef, n),
+             samples = Array{ΩT}(undef, n),
              ΩT::Type = OT,
              keep = keepall) where OT # should this be sat(f)
   ω = ωinit
@@ -61,13 +61,13 @@ function mh!(rng,
         ω = ω_
         plast = p_
         i += 1
-        @inbounds ωsamples[i] = deepcopy(ω)
+        @inbounds samples[i] = deepcopy(ω)
       end
       accepted += 1
     end
     tot += 1
   end
-  ωsamples
+  samples
 end
 
 function OmegaCore.randsample(rng,

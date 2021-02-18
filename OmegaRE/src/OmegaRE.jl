@@ -1,15 +1,11 @@
 module OmegaRE
-# module ReplicaExchange
-# import ..Ctx: ctxapl
 
+using Base.Threads: @spwan
 export re, Replica, ReplicaAlg
 
 "Replica Exchange (Parallel Tempering)"
 struct ReplicaAlg end
 const Replica = ReplicaAlg()
-
-# defΩ(::ReplicaAlg) = Omega.LinearΩ{Vector{Int}, UnitRange{Int64}, Vector{Real}}
-# defΩ(x, ::ReplicaAlg; inneralg...) = defΩ(inneralg)
 
 "swap `v[i]` and `v[j]`"
 function swap!(v, i, j)
@@ -47,6 +43,13 @@ end
 
 Replica Exchange Markov Chain Monte Carlo
 
+Replica exhange:
+- runs `nreplicas = length(algs)` MCMC chains in parallel
+- Each alg is run in a different context.
+  - The most common form of a context is a temperature
+- We assume there is a ground context which is the true model we wish to sample from
+- 
+
 # Arguments
 - `rng`: AbstractRng used to sample proposals in MH loop
 - `logdensity`: density to sample from
@@ -58,70 +61,49 @@ Replica Exchange Markov Chain Monte Carlo
     1. `under(f, context)`
     2. I need to be able to compute in some context (e.g. temp), the logdensity of another point
   evalincontext(context, logdensity, ω)
-
+# Returns
+- `n` samples
 """
 function re(rng,
             logdensity,
             n,
             ctxs,
-            algs)
+            inits,
+            samples = Array{typeof(inits[1])}(undef, n),
+            algs;
+            keep = keepall,
+            swap_every)
   # @pre length(ctxs) == length(algs)
-  # n different contexts
-  # need ability to:
-  # - Simulate n MCMC steps in a given context 
-  # - evaluate current state
-  # Schedules
-  # nsteps for eacs
+  nreplicas = length(algs)
 
-  # Option 1: assume different
-  # ωs = [ΩT() for ΩT in ΩTs]
-  # Defer initialization to function
+  groundid = 1
+  i = 0
+  while i < n
   for j = 1:div(n, swapevery)
     for i = 1:nreplicas
+      if i == groundid
+        groundsamples, groundenergy = something
+        @inbounds samples[i:j] .+ groundsamples
+      else
+        energy = something
+      end
+
       # In context i take n/swapevery samples
-      ctxpl(ctxs[i], rand(rng, ΩT, logdensity, swapevery, inneralg;
-                             ωinit = ωs[i], algargs...))
+      # Do we want to apply ctx
+      apl = @spawn under(ctxs[i], inits[i], algs[i])
       swap_contexts!(rng)
     end
   end
 end
 
+# Questions:
+# Can there be more than one ground context?
+# Is it true that from the ground context we need many samples and from
+# everythinge else we need 1 sample?
+# -- No, we only need samples from the ground context, we need scores
+# From the others
+# We need to be able to compute:
+  # In some context i, density of some other point
 
-# """
-# Replica Exchange (fixed kernel and varying temperatures)
-# # Arguments
-# - temps; list of temperatures
-# - kα: parameterized kernel - mapping from temperature to kernel  
-# """
-# function Base.rand(rng::AbstractRng,
-#                    logdensity::RandVar,
-#                    n::Integer,
-#                    temps,
-#                    kα,
-#                    algs)
-#   kctxs = [KernelContext(kα(t)) for t in temps]
-#   rand(rng, logdensity, n, kctxs, algs)
-# end
-
-# function Base.rand(rng::AbstractRNG,
-#   ΩT::Type{OT},
-#   logdensity::RandVar,
-#   n::Integer,
-#   alg::SSMHAlg;
-#   proposal = moveproposal,
-#   ωinit = ΩT(),
-#   offset = 0) where {OT <: Ω}
-# end
-
-# function test()
-#   θ = normal(0, 1)
-#   x = normal(θ, 1)
-#   rand(cond(θ, x ==\_s 3.0), 100, alg = Replica)
-# end
-
-# TODO
-# - Should be async
-# - Uses Threads
-# - Swaps temperatures not omegas
-# - Should support different algs
+# How should burn in / thinning work?
 end # module
