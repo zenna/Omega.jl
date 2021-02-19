@@ -1,11 +1,12 @@
+import OmegaCore
 import OmegaCore: propose_and_logratio
-export MH, mh
+export MH, mh, mh!
 
 "Metropolis Hastings Samplng Algorithm"
 struct MHAlg end
 const MH = MHAlg()
 
-# Move these to MH common
+# FIXME: Move these to MH common
 
 "`burnin(n)` keep function that ignores first `n` samples"
 ignorefirstn(n) = i -> i > n
@@ -14,6 +15,9 @@ ignorefirstn(n) = i -> i > n
 thin(n) = i -> i % n == 0
 
 @inline keepall(i) = true
+
+"`a &ₚ b` Pointwise logical `x->a(x) & b(x)`"
+a &ₚ b = (x...)->a(x...) &ₚ b(x...)
 
 """
 `mh(rng, ΩT, logdensity, f, n; proposal, ωinit)`
@@ -39,12 +43,12 @@ Useful for defining burn in or thinning.
 """
 function mh!(rng,
              logdensity,
-             f,
+             f,  #FIXME: Do we need f as input?
              n,
              ωinit::OT,
              proposal,
-             samples = Array{ΩT}(undef, n),
              ΩT::Type = OT,
+             samples = Vector{ΩT}(undef, n),
              keep = keepall) where OT # should this be sat(f)
   ω = ωinit
   plast = logdensity(ω)
@@ -69,6 +73,8 @@ function mh!(rng,
   end
   samples
 end
+
+# FIXME: move this to an interface file
 
 function OmegaCore.randsample(rng,
                               ΩT::Type{OT},

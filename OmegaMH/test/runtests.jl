@@ -12,7 +12,8 @@ function test_bernoulli()
   βc = β |ᶜ bern ==ₚ 1.0
   logdensity(ω) = logpdf(ω)
   mh(rng, defΩ(), logdensity, 1000)
-end
+end  # stdnormalpdf(x) = logpdf(Normal(0, 1), x)
+
 
 function test_beta_bernoulli_constraint()
   β = 1 ~ Beta(0.5)
@@ -22,8 +23,7 @@ function test_beta_bernoulli_constraint()
   randsample(βc, 1000; alg = OmegaMH)
 end
 
-function test_ss_propose()
-  rng = MersenneTwister(0)
+function test_ss_propose(rng = MersenneTwister(0))
   ω = defω()
   x = 1 ~ Normal(0, 1)
   y = 2 ~ Normal(0, 1)
@@ -39,12 +39,7 @@ end
 OmegaCore.propose_and_logratio(rng, ω, f, c::CustomProp) = 
   c.f(rng, ω, f)
 
-# A proposal should be some type that supports
-## Evaluation
-## q(ω, x)
-
-function custom_proposal()
-  rng = MersenneTwister(0)
+function custom_proposal(rng = MersenneTwister(0))
   x = 1 ~ Normal(0, 1)
   ϵ = 2 ~ Normal(0, 1)
   y(ω) = x(ω) + ϵ(ω)
@@ -58,17 +53,10 @@ function custom_proposal()
     ωn = (x = xn_, ϵ = ϵn_, y = y_)
     (ωn, qlogpdf)
   end
-  ωinit = (y = 3.0, x = 2.0, ϵ = 1.0)
-  logenergy(x, vi) = logpdf(Normal(0, 1), vi)
-  logenergy(ω) = logenergy(ω.x)
-  # logenergy(ω) = sum((logenergy(ωi, ω[ωi]) for ωi in keys(ω)))
-  @show logenergy(ωinit)
-
-
-  samples = mh(rng, typeof(ωinit), logenergy, y, 10000; proposal = CustomProp(prop), ωinit = ωinit)
-  xs = [ω[x] for ω in samples]
-  ϵs = [ω[ϵ] for ω in samples]
-  xs, ϵs
+  ωinit = (x = 2.0, ϵ = 1.0, y = 3.0)
+  stdnormalpdf(x) = logpdf(Normal(0, 1), x)
+  logenergy(ω) = stdnormalpdf(ω.x) + stdnormalpdf(ω.ϵ)
+  samples = mh!(rng, logenergy, y, 10000, ωinit, CustomProp(prop))
 end
 
 # TODO

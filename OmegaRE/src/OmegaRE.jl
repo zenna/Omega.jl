@@ -44,6 +44,10 @@ end
 Replica Exchange Markov Chain Monte Carlo
 
 Replica exhange:
+- There are `n` different contexts, where a different context means a different target density
+- There arae `A` different algorithms.  These may be actually different algorithms
+  such as HMC vs SSMH, or different parameterizations of the same algorithm
+- The user provides some subset of the cross product, i.e. `(ctx1, alg1), (ctx2, alg2)`
 - runs `nreplicas = length(algs)` MCMC chains in parallel
 - Each alg is run in a different context.
   - The most common form of a context is a temperature
@@ -106,4 +110,9 @@ end
   # In some context i, density of some other point
 
 # How should burn in / thinning work?
+# Choice of representaiton:
+## - alg(ctx, init_state)
+## - apply(alg, ctx, init_state)
+## - userprovidedfunc(alg, ctx, init_state)
+## Do we need both Algs and Ctxs??
 end # module
