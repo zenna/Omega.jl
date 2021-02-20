@@ -38,6 +38,9 @@ function swap_contexts!(rng, ctxs, logdensity, ωs)
   end
 end
 
+"`every(m)` -- `f` where `f(i) is true every i steps"
+every(m) = i -> i % m == 0
+
 """
 `re(rng, logdensity, n, ctxs, algs)`
 
@@ -62,42 +65,39 @@ Replica exhange:
   - each alg should support `alg(ω, ctx)`
 - `ctxs`: List of contexts where:
   - a context is an object that implements:
-    1. `under(f, context)`
-    2. I need to be able to compute in some context (e.g. temp), the logdensity of another point
-  evalincontext(context, logdensity, ω)
+    1. `logpdf(ctx, s)` -- logpdf of `x`
+    2. `simulate(ctx, s)` -- simulate from density ctx, starting at ctx producing new state
+
 # Returns
-- `n` samples
+- `n` samples draw from ctx[1]
 """
 function re(rng,
-            logdensity,
             n,
             ctxs,
-            inits,
+            state,
             samples = Array{typeof(inits[1])}(undef, n),
             algs;
             keep = keepall,
-            swap_every)
+            swap = every(div(n, 10)))
   # @pre length(ctxs) == length(algs)
   nreplicas = length(algs)
 
-  groundid = 1
+  GROUNDID = 1
   i = 0
   while i < n
-  for j = 1:div(n, swapevery)
+    logpdf(ctx[groundid], state[groundid])
+    # Simulate each replica
     for i = 1:nreplicas
       if i == groundid
-        groundsamples, groundenergy = something
-        @inbounds samples[i:j] .+ groundsamples
+        @inbounds samples[i:j] = simulaten(ctx[GROUNDID], state[GROUNDID], algs[GROUNDID])
+        @inbounds state[GROUNDID] = samples[j]
       else
-        energy = something
+        @inbounds state[i] = simulate1(ctx[i], state[i], algs[i])
       end
-
-      # In context i take n/swapevery samples
-      # Do we want to apply ctx
-      apl = @spawn under(ctxs[i], inits[i], algs[i])
-      swap_contexts!(rng)
     end
+    swap(i) && swap_contexts!(rng, ctxs, logdensity, ωs)
   end
+  samples
 end
 
 # Questions:
