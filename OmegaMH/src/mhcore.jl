@@ -55,7 +55,8 @@ function mh!(rng,
              ΩT::Type = OT,
              samples = Vector{ΩT}(undef, n),
             #  propose_and_logratio = propose_and_logratio,
-             keep = keepall) where OT # should this be sat(f)
+             keep = keepall,
+             prestore = identity) where OT # should this be sat(f)
   # @assert false
   # 1 + 1
   # 1 + 1
@@ -65,7 +66,8 @@ function mh!(rng,
   accepted = 0
   tot = 0
   i = 1
-  while i <= n
+  s = 1
+  while s <= n
     propstate, logtransitionp = propose_and_logratio(rng, state)
     p_ = logdensity(propstate)
     ratio = p_ - plast + logtransitionp
@@ -75,7 +77,8 @@ function mh!(rng,
       accepted += 1
     end
     if keep(i)
-      @inbounds samples[i] = deepcopy(state)
+      @inbounds samples[s] = prestore(state)
+      s += 1
     end
     i += 1
     tot += 1
