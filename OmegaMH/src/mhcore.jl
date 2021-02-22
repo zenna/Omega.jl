@@ -47,24 +47,18 @@ Useful for defining burn in or thinning.
 """
 function mh!(rng,
              logdensity,
-             f,  #FIXME: Do we need f as input?
              n,
              state_init::OT,
              propose_and_logratio,
-            #  proposal,
              ΩT::Type = OT,
              samples = Vector{ΩT}(undef, n),
             #  propose_and_logratio = propose_and_logratio,
              keep = keepall,
              prestore = identity) where OT # should this be sat(f)
-  # @assert false
-  # 1 + 1
-  # 1 + 1
   state = state_init
   plast = logdensity(state)
   qlast = 1.0
   accepted = 0
-  tot = 0
   i = 1
   s = 1
   while s <= n
@@ -81,10 +75,7 @@ function mh!(rng,
       s += 1
     end
     i += 1
-    tot += 1
   end
-  # i, n
-  # samples
   samples
 end
 

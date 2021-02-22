@@ -43,20 +43,19 @@ function custom_proposal(rng = MersenneTwister(0))
   x = 1 ~ Normal(0, 1)
   ϵ = 2 ~ Normal(0, 1)
   y(ω) = x(ω) + ϵ(ω)
-  function prop(rng, ω, f)
+  function prop(rng, ω)
     q = Normal(0, 1)
     θ = rand(rng, q)
     y_ = ω.y
     xn_, ϵn_ = y_ - θ, θ
-    # ωn = (x = xn_, ϵ = ϵn_)
-    qlogpdf = logpdf(q, θ)
+    # qlogpdf = logpdf(q, θ)
     ωn = (x = xn_, ϵ = ϵn_, y = y_)
-    (ωn, qlogpdf)
+    (ωn, 1)
   end
   ωinit = (x = 2.0, ϵ = 1.0, y = 3.0)
   stdnormalpdf(x) = logpdf(Normal(0, 1), x)
   logenergy(ω) = stdnormalpdf(ω.x) + stdnormalpdf(ω.ϵ)
-  samples = mh!(rng, logenergy, y, 10000, ωinit, CustomProp(prop))
+  samples = mh!(rng, logenergy, 10000, ωinit, prop)
 end
 
 # TODO

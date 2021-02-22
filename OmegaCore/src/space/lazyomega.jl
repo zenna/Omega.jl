@@ -39,6 +39,8 @@ Base.setindex!(ω::LazyΩ, value, id) =
   ω.data[convertid(idtype(ω), id)] = value
 
 function (exo::Var.ExoRandVar)(ω::LazyΩ)
+  @show "HOWDY!!"
+  display(ω)
   result = get(ω.data, exo, 0)
   if result === 0
     ω.data[exo] = rand(rng(ω), exo.class)

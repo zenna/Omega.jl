@@ -25,7 +25,7 @@ function Proposal.propose(qω, f, ω, ::SSProposal)
   ω_ = like(ω, k => qv)
 
   # Resimulate everything
-  propose(qω, f, ω, Proposal.CompProposal((Proposal.stdproposal,) ))
+  propose(qω, f, ω_, Proposal.CompProposal((Proposal.stdproposal,) ))
 end
 
 function Proposal.propose_and_logratio(qω, f, ω, ss::SSProposal)
