@@ -19,12 +19,16 @@ thin(n) = i -> i % n == 0
 "`a &ₚ b` Pointwise logical `x->a(x) & b(x)`"
 a &ₚ b = (x...)->a(x...) &ₚ b(x...)
 
+function propose_and_logratio end
+
 """
-`mh(rng, ΩT, logdensity, f, n; proposal, ωinit)`
+`mh(rng, ΩT, logdensity, f, n; proposal, state_init)`
 
 Metropolis Hastings Sampler
 
-Initialised at `ωinit`, yields `n` samples `::ΩT` using Metropolis Hastings algorithm.
+Initialised at `state_init`, yields `n` samples `::ΩT` using Metropolis Hastings algorithm.
+
+
 
 # Arguments
 - `rng`: AbstractRng used to sample proposals in MH loop
@@ -36,7 +40,7 @@ Initialised at `ωinit`, yields `n` samples `::ΩT` using Metropolis Hastings al
   `(ω_, log_p_q) = proposal(rng, ω)` where:
     `ω_` is the proposal
     `log_pqqp` is `log(g(p|q)/g(q|p))` the transition probability of moving from q to p
-- `ωinit`: point to initialise from
+- `state_init`: point to initialise from
 - `keep`: function from `i -> b::Bool` which says whether to keep the sample at ith iteration or not
 Useful for defining burn in or thinning.
   Example `keep = i -> ignorefirstn(100)(i) & thin(m)(i)`
@@ -45,32 +49,39 @@ function mh!(rng,
              logdensity,
              f,  #FIXME: Do we need f as input?
              n,
-             ωinit::OT,
-             proposal,
+             state_init::OT,
+             propose_and_logratio,
+            #  proposal,
              ΩT::Type = OT,
              samples = Vector{ΩT}(undef, n),
+            #  propose_and_logratio = propose_and_logratio,
              keep = keepall) where OT # should this be sat(f)
-  ω = ωinit
-  plast = logdensity(ω)
+  # @assert false
+  # 1 + 1
+  # 1 + 1
+  state = state_init
+  plast = logdensity(state)
   qlast = 1.0
   accepted = 0
   tot = 0
-  i = 0
-  while i < n
-    ω_, logtransitionp = propose_and_logratio(rng, ω, f, proposal)
-    p_ = logdensity(ω_)
+  i = 1
+  while i <= n
+    propstate, logtransitionp = propose_and_logratio(rng, state)
+    p_ = logdensity(propstate)
     ratio = p_ - plast + logtransitionp
     if log(rand(rng)) < ratio
-      if keep(i)
-        ω = ω_
-        plast = p_
-        i += 1
-        @inbounds samples[i] = deepcopy(ω)
-      end
+      state = propstate
+      plast = p_
       accepted += 1
     end
+    if keep(i)
+      @inbounds samples[i] = deepcopy(state)
+    end
+    i += 1
     tot += 1
   end
+  # i, n
+  # samples
   samples
 end
 

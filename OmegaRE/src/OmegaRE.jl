@@ -1,7 +1,7 @@
 module OmegaRE
 
-using Base.Threads: @spwan
-export re, Replica, ReplicaAlg
+using Base.Threads: @spawn
+export re!, re_all!, Replica, ReplicaAlg
 
 "Replica Exchange (Parallel Tempering)"
 struct ReplicaAlg end
@@ -21,19 +21,26 @@ struct PreSwap end
 struct PostSwap end
 
 "Swap adjacent chains"
-function swap_contexts!(rng, ctxs, logdensity, ωs)
-  for i in length(ωs):-1:2
+function swap_contexts!(rng, logpdfs, states, evaluate)
+  for i in length(states):-1:2
     j = i - 1
-    E_i_x = ctxapl(ctxs[i], logdensity, ωs[i])
-    E_j_x = ctxapl(ctxs[j], logdensity, ωs[i])
-    E_i_y = ctxapl(ctxs[i], logdensity, ωs[j])
-    E_j_y = ctxapl(ctxs[j], logdensity, ωs[j])
 
-    k = (E_i_y + E_j_x) - (E_i_x + E_j_y)
+    # Evaluate energy of state i at temperature i
+    E_i_i = evaluate(logpdfs[i], states[i])
+    E_i_j = evaluate(logpdfs[i], states[j])
+    E_j_i = evaluate(logpdfs[j], states[i])
+    E_j_j = evaluate(logpdfs[j], states[j])
+     
+    # E_i_x = ctxapl(ctxs[i], logdensity, states[i])
+    # E_j_x = ctxapl(ctxs[j], logdensity, states[i])
+    # E_i_y = ctxapl(ctxs[i], logdensity, states[j])
+    # E_j_y = ctxapl(ctxs[j], logdensity, states[j])
+
+    probaccept = (E_i_j + E_j_i) - (E_i_i + E_j_j)
     
-    doswap = log(rand(rng)) < k
+    doswap = log(rand(rng)) < probaccept
     if doswap
-      swap!(ωs, i, j)
+      swap!(states, i, j)
     end
   end
 end
@@ -71,31 +78,72 @@ Replica exhange:
 # Returns
 - `n` samples draw from ctx[1]
 """
-function re(rng,
-            n,
-            ctxs,
-            state,
-            samples = Array{typeof(inits[1])}(undef, n),
-            algs;
-            keep = keepall,
-            swap = every(div(n, 10)))
+function re!(rng,
+             logpdfs,
+             samples_per_swap,
+             num_swaps,
+             states,
+             simulate_n,
+             simulate_1,
+             evaluate,
+             samples = Vector{typeof(states[1])}(undef, num_swaps*samples_per_swap))
+            #  swap = every(div(n, 10)))
   # @pre length(ctxs) == length(algs)
-  nreplicas = length(algs)
+  nreplicas = length(states)
+  if length(logpdfs) != length(states)
+    error("length(logpdfs) != length(states)")
+  end
 
   GROUNDID = 1
-  i = 0
-  while i < n
-    logpdf(ctx[groundid], state[groundid])
-    # Simulate each replica
+  for num_swap = 1:num_swaps
     for i = 1:nreplicas
-      if i == groundid
-        @inbounds samples[i:j] = simulaten(ctx[GROUNDID], state[GROUNDID], algs[GROUNDID])
-        @inbounds state[GROUNDID] = samples[j]
+      if i == GROUNDID
+        # If we're ground state, return swap_every samples
+        lb = (num_swap - 1) * samples_per_swap + 1
+        ub = lb + samples_per_swap - 1
+        @show lb, ub
+        @inbounds samples[lb:ub] = simulate_n(logpdfs[GROUNDID],
+                                              states[GROUNDID],
+                                              samples_per_swap)
+        @inbounds states[GROUNDID] = samples[ub]
       else
-        @inbounds state[i] = simulate1(ctx[i], state[i], algs[i])
+        # If not ground state just return last sample
+        @inbounds states[i] = simulate_1(logpdfs[i], states[i], samples_per_swap)
       end
     end
-    swap(i) && swap_contexts!(rng, ctxs, logdensity, ωs)
+    swap_contexts!(rng, logpdfs, states, evaluate)
+  end
+  samples
+end
+
+function re_all!(rng,
+                 logpdfs,
+                 samples_per_swap,
+                 num_swaps,
+                 states,
+                 simulate_n,
+                 simulate_1,
+                 evaluate,
+                 samples = [Vector{typeof(states[i])}(undef, num_swaps*samples_per_swap) for i = 1:length(states)])
+            #  swap = every(div(n, 10)))
+  # @pre length(ctxs) == length(algs)
+  nreplicas = length(states)
+  if length(logpdfs) != length(states)
+    error("length(logpdfs) != length(states)")
+  end
+
+  GROUNDID = 1
+  for num_swap = 1:num_swaps
+    for i = 1:nreplicas
+      # If we're ground state, return swap_every samples
+      lb = (num_swap - 1) * samples_per_swap + 1
+      ub = lb + samples_per_swap - 1
+      samples[i][lb:ub] = simulate_n(logpdfs[i],
+                                               states[i],
+                                               samples_per_swap)
+      states[i] = samples[i][ub]
+    end
+    swap_contexts!(rng, logpdfs, states, evaluate)
   end
   samples
 end
