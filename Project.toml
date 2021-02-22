@@ -5,6 +5,7 @@ version = "0.1.1"
 
 [deps]
 OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
+OmegaMH = "89eb2d39-e1f3-436d-870a-9a4679d6d79e"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [compat]
