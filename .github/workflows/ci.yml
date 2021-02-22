@@ -51,6 +51,8 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Pkg
+            Pkg.develop(PackageSpec(path=joinpath(pwd(), "OmegaCore")))
+            Pkg.develop(PackageSpec(path=joinpath(pwd(), "OmegaMH")))
             Pkg.develop(PackageSpec(path=pwd()))
             Pkg.instantiate()'
       - run: |
