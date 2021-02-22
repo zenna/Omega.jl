@@ -30,11 +30,6 @@ function swap_contexts!(rng, logpdfs, states, evaluate)
     E_i_j = evaluate(logpdfs[i], states[j])
     E_j_i = evaluate(logpdfs[j], states[i])
     E_j_j = evaluate(logpdfs[j], states[j])
-     
-    # E_i_x = ctxapl(ctxs[i], logdensity, states[i])
-    # E_j_x = ctxapl(ctxs[j], logdensity, states[i])
-    # E_i_y = ctxapl(ctxs[i], logdensity, states[j])
-    # E_j_y = ctxapl(ctxs[j], logdensity, states[j])
 
     probaccept = (E_i_j + E_j_i) - (E_i_i + E_j_j)
     
@@ -86,7 +81,8 @@ function re!(rng,
              simulate_n,
              simulate_1,
              evaluate,
-             samples = Vector{typeof(states[1])}(undef, num_swaps*samples_per_swap))
+             samples = Vector{typeof(states[1])}(undef, num_swaps*samples_per_swap),
+             swap_contexts! = swap_contexts!)
             #  swap = every(div(n, 10)))
   # @pre length(ctxs) == length(algs)
   nreplicas = length(states)
