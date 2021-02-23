@@ -1,6 +1,6 @@
 using Distributions: Distribution
 using ..Basis, ..Traits
-export ctxapply, Vari
+export ctxapply, Vari, prehook, posthook
 
 # # Dispatch
 # In the contextual execution of a 15able, every intermediate variable application

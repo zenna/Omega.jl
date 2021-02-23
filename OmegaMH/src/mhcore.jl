@@ -51,8 +51,7 @@ function mh!(rng,
              state_init::OT,
              propose_and_logratio,
              ΩT::Type = OT,
-             samples = Vector{ΩT}(undef, n),
-            #  propose_and_logratio = propose_and_logratio,
+             samples = Vector{ΩT}(undef, n);
              keep = keepall,
              prestore = identity) where OT # should this be sat(f)
   state = state_init
