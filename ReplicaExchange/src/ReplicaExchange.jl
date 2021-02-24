@@ -15,12 +15,6 @@ function swap!(v, i, j)
   v[j] = temp
 end
 
-"""
-`logtemps(n, k = 10)`
-`n` logarithmically spaced temperatures from log(1) (ground state) .. "
-"""
-logtemps(n, k = 10) = exp.(k * range(-2.0, stop = 1.0, length = n))
-
 struct PreSwap end
 struct PostSwap end
 

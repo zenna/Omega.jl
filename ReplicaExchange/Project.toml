@@ -2,3 +2,7 @@ name = "ReplicaExchange"
 uuid = "5ad4e244-73e6-47c5-b007-45e12ac3dae1"
 authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.1.0"
+
+[deps]
+InferenceBase = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
+Spec = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
