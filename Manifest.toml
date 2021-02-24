@@ -155,7 +155,7 @@ version = "0.3.5"
 
 [[OmegaCore]]
 deps = ["Cassette", "Distributions", "Future", "Random", "Reexport", "Spec"]
-git-tree-sha1 = "c12ae8aa40a3bc0dc888815a132163ee22f6b0a2"
+git-tree-sha1 = "4d546380c2cae9b491630636c4441fd322273703"
 repo-rev = "lang"
 repo-subdir = "OmegaCore"
 repo-url = "."
@@ -164,7 +164,7 @@ version = "0.1.0"
 
 [[OmegaMH]]
 deps = ["OmegaCore", "TransformVariables"]
-git-tree-sha1 = "ae45fcabba052b8f0ead20ef5d3de253b4d94740"
+git-tree-sha1 = "0014657999b44047d4ff517f65cd0fa6ae9f566c"
 repo-rev = "lang"
 repo-subdir = "OmegaMH"
 repo-url = "."
