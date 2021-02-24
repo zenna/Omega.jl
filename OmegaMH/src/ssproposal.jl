@@ -1,6 +1,6 @@
 import OmegaCore.Proposal
 using OmegaCore: ExoRandVar, Member, like, propose
-using Distributions: Normal
+# using Distributions: Normal
 
 "Single-site proposal: change a single variable in `ω`"
 struct SSProposal

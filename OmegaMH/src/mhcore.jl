@@ -2,11 +2,11 @@ import OmegaCore
 import OmegaCore: propose_and_logratio
 export MH, mh, mh!
 
+using InferenceBase: keepall
+
 "Metropolis Hastings Samplng Algorithm"
 struct MHAlg end
 const MH = MHAlg()
-
-
 
 function propose_and_logratio end
 
@@ -16,8 +16,6 @@ function propose_and_logratio end
 Metropolis Hastings Sampler
 
 Initialised at `state_init`, yields `n` samples `::ΩT` using Metropolis Hastings algorithm.
-
-
 
 # Arguments
 - `rng`: AbstractRng used to sample proposals in MH loop
@@ -37,12 +35,11 @@ Useful for defining burn in or thinning.
 function mh!(rng,
              logdensity,
              n,
-             state_init::OT,
+             state_init,
              propose_and_logratio,
-             ΩT::Type = OT,
-             samples = Vector{ΩT}(undef, n);
+             samples;
              keep = keepall,
-             prestore = identity) where OT # should this be sat(f)
+             prestore = identity)
   state = state_init
   plast = logdensity(state)
   qlast = 1.0
@@ -67,14 +64,17 @@ function mh!(rng,
   samples
 end
 
+mh(rng, logdensity, n, state_init::X, propose_and_logratio; keep = keepall, prestore = identity) where X = 
+  mh!(rng, logdensity, n, state_init, propose_and_logratio, Vector{X}(undef, n); keep = keep, prestore = prestore)
+
 # FIXME: move this to an interface file
 
-function OmegaCore.randsample(rng,
-                              ΩT::Type{OT},
-                              x,
-                              n,
-                              alg::MHAlg) where {OT}
-end
+# function OmegaCore.randsample(rng,
+#                               ΩT::Type{OT},
+#                               x,
+#                               n,
+#                               alg::MHAlg) where {OT}
+# end
 
-OmegaCore.randsample(rng, ΩT, x, n, ::MHAlg; kwargs...) = 
-  mh(rng, ΩT, condvar(x), n; kwargs...) 
+# OmegaCore.randsample(rng, ΩT, x, n, ::MHAlg; kwargs...) = 
+#   mh(rng, ΩT, condvar(x), n; kwargs...) 

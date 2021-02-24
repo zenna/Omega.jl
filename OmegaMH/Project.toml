@@ -4,5 +4,6 @@ authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.1.0"
 
 [deps]
+InferenceBase = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
 OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
 TransformVariables = "84d833dd-6860-57f9-a1a7-6da5db126cff"
