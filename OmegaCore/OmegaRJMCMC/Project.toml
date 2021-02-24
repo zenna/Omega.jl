@@ -1,7 +1,0 @@
-name = "OmegaRJMCMC"
-uuid = "cc001ab1-2160-448f-b1da-26e1b93553e7"
-authors = ["Zenna Tavares <Zennatavares@gmail.com>"]
-version = "0.1.0"
-
-[deps]
-OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"

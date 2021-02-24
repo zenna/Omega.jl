@@ -1,7 +1,7 @@
-name = "OmegaIMCMC"
+name = "InvolutiveMCMC"
 uuid = "c323a456-bb8a-4a67-8d9f-9ed6a73cde6e"
 authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.1.0"
 
 [deps]
-OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
+InferenceBase = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"

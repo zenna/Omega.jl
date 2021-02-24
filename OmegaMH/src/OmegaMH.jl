@@ -1,9 +1,9 @@
 module OmegaMH
 
-using TransformVariables
+# using TransformVariables
 
 include("mhcore.jl")
-include("proposals.jl")
+# include("proposals.jl")
 include("ssproposal.jl")
 
 end

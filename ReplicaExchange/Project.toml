@@ -5,5 +5,8 @@ version = "0.1.0"
 
 [deps]
 InferenceBase = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
-PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
 Spec = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
+
+[compat]
+InferenceBase = "0.1.0"
+Spec = "0.2.0"

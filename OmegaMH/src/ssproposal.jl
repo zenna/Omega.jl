@@ -1,5 +1,5 @@
 import OmegaCore.Proposal
-using OmegaCore: ExoRandVar, Member, like, propose
+using OmegaCore: ExoRandVar, Member, like, propose, StdNormal, StdUniform
 # using Distributions: Normal
 
 "Single-site proposal: change a single variable in `ω`"

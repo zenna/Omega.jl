@@ -38,7 +38,7 @@ using Pkg; Pkg.add("PyPlot")
 using PlutoUI
 
 # ╔═╡ 128974e2-7483-11eb-03a0-15b2abc75d66
-md"MCMC Test";
+md"# MCMC Test"
 
 # ╔═╡ 318e4a98-7483-11eb-1916-c9630ecf07e2
 md"First, let's setup our target density"
@@ -226,7 +226,7 @@ mcmc_dynamics(pdfs, traces, lb:ub)
 
 # ╔═╡ Cell order:
 # ╠═9c5d8972-7485-11eb-25f7-155fbbd40d98
-# ╠═128974e2-7483-11eb-03a0-15b2abc75d66
+# ╟─128974e2-7483-11eb-03a0-15b2abc75d66
 # ╠═2c24aaca-7483-11eb-05a9-6f847b7d09b7
 # ╠═42bb4640-7483-11eb-0661-677c524c62b0
 # ╠═eeb0be1c-7483-11eb-341f-b1996e9a53a6
@@ -234,7 +234,7 @@ mcmc_dynamics(pdfs, traces, lb:ub)
 # ╠═ebd11c9a-7484-11eb-2941-c78e3e22d260
 # ╠═0464d3ec-7489-11eb-1081-d761307263db
 # ╠═94d6f4e6-74ac-11eb-0871-a31b2df5526d
-# ╠═318e4a98-7483-11eb-1916-c9630ecf07e2
+# ╟─318e4a98-7483-11eb-1916-c9630ecf07e2
 # ╠═27ced392-7483-11eb-3d36-7b8277daadff
 # ╠═7e4e66ce-7483-11eb-238e-d15279086f3b
 # ╠═9a7dc4f2-7483-11eb-36be-251be000793e
