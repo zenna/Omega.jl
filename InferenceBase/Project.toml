@@ -1,0 +1,4 @@
+name = "InferenceBase"
+uuid = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
+authors = ["Zenna Tavares <zennatavares@gmail.com>"]
+version = "0.1.0"

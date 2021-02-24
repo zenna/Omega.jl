@@ -1,5 +1,6 @@
-module OmegaRE
+module ReplicaExchange
 
+using Spec
 using Base.Threads: @spawn
 export re!, re_all!, Replica, ReplicaAlg
 
@@ -14,7 +15,10 @@ function swap!(v, i, j)
   v[j] = temp
 end
 
-"Logarithmically spaced temperatures"
+"""
+`logtemps(n, k = 10)`
+`n` logarithmically spaced temperatures from log(1) (ground state) .. "
+"""
 logtemps(n, k = 10) = exp.(k * range(-2.0, stop = 1.0, length = n))
 
 struct PreSwap end
@@ -84,11 +88,8 @@ function re!(rng,
              samples = Vector{typeof(states[1])}(undef, num_swaps*samples_per_swap),
              swap_contexts! = swap_contexts!)
             #  swap = every(div(n, 10)))
-  # @pre length(ctxs) == length(algs)
+  @pre length(logpdfs) == length(states) "Must have one density per initial state"
   nreplicas = length(states)
-  if length(logpdfs) != length(states)
-    error("length(logpdfs) != length(states)")
-  end
 
   GROUNDID = 1
   for num_swap = 1:num_swaps
@@ -97,7 +98,6 @@ function re!(rng,
         # If we're ground state, return swap_every samples
         lb = (num_swap - 1) * samples_per_swap + 1
         ub = lb + samples_per_swap - 1
-        @show lb, ub
         @inbounds samples[lb:ub] = simulate_n(logpdfs[GROUNDID],
                                               states[GROUNDID],
                                               samples_per_swap)
@@ -111,6 +111,10 @@ function re!(rng,
   end
   samples
 end
+
+# re(rng, logpdfs, samples_per_swap, num_swaps, states, simulate_n, simulate_1, evaluates) = 
+
+# dda
 
 function re_all!(rng,
                  logpdfs,
