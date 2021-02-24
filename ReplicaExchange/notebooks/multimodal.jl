@@ -26,7 +26,7 @@ using Plots
 using OmegaMH
 
 # ╔═╡ 9d2f2714-749b-11eb-1403-e3a045df62ca
-using OmegaRE
+using ReplicaExchange
 
 # ╔═╡ ebd11c9a-7484-11eb-2941-c78e3e22d260
 using Random
@@ -78,7 +78,7 @@ end
 rng = Random.MersenneTwister(0)
 
 # ╔═╡ f8e56030-7484-11eb-2bb6-afa2f952b085
-samples = OmegaMH.mh!(rng, target_logdensity, nothing, num_samples, state_init, propose_and_logratio)
+samples = OmegaMH.mh(rng, target_logdensity, num_samples, state_init, propose_and_logratio)
 
 # ╔═╡ 747691fe-7487-11eb-292e-2975ef75e7f0
 Xs = [i[1] for i in samples]
@@ -110,12 +110,11 @@ target_density_hard(state) = pdf(dist_hard, state);
 target_logdensity_hard(state) = logpdf(dist_hard, state);
 
 # ╔═╡ ff1e6132-7488-11eb-3a82-d1e9fa247b42
-samples_hard = OmegaMH.mh!(rng,
-						   target_logdensity_hard,
-						   nothing,
-						   num_samples,
-						   state_init,
-						   propose_and_logratio)
+samples_hard = OmegaMH.mh(rng,
+						  target_logdensity_hard,
+						  num_samples,
+						  state_init,
+						  propose_and_logratio)
 
 # ╔═╡ 519dc07e-7489-11eb-295b-3769fa285c29
 Xs_hard = [i[1] for i in samples_hard]
@@ -148,12 +147,11 @@ temps = [1.0, 2.0, 20.0, 200.0]
 # ╔═╡ e5df8ac4-74a2-11eb-3a36-31d7ac95fba8
 function simulate_n(temp, state, samples_per_swap)
 	relaxed_logdensity = logrelax(target_logdensity_hard, temp)
-	OmegaMH.mh!(rng,
-				relaxed_logdensity,
-				nothing,
-				samples_per_swap,
-				state,
-				propose_and_logratio)
+	OmegaMH.mh(rng,
+			   relaxed_logdensity,
+			   samples_per_swap,
+			   state,
+			   propose_and_logratio)
 end
 
 # ╔═╡ b75ae81e-74a3-11eb-2ac0-efd1a5c21f21
