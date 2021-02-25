@@ -51,3 +51,8 @@ function ids end
 function idtype end
 
 function like end
+
+function subspace end
+
+"`proj(ω, ss)` Project `ω` onto subspace `ss`"
+function proj end

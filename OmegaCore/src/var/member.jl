@@ -30,8 +30,8 @@ if `g = ciid(f, id)` then `g` will be identically distributed with `f`
 but conditionally independent given parents.
 """
 @inline ciid(f, id) = Member(id, f)   
-@inline ciid(f, id::Integer, τ::Type{T} = defID()) where T =
-  ciid(f, singletonid(T, id))
+# @inline ciid(f, id::Integer, τ::Type{T} = defID()) where T =
+#   ciid(f, singletonid(T, id))
 
 "`id ~ f` is an alias for `ciid(f, i)`"
 @inline Base.:~(id, f) = ciid(f, id)

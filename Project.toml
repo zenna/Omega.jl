@@ -4,15 +4,16 @@ authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.1.1"
 
 [deps]
+InferenceBase = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
 OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
 OmegaMH = "89eb2d39-e1f3-436d-870a-9a4679d6d79e"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [compat]
-julia = "1.5"
 OmegaCore = "0.1"
 OmegaMH = "0.1"
 Reexport = "0.2, 1"
+julia = "1.5"
 
 [extras]
 InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"

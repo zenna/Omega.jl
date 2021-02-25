@@ -12,7 +12,9 @@ include("simpleomega.jl")       # Sample Space / Distributions
 include("lazyomega.jl")         # Sample Space / Distributions
 
 # Defaults
-Basis.defΩ(args...) = LazyΩ{EmptyTags, Dict{Any, Any}}
+Basis.defΩ(args...; idtype = defID()) =
+  LazyΩ{EmptyTags, Dict{Any, Any}, idtype}
+  ``
 Basis.defω(args...) = tagrng(defΩ()(), Random.GLOBAL_RNG)
 
 end

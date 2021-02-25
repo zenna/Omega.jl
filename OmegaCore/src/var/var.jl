@@ -10,12 +10,12 @@ function recurse end
 
 include("variable.jl")          # Random / Parametric Variables
 include("member.jl")            # Families
+include("iid.jl")               # Independence
 include("primparam.jl")         # Primitive Parameters
 include("distributions.jl")     # Primitive Distributions
 include("multivariate.jl")      # Multivariate Distributions
 include("constant.jl")          # Constant distribution 
 include("pointwise.jl")         # Point wise variable application
 include("dispatch.jl")          # Contextual application
-
 
 end
