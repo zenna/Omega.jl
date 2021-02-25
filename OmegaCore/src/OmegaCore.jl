@@ -58,7 +58,7 @@ include("solution.jl")               # Satisfy
 @reexport using .Solution
 
 include("logenergy.jl")
-@reexport using .LogEnergy
+@reexport using .LogEnergies
 
 # Basic Inference methods
 # include("fail.jl")              # Fails when conditions are not satisfied

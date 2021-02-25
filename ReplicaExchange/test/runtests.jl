@@ -1,4 +1,4 @@
-using OmegaCore, OmegaMH, OmegaRE, Distributions
+using ReplicaExchange
 
 # FIXME, and rename
 rescale(l, t) = exp(l, t)

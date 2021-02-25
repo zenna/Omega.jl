@@ -1,22 +1,23 @@
 
 import ..Traits
 using ..Traits: Trait
-export Err, LogPdf, Mem, Intervene, Rng, Scope, Cond
+export Err, LogEnergy, Mem, Intervene, Rng, Scope, Cond, Propose
 
 # # Primitive Traits
 struct Err end
-struct LogPdf end
+struct LogEnergy end
 struct Mem end
 struct Intervene end
 struct Rng end
 struct Scope end
 struct Cond end
+struct Propose end
 
 function symtotrait(x::Symbol)
   if x == :err
     Err
-  elseif x == :logpdf
-    LogPdf
+  elseif x == :logenergy
+    LogEnergy
   elseif x == :mem
     Mem
   elseif x == :intervene
@@ -27,6 +28,8 @@ function symtotrait(x::Symbol)
     Scope
   elseif x == :condition
     Cond
+  elseif x == :propose
+    Propose
   else
     error("Unknown trait: $x")
   end

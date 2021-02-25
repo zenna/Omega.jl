@@ -85,6 +85,15 @@ version = "0.1.0"
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
+[[InvolutiveMCMC]]
+deps = ["InferenceBase"]
+git-tree-sha1 = "672c79db5189467d156d7dc700185436b54107e0"
+repo-rev = "lang"
+repo-subdir = "InvolutiveMCMC"
+repo-url = "."
+uuid = "c323a456-bb8a-4a67-8d9f-9ed6a73cde6e"
+version = "0.1.0"
+
 [[JLLWrappers]]
 git-tree-sha1 = "a431f5f2ca3f4feef3bd7a5e94b8b8d4f2f647a0"
 uuid = "692b3bcd-3c85-4b1f-b108-f13ce0eb3210"
@@ -141,7 +150,7 @@ uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 
 [[OmegaCore]]
 deps = ["Distributions", "Future", "Random", "Reexport", "Spec"]
-git-tree-sha1 = "f5f1ccb8b49ce7eb083c9e2e2da640305ecb34d8"
+git-tree-sha1 = "a8481a36155b3f20b44a7d03a2cffe47dc624e2b"
 repo-rev = "lang"
 repo-subdir = "OmegaCore"
 repo-url = "."
@@ -150,7 +159,7 @@ version = "0.1.0"
 
 [[OmegaMH]]
 deps = ["InferenceBase", "OmegaCore"]
-git-tree-sha1 = "08e2ffb0614b30cf5ceee5451079054dc5254d7e"
+git-tree-sha1 = "11483537a2494d59fa151da7178848c3d69291c0"
 repo-rev = "lang"
 repo-subdir = "OmegaMH"
 repo-url = "."
@@ -200,6 +209,15 @@ uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 git-tree-sha1 = "57d8440b0c7d98fc4f889e478e80f268d534c9d5"
 uuid = "189a3867-3050-52da-a836-e630ba90ab69"
 version = "1.0.0"
+
+[[ReplicaExchange]]
+deps = ["InferenceBase", "Spec"]
+git-tree-sha1 = "124d8b5c54a815632d02da75d0b0fb81cc996f30"
+repo-rev = "lang"
+repo-subdir = "ReplicaExchange"
+repo-url = "."
+uuid = "5ad4e244-73e6-47c5-b007-45e12ac3dae1"
+version = "0.1.0"
 
 [[Rmath]]
 deps = ["Random", "Rmath_jll"]

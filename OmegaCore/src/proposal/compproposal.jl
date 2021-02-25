@@ -35,7 +35,7 @@ function subproposals!(qω, f, ω, q::CompProposal)
   ω
 end
 
-function Var.posthook(::trait(LogPdf), ret, f, ω)
+function Var.posthook(::trait(Propose), ret, f, ω)
   @show typeof(f) "GAGAGA!#@@"
   ## Add f to ω, since some proposal might depend on it
   if f in keys(ω.data)
