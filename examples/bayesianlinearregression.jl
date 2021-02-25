@@ -65,8 +65,14 @@ C = 2 ~ Normal(0, 1);
 # ╔═╡ b2cc4db2-76cf-11eb-390d-f151ff4b939d
 plate(i, ω) = linear_model(xs[i], M(ω), C(ω)) + ((i, 1) ~ Normal(0, 0.1))(ω);
 
+# ╔═╡ cf9ad9cc-776c-11eb-3d4e-4f32b65eb6b2
+plate(i, ω, m_, c_) = linear_model(xs[i], m_, c_) + ((i, 1) ~ Normal(0, 0.1))(ω);
+
 # ╔═╡ 3fea6676-7735-11eb-3947-b77b2def96dc
 Y = (1:N) .~ plate  # FIXME: This is not correct notation
+
+# ╔═╡ 945fbdf4-776d-11eb-1bc9-8d273ec39b0b
+
 
 # ╔═╡ 98baf47a-7724-11eb-2cd8-c36d03a11db2
 obs(ω) = [y(ω) for y in Y]
@@ -108,6 +114,8 @@ UnicodePlots.scatterplot(xs, samples)
 # ╠═a9765e1c-76cf-11eb-3495-79aa95e21afd
 # ╠═b2cc4db2-76cf-11eb-390d-f151ff4b939d
 # ╠═3fea6676-7735-11eb-3947-b77b2def96dc
+# ╠═cf9ad9cc-776c-11eb-3d4e-4f32b65eb6b2
+# ╠═945fbdf4-776d-11eb-1bc9-8d273ec39b0b
 # ╠═98baf47a-7724-11eb-2cd8-c36d03a11db2
 # ╠═fa8b5cc2-7728-11eb-24b3-5db1bd7d0255
 # ╠═c32b2f96-76d0-11eb-3f9c-e33cc3a1a7e7

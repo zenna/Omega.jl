@@ -18,20 +18,20 @@ Base.:(==)(m1::Member, m2::Member) =
 
 Base.hash(x::Member) = hash(x.id)
 
-# @inline (x::Member)(ω) = x.f(appendscope(ω, x.id))
 @inline Var.recurse(x::Member, ω) = x.class(x.id, ω)
 
-Base.show(io::IO, x::Member) = print(io, x.id,"@",x.class)
-
 """
-Conditionally independent copy of `f`
+`ciid(f, id)`
 
-if `g = ciid(f, id)` then `g` will be identically distributed with `f`
-but conditionally independent given parents.
+`id`th member of exchangeable sequence `(f_1, f_2, ..., f_n)`
+
+Each element `f_i` is Conditionally independent of all other `f_j` given parents
 """
 @inline ciid(f, id) = Member(id, f)   
-# @inline ciid(f, id::Integer, τ::Type{T} = defID()) where T =
-#   ciid(f, singletonid(T, id))
 
 "`id ~ f` is an alias for `ciid(f, i)`"
 @inline Base.:~(id, f) = ciid(f, id)
+
+## Display
+Base.show(io::IO, x::Member) = print(io, x.id,"@",x.class)
+
