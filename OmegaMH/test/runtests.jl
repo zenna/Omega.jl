@@ -39,6 +39,22 @@ end
 OmegaCore.propose_and_logratio(rng, ω, f, c::CustomProp) = 
   c.f(rng, ω, f)
 
+function manual_proposal(rng = MersenneTwister(0))
+  μ = 1 ~ Normal(0, 1)
+  x = 2 ~ Normal(μ, 1)
+  x_ = 1.234
+  μᵪ = μ |ᶜ x ==ₚ x_
+
+  function prop(rng, ω)
+    ω = update(ω, μ, rand(rng, Normal(ω[μ], 1)))
+    # ω |> update(μ, rand(rng, Normal(ω[μ], 1)))
+    (ω, 0.0)
+  end
+  ωinit = defω()
+  ωinit[μ] = 0.3
+  mh(rng, logpdf, 1000, ωinit, prop)
+end
+
 function custom_proposal(rng = MersenneTwister(0))
   x = 1 ~ Normal(0, 1)
   ϵ = 2 ~ Normal(0, 1)
@@ -55,7 +71,7 @@ function custom_proposal(rng = MersenneTwister(0))
   ωinit = (x = 2.0, ϵ = 1.0, y = 3.0)
   stdnormalpdf(x) = logpdf(Normal(0, 1), x)
   logenergy(ω) = stdnormalpdf(ω.x) + stdnormalpdf(ω.ϵ)
-  samples = mh!(rng, logenergy, 10000, ωinit, prop)
+  samples = mh(rng, logenergy, 10000, ωinit, prop)
 end
 
 # TODO

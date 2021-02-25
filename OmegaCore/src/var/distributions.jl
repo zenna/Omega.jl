@@ -2,9 +2,15 @@ using Distributions
 import Distributions
 using Random: AbstractRNG
 
-export invert, primdist, distapply
-export StdNormal, StdUniform
-export PrimDist, ExoRandVar
+export invert,
+       primdist,
+       distapply,
+       StdNormal,
+       StdUniform,
+       PrimDist,
+       ExoRandVar
+
+## Lifted Operations
 
 "Primitive Distribution"
 abstract type PrimDist end

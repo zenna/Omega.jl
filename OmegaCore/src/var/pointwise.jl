@@ -98,7 +98,6 @@ recurse(p::PwVar{<:Tuple}, ω) =
 
 # # Notation
 
-
 # # Collections
 # @inline randcollection(xs) = ω -> 32(x -> liftapply(x, ω), xs)
 # struct LiftConst end

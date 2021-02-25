@@ -72,6 +72,9 @@ function init_state_plate(id, ω)
   Aircraft((x(ω), y(ω)), (vx(ω), vy(ω)))
 end
 
+# ╔═╡ eefa9a2c-778b-11eb-37d1-c39cc9cc53f7
+
+
 # ╔═╡ 1ff3e3a2-7775-11eb-2c0c-7d255b3404ef
 aircraft(ω) = ω |> (1:num_aircraft(ω) <|ⁿ init_state)
 
@@ -159,6 +162,7 @@ length(traj_sample[1])
 # ╠═aac835ae-7771-11eb-2792-838c80957a3d
 # ╠═9b7cf46a-7776-11eb-1b9c-bb7794afd9dd
 # ╠═ce00d2c4-7776-11eb-1f25-f5eef5704c38
+# ╠═eefa9a2c-778b-11eb-37d1-c39cc9cc53f7
 # ╠═1ff3e3a2-7775-11eb-2c0c-7d255b3404ef
 # ╠═af7af430-7774-11eb-3133-bfe35d03939d
 # ╠═6de7d402-7774-11eb-109d-5f8fb82851c7

@@ -68,6 +68,11 @@ function (exo::Var.ExoRandVar)(ω::LazyΩ)
   end::eltype(newexo.class)
 end
 
+## Updating interface
+
+Basis.update!(ω::LazyΩ, k, v) = (ω[k] = v; ω)
+Basis.update(ω::LazyΩ, k, v) = (ω_ = deepcopy(ω); ω_[k] = v; ω_)
+
 ## Display
 function Base.show(io::IO, m::MIME"text/plain", ω::LazyΩ)
   println(io, typeof(ω))

@@ -39,6 +39,10 @@ export ==ₚ, >=ₚ, <=ₚ, >ₚ, <ₚ, !ₚ, &ₚ, |ₚ, ifelseₚ, +ₚ, -ₚ,
 @inline !ₚ(x) = pw(!, x)
 @inline ifelseₚ(a, b, c) = pw(ifelse, a, b, c)
 
+import Distributions
+# FIXME / justify this
+# Distributions.Normal(μ, σ) = pw(Normal, μ, σ)
+Distributions.Normal(μ, σ) = (id, ω) -> Normal(μ(ω), σ)(id, ω)
 
 #FIXme generalize this
 # Normalₚ(args...) = pw(Distributions.Normal, args...)

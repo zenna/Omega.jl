@@ -1,6 +1,6 @@
-# using Distributions: Multivariate, Distribution
-# # # Multivariate
-# export Mv
+using Distributions: Multivariate, Distribution, Normal
+
+export Mv
 
 # """
 # Multivariate distribution: Random array where each variable is ciid given
@@ -51,9 +51,9 @@
 # Base.rand(rng::AbstractRNG, mv::Mv{<:PrimDist}) = 
 #   rand(rng, mv.dist, mv.shape)
 
-struct Mv2{IDXS, OP, F}
+struct Mv{IDXS, OP, F}
   idxs::IDXS
   op::OP
   f::F
 end
-(mv::Mv2)(ω) = map(i -> mv.op(i, mv.f)(ω), mv.idxs)
+(mv::Mv)(ω) = map(i -> mv.op(i, mv.f)(ω), mv.idxs)
