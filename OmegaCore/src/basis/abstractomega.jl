@@ -60,8 +60,8 @@ function proj end
 ## Updating Interface
 export update
 
-"`update(ω, k, v)` returns ω' which is equvalent to ω except that `ω'[k] = v`"
-function update(ω, k, v) end
+# "`update(ω, k, v)` returns ω' which is equvalent to ω except that `ω'[k] = v`"
+# function update(ω, k, v) end
 
-"Equivalent to setindex!, returns mutated ω"
-function update!(ω, k, v) end
+# "Equivalent to setindex!, returns mutated ω"
+# function update!(ω, k, v) end

@@ -32,27 +32,35 @@ function test_ss_propose(rng = MersenneTwister(0))
   propose(rng, xy, ω, OmegaMH.SSProposal())
 end
 
-struct CustomProp{T}
-  f::T
-end
-
-OmegaCore.propose_and_logratio(rng, ω, f, c::CustomProp) = 
-  c.f(rng, ω, f)
-
-function manual_proposal(rng = MersenneTwister(0))
+function auto_logenergy(rng = MersenneTwister(0))
   μ = 1 ~ Normal(0, 1)
   x = 2 ~ Normal(μ, 1)
-  x_ = 1.234
+  x_ = 3.234
   μᵪ = μ |ᶜ x ==ₚ x_
 
   function prop(rng, ω)
     ω = update(ω, μ, rand(rng, Normal(ω[μ], 1)))
-    # ω |> update(μ, rand(rng, Normal(ω[μ], 1)))
     (ω, 0.0)
   end
   ωinit = defω()
   ωinit[μ] = 0.3
-  mh(rng, logpdf, 1000, ωinit, prop)
+  samples = mh(rng, logenergy, 1000, ωinit, prop)
+end
+
+function manual_proposal(rng = MersenneTwister(0))
+  μ = 1 ~ Normal(0, 1)
+  x = 2 ~ Normal(μ, 1)
+  x_ = 3.234
+  μᵪ = μ |ᶜ x ==ₚ x_
+
+  function prop(rng, ω)
+    ω = update(ω, μ, rand(rng, Normal(ω[μ], 1)))
+    (ω, 0.0)
+  end
+  ωinit = defω()
+  ωinit[μ] = 0.3
+  logenergy(ω) = logpdf(Normal(0, 1), ω[μ]) + logpdf(Normal(ω[μ], 1), x_)
+  samples = mh(rng, logenergy, 1000, ωinit, prop)
 end
 
 function custom_proposal(rng = MersenneTwister(0))

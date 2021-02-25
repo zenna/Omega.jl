@@ -48,7 +48,7 @@ replacetags(ω::LazyΩ, tags) = LazyΩ(ω.data, tags, ω.subspace)
 traits(::Type{LazyΩ{TAGS, T, S}}) where {TAGS, T, S} = traits(TAGS)
 
 Base.setindex!(ω::LazyΩ, value, id) = 
-  ω.data[convertid(idtype(ω), id)] = value
+  ω.data[id] = value
 
 function (exo::Var.ExoRandVar)(ω::LazyΩ)
   # idwhat = 2
@@ -69,9 +69,11 @@ function (exo::Var.ExoRandVar)(ω::LazyΩ)
 end
 
 ## Updating interface
-
-Basis.update!(ω::LazyΩ, k, v) = (ω[k] = v; ω)
-Basis.update(ω::LazyΩ, k, v) = (ω_ = deepcopy(ω); ω_[k] = v; ω_)
+import ..Util:update
+export update, update!
+# export .Util:update
+update!(ω::LazyΩ, k, v) = (ω[k] = v; ω)
+Util.update(ω::LazyΩ, k, v) = (ω_ = deepcopy(ω); ω_[k] = v; ω_)
 
 ## Display
 function Base.show(io::IO, m::MIME"text/plain", ω::LazyΩ)

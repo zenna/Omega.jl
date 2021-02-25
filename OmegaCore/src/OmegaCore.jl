@@ -4,7 +4,7 @@ using Reexport
 using Spec
 
 include("util/util.jl")         # General utilities
-using .Util
+@reexport using .Util
 
 include("traits.jl")
 @reexport using .Traits
@@ -36,6 +36,7 @@ include("interventions/interventions.jl")         # Causal interventions
 include("Higher/higher.jl")            # Higher order inference
 @reexport using .Higher
 
+
 # include("cassette.jl")
 
 include("condition.jl")         # Conditioning variables
@@ -55,6 +56,9 @@ include("proposal/proposal.jl")            # Log density
 
 include("solution.jl")               # Satisfy
 @reexport using .Solution
+
+include("logenergy.jl")
+@reexport using .LogEnergy
 
 # Basic Inference methods
 # include("fail.jl")              # Fails when conditions are not satisfied
