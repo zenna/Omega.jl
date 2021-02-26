@@ -4,15 +4,10 @@ authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.2.0"
 
 [deps]
-InferenceBase = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
-InvolutiveMCMC = "c323a456-bb8a-4a67-8d9f-9ed6a73cde6e"
 OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
-OmegaMH = "89eb2d39-e1f3-436d-870a-9a4679d6d79e"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
-ReplicaExchange = "5ad4e244-73e6-47c5-b007-45e12ac3dae1"
 
 [compat]
-OmegaCore = "0.1"
 Reexport = "0.2, 1"
 julia = "1.5"
 
