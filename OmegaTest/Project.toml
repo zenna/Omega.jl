@@ -4,4 +4,6 @@ authors = ["Zenna Tavares <Zennatavares@gmail.com>"]
 version = "0.1.0"
 
 [deps]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
