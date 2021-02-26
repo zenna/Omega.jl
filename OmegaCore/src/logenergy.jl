@@ -10,9 +10,9 @@ export logenergy, ℓ
 # In the simple case, the values of all the exogenous variables
 # are within ω
 
-"`logenergyexo(ω)` Log energy of `ω`"
+"`logenergyexo(ω)` Log energy of `ω` only on exogenous variables"
 function logenergyexo(ω)
-  reduce(ω.data; init = 0.0) do logpdf_, (id, (dist, val))
+  reduce(ω; init = 0.0) do logpdf_, (dist, val)
     logpdf_ + logpdf(dist, val)
   end
 end
