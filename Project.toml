@@ -1,7 +1,7 @@
 name = "Omega"
 uuid = "1af16e33-887a-59b3-8344-18f1671b3ade"
 authors = ["Zenna Tavares <zennatavares@gmail.com>"]
-version = "0.1.1"
+version = "0.2.0"
 
 [deps]
 InferenceBase = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
