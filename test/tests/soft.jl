@@ -20,9 +20,9 @@ end
 softtest()
 
 function softesttypes()
-  3 <ₛ 5
+  3. <ₛ 5.
   Float32(3) <ₛ Float32(6)
 end
 
-softesttypes()
+# softesttypes()
 end

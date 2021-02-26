@@ -1,9 +1,0 @@
-# This file is machine-generated - editing it directly is not advised
-
-[[InferenceBase]]
-git-tree-sha1 = "a09b7941b06973ee24c2e7bd4141ab8c580e5928"
-repo-rev = "lang"
-repo-subdir = "InferenceBase"
-repo-url = ".."
-uuid = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
-version = "0.1.0"

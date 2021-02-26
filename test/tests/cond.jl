@@ -14,11 +14,3 @@ function testcond()
 end
 
 testcond()
-
-function testcond2()
-  x = cond(poisson(2.0), iseven)
-  xsamples = rand(x, 100, alg = RejectionSample)
-  @test all(iseven, xsamples)
-end
-
-testcond2()

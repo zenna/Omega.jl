@@ -6,7 +6,7 @@ function testrid()
   θ = betarv(2.0, 2.0)
   x = bernoulli(θ)
   ridxθ = Omega.rid(x, θ)
-  mean1, mean2 = rand((θ, lmean(ridxθ)))
+  mean1, mean2 = rand((θ, meanᵣ(ridxθ)))
   @test mean1 == mean2
   ω1 = Omega.rand(defΩ())
   ω2 = Omega.rand(defΩ())
@@ -24,7 +24,7 @@ function testrid2()
   t2 = normal(0.0, 1.0)
   x = normal(t1 + t2, 1.0)
   xrid = rid(x, t1, t2)
-  samples = rand(t1, lmean(xrid) ==ₛ 0.0, 1000; alg = SSMH)
+  samples = rand(t1, meanᵣ(xrid) ==ₛ 0.0, 1000; alg = SSMH)
 end
 
 testrid2()
