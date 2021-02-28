@@ -38,6 +38,7 @@ jobs:
       - uses: julia-actions/julia-runtest@v1
         with:
           project: OmegaCore
+      
       - run: |
         julia --project -e '
           using Pkg
