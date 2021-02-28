@@ -44,7 +44,7 @@ jobs:
 
       # Add OmegaCore to Omega 
       - run: |
-        julia --project -e `
+        julia --project -e '
           using Pkg
           Pkg.add(url = ".", subdir = "OmegaCore")'
       # Build OmegaCore
