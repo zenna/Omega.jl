@@ -25,10 +25,8 @@ end
 """
 `logenergy(rng::AbstractRNG, x, ω)`
 
-Propose `ω::Ω` such that `x(ω)` is well defined with corresnponding proposal probability/density
-
 # Returns
-- `logenergy::Real`
+- joint log probability of
 """
 function logenergy(x, ω)
   ω_ = taglogenergy(ω)
