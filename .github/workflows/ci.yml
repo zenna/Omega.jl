@@ -34,15 +34,10 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
-      # Build OmegaCore
-      
-      # 
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
         with:
           project: OmegaCore
-
-      # Add OmegaCore to Omega 
       - run: |
         julia --project -e '
           using Pkg

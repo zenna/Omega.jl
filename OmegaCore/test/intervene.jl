@@ -197,6 +197,27 @@ function test_intervention_logpdf()
   @test lⁱ < l
 end
 
+function test_self_intervene()
+  p = 0.7
+  q = 0.3
+  E = ~ 1 ~ Bernoulli(p)     # Execution order
+  C = ~ 2 ~ Uniform(0, 1)    # Calmness
+  N = C <ₚ q                  # Nerves
+  A = E |ₚ N                 # A shoots
+  B = E                      # B shoots on order
+  D = A |ₚ B                 # Prisoner Dies
+  cf = (D |ᵈ (A => 0)) |ᶜ D
+  randsample(cf)
+  
+  na1 = D |ᵈ (B => (C <ₚ q))
+  na2 = D |ᵈ (C => C *ₚ 1.2)
+  s = 0.4
+  na3 = D |ᵈ (A => ifelseₚ(3 ~ Bernoulli(s), 0, A))
+  r = 0.8
+  D |ᵈ (A => 0, B => ifelseₚ(3 ~ Bernoulli(r), 0, B))
+
+end
+
 @testset "intervene" begin
   #test_intervention()
   #test_intervene_diff_parents()
