@@ -22,6 +22,6 @@ iid(f, i) = IID(i, f)
 
 @inline i <| f = iid(f, i)
 
-##
-idxs <|ⁿ f = Mv2(idxs, <|, f)
+## Multivariate
+idxs <|ⁿ f = Mv(idxs, <|, f)
 # (mv::Mv)(ω) = map(i -> mv.op(i, ω), m.idxs)

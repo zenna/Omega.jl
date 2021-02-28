@@ -1,11 +1,10 @@
 using OmegaCore
 using Test
-using Spec
 
-@testset begin
+@testset "named tuple" begin
   x = (a = 3, b = 4, c = 12)
-  x_ = OmegaCore.Util.rmkey(x, :a)
-  @test :b ∈ x_
-  @test :c ∈ x_
-  @test :a ∉ x_
+  x_ = OmegaCore.Util.rmkey(x, Val{:a})
+  @test :b ∈ keys(x_)
+  @test :c ∈ keys(x_)
+  @test :a ∉ keys(x_)
 end

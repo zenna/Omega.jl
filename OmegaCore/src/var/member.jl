@@ -1,6 +1,6 @@
 using ..Tagging, ..IDS, ..Traits
 
-export Member
+export Member, ciidn
 # export ~, ciid, Member
 
 # # Conditional Independence
@@ -31,6 +31,8 @@ Each element `f_i` is Conditionally independent of all other `f_j` given parents
 
 "`id ~ f` is an alias for `ciid(f, i)`"
 @inline Base.:~(id, f) = ciid(f, id)
+
+ciidn(f, ids) = Mv(ids, ~, f)
 
 ## Display
 Base.show(io::IO, x::Member) = print(io, x.id,"@",x.class)

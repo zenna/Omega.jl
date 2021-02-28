@@ -56,4 +56,5 @@ struct Mv{IDXS, OP, F}
   op::OP
   f::F
 end
-(mv::Mv)(ω) = map(i -> mv.op(i, mv.f)(ω), mv.idxs)
+# (mv::Mv)(ω) = map(i -> mv.op(i, mv.f)(ω), mv.idxs)
+Var.recurse(mv::Mv, ω) =  map(i -> mv.op(i, mv.f)(ω), mv.idxs)
