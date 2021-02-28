@@ -109,7 +109,7 @@ uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[OmegaCore]]
 deps = ["Distributions", "Future", "Random", "Reexport", "Spec"]
-git-tree-sha1 = "4a6026d4cc2b450b85a2098cbef1b7d1de1fa2d9"
+git-tree-sha1 = "c4301aacfcf607f62663aaf9f8323f78e0b960fc"
 repo-rev = "lang"
 repo-subdir = "OmegaCore"
 repo-url = "."
