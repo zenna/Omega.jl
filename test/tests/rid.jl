@@ -1,12 +1,16 @@
 using Omega
 using Test
 using Statistics: mean
+using Distributions
+
+samplemean(x; n = 1000) = mean(randsample(x, n))
 
 function testrid()
-  θ = betarv(2.0, 2.0)
-  x = bernoulli(θ)
-  ridxθ = Omega.rid(x, θ)
-  mean1, mean2 = rand((θ, meanᵣ(ridxθ)))
+  θ = 1 ~ Beta(2.0, 2.0)
+  x = 2 ~ Bernoulli(θ)
+  ridxθ = rid(x, θ)
+  meandist(ω) = samplemean(ridxθ(ω))
+  mean1, mean2 = randsample((θ, meandist))
   @test mean1 == mean2
   ω1 = Omega.rand(defΩ())
   ω2 = Omega.rand(defΩ())

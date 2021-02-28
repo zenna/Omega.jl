@@ -35,10 +35,19 @@ jobs:
             ${{ runner.os }}-test-
             ${{ runner.os }}-
       # Build OmegaCore
+      
+      # 
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
         with:
           project: OmegaCore
+
+      # Add OmegaCore to Omega 
+      - run: |
+        julia --project -e `
+          using Pkg
+          Pkg.add(url = ".", subdir = "OmegaCore")
+      # Build OmegaCore
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v1

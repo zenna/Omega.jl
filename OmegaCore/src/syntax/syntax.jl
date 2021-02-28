@@ -1,7 +1,7 @@
 module Syntax
 
 using ..OmegaCore.Util: mapf
-using ..OmegaCore.Var: pw
+using ..OmegaCore.Var: pw, liftapply
 using Distributions
 export @joint
 
@@ -42,8 +42,11 @@ export ==ₚ, >=ₚ, <=ₚ, >ₚ, <ₚ, !ₚ, &ₚ, |ₚ, ifelseₚ, +ₚ, -ₚ,
 import Distributions
 # FIXME / justify this
 # Distributions.Normal(μ, σ) = pw(Normal, μ, σ)
-Distributions.Normal(μ, σ) = (id, ω) -> Normal(μ(ω), σ)(id, ω)
+Distributions.Normal(μ, σ) =
+  (id, ω) -> Normal(liftapply(μ, ω), liftapply(σ, ω))(id, ω)
 
+Distributions.Bernoulli(p) =
+  (id, ω) -> Bernoulli(liftapply(p, ω))(id, ω)
 #FIXme generalize this
 # Normalₚ(args...) = pw(Distributions.Normal, args...)
 # Uniformₚ(args...) = pw(Distributions.Uniform, args...)

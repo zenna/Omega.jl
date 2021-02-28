@@ -1,6 +1,6 @@
 export rcd, ∥ₛ, ∥
 """
-    `rcd(x, θ)`
+`rcd(x, θ)`
 
 Random Conditional Distribution of `x` given `Θ`.
 
