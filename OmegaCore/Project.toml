@@ -17,8 +17,8 @@ Spec = "0.2"
 
 [extras]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
-OmegaTest = "1de29bd8-166e-46b2-8642-f181c225c031"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 
 [targets]
-test = ["Test", "Distributions", "OmegaTest"]
+test = ["Test", "Distributions", "Pkg"]

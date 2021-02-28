@@ -1,4 +1,6 @@
 using Test
+using Pkg
+Pkg.develop(path = "../../OmegaTest")
 
 @testset "alltests" begin
   include("typeinfer.jl")
