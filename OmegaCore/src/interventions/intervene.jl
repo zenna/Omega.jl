@@ -1,34 +1,50 @@
 # # Causal interventions
 using ..Var, ..Basis
 export |ᵈ, intervene, mergetags, Intervention
-
+using ..Var: Lift, DontLift, traitlift
 
 abstract type AbstractIntervention end
 
-"The imperative that `x` should be replaced to value `v`"
-struct Intervention{X, V} <: AbstractIntervention
+struct NoIntervention <: AbstractIntervention
+end
+
+abstract type SlightlyLessAbstractIntervention{X, V} <: AbstractIntervention end
+
+"The imperative that `x(ω)` should be replaced with `v(ω)` "
+struct ValueIntervention{X, V} <: SlightlyLessAbstractIntervention{X, V}
   x::X
   v::V
 end
 
-Intervention(x::Pair{X, <:Number}) where X = Intervention(x.first, ω -> x.second)
-Intervention(x::Pair) = Intervention(x.first, x.second)
+"The imperative that `x(ω)`` should be replaced to value `v`"
+struct Intervention{X, V} <: SlightlyLessAbstractIntervention{X, V}
+  x::X
+  v::V
+end
+
+# Intervention(x::Pair{X, <:Number}) where X = Intervention(x.first, ω -> x.second)
+
+# In `x => v`, if we believe `v` is variable then build `Interventon`, otherwise `ValueIntervention`
+intervention(::DontLift, x) = ValueIntervention(x.first, x.second)
+intervention(::Lift, x) = Intervention(x.first, x.second)
+intervention(x::Pair{X, Y}) where {X, Y} = Intervention(traitlift(Y), x)
 
 "Multiple variables intervened"
 struct MultiIntervention{XS} <: AbstractIntervention
   is::XS
 end
 
+"Merge Interventions"
+mergeinterventions(i1::AbstractIntervention, i2::AbstractIntervention) = MultiIntervention((i1, i2))
+mergeinterventions(i1::AbstractIntervention, i2::MultiIntervention) = MultiIntervention((i1, i2.is...))
+mergeinterventions(i1::MultiIntervention, i2::AbstractIntervention) = MultiIntervention((i1.is..., i2))
+mergeinterventions(i1::MultiIntervention, i2::MultiIntervention) = MultiIntervention((i1.is..., i2.is...))
+
 "Intervened Variable: `x` had intervention `i` been the case"
 struct Intervened{X, I}
   x::X
   i::I
 end
-
-"Merge Interventions"
-mergeinterventions(i1::Intervention, i2::Intervention) = MultiIntervention((i1, i2))
-mergeinterventions(i1::Intervention, i2::MultiIntervention) = MultiIntervention((i1, i2.is...))
-mergeinterventions(i1::MultiIntervention, i2::Intervention) = MultiIntervention((i1.is..., i2))
 
 "Merge Intervention Tags"
 function mergetags(nt1::NamedTuple{K1, V1}, nt2::NamedTuple{K2, V2}) where {K1, K2, V1, V2}
@@ -41,8 +57,18 @@ end
 
 "intervened"
 intervene(x, intervention::AbstractIntervention) = Intervened(x, intervention)
-intervene(x, intervention::Pair) = Intervened(x, Intervention(intervention))
+intervene(x, p::Pair) = Intervened(x, intervention(p))
 intervene(x, interventions::Tuple) =
-  Intervened(x, MultiIntervention(map(Intervention, interventions)))
+  Intervened(x, MultiIntervention(map(intervention, interventions)))
 
 @inline x |ᵈ i = intervene(x, i)
+
+## Display
+function Base.show(io::IO, xi::SlightlyLessAbstractIntervention)
+  print(io, x.v, " => ", x.v)
+end
+
+function Base.show(io::IO, xi::Intervened)
+  print(io, xi.x, " ¦ ", xi.i)
+end
+

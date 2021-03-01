@@ -16,6 +16,9 @@ struct NotHasTag{T} end
 "`tag(x, tags)` tag value `x` with tags `tags`"
 function tag end
 
+"`tags(x)` tags of `x`"
+function tags end
+
 """
 Trait function -- `traithastag(t, Val{:sometag})` returns `HasTag{:sometag}`
 if `t` has that tag or `NotHasTag{:sometag}` otherwise

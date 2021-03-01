@@ -30,7 +30,9 @@ updatetag(ω::AbstractΩ, tag, val) =
 traithastag(t::AbstractΩ, tag) = traithastag(t.tags, tag)
 hastag(ω::AbstractΩ, tag) = hastag(ω.tags, tag)
 
-traits(ω::AbstractΩ) = traits(ω.tags) # FIXME: Do this at the type level
+traits(ω::AbstractΩ) = traits(tags(ω)) # FIXME: Do this at the type level
+
+# function tags end
 
 # # Defaults
 "Default sample space"
@@ -59,7 +61,6 @@ function proj end
 
 ## Updating Interface
 export update
-
 # "`update(ω, k, v)` returns ω' which is equvalent to ω except that `ω'[k] = v`"
 # function update(ω, k, v) end
 
