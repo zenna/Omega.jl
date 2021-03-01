@@ -210,12 +210,15 @@ function test_self_intervene()
   randsample(cf)
   
   na1 = D |ᵈ (B => (C <ₚ q))
+  randsample(na1)
   na2 = D |ᵈ (C => C *ₚ 1.2)
+  randsample(na2)
   s = 0.4
   na3 = D |ᵈ (A => ifelseₚ(3 ~ Bernoulli(s), 0, A))
+  randsample(na3)
   r = 0.8
-  D |ᵈ (A => 0, B => ifelseₚ(3 ~ Bernoulli(r), 0, B))
-
+  na4 = D |ᵈ (A => 0, B => ifelseₚ(3 ~ Bernoulli(r), 0, B))
+  randsample(na4)
 end
 
 @testset "intervene" begin
@@ -231,4 +234,5 @@ end
   test_merge_4()
   test_changed_rettype_merge()
   test_merge_more_than_5_interventions()
+  test_self_intervene()
 end 
