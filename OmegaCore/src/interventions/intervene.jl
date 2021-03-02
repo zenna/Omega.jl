@@ -25,9 +25,9 @@ end
 # Intervention(x::Pair{X, <:Number}) where X = Intervention(x.first, ω -> x.second)
 
 # In `x => v`, if we believe `v` is variable then build `Interventon`, otherwise `ValueIntervention`
-intervention(::DontLift, x) = ValueIntervention(x.first, x.second)
-intervention(::Lift, x) = Intervention(x.first, x.second)
-intervention(x::Pair{X, Y}) where {X, Y} = Intervention(traitlift(Y), x)
+smibtervention(::DontLift, x) = ValueIntervention(x.first, x.second)
+smibtervention(::Lift, x) = Intervention(x.first, x.second)
+smibtervention(x::Pair{X, Y}) where {X, Y} = smibtervention(traitlift(Y), x)
 
 "Multiple variables intervened"
 struct MultiIntervention{XS} <: AbstractIntervention
@@ -57,15 +57,15 @@ end
 
 "intervened"
 intervene(x, intervention::AbstractIntervention) = Intervened(x, intervention)
-intervene(x, p::Pair) = Intervened(x, intervention(p))
+intervene(x, p::Pair) = Intervened(x, smibtervention(p))
 intervene(x, interventions::Tuple) =
-  Intervened(x, MultiIntervention(map(intervention, interventions)))
+  Intervened(x, MultiIntervention(map(smibtervention, interventions)))
 
 @inline x |ᵈ i = intervene(x, i)
 
 ## Display
-function Base.show(io::IO, xi::SlightlyLessAbstractIntervention)
-  print(io, x.v, " => ", x.v)
+function Base.show(io::IO, x::SlightlyLessAbstractIntervention)
+  print(io, x.x, " => ", x.v)
 end
 
 function Base.show(io::IO, xi::Intervened)

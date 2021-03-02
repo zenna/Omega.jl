@@ -1,27 +1,33 @@
-using ..Tagging, ..Traits, ..Var, ..Space
+using ..Tagging, ..Traits, ..Var, ..Space, ..Basis
 # @inline hasintervene(ω) = hastag(ω, Val{:intervene})
 
-ictx(traits::trait(Intervene), ω) = ω.tags.intervene
-ictx(traits, ω) = NoIntervention()
-ictx(ω) = uctx(traits(ω), ω)
+# struct NoInterventionCtx end
+
+@inline ictx(traits::trait(Intervene), ω) = ω.tags.intervene
+@inline ictx(traits, ω) = NoIntervention()
+@inline ictx(ω) = ictx(traits(ω), ω)
 
 @inline tagintervene(ω, intervention) =
-  tag(ω, (intervene = (intervention = intervention, intctx = ictx(ω)), mergetags))
+  tag(ω, (intervene = (intervention = @show(intervention), intctx = ictx(ω),),), mergetags)
+
 @inline (x::Intervened)(ω) = x.x(tagintervene(ω, x.i))
-@inline (x::Intervened{X, <:HigherIntervention})(ω) where X =
+@inline (x::Intervened{X, <: HigherIntervention})(ω) where X =
   x.x(tagintervene(ω, x.i(ω)))
 
-replaceintctx(ω, intctx)
+replaceintervene(ω, intctx) = mergetag(ω, (intervene = intctx,))
+rmintervention(ω) = Basis.rmtag(ω, Val{:intervene})
 
 @inline applyintervention(i::ValueIntervention, ω, intctx) = i.v 
-@inline applyintervention(i::Intervention, ω, intctx) = i.v(replaceintctx(ω, intctx))
+@inline applyintervention(i::Intervention, ω, intctx) = i.v(replaceintervene(ω, intctx))
+@inline applyintervention(i::Intervention, ω, intctx::NoIntervention) = i.v(rmintervention(ω))
 
 @inline function passintervene(traits, i::Intervention{X, V}, intctx, x::X, ω) where {X, V}
   # If the variable ` x` to be applied to ω is the variable to be replaced
   # then replace it, and apply its replacement to ω instead.
   # Othewise proceed as normally
   if i.x == x
-    i.v(replacetags(ω, intctx))
+    applyintervention(i, ω, intctx)
+    # i.v(replacetags(ω, intctx))
   else
     ctxapply(traits, x, ω)
   end
@@ -35,24 +41,29 @@ end
   end
 end
 
+# @inline function passintervene(traits, i::ValueIntervention{X, V}, intctx, x::X2, ω) where {X, X2, V}
+#   @show X, X2
+#   @assert false
+# end
+
 function passintervene(traits,
-                       i::Union{MultiIntervention{Tuple{SlightlyLessAbstractIntervention{X1, V1},
-                                                        SlightlyLessAbstractIntervention{X2, V2}}},
-                                MultiIntervention{Tuple{SlightlyLessAbstractIntervention{X1, V1},
-                                                        SlightlyLessAbstractIntervention{X2, V2},
-                                                        SlightlyLessAbstractIntervention{X3, V3}}},
-                                MultiIntervention{Tuple{SlightlyLessAbstractIntervention{X1, V1},
-                                                        SlightlyLessAbstractIntervention{X2, V2},
-                                                        SlightlyLessAbstractIntervention{X3, V3},
-                                                        SlightlyLessAbstractIntervention{X4, V4}}},
-                                MultiIntervention{Tuple{SlightlyLessAbstractIntervention{X1, V1},
-                                                        SlightlyLessAbstractIntervention{X2, V2},
-                                                        SlightlyLessAbstractIntervention{X3, V3},
-                                                        SlightlyLessAbstractIntervention{X4, V4},
-                                                        SlightlyLessAbstractIntervention{X5, V5}}}},
+                       i::Union{MultiIntervention{Tuple{I1{X1, V1},
+                                                        I2{X2, V2}}},
+                                MultiIntervention{Tuple{I3{X1, V1},
+                                                        I4{X2, V2},
+                                                        I5{X3, V3}}},
+                                MultiIntervention{Tuple{I6{X1, V1},
+                                                        I7{X2, V2},
+                                                        I8{X3, V3},
+                                                        I9{X4, V4}}},
+                                MultiIntervention{Tuple{I10{X1, V1},
+                                                        I11{X2, V2},
+                                                        I12{X3, V3},
+                                                        I13{X4, V4},
+                                                        I14{X5, V5}}}},
                        intctx,
                        x::Union{X1, X2, X3, X4, X5},
-                       ω) where {X1, X2, X3, X4, X5, V1, V2, V3, V4, V5}
+                       ω) where {I1, I2, I3, I4, I5, I6, I7, I8, I9, I10, I11, I12, I13, I14, X1, X2, X3, X4, X5, V1, V2, V3, V4, V5}
   if x == i.is[1].x
     # i.is[1].v(ω)
     applyintervention(i.is[1], ω, intctx)
@@ -73,12 +84,35 @@ function passintervene(traits,
   end
 end
 
+function smug(
+  i::Union{MultiIntervention{Tuple{A,
+                                   B, }}},
+  x) where {A <: SlightlyLessAbstractIntervention, B <:SlightlyLessAbstractIntervention}
+  @assert false
+end
+
+struct T{A}
+  a::A
+end
+
+function g(::T{Tuple{<:Real, <:Real}})
+  3
+end
+
+function h(::T{Tuple{A, B}}) where {A, B}
+  3
+end
+
 function passintervene(traits,
                        i::MultiIntervention{XS},
                        tags,
                        x,
                        ω) where XS
   index = 1;
+  @show length(i.is)
+  @show typeof(i)
+  @show typeof(x)
+  smug(i, 6) 
   while (index <= length(i.is) && x != i.is[index].x)
     index += 1
   end
@@ -91,7 +125,7 @@ end
 
 
 # We only consider intervention if the intervention types match
-@inline passintervene(traits, i::AbstractIntervention, x, ω) =
+@inline passintervene(traits, i::AbstractIntervention, intctx, x, ω) =
   ctxapply(traits, x, ω)
 
 (f::Vari)(traits::trait(Intervene), ω::AbstractΩ) = 

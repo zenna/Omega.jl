@@ -1,5 +1,5 @@
 import ..Tagging: hastag, traithastag, tag, mergetag
-import ..Util: mergef
+import ..Util: mergef, rmkey
 import ..Traits: traits
 export AbstractΩ, defΩ, defω, resolve, idtype, replacetags, like
 
@@ -30,7 +30,7 @@ updatetag(ω::AbstractΩ, tag, val) =
 traithastag(t::AbstractΩ, tag) = traithastag(t.tags, tag)
 hastag(ω::AbstractΩ, tag) = hastag(ω.tags, tag)
 
-traits(ω::AbstractΩ) = traits(tags(ω)) # FIXME: Do this at the type level
+traits(ω::AbstractΩ) = traits(ω.tags) # FIXME: Do this at the type level
 
 # function tags end
 

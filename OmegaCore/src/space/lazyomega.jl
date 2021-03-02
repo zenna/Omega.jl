@@ -47,6 +47,8 @@ Basis.proj(ω::LazyΩ{TAGS, T, S}, ss) where {TAGS, T, S} =
 replacetags(ω::LazyΩ, tags) = LazyΩ(ω.data, tags, ω.subspace)
 traits(::Type{LazyΩ{TAGS, T, S}}) where {TAGS, T, S} = traits(TAGS)
 
+Tagging.mergetag(ω::LazyΩ, tag) = LazyΩ(ω.data, merge(ω.tags, tag), ω.subspace)
+
 Tagging.tags(ω::LazyΩ) = ω.tags
 
 Base.setindex!(ω::LazyΩ, value, id) = 
