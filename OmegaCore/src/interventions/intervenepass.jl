@@ -11,14 +11,29 @@ function mergetags(nt1::NamedTuple{K1, V1}, nt2::NamedTuple{K2, V2}) where {K1, 
   end
 end
 
+# if w already has intervention 
+#     merge the interventions
+#     ctx is old intervention
+# else
+#   new intervention
+# end
 
-@inline ictx(traits::trait(Intervene), ω) = ω.tags.intervene
-@inline ictx(traits, ω) = NoIntervention()
-@inline ictx(ω) = ictx(traits(ω), ω)
 
-# 
+# @inline ictx(traits::trait(Intervene), ω) = ω.tags.intervene
+# @inline ictx(traits, ω) = NoIntervention()
+# @inline ictx(ω) = ictx(traits(ω), ω)
+
+@inline tagintervene(::trait(Intervene), ω, intervention) =
+  let i = mergeinterventions(intervention, ω.tags.intervene.intervention)
+    mergetag(ω, (intervene = (intervention = i, intctx = ω.tags.intervene),))
+  end
+
+@inline tagintervene(trait, ω, intervention) =
+  mergetag(ω, (intervene = (intervention = intervention, intctx = NoIntervention()),))
+
 @inline tagintervene(ω, intervention) =
-  tag(ω, (intervene = (intervention = intervention, intctx = ictx(ω),),), mergetags)
+  tagintervene(traits(ω), ω, intervention)
+  # tag(ω, (intervene = (intervention = intervention, intctx = ictx(ω),),), mergetags)
 
 @inline (x::Intervened)(ω) = x.x(tagintervene(ω, x.i))
 @inline (x::Intervened{X, <: HigherIntervention})(ω) where X =
@@ -94,36 +109,12 @@ function passintervene(traits,
   end
 end
 
-function smug(
-  i::Union{MultiIntervention{Tuple{A,
-                                   B, }}},
-  x) where {A <: SlightlyLessAbstractIntervention, B <:SlightlyLessAbstractIntervention}
-  @assert false
-end
-
-struct T{A}
-  a::A
-end
-
-function g(::T{Tuple{<:Real, <:Real}})
-  3
-end
-
-function h(::T{Tuple{A, B}}) where {A, B}
-  3
-end
-
 function passintervene(traits,
                        i::MultiIntervention{XS},
                        tags,
                        x,
                        ω) where XS
-  # index = 1;
-  # @show length(i.is)
-  # @show typeof(i)
-  # @show typeof(x)
-
-  # smug(i, 6) 
+  index = 1;
   while (index <= length(i.is) && x != i.is[index].x)
     index += 1
   end
