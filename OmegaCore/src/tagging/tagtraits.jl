@@ -37,7 +37,6 @@ end
 
 @generated function Traits.traits(k::Tags{K, V}) where {K, V}
   traits_ = map(symtotrait, K)
-  Core.println(traits_)
   Trait{Union{traits_...}}()
 end
 

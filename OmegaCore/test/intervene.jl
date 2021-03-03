@@ -214,13 +214,14 @@ function test_self_intervene()
   na2 = D |ᵈ (C => C *ₚ 1.2)
   @test isinferred(randsample, na2)
   s = 0.4
-  na3 = D |ᵈ (A => ifelseₚ(3 ~ Bernoulli(s), 0, A))
+  na3 = D |ᵈ (A => ω -> ifelse((3 ~ Bernoulli(s))(ω), false, A(ω)))
   @test isinferred(randsample, na3)
   r = 0.8
-  na4 = D |ᵈ (A => 0, B => ifelseₚ(3 ~ Bernoulli(r), 0, B))
+  na4 = D |ᵈ (A => false, B => ifelseₚ(3 ~ Bernoulli(r), false, B))
   # ω = def\
   @test isinferred(randsample, na4)
 end
+
 
 @testset "intervene" begin
   test_intervention()
@@ -228,7 +229,7 @@ end
   test_two_interventions()
   test_three_interventions()
   # test_intervention_logpdf()
-  test_mergetags()
+  # test_mergetags()
   test_merge_1()
   test_merge_2()
   test_merge_3()
