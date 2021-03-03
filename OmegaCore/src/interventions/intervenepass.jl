@@ -1,28 +1,6 @@
 using ..Tagging, ..Traits, ..Var, ..Space, ..Basis
 # @inline hasintervene(ω) = hastag(ω, Val{:intervene})
 
-# struct NoInterventionCtx end
-"Merge Intervention Tags"
-function mergetags(nt1::NamedTuple{K1, V1}, nt2::NamedTuple{K2, V2}) where {K1, K2, V1, V2}
-  if K1 ∩ K2 == [:intervene]    
-    merge(merge(nt1, nt2), (intervene = mergeinterventions(nt2[:intervene], nt1[:intervene]),))
-  else
-    @assert false "Unimplemented"
-  end
-end
-
-# if w already has intervention 
-#     merge the interventions
-#     ctx is old intervention
-# else
-#   new intervention
-# end
-
-
-# @inline ictx(traits::trait(Intervene), ω) = ω.tags.intervene
-# @inline ictx(traits, ω) = NoIntervention()
-# @inline ictx(ω) = ictx(traits(ω), ω)
-
 @inline tagintervene(::trait(Intervene), ω, intervention) =
   let i = mergeinterventions(intervention, ω.tags.intervene.intervention)
     mergetag(ω, (intervene = (intervention = i, intctx = ω.tags.intervene),))

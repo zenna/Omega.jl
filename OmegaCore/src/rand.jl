@@ -1,6 +1,6 @@
 module Rand
 
-export rvx
+export rv
 
 tagrand(ω, i = UInt(0)) = 
   tag(ω, (rand = Box(i),))
