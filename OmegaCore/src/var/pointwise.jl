@@ -2,7 +2,6 @@
 
 using ..Var
 export pw, l, dl, ₚ, PwVar, liftapply
-
  
 """
 Pointwise application.
@@ -81,23 +80,12 @@ traitlift(::Type{<:DontLiftBox}) = DontLift()
 
 recurse(p::PwVar{Tuple{T1}}, ω) where {T1} =
   p.f(liftapply(p.args[1], ω))
-# recurse(p::PwVar{Tuple{T1}})(id, ω) where {T1} =
-#   p.f(liftapply(p.args[1], ω))(id, ω)
 
 recurse(p::PwVar{Tuple{T1, T2}}, ω) where {T1, T2} =
   p.f(liftapply(p.args[1], ω), liftapply(p.args[2], ω))
-# recurse(p::PwVar{Tuple{T1, T2}})(id, ω) where {T1, T2} =
-#   p.f(liftapply(p.args[1], ω), liftapply(p.args[2], ω))(id, ω)
-
-# Normal(x(ω), y(ω))(id, ω)
-
-# recurse(p::PwVar{<:Tuple}, ω) =
-#   p.f((liftapply(arg, ω) for arg in p.args)...)
 
 recurse(p::PwVar{<:Tuple}, ω) =
   p.f(map(arg -> liftapply(arg, ω), p.args)...)
-# recurse(p::PwVar{<:Tuple})(id, ω) =
-#   p.f(id, (liftapply(arg, ω) for arg in p.args)...)
 
 # # Notation
 
