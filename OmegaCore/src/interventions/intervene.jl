@@ -46,14 +46,6 @@ struct Intervened{X, I}
   i::I
 end
 
-"Merge Intervention Tags"
-function mergetags(nt1::NamedTuple{K1, V1}, nt2::NamedTuple{K2, V2}) where {K1, K2, V1, V2}
-  if K1 ∩ K2 == [:intervene]    
-    merge(merge(nt1, nt2), (intervene = mergeinterventions(nt2[:intervene], nt1[:intervene]),))
-  else
-    @assert false "Unimplemented"
-  end
-end
 
 "intervened"
 intervene(x, intervention::AbstractIntervention) = Intervened(x, intervention)

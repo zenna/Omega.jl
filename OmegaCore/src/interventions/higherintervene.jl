@@ -18,7 +18,7 @@ on the variable it points to.
 using OmegaCore, Distributions
 μ = 1 ~ Normal(0, 1)
 σ = 2 ~ Uniform(1, 3)
-y(ω) = (3 ~ Normal(μ(ω), σ(ω)))(ω)
+y = 3 ~ Normal(μ, σ)
 choice(ω) = ifelse((4 ~ Bernoulli(0.5))(ω), μ, σ)
 int_dist(ω) = Intervention(choice(ω) => 5.0)
 

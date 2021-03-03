@@ -2,13 +2,23 @@ using ..Tagging, ..Traits, ..Var, ..Space, ..Basis
 # @inline hasintervene(ω) = hastag(ω, Val{:intervene})
 
 # struct NoInterventionCtx end
+"Merge Intervention Tags"
+function mergetags(nt1::NamedTuple{K1, V1}, nt2::NamedTuple{K2, V2}) where {K1, K2, V1, V2}
+  if K1 ∩ K2 == [:intervene]    
+    merge(merge(nt1, nt2), (intervene = mergeinterventions(nt2[:intervene], nt1[:intervene]),))
+  else
+    @assert false "Unimplemented"
+  end
+end
+
 
 @inline ictx(traits::trait(Intervene), ω) = ω.tags.intervene
 @inline ictx(traits, ω) = NoIntervention()
 @inline ictx(ω) = ictx(traits(ω), ω)
 
+# 
 @inline tagintervene(ω, intervention) =
-  tag(ω, (intervene = (intervention = @show(intervention), intctx = ictx(ω),),), mergetags)
+  tag(ω, (intervene = (intervention = intervention, intctx = ictx(ω),),), mergetags)
 
 @inline (x::Intervened)(ω) = x.x(tagintervene(ω, x.i))
 @inline (x::Intervened{X, <: HigherIntervention})(ω) where X =
@@ -47,23 +57,23 @@ end
 # end
 
 function passintervene(traits,
-                       i::Union{MultiIntervention{Tuple{I1{X1, V1},
-                                                        I2{X2, V2}}},
-                                MultiIntervention{Tuple{I3{X1, V1},
-                                                        I4{X2, V2},
-                                                        I5{X3, V3}}},
-                                MultiIntervention{Tuple{I6{X1, V1},
-                                                        I7{X2, V2},
-                                                        I8{X3, V3},
-                                                        I9{X4, V4}}},
-                                MultiIntervention{Tuple{I10{X1, V1},
-                                                        I11{X2, V2},
-                                                        I12{X3, V3},
-                                                        I13{X4, V4},
-                                                        I14{X5, V5}}}},
-                       intctx,
-                       x::Union{X1, X2, X3, X4, X5},
-                       ω) where {I1, I2, I3, I4, I5, I6, I7, I8, I9, I10, I11, I12, I13, I14, X1, X2, X3, X4, X5, V1, V2, V3, V4, V5}
+  i::Union{MultiIntervention{<:Tuple{SlightlyLessAbstractIntervention{X1, V1},
+                                   SlightlyLessAbstractIntervention{X2, V2}}},
+           MultiIntervention{<:Tuple{SlightlyLessAbstractIntervention{X1, V1},
+                                   SlightlyLessAbstractIntervention{X2, V2},
+                                   SlightlyLessAbstractIntervention{X3, V3}}},
+           MultiIntervention{<:Tuple{SlightlyLessAbstractIntervention{X1, V1},
+                                   SlightlyLessAbstractIntervention{X2, V2},
+                                   SlightlyLessAbstractIntervention{X3, V3},
+                                   SlightlyLessAbstractIntervention{X4, V4}}},
+           MultiIntervention{<:Tuple{SlightlyLessAbstractIntervention{X1, V1},
+                                   SlightlyLessAbstractIntervention{X2, V2},
+                                   SlightlyLessAbstractIntervention{X3, V3},
+                                   SlightlyLessAbstractIntervention{X4, V4},
+                                   SlightlyLessAbstractIntervention{X5, V5}}}},
+  intctx,
+  x::Union{X1, X2, X3, X4, X5},
+                       ω) where {X1, X2, X3, X4, X5, V1, V2, V3, V4, V5}
   if x == i.is[1].x
     # i.is[1].v(ω)
     applyintervention(i.is[1], ω, intctx)
@@ -72,7 +82,7 @@ function passintervene(traits,
     applyintervention(i.is[2], ω, intctx)
   elseif length(i.is) >= 3 && x == i.is[3].x
     # i.is[3].v(ω)
-    applyintervention(i.is[2], ω, intctx)
+    applyintervention(i.is[3], ω, intctx)
   elseif length(i.is) >= 4 && x == i.is[4].x 
     # i.is[4].v(ω)
     applyintervention(i.is[4], ω, intctx)
@@ -108,11 +118,12 @@ function passintervene(traits,
                        tags,
                        x,
                        ω) where XS
-  index = 1;
-  @show length(i.is)
-  @show typeof(i)
-  @show typeof(x)
-  smug(i, 6) 
+  # index = 1;
+  # @show length(i.is)
+  # @show typeof(i)
+  # @show typeof(x)
+
+  # smug(i, 6) 
   while (index <= length(i.is) && x != i.is[index].x)
     index += 1
   end

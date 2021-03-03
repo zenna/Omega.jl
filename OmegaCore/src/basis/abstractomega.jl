@@ -12,15 +12,12 @@ export AbstractΩ, defΩ, defω, resolve, idtype, replacetags, like
 abstract type AbstractΩ end
 
 # # Tags
-"""
-`tag(ω::AbstractΩ, tags)`
-
-tag `ω` with `tags`.
-"""
+"`tag(ω::AbstractΩ, tags)` tag `ω` with `tags`."
 function tag(ω::AbstractΩ, tags, mergefunc=mergetag)
   replacetags(ω, mergef(mergefunc, ω.tags, tags))
 end
 
+"`rmtag(ω::AbstractΩ, tag)` remove `tag` from `ω`"
 rmtag(ω::AbstractΩ, tag) =
   replacetags(ω, rmkey(ω.tags, tag))
 

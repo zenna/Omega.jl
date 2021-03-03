@@ -207,16 +207,16 @@ function test_self_intervene()
   B = E                      # B shoots on order
   D = A |ₚ B                 # Prisoner Dies
   cf = (D |ᵈ (A => 0)) |ᶜ D
-  randsample(cf)
+  # randsample(cf)
   
-  na1 = D |ᵈ (B => (C <ₚ q))
-  randsample(na1)
-  na2 = D |ᵈ (C => C *ₚ 1.2)
-  randsample(na2)
-  s = 0.4
-  na3 = D |ᵈ (A => ifelseₚ(3 ~ Bernoulli(s), 0, A))
-  randsample(na3)
-  r = 0.8
+  # na1 = D |ᵈ (B => (C <ₚ q))
+  # randsample(na1)
+  # na2 = D |ᵈ (C => C *ₚ 1.2)
+  # randsample(na2)
+  # s = 0.4
+  # na3 = D |ᵈ (A => ifelseₚ(3 ~ Bernoulli(s), 0, A))
+  # randsample(na3)
+  # r = 0.8
   na4 = D |ᵈ (A => 0, B => ifelseₚ(3 ~ Bernoulli(r), 0, B))
   randsample(na4)
 end
