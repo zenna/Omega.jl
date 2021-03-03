@@ -91,8 +91,11 @@ recurse(p::PwVar{Tuple{T1, T2}}, ω) where {T1, T2} =
 
 # Normal(x(ω), y(ω))(id, ω)
 
+# recurse(p::PwVar{<:Tuple}, ω) =
+#   p.f((liftapply(arg, ω) for arg in p.args)...)
+
 recurse(p::PwVar{<:Tuple}, ω) =
-  p.f((liftapply(arg, ω) for arg in p.args)...)
+  p.f(map(arg -> liftapply(arg, ω), p.args)...)
 # recurse(p::PwVar{<:Tuple})(id, ω) =
 #   p.f(id, (liftapply(arg, ω) for arg in p.args)...)
 
