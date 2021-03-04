@@ -1,6 +1,6 @@
 
 # const ID = Int
-const VectorID = Vector{Int}
+const VectorID = Vector{Int64}
 
 @inline base(::Type{Vector{T}}) where T = T[]
 

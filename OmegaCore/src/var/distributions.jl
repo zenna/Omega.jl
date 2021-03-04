@@ -23,16 +23,20 @@ Base.eltype(::Type{StdNormal{T}}) where T = T
 Distributions.logpdf(::StdNormal{T}, x) where T =
   Distributions.logpdf(Normal(zero(T), one(T)), x)
 Base.rand(rng::AbstractRNG, ::StdNormal{T}) where {T} = rand(rng, Normal(zero(T), one(T)))
+(stdn::StdNormal{T})(id, ω) where T = Member(id, stdn)(ω)
 
 # This is called from dispatch
 @inline (d::Normal{T})(id, ω) where T =
   Member(id, StdNormal{T}())(ω) * d.σ + d.μ
 
+# # StdUniform
 
 struct StdUniform{T} <: PrimDist end
 Base.eltype(::Type{StdUniform{T}}) where T = T
 Base.rand(rng::AbstractRNG, ::StdUniform{T}) where T = 
   rand(rng, Uniform(zero(T), one(T)))
+(stdu::StdUniform{T})(id, ω) where T = Member(id, stdu)(ω)
+
 # @inline Space.recurse(d::Distribution, id, ω) =
 #   quantile(d, resolve(StdUniform(), id, ω))
 

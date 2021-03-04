@@ -36,6 +36,8 @@ include("interventions/interventions.jl")         # Causal interventions
 include("Higher/higher.jl")            # Higher order inference
 @reexport using .Higher
 
+include("rand.jl")            # Higher order inference
+@reexport using .Rand
 
 # include("cassette.jl")
 
