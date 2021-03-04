@@ -9,7 +9,7 @@ export PrimitiveParam, Param
 # These are primitive parameters.
 
 abstract type PrimitiveParam end
-(pp::PrimitiveParam)(id, ω) = ω[Member(id, p)]
+(pp::PrimitiveParam)(id, ω) = ω[Member(id, pp)]
 
 "Nondeterministic choice of true or false"
 struct BinaryChoice{T <: Integer} <: PrimitiveParam end
