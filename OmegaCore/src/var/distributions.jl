@@ -23,7 +23,7 @@ Base.eltype(::Type{StdNormal{T}}) where T = T
 Distributions.logpdf(::StdNormal{T}, x) where T =
   Distributions.logpdf(Normal(zero(T), one(T)), x)
 Base.rand(rng::AbstractRNG, ::StdNormal{T}) where {T} = rand(rng, Normal(zero(T), one(T)))
-(stdn::StdNormal{T})(id, ω) where T = Member(id, stdn)(ω)
+(stdn::StdNormal{T})(id, ω) where T = Member(id, std)(ω)
 
 # This is called from dispatch
 @inline (d::Normal{T})(id, ω) where T =

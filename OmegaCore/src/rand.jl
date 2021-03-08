@@ -43,7 +43,6 @@ rv(x) = ω -> x(tagrand(ω))
 
 @inline a(id, ::typeof(rand), ω, ::Type{X} = Float64) where {X} = StdUniform{X}()(id, ω)
 @inline a(id, ::typeof(randn), ω, ::Type{X} = Float64) where {X} = StdNormal{X}()(id, ω)
-# a(id, ::typeof(rand), ω) = StdUnif(id, ω)
 
 @inline wow(::trait(RandMutate), randf, ω, args...) =
   let x = a(counter(ω), randf, ω, args...)
@@ -51,8 +50,6 @@ rv(x) = ω -> x(tagrand(ω))
     x
   end
 
-# Base.rand(::trait(RandMutate), ω, ::Type{X} = Float64) where X =let x_ = StdUnif(counter(ω), ω); inc!(ω); x end
-# Base.randn(::trait(RandMutate), ω) = let x_ = StdNormal(counter(ω), ω); inc!(ω); x end
 Base.rand(ω::AbstractΩ, args...) = wow(traits(ω), rand, ω, args...)
 Base.randn(ω::AbstractΩ, args...) = wow(traits(ω), rand, ω, args...)
 
@@ -61,8 +58,5 @@ Base.randn(ω::AbstractΩ, args...) = wow(traits(ω), rand, ω, args...)
 # Random.randstring
 # Random.randsubseq
 # Random.randcycle
-
-# a(id, ω) = StdNormal(id, ω)
-# Base.rand(::trait(Rand), ω, ::Distribution) = let x_ = StdNormal(counter(ω), ω); inc!(ω); x end
 
 end
