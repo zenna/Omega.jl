@@ -5,6 +5,7 @@ function testvar()
   n = 1 ~ Choice(1:10)
   μ = [(2, i) ~ Normal(0, 1) for i = 1:n]
   s = sum(μ)
+  argmax(s ∥ n, l)
 end
 
 function testmaxmean()

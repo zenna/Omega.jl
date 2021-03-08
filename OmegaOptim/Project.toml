@@ -1,0 +1,7 @@
+name = "OmegaOptim"
+uuid = "2a28a865-65d9-491f-b54e-ba45d1099c08"
+authors = ["Zenna Tavares <zennatavares@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+Optim = "429524aa-4258-5aef-a3af-852621145aeb"

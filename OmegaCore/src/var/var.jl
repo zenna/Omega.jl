@@ -12,8 +12,10 @@ include("variable.jl")          # Random / Parametric Variables
 include("multivariate.jl")      # Multivariate Distributions
 include("member.jl")            # Families
 include("iid.jl")               # Independence
+include("ciid.jl")              # Independence
 include("primparam.jl")         # Primitive Parameters
-include("distributions.jl")     # Primitive Distributions
+include("primdist.jl")          # Primitive Distributions
+include("distributions.jl")     # Distributions.jl Distributions
 include("constant.jl")          # Constant distribution 
 include("pointwise.jl")         # Point wise variable application
 include("dispatch.jl")          # Contextual application

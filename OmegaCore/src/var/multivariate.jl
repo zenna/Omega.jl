@@ -1,6 +1,4 @@
-using Distributions: Multivariate, Distribution, Normal
-
-export Mv
+export Mv, manynth, dimsnth
 
 # """
 # Multivariate distribution: Random array where each variable is ciid given
@@ -34,27 +32,23 @@ export Mv
 # traitlift(::Type{<:Mv}) = Lift()
 
 # # Base.eltype(Mv{T}) where {T} = 
-
-
 # prim(d::Normal) = StdNormal()
-
 # func(d::Normal, x) = x * d.σ + d.μ
-
 # @inline Var.recurse(mv::Mv{<:Distribution}, id, ω) =
 #   map(x -> func(mv.dist, x), resolve(Mv(prim(mv.dist), mv.shape), id, ω))
-
 # f(x::Dims) = map(i->1:i, x)
 # g(x::Dims) = Iterators.product(f(x)...)
 # @inline Var.recurse(mv::Mv{<:T}, id, ω) where T =
 #   map(id_ -> mv.dist(append(id, id_), ω), g(mv.shape))
-
 # Base.rand(rng::AbstractRNG, mv::Mv{<:PrimDist}) = 
 #   rand(rng, mv.dist, mv.shape)
 
-struct Mv{IDXS, OP, F}
+struct Mv{IDXS, FS}
   idxs::IDXS
-  op::OP
-  f::F
+  f::FS
 end
-# (mv::Mv)(ω) = map(i -> mv.op(i, mv.f)(ω), mv.idxs)
-Var.recurse(mv::Mv, ω) =  map(i -> mv.op(i, mv.f)(ω), mv.idxs)
+
+Var.recurse(mv::Mv, ω) =  map(i -> mv.f(i, ω), mv.idxs)
+
+@inline manynth(f, ids) = Mv(ids, f)
+@inline dimsnth(f, shape::Dims) = Mv(CartesianIndices(shape), f)

@@ -9,7 +9,7 @@ export PrimitiveParam, Param
 # These are primitive parameters.
 
 abstract type PrimitiveParam end
-(pp::PrimitiveParam)(id, ω) = ω[Member(id, pp)]
+(pp::PrimitiveParam)(id, ω) = ω[Member(id, p)]
 
 "Nondeterministic choice of true or false"
 struct BinaryChoice{T <: Integer} <: PrimitiveParam end
@@ -25,6 +25,8 @@ struct Reals{T} <: PrimitiveParam end
 Base.eltype(::Type{Reals{T}}) where T = T
 const ℝ = Reals
 
+# #
+
 # # Families of parameters
 # # Non primtiives
 "Parameter family"
@@ -34,14 +36,20 @@ abstract type Param end
 struct Choice{T} <: Param
   of::T
 end
-(c::Choice)(id, ω) = c.of[]
+function (c::Choice)(id, ω)
+  # isempty(c.of) && throw(ArgumentError("range must be non-empty"))
+  c.of[(Real{Int}()(id, ω) % length(c.of)) + 1 ]
+end
 
 "One of many other parametric choices"
 struct Disjunction{XS} <: Param
   xs::XS
 end
-(c::Disjunction)(id, ω) = c.of[]
 
+function (c::Disjunction)(id, ω)
+  i = Choice(1:length(x.xs))(id, ω)
+  c.xs[i](id, ω)
+end
 
 "Interval `[a, b]`"
 struct Interval{T} <: Param

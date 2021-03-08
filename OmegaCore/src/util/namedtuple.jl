@@ -41,6 +41,7 @@ update((x = 3, y = 2, z = 1), Val{:x}, 7)
       push!(args, :($k = nt.$k))
     end
   end
+  # FIXME, return named tuple
   Expr(:tuple, args...)
 end
 @post keys(res) == keys(nt)
