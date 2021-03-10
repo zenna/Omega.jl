@@ -1,4 +1,3 @@
-using Distributions: Distribution
 using ..Basis, ..Traits
 export ctxapply, Vari, prehook, posthook
 
@@ -11,7 +10,7 @@ export ctxapply, Vari, prehook, posthook
 # FIXME: Add Conditional to Vari
 
 "Interceptable Variable"
-const Vari = Union{Variable, Distribution, Mv, Member, PwVar}
+const Vari = Union{Variable, Mv, Member, PwVar}
 
 
 (f::Vari)(ω::Ω) where {Ω <: AbstractΩ} = f(traits(Ω), ω)

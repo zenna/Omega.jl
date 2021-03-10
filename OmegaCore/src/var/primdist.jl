@@ -20,7 +20,7 @@ struct StdNormal{T<:Real} <: PrimDist end
 Base.eltype(::Type{StdNormal{T}}) where T = T
 Distributions.logpdf(::StdNormal{T}, x) where T =
   Distributions.logpdf(Normal(zero(T), one(T)), x)
-Base.rand(rng::AbstractRNG, ::StdNormal{T}) where {T} = rand(rng, Normal(zero(T), one(T)))
+Base.rand(rng::AbstractRNG, ::StdNormal{T}) where {T} = rand(rng, @show(Normal(zero(T), one(T))))
 (stdn::StdNormal{T})(id, ω) where T = Member(id, std)(ω)
 
 # # StdUniform
