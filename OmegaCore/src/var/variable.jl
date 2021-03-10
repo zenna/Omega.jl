@@ -1,7 +1,7 @@
 export Variable
 
 # # Variable
-# A Variable is a parametric of random variable, which is just any function of
+# A Variable is a parametric or random variable, which is just any function of
 # ω::AbstractΩ.  We have this data structure because we need to intercept inner
 # calls to `f(ω)`, which is difficult if it is not a special type and just a
 # normal function
