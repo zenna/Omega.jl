@@ -1,6 +1,6 @@
 module LogEnergies
 
-using Distributions: Distribution, logpdf
+# using Distributions: Distribution, logpdf
 using ..Traits, ..RNG, ..Var, ..Tagging, ..Space
 using ..Util: Box
 

@@ -39,27 +39,5 @@ export ==ₚ, >=ₚ, <=ₚ, >ₚ, <ₚ, !ₚ, &ₚ, |ₚ, ifelseₚ, +ₚ, -ₚ,
 @inline !ₚ(x) = pw(!, x)
 @inline ifelseₚ(a, b, c) = pw(ifelse, a, b, c)
 
-import Distributions
-# FIXME / justify this
-# Distributions.Normal(μ, σ) = pw(Normal, μ, σ)
-Distributions.Normal(μ, σ) =
-  (id, ω) -> Normal(liftapply(μ, ω), liftapply(σ, ω))(id, ω)
-
-Distributions.Bernoulli(p) =
-  (id, ω) -> Bernoulli(liftapply(p, ω))(id, ω)
-#FIXme generalize this
-# Normalₚ(args...) = pw(Distributions.Normal, args...)
-# Uniformₚ(args...) = pw(Distributions.Uniform, args...)
-# Gammaₚ(args...) = pw(Distributions.Gamma, args...)
-# DiscreteUniformₚ(args...) = pw(Distributions.DiscreteUniform, args...)
-# Poissonₚ(args...) = pw(Distributions.Poisson, args...)
-# NegativeBinomialₚ(args...) = pw(Distributions.NegativeBinomial, args...)
-
-# export Normalₚ,
-#        Uniformₚ,
-#        Gammaₚ,
-#        DiscreteUniformₚ,
-#        Poissonₚ,
-#        NegativeBinomialₚ
 
 end

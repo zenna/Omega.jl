@@ -1,5 +1,5 @@
 module Proposals
-using Distributions: Distribution, logpdf
+# using Distributions: Distribution, logpdf
 using Random: AbstractRNG
 using ..Traits, ..RNG, ..Var, ..Tagging, ..Space
 using ..Util

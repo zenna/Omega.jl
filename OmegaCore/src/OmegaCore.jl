@@ -56,8 +56,8 @@ using .TrackError
 include("proposal/proposal.jl")            # Log density
 @reexport using .Proposal
 
-include("solution.jl")               # Satisfy
-@reexport using .Solution
+# include("solution.jl")               # Satisfy
+# @reexport using .Solution
 
 include("logenergy.jl")
 @reexport using .LogEnergies
@@ -75,5 +75,7 @@ include("rejection.jl")         # Rejection sampling Inference
 include("syntax/syntax.jl")
 @reexport using .Syntax
 
+include("omegadistributions.jl")     # Distributions.jl Distributions
+@reexport using .OmegaDistributions
 
 end
