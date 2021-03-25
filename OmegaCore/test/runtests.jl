@@ -16,4 +16,5 @@ Pkg.develop(path = joinpath(pwd(), "..", "..", "OmegaTest"))
   include("tagging.jl")
   include("typeinfer.jl")
   # include("var.jl")
+  include("mem.jl")
 end

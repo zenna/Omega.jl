@@ -72,6 +72,9 @@ include("rejection.jl")         # Rejection sampling Inference
 # include("pointwise.jl")
 # @reexport using .Pointwise
 
+include("mem.jl")
+@reexport using .Memoize
+
 include("syntax/syntax.jl")
 @reexport using .Syntax
 

@@ -32,7 +32,7 @@ rmintervention(ω) = Basis.rmtag(ω, Val{:intervene})
     applyintervention(i, ω, intctx)
     # i.v(replacetags(ω, intctx))
   else
-    ctxapply(traits, x, ω)
+    prepostapply(traits, x, ω)
   end
 end
 
@@ -40,7 +40,7 @@ end
   if i.x == x
     i.v
   else
-    ctxapply(traits, x, ω)
+    prepostapply(traits, x, ω)
   end
 end
 
@@ -83,7 +83,7 @@ function passintervene(traits,
     # i.is[5].v(ω)
     applyintervention(i.is[5], ω, intctx)
   else
-    ctxapply(traits, x, ω)
+    prepostapply(traits, x, ω)
   end
 end
 
@@ -99,14 +99,14 @@ function passintervene(traits,
   if (index <= length(i.is))
     i.is[index].v(ω)
   else
-    ctxapply(traits, x, ω)
+    prepostapply(traits, x, ω)
   end
 end
 
 
 # We only consider intervention if the intervention types match
 @inline passintervene(traits, i::AbstractIntervention, intctx, x, ω) =
-  ctxapply(traits, x, ω)
+  prepostapply(traits, x, ω)
 
-(f::Vari)(traits::trait(Intervene), ω::AbstractΩ) = 
+Var.dispatch(traits::trait(Intervene), f, ω::AbstractΩ) = 
   passintervene(traits, ω.tags.intervene.intervention, ω.tags.intervene.intctx, f, ω)

@@ -87,15 +87,15 @@ function test_merge_more_than_5_interventions()
 end
 
 
-function minimal_example()
+function minimal_examplea()
   xx = 1 ~ Normal(0, 1)
   y(ω) = xx(ω) + 10
   yi = intervene(y, xx => (ω -> 200.0)) 
   yi2 = intervene(yi, xx => (ω -> 300.0))
-  @test randsample(yi2) == 200
+  @test randsample(yi2) == 210
 end
 
-function minimal_example()
+function minimal_exampleb()
   xx = 1 ~ Normal(0, 1)
   y(ω) = xx(ω) + 10
   xr = 2 ~ Normal(30, 1)
@@ -103,7 +103,6 @@ function minimal_example()
   yi2 = intervene(yi, xr => (ω -> 300.0))
   @test randsample(yi2) == 310
 end
-
 
 function test_model()
   # Normally distributed random variable with id 1
@@ -240,4 +239,6 @@ end
   test_changed_rettype_merge()
   test_merge_more_than_5_interventions()
   test_self_intervene()
+  minimal_examplea()
+  minimal_exampleb()
 end 
