@@ -4,8 +4,6 @@ struct HigherIntervention{T} <: AbstractIntervention
   f::T
 end
 
-
-
 """
 `hi(f::RV{RV})`
 
@@ -22,7 +20,6 @@ y = 3 ~ Normal(μ, σ)
 choice(ω) = ifelse((4 ~ Bernoulli(0.5))(ω), μ, σ)
 int_dist(ω) = Intervention(choice(ω) => 5.0)
 
-# Want to say the y had the variableof choice been 5
 joint = @joint(y_, μ, σ, choice)
 joint_ = joint |ᵈ hi(int_dist)
 randsample(joint_)
@@ -49,6 +46,6 @@ x =>ʳ v = HigherIntervention(LR{:R}(x, v))
 "`x ²¦² v`: `ω -> x(ω) => v(ω)`"
 x =>ˡʳ v = HigherIntervention(LR{:LR}(x, v))
 
-(i::LR{:L})(ω) = Intervention(i.x(ω) => i.v)
-(i::LR{:R})(ω) = Intervention(i.x => i.v(ω))
-(i::LR{:LR})(ω) = Intervention(i.x(ω) => i.v(ω))
+(i::LR{:L})(ω) = autointervention(i.x(ω) => i.v)
+(i::LR{:R})(ω) = autointervention(i.x => i.v(ω))
+(i::LR{:LR})(ω) = autointervention(i.x(ω) => i.v(ω))

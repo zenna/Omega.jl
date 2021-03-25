@@ -1,6 +1,6 @@
 # # Causal interventions
 using ..Var, ..Basis
-export |ᵈ, intervene, mergetags, Intervention
+export |ᵈ, intervene, mergetags, Intervention, ValueIntervention, autointervention
 using ..Var: Lift, DontLift, traitlift
 
 abstract type AbstractIntervention end
@@ -25,9 +25,9 @@ end
 # Intervention(x::Pair{X, <:Number}) where X = Intervention(x.first, ω -> x.second)
 
 # In `x => v`, if we believe `v` is variable then build `Interventon`, otherwise `ValueIntervention`
-smibtervention(::DontLift, x) = ValueIntervention(x.first, x.second)
-smibtervention(::Lift, x) = Intervention(x.first, x.second)
-smibtervention(x::Pair{X, Y}) where {X, Y} = smibtervention(traitlift(Y), x)
+autointervention(::DontLift, x) = ValueIntervention(x.first, x.second)
+autointervention(::Lift, x) = Intervention(x.first, x.second)
+autointervention(x::Pair{X, Y}) where {X, Y} = autointervention(traitlift(Y), x)
 
 "Multiple variables intervened"
 struct MultiIntervention{XS} <: AbstractIntervention
@@ -46,12 +46,13 @@ struct Intervened{X, I}
   i::I
 end
 
+Var.traitlift(::Type{<:Intervened}) = Var.Lift()
 
 "intervened"
 intervene(x, intervention::AbstractIntervention) = Intervened(x, intervention)
-intervene(x, p::Pair) = Intervened(x, smibtervention(p))
+intervene(x, p::Pair) = Intervened(x, autointervention(p))
 intervene(x, interventions::Tuple) =
-  Intervened(x, MultiIntervention(map(smibtervention, interventions)))
+  Intervened(x, MultiIntervention(map(autointervention, interventions)))
 
 @inline x |ᵈ i = intervene(x, i)
 
