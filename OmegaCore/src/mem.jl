@@ -14,23 +14,23 @@ defcache() = Dict{Any, Any}()
 # cache traits
 cache(f, ω) = true
 
-@inline function memapl(f, ω)
-  # @show "hello Samantha"
+@inline function memapl(traits::T, f::F, ω::Ω) where {T, F, Ω}
   if cache(f, ω)
     result = get(ω.tags.mem, f, 0)
     if result === 0
-      res = Var.recurse(f, ω)
+      res = Var.prepostapply(traits, f, ω)
       ω.tags.mem[f] = res
       return res
     else
-      return ω.tags.mem[f]#::(Core.Compiler).return_type(f, typeof((ω,)))
+      # ::(Core.Compiler).return_type(f, Tuple{Ω}) # This seems to work too but i don't know why
+      return ω.tags.mem[f]::(Core.Compiler).return_type(Var.prepostapply, Tuple{T, F, Ω})
     end
   else
-    return Var.recurse(f, ω)
+    return Var.prepostapply(traits, f, ω)
   end
 end
 
-@inline Var.dispatch(::trait(Mem), f, ω::AbstractΩ) = memapl(f, ω)
+@inline Var.dispatch(traits::trait(Mem), f, ω::AbstractΩ) = memapl(traits, f, ω)
 
 """
 `mem(x)`
