@@ -11,13 +11,10 @@ Omega is built in Julia 1.0.  You can easily install it from a Julia repl with:
 (v1.0) pkg> add Omega
 ```
 
-Check Omega is working and gives reasonable results with: 
+To use Omega, start with:
 
 ```julia
 julia> using Omega
-
-julia> rand(normal(0.0, 1.0))
-0.7625637212030862
 ```
 
 With that, see the [Tutorial](basictutorial.md) for a run through of the main features of Omega. 
@@ -30,7 +27,6 @@ We want your contributions!
 Please add probabilistic models and model families to https://github.com/zenna/OmegaModels.jl
 
 - Inference procedures
-
 
 ## Citation
 
@@ -64,7 +60,7 @@ If you use the causal inference features (`replace`), please cite:
 
 ```
 @article{tavares2019counterfactual,
-  title={Soft Constraints for Inference with Declarative Knowledge},
+  title={A Language for Counterfactual Generative Models},
   author={Tavares, Zenna and Zhang, Xin and Koppel, James and Lezama, Armando Solar},
   year={2019}
 }

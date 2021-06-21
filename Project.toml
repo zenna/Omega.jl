@@ -4,8 +4,11 @@ authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.2.0"
 
 [deps]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
+Query = "1a8c2f83-1ff3-5112-b086-8aa67b057ba1"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
+VegaLite = "112f6efa-9a02-5b7d-90c0-432ed331239a"
 
 [compat]
 OmegaCore = "0.1"

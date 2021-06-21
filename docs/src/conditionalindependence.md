@@ -1,23 +1,53 @@
 # Conditional Independence
 
-
 !!! note
-    **TLDR**: Use `ciid` to convert a function `f(ω::) = ...` into a `RandVar`.
-    If the function calls other random variables
+    A class in Omega is similar to a "plate" in Bayesian networks.
 
     ```
 
-Previously we saw that we could use `ciid` to turn a function rng into a `RandVar`.
-Here we cover the meaning of ciid.
-Use `ciid(x)` to create a random variable that is identical in distribution to `x` but conditionally independent given its parents.
+A class in Omega is a function of the form `f(id, \omega)`.
+It represents a sequence of random variables in the sense that ...
+To get the nth member of a class use the function `nth`.
+
+There are primitive random variable classes in Omega.
 
 ```julia
-μ = uniform(0.0, 1.0)
-y1 = normal(μ, 1.0)
-y2 =~ y1
-rand((y1, y2))
+A1 = nth(StdNormal, 1)
+A2 = nth(StdNormal, 2)
+A3 = nth(StdNormal, 3)
 ```
+
+Or equivalently, use `~`:
+
+```julia
+A1 = 1 ~ StdNormal, 1
+A2 = 2 ~ StdNormal, 2
+A3 = 3 ~ StdNormal, 3
+```
+
+
+Of course, you can specify your own classes simply by constructing a function.
+In 
+
+```julia
+using Omega, Distributions
+μ = 1 ~ StdNormal{Float64}()
+function Xs(id, ω)
+  id ~ Normal(ω, μ(ω), 1) 
+end
+x1 = 1 ~ Xs
+x2 = 2 ~ Xs
+```
+
+To construct a random variable over collections from a class, use `Mv` 
+
+A very important property of classes is that the members of a class are conditionally independent, given the shared parents.
+In the above exmaple, `x1` and `x2` are conditionally independent given `μ`.
 
 ```@docs
 ciid
 ```
+
+# Independence
+
+Sometimes we need to construct random variables that are independent.  The function `iid` constructs a class of random variables that are independent.

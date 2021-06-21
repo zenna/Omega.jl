@@ -1,6 +1,6 @@
 export iid,  <|, <|ⁿ
 
-struct IID{F, I}
+struct IID{F}
   f::F
 end
 

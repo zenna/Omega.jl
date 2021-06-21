@@ -12,7 +12,6 @@ include("variable.jl")          # Random / Parametric Variables
 include("multivariate.jl")      # Multivariate Distributions
 include("member.jl")            # Families
 include("iid.jl")               # Independence
-include("ciid.jl")              # Independence
 include("primparam.jl")         # Primitive Parameters
 include("primdist.jl")          # Primitive Distributions
 include("constant.jl")          # Constant distribution 
