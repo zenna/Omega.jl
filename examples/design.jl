@@ -114,7 +114,7 @@ A class in Omega is actually just function of the form `f(id, ω)`.
 Of course, you can specify your own classes simply by constructing a function."
 
 # ╔═╡ 4ccae103-1a6d-42cf-8546-9ccdae847ba5
-μ = 1 ~ StdNormal{Float64}()
+μ = 0 ~ StdNormal{Float64}()
 
 # ╔═╡ 521de9f7-e941-481e-aa0d-21a263ae19b7
 Xs(id, ω) = (id ~ Normal(μ(ω), 1))(ω);
@@ -124,6 +124,18 @@ x1 = 1 ~ Xs
 
 # ╔═╡ d6ea7aa6-568f-4f72-a152-83a60ddac0e3
 x2 = 2 ~ Xs
+
+# ╔═╡ c8d985a9-9834-427a-be94-a4777c0cc6bc
+ω_ = defω()
+
+# ╔═╡ f64a3156-b9bb-4c51-b76b-1effe872b16b
+joint_ = @joint x1 x2 μ
+
+# ╔═╡ ee2e69da-58b0-442b-ba37-da42531082fd
+joint_(ω_)
+
+# ╔═╡ d8e425ec-c385-4632-9a6f-a392bb84ede0
+ω_
 
 # ╔═╡ 3cea826b-e938-4754-b931-cf1645b77c81
 randsample(x1)
@@ -170,10 +182,22 @@ iidclass = iid(x1)
 x1_iid = 1 ~ iidclass
 
 # ╔═╡ a12cc8e9-1209-433c-939d-5dd7027b3f2c
-x2_iid = 1 ~ iidclass
+x2_iid = 2 ~ iidclass
 
 # ╔═╡ ef711fcd-4f01-4aeb-94ce-84b374b5aee4
 randsample(@joint x1_iid x2_iid)
+
+# ╔═╡ b849e448-54c5-4a93-a77f-714320e42e11
+w_2 = defω()
+
+# ╔═╡ e3437550-fad4-4bc5-b1e4-2a30d92f9991
+joint2 = @joint  x1_iid x2_iid
+
+# ╔═╡ f1de6343-81c7-4f2f-a6db-c77de43a74f3
+joint2(w_2)
+
+# ╔═╡ 51d2ed1f-ee25-429c-a334-2021d1367083
+w_2
 
 # ╔═╡ e77a0d45-7773-4df0-881b-3d89c6cda44e
 md"It is important to note that `x1_iid` and `x2_iid` are __independent__ (not conditionally independent) and identically distributed"
@@ -263,6 +287,12 @@ md"For syntactic convenience we can use `|ᵈ`"
 # ╔═╡ 5df91e58-e78d-4dd5-b183-5596cb9fa674
 X |ᵈ (μ_orig => μ_orig +ₚ 10.0);
 
+# ╔═╡ 3814bf03-c6ea-466d-b057-b8ecc9c2e4bc
+treatment(ω) = X(ω) - X_intervene_3(ω)
+
+# ╔═╡ 9eefe547-a8b1-446d-9659-5163647cfe0f
+randsample(treatment)
+
 # ╔═╡ 32ed4695-ba78-475b-817b-b6a7d749919a
 randsample(@joint μ_orig X X_intervene X_intervene_2 X_intervene_3)
 
@@ -280,6 +310,18 @@ evidence_X = X >ₚ 0.0
 
 # ╔═╡ f074c347-fe70-43ad-82cf-0befc91a0e33
 counterfactual = X_intervene_3 |ᶜ evidence_X
+
+# ╔═╡ 35556a02-d304-46a5-aeff-1f28dab98512
+(X |ᵈ (μ_orig => μ_orig +ₚ 10.0)) |ᶜ evidence_X
+
+# ╔═╡ 3cb01bb7-adc8-406b-8711-54cfc830f414
+(X |ᶜ evidence_X) |ᵈ (μ_orig => μ_orig +ₚ 10.0)
+
+# ╔═╡ fb8cbcdc-eb16-42cd-81bd-fcae78732f2e
+X_posterior = (X |ᶜ evidence_X)
+
+# ╔═╡ a395eb05-09ab-484b-83ce-8b62332cc9c0
+@joint X X_posterior
 
 # ╔═╡ ce89139c-ae17-4342-9931-85770fe03491
 randsample(counterfactual, 100)
@@ -308,10 +350,13 @@ md"`choice` below flips a coin and returns either `μ_hi` or `σ_hi` -- the rand
 choice(ω) = ifelse((4 ~ Bernoulli(0.5))(ω), μ_hi, σ_hi)
 
 # ╔═╡ 77eda7a7-443f-4c0e-a3d9-49e5baf83f79
-randsample(randsample(choice))
+randsample(choice)
 
 # ╔═╡ 243cfa89-b756-418f-ab2a-8b015927d9c2
 int_dist(ω) = ValueIntervention(choice(ω), 5.0)
+
+# ╔═╡ 86170150-13c7-47a6-a258-51e6d4f59f33
+randsample(int_dist)
 
 # ╔═╡ cd0fe624-c809-4b5b-8d85-3f236f034a67
 joint_hi = @joint(y_hi, μ_hi, σ_hi, choice)
@@ -387,6 +432,10 @@ randsample(meandist, 100)
 # ╠═521de9f7-e941-481e-aa0d-21a263ae19b7
 # ╠═fcbe23a1-6180-4d93-bcb7-17f92668cff6
 # ╠═d6ea7aa6-568f-4f72-a152-83a60ddac0e3
+# ╠═c8d985a9-9834-427a-be94-a4777c0cc6bc
+# ╠═f64a3156-b9bb-4c51-b76b-1effe872b16b
+# ╠═ee2e69da-58b0-442b-ba37-da42531082fd
+# ╠═d8e425ec-c385-4632-9a6f-a392bb84ede0
 # ╠═3cea826b-e938-4754-b931-cf1645b77c81
 # ╟─a877b127-d2d8-48d1-8cde-d819adeaa811
 # ╠═667dd097-cd63-4642-a838-b706e430a1c6
@@ -402,6 +451,10 @@ randsample(meandist, 100)
 # ╠═3987183c-1dd2-4007-966d-979265f8bda5
 # ╠═a12cc8e9-1209-433c-939d-5dd7027b3f2c
 # ╠═ef711fcd-4f01-4aeb-94ce-84b374b5aee4
+# ╠═b849e448-54c5-4a93-a77f-714320e42e11
+# ╠═e3437550-fad4-4bc5-b1e4-2a30d92f9991
+# ╠═f1de6343-81c7-4f2f-a6db-c77de43a74f3
+# ╠═51d2ed1f-ee25-429c-a334-2021d1367083
 # ╟─e77a0d45-7773-4df0-881b-3d89c6cda44e
 # ╟─4de86493-b2bd-4af5-955b-a6f076ba31eb
 # ╟─585d5f13-bd99-45b1-8dcd-1dae0807b0c2
@@ -428,11 +481,17 @@ randsample(meandist, 100)
 # ╠═10810035-14b9-4fe9-8180-e08e61d9d199
 # ╟─54b2923e-0bb7-44b4-839d-d03cdb13c16d
 # ╠═5df91e58-e78d-4dd5-b183-5596cb9fa674
+# ╠═3814bf03-c6ea-466d-b057-b8ecc9c2e4bc
+# ╠═9eefe547-a8b1-446d-9659-5163647cfe0f
 # ╠═32ed4695-ba78-475b-817b-b6a7d749919a
 # ╟─e0104f49-2f4c-474a-be93-521c55841833
 # ╟─b8f306ef-3fc1-415d-9830-7b71048f41d9
 # ╠═f44bdb57-d04c-488e-bd19-db5986ba4ae4
 # ╠═f074c347-fe70-43ad-82cf-0befc91a0e33
+# ╠═35556a02-d304-46a5-aeff-1f28dab98512
+# ╠═3cb01bb7-adc8-406b-8711-54cfc830f414
+# ╠═fb8cbcdc-eb16-42cd-81bd-fcae78732f2e
+# ╠═a395eb05-09ab-484b-83ce-8b62332cc9c0
 # ╠═ce89139c-ae17-4342-9931-85770fe03491
 # ╟─a2a0bb64-be53-4056-a1af-37e3fbde9392
 # ╟─42bf8f3b-c779-4727-b050-151cadee99ff
@@ -443,6 +502,7 @@ randsample(meandist, 100)
 # ╠═b955bd92-6cb0-41e7-bc92-0de8dbd497d4
 # ╠═77eda7a7-443f-4c0e-a3d9-49e5baf83f79
 # ╠═243cfa89-b756-418f-ab2a-8b015927d9c2
+# ╠═86170150-13c7-47a6-a258-51e6d4f59f33
 # ╠═cd0fe624-c809-4b5b-8d85-3f236f034a67
 # ╟─21971f4c-f973-4ef4-baeb-bd85bef8b167
 # ╠═4e9b0394-5619-4a65-bbc7-427e2208a2fb

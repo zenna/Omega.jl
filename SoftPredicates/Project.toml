@@ -1,0 +1,19 @@
+name = "SoftPredicates"
+uuid = "5345b20a-9614-40c4-b281-8f4998fc0f3b"
+authors = ["Zenna Tavares"]
+version = "0.1.0"
+
+[deps]
+Cassette = "7057c7e9-c182-5462-911a-8362d720325c"
+DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Spec = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
