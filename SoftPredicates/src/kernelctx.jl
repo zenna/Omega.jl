@@ -73,4 +73,4 @@ x = normal(0.0, 1.0)
 macro atα(a, fexpr)
   :(atα($(esc(a)), $(esc.(fexpr.args)...)))
 end
-@pre fexpr.head == :call
+# @pre fexpr.head == :call

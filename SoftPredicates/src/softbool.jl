@@ -26,7 +26,7 @@ softeq(a::Integer, b::Integer) = softeq(float(a), float(b))
 
 "Soft Equality"
 function ssofteq(x, y, k = globalkernel())
-  r = d(x, y)
+  r = dist(x, y)
   SoftBool(k(r)::typeof(r))
 end
 

@@ -5,10 +5,11 @@ using Spec
 # import Omega
 # import ForwardDiff  
 import Cassette
+using InferenceBase
 using LinearAlgebra: norm
 using DocStringExtensions
 
-export  d,
+export  dist,
         SoftBool,
         recursofteq,
         softeq,
@@ -25,10 +26,6 @@ export  d,
         allₛ,
 
         # Kernels
-        kse,
-        kseα,
-        kf1,
-        kf1β,
         withkernel,
         atα,
         @atα
@@ -42,7 +39,6 @@ abstract type AbstractSoftBool <: Real end
 const AbstractBool = Union{AbstractSoftBool, Bool}
 
 include("inf.jl")            # Infinity
-include("kernels.jl")        # Kernels
 include("kernelctx.jl")      # Kernels context
 include("softbool.jl")       # Soft Boolean
 include("dualsoftbool.jl")   # Dual Soft Boolean
