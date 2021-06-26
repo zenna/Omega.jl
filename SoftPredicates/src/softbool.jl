@@ -15,6 +15,8 @@ logerr(x::SoftBool) = x.logerr
 Bool(x::SoftBool) = logerr(x) == 0.0
 ssofttrue(::Type{T} = Float64) where T = SoftBool(zero(t))
 ssoftfalse(::Type{T} = Float64) where T = SoftBool(-inf(T))
+Base.zero(::Type{SoftBool{T}}) where T = ssoftfalse(T)
+Base.one(::Type{SoftBool{T}}) where T = ssofttrue(T)
 
 # (In)Equalities #
 

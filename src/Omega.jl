@@ -6,6 +6,8 @@ using Reexport
 include("omegadistributions.jl")     # Distributions.jl Distributions
 @reexport using .OmegaDistributions
 
+include("OmegaSoftPredicates.jl")
+
 # @reexport using OmegaMH
 # @reexport using ReplicaExchange
 # @reexport using InvolutiveMCMC

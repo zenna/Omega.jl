@@ -24,6 +24,8 @@ Base.:|(x::DualSoftBool, y::DualSoftBool) = DualSoftBool(x.b0 & y.b0, x.b1 | y.b
 
 dsofttrue(::Type{T} = Float64) where T = DualSoftBool(SoftBool(-inf(T)), SoftBool(zero(T)))
 dsoftfalse(::Type{T} = Float64) where T = DualSoftBool(SoftBool(zero(T)), SoftBool(-inf(T)))
+Base.zero(::Type{DualSoftBool{T}}) where T = dsoftfalse(T)
+Base.one(::Type{DualSoftBool{T}}) where T = dsofttrue(T)
 
 # Arithmetic #
 Base.:*(x::DualSoftBool{SoftBool{T}}, y::T) where T <: Real = DualSoftBool(x.b0 * y, x.b1 * y)

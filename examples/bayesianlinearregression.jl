@@ -22,6 +22,9 @@ using SoftPredicates
 # ╔═╡ 6b2fe98e-76cf-11eb-39f8-9ff52d23e688
 md"# Bayesian Linear Regression"
 
+# ╔═╡ a2fb35f7-8c48-4e70-aff8-d8ee431aa872
+md"Bayesian linear regression is a method to infer the parameters of linear model between two variables.  The \"Bayesian\" part of Bayesian linear regression means means that it treats the problem of finding these parameters as one of Bayesian inference."
+
 # ╔═╡ b5f202a0-76ce-11eb-23e8-c5036fc43538
 import UnicodePlots
 
@@ -89,8 +92,14 @@ Evidenceₛ = pw(==ₛ, Y⃗, ys)
 # ╔═╡ e8f55ded-038b-4b3a-a883-86139c40452c
 randsample(Evidenceₛ)
 
-# ╔═╡ 9e544e9e-701e-44a8-be29-afcf67de48e2
-randsample(ω -> Y⃗(ω) ==ₛ ys)
+# ╔═╡ f88f7939-c976-4ede-ae61-bc743cea984c
+Y⃗_posterior = Y⃗ |ᶜ Evidenceₛ
+
+# ╔═╡ 90e199ed-56b8-451d-81ec-885b6db97cc3
+ω = defω()
+
+# ╔═╡ a2c4cce9-cd16-4d79-b878-8ba36f1d3d00
+(Omega.OmegaCore.condvar(Y⃗_posterior, SoftPredicates.DualSoftBool{Float64}))(ω)
 
 # ╔═╡ aa781fbe-76d0-11eb-387a-3dc1cbf700f8
 samples = rand((M, C) |ᶜ Evidence, nsamples; alg = HMC) 
@@ -103,6 +112,7 @@ UnicodePlots.scatterplot(xs, samples)
 
 # ╔═╡ Cell order:
 # ╟─6b2fe98e-76cf-11eb-39f8-9ff52d23e688
+# ╟─a2fb35f7-8c48-4e70-aff8-d8ee431aa872
 # ╠═7be85a71-3636-4919-99fb-9b688f085fb8
 # ╠═9ef4a008-76ce-11eb-3550-0f72ff35976d
 # ╠═ef39a4d2-76ce-11eb-16a2-a775469288f9
@@ -130,7 +140,9 @@ UnicodePlots.scatterplot(xs, samples)
 # ╠═b3c0e452-fff8-419e-945c-27e2d21c9fe3
 # ╠═3efb0dfe-079b-4fa2-8069-065d66b5f1b1
 # ╠═e8f55ded-038b-4b3a-a883-86139c40452c
-# ╠═9e544e9e-701e-44a8-be29-afcf67de48e2
+# ╠═f88f7939-c976-4ede-ae61-bc743cea984c
+# ╠═90e199ed-56b8-451d-81ec-885b6db97cc3
+# ╠═a2c4cce9-cd16-4d79-b878-8ba36f1d3d00
 # ╠═aa781fbe-76d0-11eb-387a-3dc1cbf700f8
 # ╠═f7efb0d0-76d1-11eb-3440-47df94aeb74e
 # ╠═19bb9822-7734-11eb-1170-b1eaab345ba5
