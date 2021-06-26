@@ -16,8 +16,6 @@ const ExoRandVar{F <: PrimDist, ID} = Member{F, ID}
 
 struct StdNormal{T<:Real} <: PrimDist end
 Base.eltype(::Type{StdNormal{T}}) where T = T
-# Distributions.logpdf(::StdNormal{T}, x) where T =
-#   Distributions.logpdf(Normal(zero(T), one(T)), x)
 (stdn::StdNormal{T})(id, ω) where T = Member(id, stdn)(ω)
 Base.rand(rng::AbstractRNG, ::StdNormal{T}) where {T} = randn(rng, T)
 

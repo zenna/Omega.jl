@@ -18,11 +18,11 @@ lift and dont lift respectively.
 
 Example:
 ```
-using Distributions
-x(ω) = Uniform(ω, 0, 1)
+using OmegaCore
+x = StdUniform()
 y = pw(+, x, 4)
 
-f(ω) = Bool(Bernoulli(ω, 0.5)) ? sqrt : sin
+f(ω) = Flip()(ω) ? sqrt : sin
 sample(pw(map, f, [0, 1, 2]))
 sample(pw(map, sqrt, [0, 1, 2])) # Will error!
 sample(pw(map, dl(sqrt), [0, 1, 2]))
@@ -64,6 +64,7 @@ traitlift(::Type{T}) where T  = DontLift()
 traitlift(::Type{<:Function}) = Lift()
 traitlift(::Type{<:Variable}) = Lift()
 traitlift(::Type{<:Member}) = Lift()
+traitlift(::Type{<:Mv}) = Lift()
 traitlift(::Type{<:DataType}) = DontLift()
 traitlift(::Type{<:LiftBox}) = Lift()
 traitlift(::Type{<:PwVar}) = Lift()

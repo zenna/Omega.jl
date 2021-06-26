@@ -38,8 +38,8 @@ end
 A 'memoized' version of `x` such that the result of calls to `x(ω)` are cached.
 
 ```julia
-using OmegaCore, Distributions, LinearAlgebra, BenchmarkTools
-x = dimsnth(Normal(0, 1), (1000, 1000))
+using OmegaCore, LinearAlgebra, BenchmarkTools
+x = dimsnth(StdNormal(), (1000, 1000))
 h(x) = (println("call!"); svd(x).S)
 y(ω) = h(x(ω))
 const y_ = Variable(y)

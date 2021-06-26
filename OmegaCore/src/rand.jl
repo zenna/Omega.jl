@@ -20,7 +20,7 @@ tagrand(ω, i = Int(0)) =
 Random variable
 
 ```
-using Omega, Distributions, Test
+using Omega, Test
 function f(rng)
   a = rand(rng)
   b = rand(rng)

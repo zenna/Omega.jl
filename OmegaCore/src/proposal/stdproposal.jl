@@ -16,15 +16,15 @@
 
 stdproposal(qω, x, ω) = nothing
 
-function stdproposal(qω, x::Member{<:Distribution}, ω)
-  @show x
-  display(ω)
-  @show ω.data[x]
-  if x in keys(ω)
-    @show "here"
-    @assert false
-  else
-    @show "not here"
-    @assert false
-  end
-end
+# function stdproposal(qω, x::Member{<:Distribution}, ω)
+#   @show x
+#   display(ω)
+#   @show ω.data[x]
+#   if x in keys(ω)
+#     @show "here"
+#     @assert false
+#   else
+#     @show "not here"
+#     @assert false
+#   end
+# end

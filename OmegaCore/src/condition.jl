@@ -1,7 +1,7 @@
 module Condition
 
 using ..Space, ..Tagging, ..Traits
-export |ᶜ, cnd, conditions, cond!, condf, BinaryPointwise, Conditional, ConditionException
+export |ᶜ, cnd, conditions, cond!, condf, Conditional, ConditionException
 export ==ₚ
 
 # # Conditioning

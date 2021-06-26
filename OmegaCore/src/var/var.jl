@@ -14,7 +14,6 @@ include("member.jl")            # Families
 include("iid.jl")               # Independence
 include("primparam.jl")         # Primitive Parameters
 include("primdist.jl")          # Primitive Distributions
-include("constant.jl")          # Constant distribution 
 include("pointwise.jl")         # Point wise variable application
 include("dispatch.jl")          # Contextual application
 

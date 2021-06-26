@@ -1,6 +1,5 @@
 import ..OmegaCore
 using ..Var, ..Traits, ..Util, ..Tagging, ..Space, ..Basis
-using Distributions
 
 # Dynamics
 

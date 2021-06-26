@@ -22,9 +22,8 @@ condomegasample(rng, ΩT, y, n; alg = defrandalg(rng, x, n), kwargs...) =
 using `alg` algorithm
 
 ```
-using Distributions
-x = Normal(0, 1)
-randsample(x |ᶜ x >ₛ 2.0, 3; alg = RejectionSample)
+x = 1 ~ StdNormal()
+randsample(x |ᶜ x >ₚ 2.0, 3; alg = RejectionSample)
 '''
 """
 randsample(rng::Random.AbstractRNG, x, n; alg = defrandalg(x), ΩT = defΩ(), kwargs...) =

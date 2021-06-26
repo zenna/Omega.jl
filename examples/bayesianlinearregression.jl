@@ -1,10 +1,10 @@
 ### A Pluto.jl notebook ###
-# v0.14.7
+# v0.14.8
 
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 4addebb8-772e-11eb-0c48-1f597189a981
+# ╔═╡ 7be85a71-3636-4919-99fb-9b688f085fb8
 using Revise
 
 # ╔═╡ 9ef4a008-76ce-11eb-3550-0f72ff35976d
@@ -15,6 +15,9 @@ using Random: MersenneTwister
 
 # ╔═╡ a44b4d1c-76cf-11eb-2cae-69ac6a56ca5a
 using Distributions
+
+# ╔═╡ 6209b05f-b48f-45b5-9ee0-5b3447e26e06
+using SoftPredicates
 
 # ╔═╡ 6b2fe98e-76cf-11eb-39f8-9ff52d23e688
 md"# Bayesian Linear Regression"
@@ -80,8 +83,14 @@ nsamples = 1000
 # ╔═╡ b3c0e452-fff8-419e-945c-27e2d21c9fe3
  Evidence = Y⃗ ==ₚ ys
 
+# ╔═╡ 3efb0dfe-079b-4fa2-8069-065d66b5f1b1
+Evidenceₛ = pw(==ₛ, Y⃗, ys)
+
 # ╔═╡ e8f55ded-038b-4b3a-a883-86139c40452c
-randsample(Evidence)
+randsample(Evidenceₛ)
+
+# ╔═╡ 9e544e9e-701e-44a8-be29-afcf67de48e2
+randsample(ω -> Y⃗(ω) ==ₛ ys)
 
 # ╔═╡ aa781fbe-76d0-11eb-387a-3dc1cbf700f8
 samples = rand((M, C) |ᶜ Evidence, nsamples; alg = HMC) 
@@ -94,11 +103,12 @@ UnicodePlots.scatterplot(xs, samples)
 
 # ╔═╡ Cell order:
 # ╟─6b2fe98e-76cf-11eb-39f8-9ff52d23e688
-# ╠═4addebb8-772e-11eb-0c48-1f597189a981
+# ╠═7be85a71-3636-4919-99fb-9b688f085fb8
 # ╠═9ef4a008-76ce-11eb-3550-0f72ff35976d
 # ╠═ef39a4d2-76ce-11eb-16a2-a775469288f9
 # ╠═b5f202a0-76ce-11eb-23e8-c5036fc43538
 # ╠═a44b4d1c-76cf-11eb-2cae-69ac6a56ca5a
+# ╠═6209b05f-b48f-45b5-9ee0-5b3447e26e06
 # ╟─b583b52a-76ce-11eb-088b-dbeb7791729f
 # ╠═ee2f8174-76ce-11eb-2c74-298d6072afee
 # ╠═d10a9c5a-76ce-11eb-0ece-bd1b6e946fe0
@@ -118,7 +128,9 @@ UnicodePlots.scatterplot(xs, samples)
 # ╠═fa8b5cc2-7728-11eb-24b3-5db1bd7d0255
 # ╠═c32b2f96-76d0-11eb-3f9c-e33cc3a1a7e7
 # ╠═b3c0e452-fff8-419e-945c-27e2d21c9fe3
+# ╠═3efb0dfe-079b-4fa2-8069-065d66b5f1b1
 # ╠═e8f55ded-038b-4b3a-a883-86139c40452c
+# ╠═9e544e9e-701e-44a8-be29-afcf67de48e2
 # ╠═aa781fbe-76d0-11eb-387a-3dc1cbf700f8
 # ╠═f7efb0d0-76d1-11eb-3440-47df94aeb74e
 # ╠═19bb9822-7734-11eb-1170-b1eaab345ba5

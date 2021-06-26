@@ -2,7 +2,6 @@ module Syntax
 
 using ..OmegaCore.Util: mapf
 using ..OmegaCore.Var: pw, liftapply
-using Distributions
 export @joint
 
 """
@@ -11,9 +10,9 @@ Random variable over named tuple using varnames as keys
 `@joint randvar1 randvar2 ...`
 
 ```julia
-using Distributions
-a = 1 ~ Normal(0, 1)
-b = 2 ~ Normal(0, 1)
+using OmegaCore
+a = 1 ~ StdNormal()
+b = 2 ~ StdNormal()
 c = a >=ₚ b
 randsample(@joint a b c)
 => (Ashoots = false, Bshoots = false)

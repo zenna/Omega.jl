@@ -78,7 +78,4 @@ include("mem.jl")
 include("syntax/syntax.jl")
 @reexport using .Syntax
 
-include("omegadistributions.jl")     # Distributions.jl Distributions
-@reexport using .OmegaDistributions
-
 end
