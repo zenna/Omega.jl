@@ -8,7 +8,7 @@ include("omegadistributions.jl")     # Distributions.jl Distributions
 
 include("OmegaSoftPredicates.jl")
 
-# @reexport using OmegaMH
+@reexport using OmegaMH
 # @reexport using ReplicaExchange
 # @reexport using InvolutiveMCMC
 end

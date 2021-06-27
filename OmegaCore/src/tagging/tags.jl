@@ -1,6 +1,9 @@
 "Meta data to attach to ω::Ω"
 const Tags = NamedTuple
 
+"Trait has no value -- its existence is enough"
+struct NoTagValue end
+
 function mergetag end 
 
 # "tag value `val` with tag `tag` and merge tags"

@@ -66,15 +66,3 @@ end
 
 mh(rng, logdensity, n, state_init::X, propose_and_logratio; keep = keepall, prestore = identity) where X = 
   mh!(rng, logdensity, n, state_init, propose_and_logratio, Vector{X}(undef, n); keep = keep, prestore = prestore)
-
-# FIXME: move this to an interface file
-
-# function OmegaCore.randsample(rng,
-#                               ΩT::Type{OT},
-#                               x,
-#                               n,
-#                               alg::MHAlg) where {OT}
-# end
-
-# OmegaCore.randsample(rng, ΩT, x, n, ::MHAlg; kwargs...) = 
-#   mh(rng, ΩT, condvar(x), n; kwargs...) 

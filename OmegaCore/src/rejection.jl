@@ -55,7 +55,7 @@ function OC.randsample(rng,
                        alg::RejectionSampleAlg) where {OT}
   # introduce conditions
   # y = OC.mem(OC.indomain(x))
-  y = condvar(x)
+  y = condvar(x, Bool)
   ωsamples = OC.condomegasample(rng, ΩT, y, n, alg)
   # map(OC.mem(x), ωsamples)
   map(x, ωsamples)

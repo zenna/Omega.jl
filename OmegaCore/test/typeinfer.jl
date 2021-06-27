@@ -6,52 +6,35 @@ using Test
 using Distributions
 using Random
 
-function testtraits()
-  ω = SimpleΩ(Dict())
-  ω2 = OmegaCore.appendscope(ω, [1,])
-  # traits(typeof(ω2.tags))
-  g(traits(typeof(ω2)))
-end
-
-
 function testsimple1()
   ω = defΩ()()
   ω = OmegaCore.tagrng(ω, Random.GLOBAL_RNG)
   ω2 = defΩ()()
   ω2 = OmegaCore.tagrng(ω2, Random.GLOBAL_RNG)
-  x = 1 ~ Normal(0, 1)
+  x = 1 ~ StdNormal{Float64}()
   map(x, [ω, ω2])
 end
 
 function testsimple2()
-  x = 1 ~ Normal(0, 1)
+  x = 1 ~ StdNormal{Float64}()
   rng = Random.GLOBAL_RNG
-  ΩT = defΩ()
-  y = OmegaCore.condvar(x)
-  ω =  OmegaCore.OmegaRejectionSample.condomegasample1(rng, ΩT, y, OmegaCore.RejectionSample)
-  x(ω)
+  OmegaCore.randsample(rng, x, 1; alg = RejectionSample)
 end
 
 function testsimple3a()
-  x = 1 ~ Normal(0, 1)
-  rng = Random.GLOBAL_RNG
-  ΩT = defΩ()
-  y = OmegaCore.condvar(x)
-  ω =  OmegaCore.OmegaRejectionSample.condomegasample1(rng, ΩT, y, OmegaCore.RejectionSample)
+  x = 1 ~ StdNormal{Float64}()
+  ω = defω()
   map(x, typeof(ω)[ω, ω])
 end
 
 function testsimple3()
-  x = 1 ~ Normal(0, 1)
-  rng = Random.GLOBAL_RNG
-  ΩT = defΩ()
-  y = OmegaCore.condvar(x)
-  ω =  OmegaCore.OmegaRejectionSample.condomegasample1(rng, ΩT, y, OmegaCore.RejectionSample)
+  x = 1 ~ StdNormal{Float64}()
+  ω = defω()
   x.([ω, ω])
 end
 
 function testsimple4()
-  x = 1 ~ Normal(0, 1)
+  x = 1 ~ StdNormal{Float64}()
   rng = Random.GLOBAL_RNG
   ΩT = defΩ()
   y = OmegaCore.condvar(x)

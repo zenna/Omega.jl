@@ -18,11 +18,13 @@ Basis.subspace(ω::LazyΩ) = ω.subspace
 # AbstractDict interface 
 Base.keys(ω::LazyΩ) = Base.keys(ω.data)
 Base.values(ω::LazyΩ) = Base.values(ω.data)
+Base.pairs(ω::LazyΩ) = Base.pairs(ω.data)
 Base.getindex(ω::LazyΩ, id) = ω.data[id]
 
 # Move to specific omega types
 Base.merge!(ω::LazyΩ, ω_) = error("Unimplemented")
-Basis.like(ω::LazyΩ{Tags, T}, kv::Pair) where {Tags, T} = T(kv)
+Basis.like(ω::LazyΩ{Tags, T, S}, kv::Pair) where {Tags, T, S} = 
+  LazyΩ{Tags, T, S}(T(kv), ω.tags, ω.subspace)
 
 ## Constructors
 const EmptyTags = Tags{(),Tuple{}}
@@ -55,11 +57,7 @@ Tagging.tags(ω::LazyΩ) = ω.tags
 Base.setindex!(ω::LazyΩ, value, id) = 
   ω.data[id] = value
 
-function (exo::Var.ExoRandVar)(ω::LazyΩ)
-  # idwhat = 2
-  # @show exo.id
-  # @show ω.subspace
-  # @show 
+function Var.recurse(exo::Var.ExoRandVar, ω::LazyΩ)
   # Mix subspace with index
   newid = append(ω.subspace, exo.id)
   newexo = Var.Member(newid, exo.class)
@@ -72,6 +70,27 @@ function (exo::Var.ExoRandVar)(ω::LazyΩ)
     result
   end::eltype(newexo.class)
 end
+
+# function (exo::Var.ExoRandVar)(ω::LazyΩ)
+#   # idwhat = 2
+#   # @show exo.id
+#   # @show ω.subspace
+#   # @show 
+#   # Mix subspace with index
+#   newid = append(ω.subspace, exo.id)
+#   newexo = Var.Member(newid, exo.class)
+#   # @assert false
+#   # exo = exo
+#   result = get(ω.data, newexo, 0)
+#   if result === 0
+#     ω.data[newexo] = rand(rng(ω), newexo.class)
+#   else
+#     result
+#   end::eltype(newexo.class)
+# end
+
+
+
 
 ## Updating interface
 import ..Util:update

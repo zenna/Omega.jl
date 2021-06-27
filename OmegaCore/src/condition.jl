@@ -1,7 +1,7 @@
 module Condition
 
 using ..Space, ..Tagging, ..Traits
-export |ᶜ, cnd, conditions, cond!, condf, Conditional, ConditionException
+export |ᶜ, cnd, conditions, cond!, condf, Conditional, ConditionException, tagignorecondition
 export ==ₚ
 
 # # Conditioning
@@ -20,10 +20,11 @@ end
 struct ConditionException <: Exception end
 
 @inline condf(traits, ω, x, y) = Bool(y(ω)) ? x(ω) : throw(ConditionException())
-
+@inline condf(::trait(IgnoreCondition), ω, x, y) = x(ω)
 @inline condf(ω::Ω, x, y) where Ω = condf(traits(Ω), ω, x, y)
 
 @inline tagcondition(ω, condition) = tag(ω, (condition = condition,))
+@inline tagignorecondition(ω) = tag(ω, (ignorecondition = NoTagValue,))
 
 # If error are violated then throw error
 @inline (c::Conditional)(ω) = condf(ω, c.x, c.y)

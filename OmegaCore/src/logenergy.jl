@@ -2,17 +2,23 @@ module LogEnergies
 
 using ..Traits, ..RNG, ..Var, ..Tagging, ..Space
 using ..Util: Box
+using ..Basis: AbstractΩ
 
-export logenergy, ℓ
+export logenergy, ℓ, logenergyexo
 
 ## Simple Case
 # In the simple case, the values of all the exogenous variables
-# are within ω
+# are within FIXME
+
+# zt: fix me precision of these two are different,
+logenergy(::StdNormal{T}, v) where T = - v^2/2 - log(sqrt(2π))
+logenergy(::StdUniform{T}, v) where T = zero(T)
+logenergy(dist::ExoRandVar, v) = logenergy(dist.class, v)
 
 "`logenergyexo(ω)` Log energy of `ω` only on exogenous variables"
 function logenergyexo(ω)
-  reduce(ω; init = 0.0) do logpdf_, (dist, val)
-    logpdf_ + logpdf(dist, val)
+  reduce(pairs(ω); init = 0.0) do logpdf_, (dist, val)
+    logpdf_ + logenergy(dist, val)
   end
 end
 
@@ -27,49 +33,21 @@ end
 # Returns
 - joint log probability of
 """
-function logenergy(x, ω)
+function logenergy(x, ω::AbstractΩ)
   ω_ = taglogenergy(ω)
   ret = x(ω_)
-  ω_.tags.logpdf.ℓ.val
+  ω_.tags.logenergy.ℓ.val
 end
 
-function Var.prehook(::trait(LogEnergy), ret, f, ω)
-  #ω.tags.logpdf.val += logpdf(f, ret)
-  # FIXME: scope doesn't exist.
-  # What should it be?
-  @show "HELLO"
+function Var.posthook(::trait(LogEnergy), ret, f::ExoRandVar, ω)
+  @show f isa ExoRandVar
   if f ∉ ω.tags.logenergy.seen
     @show "SEEN"
-    ω.tags.logenergy.ℓ.val += logpdf(f, ret)
+    ω.tags.logenergy.ℓ.val += logenergy(f, ret)
     push!(ω.tags.logenergy.seen, id)
   end
   nothing
 end
-
-function Var.posthook(::trait(LogEnergy), ret, f, ω)
-  #ω.tags.logpdf.val += logpdf(f, ret)
-  # FIXME: scope doesn't exist.
-  # What should it be?
-  @show "HELLO"
-  if f ∉ ω.tags.logenergy.seen
-    @show "SEEN"
-    ω.tags.logenergy.ℓ.val += logpdf(f, ret)
-    push!(ω.tags.logenergy.seen, id)
-  end
-  nothing
-end
-
-
-# """
-# `logenergy(ω)`
-
-# Unnormalized joint log density
-# """
-# function logenergy(ω)
-#   reduce(ω.data; init = 0.0) do logenergy_, (id, (dist, val))
-#     logpdf_ + logpdf(dist, val)
-#   end
-# end
 
 const ℓ = logenergy
 

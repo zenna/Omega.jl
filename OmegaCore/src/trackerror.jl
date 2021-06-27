@@ -2,7 +2,7 @@ module TrackError
 
 using ..Util, ..Tagging, ..Condition, ..Traits
 import ..Condition
-export applytrackerr, condvar, tagerror, initerror
+export applytrackerr, condvar, condvarapply, tagerror, initerror
 
 # Options
 # 1. Always initialize with correct type -- best performance
@@ -23,7 +23,7 @@ end
 
 "Equivalent to `condvar(x)(ω)`, but more efficient"
 condvarapply(x, ω, initerr) = applytrackerr(x, ω, initerr).err
-condvarapply(x, ω, errtype::Type{T} = Bool) where T =
+condvarapply(x, ω, errtype::Type{T}) where T =
   condvarapply(x, ω, initerror(T))
 
 function initerror end

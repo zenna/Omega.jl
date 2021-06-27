@@ -102,7 +102,10 @@ Y⃗_posterior = Y⃗ |ᶜ Evidenceₛ
 (Omega.OmegaCore.condvar(Y⃗_posterior, SoftPredicates.DualSoftBool{Float64}))(ω)
 
 # ╔═╡ aa781fbe-76d0-11eb-387a-3dc1cbf700f8
-samples = rand((M, C) |ᶜ Evidence, nsamples; alg = HMC) 
+samples = randsample(@joint(M, C) |ᶜ Evidenceₛ, nsamples; alg = MH) 
+
+# ╔═╡ 433743d4-3014-4e41-bebd-3e5fd0d36bb8
+typeof(samples)
 
 # ╔═╡ f7efb0d0-76d1-11eb-3440-47df94aeb74e
 UnicodePlots.scatterplot(xs, samples)
@@ -144,5 +147,6 @@ UnicodePlots.scatterplot(xs, samples)
 # ╠═90e199ed-56b8-451d-81ec-885b6db97cc3
 # ╠═a2c4cce9-cd16-4d79-b878-8ba36f1d3d00
 # ╠═aa781fbe-76d0-11eb-387a-3dc1cbf700f8
+# ╠═433743d4-3014-4e41-bebd-3e5fd0d36bb8
 # ╠═f7efb0d0-76d1-11eb-3440-47df94aeb74e
 # ╠═19bb9822-7734-11eb-1170-b1eaab345ba5
