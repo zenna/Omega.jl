@@ -1,0 +1,9 @@
+name = "LambdaC"
+uuid = "22ddffa0-90a5-45fe-9b4f-abb305d20f8b"
+authors = ["Zenna Tavares <zennatavares@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+MLStyle = "d8e11817-5142-5d16-987a-aa16d5891078"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
+SExpressions = "eaa8e424-c5f6-11e8-1b3d-d576ba0eee97"

@@ -4,6 +4,10 @@ using ..Util, ..Tagging, ..Condition, ..Traits
 import ..Condition
 export applytrackerr, condvar, condvarapply, tagerror, initerror
 
+
+# Options.
+#> condition on logerr, explicitly
+
 # Options
 # 1. Always initialize with correct type -- best performance
 # 2. Have nothing, small union ⊥ ∪ Float64
@@ -25,6 +29,8 @@ end
 condvarapply(x, ω, initerr) = applytrackerr(x, ω, initerr).err
 condvarapply(x, ω, errtype::Type{T}) where T =
   condvarapply(x, ω, initerror(T))
+
+logcondvarapply(x, ω) = condvarapply(x, ω)
 
 function initerror end
 initerror(::Type{Bool}) = true

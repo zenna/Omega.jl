@@ -33,9 +33,6 @@ include("space/space.jl")       # Probability / Paramter Spaces
 include("interventions/interventions.jl")         # Causal interventions
 @reexport using .Interventions
 
-include("Higher/higher.jl")            # Higher order inference
-@reexport using .Higher
-
 include("rand.jl")            # Higher order inference
 @reexport using .Rand
 
@@ -43,6 +40,9 @@ include("rand.jl")            # Higher order inference
 
 include("condition.jl")         # Conditioning variables
 @reexport using .Condition
+
+include("Higher/higher.jl")            # Higher order inference
+@reexport using .Higher
 
 include("queries.jl")           # Query Templtes
 @reexport using .Queries

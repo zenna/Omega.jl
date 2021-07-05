@@ -1,6 +1,5 @@
 # module Pointwise
 
-using ..Var
 export pw, l, dl, ₚ, PwVar, liftapply
  
 """
