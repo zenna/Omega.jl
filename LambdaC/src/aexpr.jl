@@ -113,7 +113,7 @@ function showstring(expr::Expr)
     Expr(:args, args...) => join(map(showstring, args), " ")
     Expr(:call, f, arg1, arg2) && if isinfix(f) end => "$(showstring(arg1)) $f $(showstring(arg2))"
     Expr(:call, f, args...) => "($(join(map(showstring, [f ; args]), " ")))"
-    Expr(:let, vars...) => "let \n\t$(join(map(showstring, vars), "\n\t"))"
+    Expr(:let, var, val, body) => "let \n\t $var = $(showstring(val)) \n in $(showstring(body))"
     Expr(:paramtype, type, param) => string(type, " ", param)
     Expr(:paramtype, type) => string(type)
     Expr(:case, type, vars...) => string("\n\tcase $(showstring(type)) of \n\t\t", join(map(showstring, vars), "\n\t\t"))
@@ -121,7 +121,7 @@ function showstring(expr::Expr)
     Expr(:casetype, type, vars...) => "$type $(join(vars, " "))"
     Expr(:type, vars...) => "type $(vars[1]) $(vars[2]) = $(join(map(showstring, vars[3:length(vars)]), " | "))"
     Expr(:typealias, var, val) => "type alias $(showstring(var)) = $(showstring(val))"
-    Expr(:fn, params, body) => "fn $(showstring(params)) ($(showstring(body)))"
+    Expr(:fn, params, body) => "λ $(showstring(params)) ($(showstring(body)))"
     Expr(:list, vals...) => "($(join(vals, ", ")))"
     Expr(:field, var, field) => "$(showstring(var)).$(showstring(field))"
     Expr(:typealiasargs, vals...) => "$(string("{ ", join(map(showstring, vals), ", ")," }"))"

@@ -15,6 +15,11 @@ version = "0.8.2"
 [[Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 
+[[Cassette]]
+git-tree-sha1 = "087e76b8d48c014112ba890892c33be42ad10504"
+uuid = "7057c7e9-c182-5462-911a-8362d720325c"
+version = "0.3.7"
+
 [[DataStructures]]
 deps = ["InteractiveUtils", "OrderedCollections"]
 git-tree-sha1 = "88d48e133e6d3dd68183309877eac74393daa7eb"
@@ -25,6 +30,12 @@ version = "0.17.20"
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 
+[[DocStringExtensions]]
+deps = ["LibGit2"]
+git-tree-sha1 = "a32185f5428d3986f47c2ab78b1f216d5e6cc96f"
+uuid = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
+version = "0.8.5"
+
 [[Downloads]]
 deps = ["ArgTools", "LibCURL", "NetworkOptions"]
 uuid = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
@@ -34,6 +45,11 @@ deps = ["Test"]
 git-tree-sha1 = "04cb9cfaa6ba5311973994fe3496ddec19b6292a"
 uuid = "de31a74c-ac4f-5751-b3fd-e18cd04993ca"
 version = "0.5.0"
+
+[[InferenceBase]]
+path = "/Users/zenna/repos/Omega.jl/InferenceBase/"
+uuid = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
+version = "0.1.0"
 
 [[InteractiveUtils]]
 deps = ["Markdown"]
@@ -57,6 +73,10 @@ uuid = "29816b5a-b9ab-546f-933c-edad1886dfa8"
 
 [[Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+
+[[LinearAlgebra]]
+deps = ["Libdl"]
+uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
@@ -132,6 +152,18 @@ uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 
 [[Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
+
+[[SoftPredicates]]
+deps = ["Cassette", "DocStringExtensions", "InferenceBase", "LinearAlgebra", "Spec"]
+path = "/Users/zenna/repos/Omega.jl/SoftPredicates/"
+uuid = "5345b20a-9614-40c4-b281-8f4998fc0f3b"
+version = "0.1.0"
+
+[[Spec]]
+deps = ["Cassette", "Pkg", "Random", "Test"]
+git-tree-sha1 = "01317d4b40fe250c4cd07323584070c3d2d82811"
+uuid = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
+version = "0.2.0"
 
 [[TOML]]
 deps = ["Dates"]
