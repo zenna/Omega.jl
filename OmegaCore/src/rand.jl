@@ -1,4 +1,5 @@
 module Rand
+using Base: AbstractFloat
 using ..Util: Box
 using ..Tagging
 using ..Traits
@@ -41,17 +42,31 @@ rv(x) = ω -> x(tagrand(ω))
 @inline inc_counter!(ω) = ω.tags.randmutate.val += Int(1)
 @inline counter(ω) = ω.tags.randmutate.val
 
-@inline a(id, ::typeof(rand), ω, ::Type{X} = Float64) where {X} = StdUniform{X}()(id, ω)
-@inline a(id, ::typeof(randn), ω, ::Type{X} = Float64) where {X} = StdNormal{X}()(id, ω)
+# ## Primitives 
+# @inline a(id, ::typeof(rand), ω, ::Type{X}) where {X<:AbstractFloat} = StdUniform{X}()(id, ω)
+# @inline a(id, ::typeof(rand), ω, ::Type{T<:Integer}) where {T<:Integer} =
+#   UniformInt{X}()(id, ω)
+# @inline a(id, ::typeof(randn), ω, ::Type{X}) where {X} = StdNormal{X}()(id, ω)
 
-@inline wow(::trait(RandMutate), randf, ω, args...) =
-  let x = a(counter(ω), randf, ω, args...)
-    inc_counter!(ω)
-    x
-  end
+# # zt: Ideally we'd just write this as a post-hook
+# @inline traitrand(::trait(RandMutate), randf, ω, args...) =
+#   let x = a(counter(ω), randf, ω, args...)
+#     inc_counter!(ω)
+#     x
+#   end
 
-Base.rand(ω::AbstractΩ, args...) = wow(traits(ω), rand, ω, args...)
-Base.randn(ω::AbstractΩ, args...) = wow(traits(ω), rand, ω, args...)
+# Base.rand(ω::AbstractΩ, args...) = traitrand(traits(ω), rand, ω, args...)
+# Base.randn(ω::AbstractΩ, args...) = traitrand(traits(ω), rand, ω, args...)
+
+inc!(v, ω) = (inc_counter!(ω); v)
+
+Base.rand(ω::AbstractΩ, ::Type{T}) where {T <: AbstractFloat} = inc!(StdUniform{T}()(counter(ω), ω), ω)
+Base.randn(ω::AbstractΩ, ::Type{T}) where {T <: AbstractFloat} = inc!(StdNormal{T}()(counter(ω), ω), ω)
+Base.rand(ω::AbstractΩ, ::Type{T}) where {T <: Integer} = inc!(UniformInt{T}()(counter(ω), ω), ω)
+
+
+# Var.posthook(::trait(RandMutate), rand, ω, args...) =
+#   inc_counter!(ω)
 
 # Random.randexp
 # Random.randperm

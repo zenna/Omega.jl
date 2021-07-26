@@ -2,6 +2,7 @@ import ..Tagging: hastag, traithastag, tag, mergetag
 import ..Util: mergef, rmkey
 import ..Traits: traits
 export AbstractΩ, defΩ, defω, resolve, idtype, replacetags, like
+import Random
 
 # # Sample Space
 # A sample space represents a set of possible values.
@@ -9,7 +10,7 @@ export AbstractΩ, defΩ, defω, resolve, idtype, replacetags, like
 # Different parts are indicated by an id (see IDS)
 
 "Abstract Sample Space"
-abstract type AbstractΩ end
+abstract type AbstractΩ <: Random.AbstractRNG end
 
 # # Tags
 "`tag(ω::AbstractΩ, tags)` tag `ω` with `tags`."
