@@ -7,11 +7,11 @@ using Lens
 using ..Omega: RandVar, applytrackerr, indomainₛ, logerr,
                UTuple, Ω, applynotrackerr, SimpleΩ, LinearΩ,
                update, cond, randtuple, nelem,
-               gradient, linearize, unlinearize, err, indomainₛ, indomain, apl
+               linearize, unlinearize, err, indomainₛ, indomain, apl
 import ..Omega
 using Omega.Space: tagrng
 
-using ..Gradient: value, gradient
+# using ..Gradient: value, gradient
 
 using ProgressMeter
 import Flux

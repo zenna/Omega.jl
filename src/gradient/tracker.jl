@@ -1,5 +1,5 @@
 import Flux
-import Flux.Tracker
+import Tracker
 
 struct TrackerGradAlg <: GradAlg end
 const TrackerGrad = TrackerGradAlg()

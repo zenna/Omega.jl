@@ -2,6 +2,7 @@
 module Omega
 
 import ForwardDiff, Flux
+using Tracker
 # Zygote,
 using Spec
 using UnicodePlots

@@ -90,22 +90,22 @@ Base.isempty(lω::LinearΩ) = isempty(lω.ωvec)
 
 # Flux-specific #
 
-emp(a::Type{Flux.TrackedArray{A, B, C}}) where {A, B, C} = C()
+emp(a::Type{Tracker.TrackedArray{A, B, C}}) where {A, B, C} = C()
 
 # zt: This is type piracy: use a different method name
-Base.append!(ta::Flux.TrackedArray, a::Array) =
+Base.append!(ta::Tracker.TrackedArray, a::Array) =
   (append!(ta.data, a); append!(ta.grad, zero(a)))
 
-Base.append!(ta::Flux.TrackedArray, tb::Flux.TrackedArray) =
+Base.append!(ta::Tracker.TrackedArray, tb::Tracker.TrackedArray) =
   (append!(ta.data, tb.data); append!(ta.grad, tb.grad))
 
 # using ZenUtils
 
-function randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}, dims::Dims{N}) where {I, SEG, T, V <: Flux.TrackedArray{T}, N}
-  Flux.TrackedArray{T, N, Array{T, N}}
+function randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}, dims::Dims{N}) where {I, SEG, T, V <: Tracker.TrackedArray{T}, N}
+  Tracker.TrackedArray{T, N, Array{T, N}}
 end
 
-# function randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}) where {I, SEG, V<: Flux.TrackedArray, T <: AbstractFloat}
+# function randrtype(lω::LinearΩ{I, SEG, V}, ::Type{T}) where {I, SEG, V<: Tracker.TrackedArray, T <: AbstractFloat}
 #   Flux.Tracker.TrackedReal{T}
 # end
 
@@ -135,7 +135,7 @@ function memrand(lω::LinearΩ, id, X, dims::Dims; rng)
   end
 end
 
-memrand(lω::LinearΩ{I, SEG, V}, id, X; rng) where {I, SEG, V<: Flux.TrackedArray} = 
+memrand(lω::LinearΩ{I, SEG, V}, id, X; rng) where {I, SEG, V<: Tracker.TrackedArray} = 
   first(memrand(lω, id, X, (1,); rng = rng))
 
 # using ZenUtils

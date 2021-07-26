@@ -1,3 +1,5 @@
+import Tracker
+
 """
 SimpleΩ: Stores map from indices to values
 
@@ -52,15 +54,15 @@ end
 
 # Flux-specific #
 
-randrtype(ω::SimpleΩ{I, A}, ::Type{T}) where {T <: AbstractFloat, I, A<:Flux.TrackedArray} = Flux.Tracker.TrackedReal{T}
-randrtype(ω::SimpleΩ{I, A}, ::Type{T}, ::Dims{N}) where {N, T <: AbstractFloat, I, A <: Flux.TrackedArray{T}} =
-  Flux.TrackedArray{T, N, Array{T, N}}
+randrtype(ω::SimpleΩ{I, A}, ::Type{T}) where {T <: AbstractFloat, I, A<:Tracker.TrackedArray} = Tracker.TrackedReal{T}
+randrtype(ω::SimpleΩ{I, A}, ::Type{T}, ::Dims{N}) where {N, T <: AbstractFloat, I, A <: Tracker.TrackedArray{T}} =
+  Tracker.TrackedArray{T, N, Array{T, N}}
 # zt: Issue here is how do you specify that it should be say a static vector
 # Am using abstract TrackedArray
 
 # using ZenUtils
 
-@inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T}, dims::Dims; rng) where {T, I, A<:Flux.TrackedArray}
+@inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T}, dims::Dims; rng) where {T, I, A<:Tracker.TrackedArray}
   # @show randrtype(ω, T, dims)
   # @show id ∈ keys(ω.vals)
   # @show a = typeof(Flux.param(rand(rng, T, dims)))
@@ -74,7 +76,7 @@ randrtype(ω::SimpleΩ{I, A}, ::Type{T}, ::Dims{N}) where {N, T <: AbstractFloat
   res::randrtype(ω, T, dims)
 end
 
-@inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T}; rng) where {T, I, A<:Flux.TrackedArray}
+@inline function memrand(ω::SimpleΩ{I, A}, id::I, ::Type{T}; rng) where {T, I, A<:Tracker.TrackedArray}
   val = get!(()->Flux.param([rand(rng, T)]), ω.vals, id)
   first(val)
 end
