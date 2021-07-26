@@ -98,7 +98,7 @@ isinfix(f) = false
 
 
 "Pretty print"
-function showstring(expr::Expr)
+function showstring(expr::Expr, ident = 1)
   @match expr begin
     Expr(:program, statements...) => join(map(showstring, expr.args), "\n")
     Expr(:producttype, ts) => join(map(showstring, ts), "×")
@@ -108,7 +108,7 @@ function showstring(expr::Expr)
     Expr(:externaldecl, x, val) => "external $x : $(showstring(val))"
     Expr(:external, val) => "external $(showstring(val))"
     Expr(:assign, x, val) => "$x $(needequals(val)) $(showstring(val))"
-    Expr(:if, i, t, e) => "if ($(showstring(i)))\n  then ($(showstring(t)))\n  else ($(showstring(e)))"
+    Expr(:if, i, t, e) => "if ($(showstring(i)))\n  then $(showstring(t))\n  else $(showstring(e))"
     Expr(:initnext, i, n) => "init $(showstring(i)) next $(showstring(n))"
     Expr(:args, args...) => join(map(showstring, args), " ")
     Expr(:call, f, arg1, arg2) && if isinfix(f) end => "$(showstring(arg1)) $f $(showstring(arg2))"

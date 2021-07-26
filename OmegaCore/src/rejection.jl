@@ -15,15 +15,16 @@ const RejectionSample = RejectionSampleAlg()
 OmegaCore.defrandalg(args...) = RejectionSample
 
 function condomegasample1(rng,
-                     ΩT::Type{OT},
-                     y,
-                     alg::RejectionSampleAlg) where OT
+                          ΩT::Type{OT},
+                          y,
+                          alg::RejectionSampleAlg) where OT
   @label restart
   ω = ΩT()
   ω_ = tagrng(ω, rng)
   !y(ω_) && @goto restart
   ω
 end
+
 
 "`n` samples from ω::ΩT such that `y(ω)` is true"
 function OC.condomegasample(rng,

@@ -1,4 +1,4 @@
-export mapf
+	export mapf
 """
 `mapf(x, fs)`
 

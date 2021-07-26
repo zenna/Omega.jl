@@ -11,8 +11,6 @@ struct LazyΩ{TAGS <: Tags, T, S} <: AbstractΩ
   subspace::S
 end
 
-
-
 Basis.subspace(ω::LazyΩ) = ω.subspace
 
 # AbstractDict interface 

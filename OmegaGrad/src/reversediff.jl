@@ -15,7 +15,6 @@ function OmegaGrad.grad(rv, ω, ::ReverseDiffGradAlg)
   ReverseDiff.gradient(rv, ω)
 end
 
-
 "arrayω(rv) returns a function f where `f` has the form `f(::AbstractArray{<:Real})::Real`"
 arrayω(f, Ω) = xs -> f(unroll(f, xs, Ω))
 
@@ -24,8 +23,11 @@ function ωzip(f, xs, Ω)
   keys_ = vars(f)
 end
 
+# ReverseDiff.gradient(f, input, cfg::GradientConfig = GradientConfig(input))
 
 
-ReverseDiff.gradient(f, input, cfg::GradientConfig = GradientConfig(input))
+# - Make examples work with SimpleΩ
+# - Make a special Ω type that is `<:AbstractArray` or `linearize` Ω into actually array
+# 
 
 end

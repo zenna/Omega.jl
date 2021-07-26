@@ -10,6 +10,7 @@ import ..Traits: traits
 # include("scope.jl")
 include("simpleomega.jl")       # Sample Space / Distributions
 include("lazyomega.jl")         # Sample Space / Distributions
+include("linearomega.jl")       # Sample Space / Distributions
 
 # Defaults
 Basis.defΩ(args...; idtype = defID()) =
