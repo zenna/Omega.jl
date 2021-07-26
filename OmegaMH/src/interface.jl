@@ -1,3 +1,6 @@
+# FIXME: Remoev soft predicates from here, but how?!?
+using SoftPredicates
+
 "Randomly initialize ω"
 function auto_init(rng, x, ΩT = defΩ())
   ω = ΩT()
@@ -9,9 +12,9 @@ end
 "Exo prior soft constraints"
 function auto_logenergy(x)
   function logenergyvar_(ω)
-    ϵ = OmegaCore.logcondvarapply(x, ω)
+    ϵ = OmegaCore.condvarapply(x, ω, SoftPredicates.DualSoftBool{Float64})
     ℓ = OmegaCore.logenergyexo(ω)
-    ϵ + ℓ
+    SoftPredicates.logerr(ϵ) + ℓ
   end
 end 
 

@@ -1,5 +1,5 @@
 import OmegaCore.Proposal
-using OmegaCore: ExoRandVar, Member, like, propose, StdNormal, StdUniform
+using OmegaCore: ExoRandVar, Member, like, propose, StdNormal, StdUniform, UniformInt
 
 export SSProposal
 
@@ -8,6 +8,12 @@ struct SSProposal end
 
 function subpropose(qω, ::Member{<:StdNormal}, val; σ = 0.01)
   (randn(qω) + val) * σ
+end
+
+function subpropose(qω, ::Member{<:UniformInt{T}}, val; σ = 0.01) where {T}
+  # @assert false
+  rand(qω, T)
+  # (randn(qω) + val) * σ
 end
 
 function subpropose(qω, ::Member{<:StdUniform}, val; σ = 0.1)
