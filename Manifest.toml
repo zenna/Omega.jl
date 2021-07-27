@@ -16,9 +16,9 @@ version = "0.3.7"
 
 [[ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
-git-tree-sha1 = "be770c08881f7bb928dfd86d1ba83798f76cf62a"
+git-tree-sha1 = "f53ca8d41e4753c41cdafa6ec5f7ce914b34be54"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "0.10.9"
+version = "0.10.13"
 
 [[Compat]]
 deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "SHA", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Statistics", "Test", "UUIDs", "Unicode"]
@@ -55,9 +55,9 @@ uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[Distributions]]
 deps = ["FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SparseArrays", "SpecialFunctions", "Statistics", "StatsBase", "StatsFuns"]
-git-tree-sha1 = "2733323e5c02a9d7f48e7a3c4bc98d764fb704da"
+git-tree-sha1 = "3889f646423ce91dd1055a76317e9a1d3a23fff1"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
-version = "0.25.6"
+version = "0.25.11"
 
 [[DocStringExtensions]]
 deps = ["LibGit2"]
@@ -71,9 +71,9 @@ uuid = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 
 [[FillArrays]]
 deps = ["LinearAlgebra", "Random", "SparseArrays"]
-git-tree-sha1 = "31939159aeb8ffad1d4d8ee44d07f8558273120a"
+git-tree-sha1 = "25b9cc23ba3303de0ad2eac03f840de9104c9253"
 uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
-version = "0.11.7"
+version = "0.12.0"
 
 [[Future]]
 deps = ["Random"]
@@ -119,9 +119,9 @@ uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[LogExpFunctions]]
 deps = ["DocStringExtensions", "LinearAlgebra"]
-git-tree-sha1 = "1ba664552f1ef15325e68dc4c05c3ef8c2d5d885"
+git-tree-sha1 = "7bd5f6565d80b6bf753738d2bc40a5dfea072070"
 uuid = "2ab3a3ac-af41-5b50-aa03-7779005ae688"
-version = "0.2.4"
+version = "0.2.5"
 
 [[Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
@@ -211,6 +211,12 @@ git-tree-sha1 = "5f6c21241f0f655da3952fd60aa18477cf96c220"
 uuid = "189a3867-3050-52da-a836-e630ba90ab69"
 version = "1.1.0"
 
+[[ReplicaExchange]]
+deps = ["InferenceBase", "Spec"]
+path = "/Users/zenna/repos/Omega.jl/ReplicaExchange"
+uuid = "5ad4e244-73e6-47c5-b007-45e12ac3dae1"
+version = "0.1.0"
+
 [[Rmath]]
 deps = ["Random", "Rmath_jll"]
 git-tree-sha1 = "bf3188feca147ce108c76ad82c2792c57abe7b1f"
@@ -244,9 +250,9 @@ version = "0.1.0"
 
 [[SortingAlgorithms]]
 deps = ["DataStructures"]
-git-tree-sha1 = "2ec1962eba973f383239da22e75218565c390a96"
+git-tree-sha1 = "b3363d7460f7d098ca0912c69b082f75625d7508"
 uuid = "a2af1166-a08f-5f64-846c-94a0d3cef48c"
-version = "1.0.0"
+version = "1.0.1"
 
 [[SparseArrays]]
 deps = ["LinearAlgebra", "Random"]

@@ -10,6 +10,6 @@ include("OmegaSoftPredicates.jl")
 @reexport using .OmegaSoftPredicates
 
 @reexport using OmegaMH
-# @reexport using ReplicaExchange
+@reexport using ReplicaExchange
 # @reexport using InvolutiveMCMC
 end

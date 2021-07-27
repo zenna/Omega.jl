@@ -2,7 +2,7 @@
 using SoftPredicates
 
 "Randomly initialize ω"
-function auto_init(rng, x, ΩT = defΩ())
+function auto_init(rng, x, ΩT)
   ω = ΩT()
   ω_ = OmegaCore.tagignorecondition(OmegaCore.tagrng(ω, rng))
   x(ω_)
@@ -48,11 +48,12 @@ function OmegaCore.randsample(rng,
 end
 
 function OmegaCore.omegarandsample(rng,
+                                   ΩT,
                                    logenergy,
                                    n,
                                    ::MHAlg;
-                                   state_init = auto_init(rng, x),
-                                   propose_and_logratio = defpropose_and_logratio(x),
+                                   state_init = auto_init(rng, logenergy, ΩT),
+                                   propose_and_logratio = defpropose_and_logratio(logenergy),
                                    kwargs...)
   ωsamples = mh(rng, logenergy, n, state_init, propose_and_logratio; kwargs...) 
 end

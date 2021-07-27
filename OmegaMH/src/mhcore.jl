@@ -2,7 +2,7 @@ import OmegaCore
 import OmegaCore: propose_and_logratio
 export MH, mh, mh!
 
-using InferenceBase: keepall
+using InferenceBase: keepall, tonothing
 
 "Metropolis Hastings Samplng Algorithm"
 struct MHAlg end
@@ -39,7 +39,8 @@ function mh!(rng,
              propose_and_logratio,
              samples;
              keep = keepall,
-             prestore = identity)
+             prestore = identity,
+             cb = tonothing)
   state = state_init
   plast = logdensity(state)
   qlast = 1.0
@@ -59,10 +60,11 @@ function mh!(rng,
       @inbounds samples[s] = prestore(state)
       s += 1
     end
+    cb((i = i, p = p_, accepted = accepted))
     i += 1
   end
   samples
 end
 
-mh(rng, logdensity, n, state_init::X, propose_and_logratio; keep = keepall, prestore = identity) where X = 
-  mh!(rng, logdensity, n, state_init, propose_and_logratio, Vector{X}(undef, n); keep = keep, prestore = prestore)
+mh(rng, logdensity, n, state_init::X, propose_and_logratio; keep = keepall, prestore = identity, cb = tonothing) where X = 
+  mh!(rng, logdensity, n, state_init, propose_and_logratio, Vector{X}(undef, n); keep = keep, prestore = prestore, cb = cb)

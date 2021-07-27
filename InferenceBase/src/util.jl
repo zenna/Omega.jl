@@ -1,4 +1,4 @@
-export ignorefirstn, this, keepall
+export ignorefirstn, this, keepall, tonothing
 
 # FIXME: Move these to MH common
 
@@ -12,3 +12,5 @@ thin(n) = i -> i % n == 0
 
 "`a &ₚ b` Pointwise logical `x->a(x) & b(x)`"
 a &ₚ b = (x...)->a(x...) &ₚ b(x...)
+
+tonothing(args...) = nothing

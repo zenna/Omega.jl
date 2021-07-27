@@ -9,6 +9,7 @@ InferenceBase = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
 OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
 OmegaMH = "89eb2d39-e1f3-436d-870a-9a4679d6d79e"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
+ReplicaExchange = "5ad4e244-73e6-47c5-b007-45e12ac3dae1"
 SoftPredicates = "5345b20a-9614-40c4-b281-8f4998fc0f3b"
 
 [compat]

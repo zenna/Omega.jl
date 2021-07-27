@@ -9,13 +9,8 @@ export defrandalg, condomegasample, randsample, omegarandsample
 "Default sampling algorithm"
 function defrandalg end
 
-"`n` samples from `ω::ΩT` such that `yₓ(ω)` is true where `yₓ` are conditions of `x`"
-omegasample(rng, ΩT, x, n; kwargs) =
-  randsample(rng, ΩT, conditions(x), n; kwargs...) 
-
-"`n` samples from `ω::ΩT` such that `y(ω)` is true"
-condomegasample(rng, ΩT, y, n; alg = defrandalg(rng, x, n), kwargs...) = 
-  map
+function omegarandsample end
+function omegarandsample1 end
 
 """
 `n` random samples from `x` such that `yₓ(ω)` is true where `yₓ` are conditions of `x
@@ -39,11 +34,11 @@ Sample `n` `ω::AbstractΩ` according to function `logenergy(ω)` using inferenc
 Returns
 Vector of `n` samples 
 """
-omegarandsample(rng::AbstractRNG, logenergy, n; alg, kwargs...) =
-  omegarandsample(rng, logenergy, n, alg; kwargs...)
+omegarandsample(rng::AbstractRNG, logenergy, n; ΩT = defΩ(), alg, kwargs...) =
+  omegarandsample(rng, ΩT, logenergy, n, alg; kwargs...)
 
-omegarandsample(logenergy, n; alg, kwargs...) =
-  omegarandsample(Random.GLOBAL_RNG, logenergy, n; alg, kwargs...)
+omegarandsample(logenergy, n; ΩT = defΩ(), alg, kwargs...) =
+  omegarandsample(Random.GLOBAL_RNG, logenergy, n; ΩT, alg, kwargs...)
 
 # Convenience methods
 
@@ -56,9 +51,5 @@ randsample(x; kwargs...) =
  
 randsample(rng::AbstractRNG, xs::Tuple, args...; kwargs...) = 
   randsample(rng, ω -> mapf(ω, xs), args...; kwargs...)
-  
-# There are two different notions of ΩT
-# The first is the return type of the omegas
-# Second is Omegas used
 
 end
