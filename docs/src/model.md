@@ -92,7 +92,8 @@ x_(rng) = rand(rng) > 0.5
 `x_` is just a normal julia function.  We could sample from it by passing in the `GLOBAL_RNG`
 
 ```julia
-julia> x_(Base.Random.GLOBAL_RNG)
+julia> using Random
+julia> x_(Random.GLOBAL_RNG)
 true
 ```
 
