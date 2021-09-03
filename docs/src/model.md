@@ -97,7 +97,7 @@ true
 ```
 
 However, in order to use `x` for conditional or causal inference we must turn it into a `RandVar`.
-One way to do this (we discuss others in [conditonalindependence]) is using `~`.
+One way to do this (we discuss others in [conditonal independence](http://www.zenna.org/Omega.jl/latest/conditionalindependence/)) is using `~`.
 
 ```julia
 x = ~x_
