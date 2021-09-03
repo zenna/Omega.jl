@@ -1,7 +1,6 @@
 # Basic Tutorial
 
 In this tutorial we will run through the basics of creating a model and conditioning it.
-This tutorial is available in [notebook version](https://github.com/zenna/OmegaModels.jl/blob/master/models/small/coin.ipynb).
 
 First load Omega:
 
@@ -110,10 +109,10 @@ condition = coinflips ==ᵣ observations
 We can use `rand` to sample from the model conditioned on `condition` being true:
 
 ```julia
-weight_samples = rand(weight, condition, 10; alg = RejectionSample)
+weight_samples = rand(weight, condition, 1000; alg = RejectionSample)
 ```
 
-`weight_samples` is a set of `10` samples from the conditional (sometimes called posterior) distribution of `weight` condition on the fact that coinflips == observations.
+`weight_samples` is a set of `1000` samples from the conditional (sometimes called posterior) distribution of `weight` condition on the fact that coinflips == observations.
 
 In this case, `rand` takes
 - A random variable we want to sample from
