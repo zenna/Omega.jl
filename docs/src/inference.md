@@ -15,15 +15,15 @@ To sample from a conditional distribution: pass two random variables to `rand`, 
 
 ```julia
 weight = β(2.0, 2.0)
-x = bernoulli()
-rand(weight, x == 0)
+x = bernoulli(weight)
+rand(weight, x ==ᵣ 0; alg=RejectionSample)
 ```
 
 It is fine to condition random variables on equalities or inequalities:
 
 ```julia
 x1 = normal(0.0, 1.0)
-rand(x1, x1 > 0.0)
+rand(x1, x1 > 0.0; alg=RejectionSample)
 ```
 
 It's also fine to condition on functions of multiple variables
@@ -31,7 +31,7 @@ It's also fine to condition on functions of multiple variables
 ```julia
 x1 = normal(0.0, 1.0)
 x2 = normal(0.0, 10)
-rand((x1, x2), x1 > x2)
+rand((x1, x2), x1 > x2; alg=RejectionSample)
 ```
 
 Note: to sample from more than one random variable, just pass a tuple of `RandVar`s to `rand`.
