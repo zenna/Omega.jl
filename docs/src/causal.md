@@ -53,7 +53,7 @@ julia> rand((x, xnew, xnewnew))
 ```julia
 μ1 = normal(0, 1)
 μ2 = normal(0, 1)
-y = normal(x1 + x2, 1)
+y = normal(μ1 + μ2, 1)
 xnewmulti = replace(y, μ1 => normal(200.0, 1.0), μ2 => normal(300.0, 1.0))
 rand((xnewmulti))
 (-1.2756627673001866, 99.1080578175426, 198.14711316585564)
@@ -66,12 +66,12 @@ We can use `replace` and `cond` separately and in combination to ask lots of dif
 In this example, we model the relationship betwee the weather outside and teh thermostat reading inside a house.
 Broadly, the model says that the weather outside is dictataed by the time of day, while the temperature inside is determined by whether the air conditioning is on, and whether the window is open.
 
-First, setup simple priors over the time of day, and variables to determine whether the air conditioning is on and whether hte iwndow is open:
+First, setup simple priors over the time of day, and variables to determine whether the air conditioning is on and whether the iwndow is open:
 
 ```julia
 timeofday = uniform([:morning, :afternoon, :evening])
-is_window_open = bernoulli(0.5)
-is_ac_on = bernoulli(0.3)
+is_window_open = bernoulli(0.5,Bool)
+is_ac_on = bernoulli(0.3,Bool)
 ```
 
 Second, assume that the outside temperature depends on the time of day, being hottest in the afternoon, but cold at night:
@@ -91,14 +91,14 @@ end
 Remember, in this style we have to use  `ciid` to convert a function into a `RandVar`
 
 ```julia
-outside_temp = ciid(outside_temp_, T=Float64)
+outside_temp = ciid(outside_temp_)
 ```
 
 The `inside_temp` before considering the effects of the window is room temperature, unless the ac is on, which makes it colder.
 
 ```julia
 function inside_temp_(rng)
-  if Bool(is_ac_on(rng))
+  if is_ac_on(rng)
     normal(rng, 20.0, 1.0)
   else
     normal(rng, 25.0, 1.0)
@@ -107,13 +107,12 @@ end
 
 inside_temp = ciid(inside_temp_, T=Float64)
 ```
-47:Omega.normal(100.0, 1.0)::Float64
 
 Finally, the thermostat reading is `inside_temp` if the window is closed (we have perfect insulation), otherwise it's just the average of the outside and inside temperature
 
 ```julia
 function thermostat_(rng)
-  if Bool(is_window_open(rng))
+  if is_window_open(rng)
     (outside_temp(rng) + inside_temp(rng)) / 2.0
   else
     inside_temp(rng)
@@ -129,37 +128,34 @@ The simplest task is to sample from the prior:
 
 ```julia
 julia> rand((timeofday, is_window_open, is_ac_on, outside_temp, inside_temp, thermostat), 5, alg = RejectionSample)
-5-element Array{Any,1}:
- (:afternoon, 0.0, 0.0, 32.349, 26.441, 26.441)   
- (:afternoon, 1.0, 0.0, 30.751, 25.143, 27.947)
- (:morning, 1.0, 0.0, 16.928, 24.146, 20.537)     
- (:afternoon, 1.0, 0.0, 30.521, 25.370, 27.946)
- (:morning, 1.0, 1.0, 16.495, 20.203, 18.349) 
+5-element Array{Tuple{Symbol,Bool,Bool,Float64,Float64,Float64},1}:
+ (:evening, true, false, 10.310689624432637, 26.144122188682584, 18.22740590655761)
+ (:afternoon, false, false, 32.30806450465544, 22.861739827796345, 22.861739827796345)
+ (:morning, false, false, 20.161172183596964, 25.128141190979573, 25.128141190979573)
+ (:evening, true, false, 10.239806337680982, 26.81486040128365, 18.527333369482314)
+ (:morning, true, false, 20.56559745560037, 27.380632072360157, 23.973114763980263)
 ```
 
 ### Conditional Inference
 - You enter the room and the thermostat reads hot. what does this tell you about the variables?
 
-samples = rand((timeofday, is_window_open, is_ac_on, outside_temp, inside_temp, thermostat),
-                thermostat > 30.0, 5, alg = RejectionSample)
-
 ```julia
 
 julia> samples = rand((timeofday, is_window_open, is_ac_on, outside_temp, inside_temp, thermostat),
                        thermostat > 30.0, 5, alg = RejectionSample)
-5-element Array{Any,1}:
- (:evening, 1.0, 0.0, 33.64609872046609, 26.822449458789542, 30.234274089627817) 
- (:afternoon, 1.0, 0.0, 34.37763909867243, 26.16221853550574, 30.269928817089088)
- (:evening, 1.0, 0.0, 34.32198183192978, 26.6773921624331, 30.499686997181442)   
- (:afternoon, 1.0, 0.0, 34.05126597960254, 26.51833791813246, 30.2848019488675)  
- (:afternoon, 1.0, 0.0, 32.92982568498735, 27.56800059609554, 30.248913140541447)
+5-element Array{Tuple{Symbol,Bool,Bool,Float64,Float64,Float64},1}:
+ (:afternoon, true, false, 32.66172359406305, 28.459719413318684, 30.560721503690864)
+ (:afternoon, true, false, 33.411018400286764, 26.638821969105173, 30.02492018469597)
+ (:afternoon, true, false, 32.92666992107552, 27.87634864444088, 30.4015092827582)
+ (:afternoon, true, false, 34.941029761615916, 25.66825864439438, 30.304644203005147)
+ (:afternoon, true, false, 33.82296040117437, 26.237305008998273, 30.030132705086324)
 ```
 
 ## Counter Factual
 - If I were to close the window, and turn on the AC would that make it hotter or colder"
 
 ```
-thermostatnew = replace(thermostat, is_ac_on => 1.0, is_window_open => 0.0)
+thermostatnew = replace(thermostat, is_ac_on => true, is_window_open => false)
 diffsamples = rand(thermostatnew - thermostat, 10000, alg = RejectionSample)
 julia> mean(diffsamples)
 -4.246869797640215
@@ -168,7 +164,7 @@ julia> mean(diffsamples)
 So in expectation, that intervention will make the thermostat colder.  But we can look more closely at the distribution:
 
 ```
-julia> UnicodePlots.histogram([diffsamples...])
+julia> UnicodePlots.histogram(diffsamples)
 
                  ┌────────────────────────────────────────┐ 
    (-11.0,-10.0] │ 37                                     │ 
@@ -192,5 +188,12 @@ julia> UnicodePlots.histogram([diffsamples...])
 
 - In what scenarios would it still be hotter after turning on the AC and closing the window?
 
-rand((timeofday, outside_temp, inside_temp, thermostat),
-      thermostatnew - thermostat > 0.0, 10, alg = RejectionSample)
+```
+julia> rand((timeofday, outside_temp, inside_temp, thermostat), thermostatnew - thermostat > 0.0, 5, alg = RejectionSample)
+5-element Array{Tuple{Symbol,Float64,Float64,Float64},1}:
+ (:evening, 8.99858009405822, 26.42261048649467, 17.710595290276444)
+ (:evening, 11.016416633842283, 24.852317088939945, 17.934366861391112)
+ (:evening, 9.744613418296744, 25.556084959799456, 17.6503491890481)
+ (:evening, 9.381925134669295, 25.6283276833937, 17.505126409031497)
+ (:evening, 9.121300508670375, 25.182478479511474, 17.151889494090923)
+```
