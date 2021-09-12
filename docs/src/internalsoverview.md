@@ -9,7 +9,7 @@ The desiderata for Omega are to increase the expressiveness of probabilistic pro
 - Be fast
 
 Some of these points are contradictory.  For example only pure functions exist in
-measure theroy, whereas julia programs may have side effects.
+measure theory, whereas julia programs may have side effects.
 Also there are tradeoffs between being as fast as possible, while being as general as possible.
 
 We think we have found a good compromise in Julia.
