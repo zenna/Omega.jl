@@ -1,6 +1,7 @@
 using Test
 using Pkg
 Pkg.develop(path = joinpath(pwd(), "..", "..", "OmegaTest"))
+Pkg.develop(path = joinpath(pwd(), "..", "..", "connectors", "OmegaDistributions"))
 
 @testset "alltests" begin
   include("typeinfer.jl")
