@@ -80,6 +80,7 @@ deps = ["Random"]
 uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
 
 [[InferenceBase]]
+deps = ["OmegaCore", "SoftPredicates"]
 path = "InferenceBase"
 uuid = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
 version = "0.1.0"
@@ -155,10 +156,22 @@ path = "OmegaCore"
 uuid = "84d23798-d00f-4e9b-a82e-be69778c030a"
 version = "0.1.0"
 
+[[OmegaDistributions]]
+deps = ["Distributions", "OmegaCore"]
+path = "connectors/OmegaDistributions"
+uuid = "4ee16af8-c862-4b7a-9514-3b66b113c005"
+version = "0.1.0"
+
 [[OmegaMH]]
 deps = ["InferenceBase", "OmegaCore", "SoftPredicates"]
 path = "OmegaMH"
 uuid = "89eb2d39-e1f3-436d-870a-9a4679d6d79e"
+version = "0.1.0"
+
+[[OmegaSoftPredicates]]
+deps = ["InferenceBase", "OmegaCore", "SoftPredicates"]
+path = "connectors/OmegaSoftPredicates"
+uuid = "ffc32627-273f-428b-9998-33a39d288549"
 version = "0.1.0"
 
 [[OpenSpecFun_jll]]
