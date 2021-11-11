@@ -156,7 +156,7 @@ uuid = "84d23798-d00f-4e9b-a82e-be69778c030a"
 version = "0.1.0"
 
 [[OmegaMH]]
-deps = ["InferenceBase", "OmegaCore"]
+deps = ["InferenceBase", "OmegaCore", "SoftPredicates"]
 path = "OmegaMH"
 uuid = "89eb2d39-e1f3-436d-870a-9a4679d6d79e"
 version = "0.1.0"
@@ -212,8 +212,8 @@ uuid = "189a3867-3050-52da-a836-e630ba90ab69"
 version = "1.1.0"
 
 [[ReplicaExchange]]
-deps = ["InferenceBase", "Spec"]
-path = "/Users/zenna/repos/Omega.jl/ReplicaExchange"
+deps = ["InferenceBase", "OmegaCore", "Spec"]
+path = "ReplicaExchange"
 uuid = "5ad4e244-73e6-47c5-b007-45e12ac3dae1"
 version = "0.1.0"
 

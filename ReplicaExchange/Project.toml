@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [deps]
 InferenceBase = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
+OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
 Spec = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
 
 [compat]

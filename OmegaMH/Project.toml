@@ -6,6 +6,7 @@ version = "0.1.0"
 [deps]
 InferenceBase = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
 OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
+SoftPredicates = "5345b20a-9614-40c4-b281-8f4998fc0f3b"
 
 [extras]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
