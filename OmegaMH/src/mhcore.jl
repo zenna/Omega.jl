@@ -66,5 +66,19 @@ function mh!(rng,
   samples
 end
 
-mh(rng, logdensity, n, state_init::X, propose_and_logratio; keep = keepall, prestore = identity, cb = tonothing) where X = 
-  mh!(rng, logdensity, n, state_init, propose_and_logratio, Vector{X}(undef, n); keep = keep, prestore = prestore, cb = cb)
+function mh(rng,
+            logdensity,
+            n,
+            state_init::X,
+            propose_and_logratio; keep = keepall,
+            prestore = identity,
+   cb = tonothing) where X
+  mh!(rng,
+      logdensity,
+      n,
+      state_init,
+      propose_and_logratio,
+      Vector{X}(undef, n);
+      keep = keep,
+      prestore = prestore, cb = cb)
+end

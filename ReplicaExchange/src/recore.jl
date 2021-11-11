@@ -3,6 +3,8 @@ using Spec
 using Base.Threads: @spawn
 export re!, re, re_all!, Replica, ReplicaAlg
 
+using InferenceBase
+
 "Replica Exchange (Parallel Tempering)"
 struct ReplicaAlg end
 const Replica = ReplicaAlg()
@@ -23,16 +25,19 @@ function swap_contexts!(rng, logenergys, states)
     j = i - 1
 
     # Evaluate energy of state i at temperature i
-    E_i_i = logenergys[i](states[i])
-    E_i_j = logenergys[i](states[j])
-    E_j_i = logenergys[j](states[i])
-    E_j_j = logenergys[j](states[j])
+    @show E_i_i = logenergys[i](states[i])
+    @show E_i_j = logenergys[i](states[j])
+    @show E_j_i = logenergys[j](states[i])
+    @show E_j_j = logenergys[j](states[j])
 
     probaccept = (E_i_j + E_j_i) - (E_i_i + E_j_j)
     
     doswap = log(rand(rng)) < probaccept
     if doswap
+      println("did swap", i, j)
       swap!(states, i, j)
+    else
+      println("did not swap", i, j)
     end
   end
 end
@@ -83,27 +88,34 @@ function re!(rng,
              logenergys,
              samples_per_swap,
              num_swaps,
-             samples,
              states,
+             samples,
              sim_chain_keep_n,
              sim_chain_keep_last = last ∘ sim_chain_keep_n,
-             swap_contexts! = swap_contexts!)
+             swap_contexts! = swap_contexts!,
+             cb = tonothing)
   nreplicas = length(states)
+
 
   GROUNDID = 1
   for num_swap = 1:num_swaps
     for i = 1:nreplicas
+      @show i, :, logenergys[i](states[GROUNDID])
       if i == GROUNDID
+        # @show typeof(logenergys)
+        # @assert false      
         # If we're ground state, return swap_every samples
         lb = (num_swap - 1) * samples_per_swap + 1
         ub = lb + samples_per_swap - 1
-        @inbounds samples[lb:ub] = sim_chain_keep_n(logenergys[GROUNDID],
+        @inbounds samples[lb:ub] = sim_chain_keep_n(rng,
+                                                    logenergys[GROUNDID],
                                                     states[GROUNDID],
-                                                    samples_per_swap)
+                                                    samples_per_swap,
+                                                    i)
         @inbounds states[GROUNDID] = samples[ub]
       else
         # If not ground state just return last sample
-        @inbounds states[i] = sim_chain_keep_last(logenergys[i], states[i], samples_per_swap)
+        @inbounds states[i] = sim_chain_keep_last(rng, logenergys[i], states[i], samples_per_swap, i)
       end
     end
     swap_contexts!(rng, logenergys, states)
@@ -113,16 +125,25 @@ end
 # @pre length(logenergys) == length(states) "Must have one density per initial state"
 
 "Non-mutating re!"
-re(rng, logenergys, samples_per_swap, num_swaps, states, simulate_n, sim_chain_keep_last, swap_contexts! = swap_contexts!) = 
+re(rng,
+   logenergys,
+   samples_per_swap,
+   num_swaps,
+   states,
+   sim_chain_keep_n,
+   sim_chain_keep_last = last ∘ sim_chain_keep_n,  
+  swap_contexts! = swap_contexts!,
+  cb = tonothing) = 
   re!(rng,
       logenergys,
       samples_per_swap,
       num_swaps,
       states,
+      Vector{eltype(states)}(undef, num_swaps * samples_per_swap),
       sim_chain_keep_n,
       sim_chain_keep_last,
-      Vector{eltype(states)}(undef, num_swaps * samples_per_swap),
-      swap_contexts!)
+      swap_contexts!,
+      cb)
 
 function re_all!(rng,
                  logenergys,

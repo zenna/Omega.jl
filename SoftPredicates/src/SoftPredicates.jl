@@ -68,4 +68,11 @@ const <=ₛ = softlt
 const <ₛ = softlt
 const ==ₛ = softeq
 
+const ==̃ = softeq
+const !=̃ = softeq
+const >̃ = softgt
+const >=̃ = softgt
+const <=̃ = softlt
+const <̃ = softlt
+
 end

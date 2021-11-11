@@ -1,5 +1,8 @@
 module Omega
 using Reexport
+
+@reexport using InferenceBase
+
 @reexport using OmegaCore
 @reexport using SoftPredicates
 
