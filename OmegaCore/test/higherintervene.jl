@@ -1,4 +1,4 @@
-using OmegaCore, Distributions, Test, OmegaTest
+using OmegaCore, Distributions, Test, OmegaTest, OmegaDistributions
 
 a ⟹ b = !a || b
 
@@ -6,16 +6,23 @@ function test_hi()
   μ = 1 ~ Normal(0, 1)
   σ = 2 ~ Uniform(1, 3)
   y = 3 ~ Normal(μ, σ)
-  choice(ω) = ifelse((4 ~ Bernoulli(0.5))(ω), μ, σ)
+  changeμ = 4 ~ Bernoulli(0.5)
+  choice(ω) = ifelse((changeμ)(ω), μ, σ)
   int_dist(ω) = ValueIntervention(choice(ω), 5.0)
 
-  joint = @joint(y, μ, σ, choice)
+  # with a 40% chance, either μ or σ will be intervened to 0.5
+  joint = @joint(y, μ, σ, changeμ)
   joint_ = joint |ᵈ hi(int_dist)
-  randsample(joint_)
-  @test isinferred(randsample, joint_)
+  y_, μ_, σ_, changeμ_ = randsample(joint_)
+  if changeμ_
+    @test μ_ == 5.0
+  else
+    @test σ_ == 5.0
+  end 
 end
 
 function test_hi_self()
+  # Intervenes one of the variables to the negation of itself
   μ = 1 ~ Poisson(10)
   σ = 2 ~ Uniform(1, 3)
   y = Variable(ω -> (μ(ω), σ(ω)))
@@ -27,9 +34,9 @@ function test_hi_self()
   joint = @joint(y, μ, σ, choice)
   joint_ = joint |ᵈ hi(int_dist)
   y_, μ_, σ_, choice_ = randsample(joint_)
-  @test (choice == μ) ⟹ μ_ <= 0.0
-  @test (choice == σ) ⟹ σ_ <= 0.0
-  @test isinferred(randsample, joint_)
+  @test (choice_ == μ) ⟹ μ_ <= 0.0
+  @test (choice_ == σ) ⟹ σ_ <= 0.0
+  # @test isinferred(randsample, joint_)
 end
 
 function test_cd()
