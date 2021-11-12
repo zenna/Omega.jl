@@ -133,7 +133,7 @@ and pass arguments to `ciid`.
 
 ```julia
 "Uniform distribution between `a` and `b`"
-unif(rng, a, b) = rand(rng) * (b - a) + b  
+unif(rng, a, b) = rand(rng) * (b - a) + a
 
 # x is uniformly distributed between 10 and 20
 x = ciid(unif, 10, 20)
@@ -142,11 +142,11 @@ x = ciid(unif, 10, 20)
 And hence if we wanted to create a method that created independent uniformly distributed random variables, we could do it like so:
 
 ```julia
-uniform(a, b) =~ rng -> rand(rng) * (b - a) + b
+unif2(a,b) =~ rng -> rand(rng) * (b - a) + a
 
-# x is distributed between 30 and 40 (and independent of x)
-x = ciid(unif, 30, 40)
+# x is distributed between 30 and 40 (and independent of y)
+x = unif2(30, 40)
 
-# x is distributed between 30 and 40 (and independent of x)
-y = ciid(unif, 30, 40)
+# y is distributed between 30 and 40 (and independent of x)
+y = unif2(30, 40)
 ```
