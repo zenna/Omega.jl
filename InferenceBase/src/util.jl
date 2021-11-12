@@ -14,3 +14,9 @@ thin(n) = i -> i % n == 0
 a &ₚ b = (x...)->a(x...) &ₚ b(x...)
 
 tonothing(args...) = nothing
+
+struct Capture{T}
+  x::T
+end
+
+(c::Capture)(data) = push!(c.x, data)

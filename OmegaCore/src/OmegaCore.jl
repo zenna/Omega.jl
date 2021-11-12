@@ -59,6 +59,9 @@ include("proposal/proposal.jl")            # Log density
 # include("solution.jl")               # Satisfy
 # @reexport using .Solution
 
+include("seen.jl")
+@reexport using .SeenVars
+
 include("logenergy.jl")
 @reexport using .LogEnergies
 

@@ -1,8 +1,8 @@
 module OmegaDistributions
 
 using Distributions: Normal, Bernoulli, Distribution, Uniform, quantile
-import Distributions
-using ..Var: liftapply, Member, StdUniform, StdNormal
+import Distributions, OmegaCore
+using OmegaCore.Var: liftapply, Member, StdUniform, StdNormal
 
 @inline (d::Normal{T})(id, ω) where T =
   Member(id, StdNormal{T}())(ω) * d.σ + d.μ

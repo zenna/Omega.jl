@@ -1,8 +1,8 @@
-name = "InferenceBase"
-uuid = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
+name = "OmegaDistributions"
+uuid = "4ee16af8-c862-4b7a-9514-3b66b113c005"
 authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.1.0"
 
 [deps]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
-SoftPredicates = "5345b20a-9614-40c4-b281-8f4998fc0f3b"

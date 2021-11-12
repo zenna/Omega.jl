@@ -1,7 +1,17 @@
 
 import ..Traits
 using ..Traits: Trait
-export Err, LogEnergy, Mem, Intervene, Rng, Scope, Cond, Propose, RandMutate, IgnoreCondition
+export Err,
+       LogEnergy,
+       Mem,
+       Intervene,
+       Rng,
+       Scope,
+       Cond,
+       Propose,
+       RandMutate,
+       IgnoreCondition,
+       Seen
 
 # # Primitive Traits
 struct Err end
@@ -14,6 +24,7 @@ struct Cond end
 struct Propose end
 struct RandMutate end
 struct IgnoreCondition end
+struct Seen end
 
 function symtotrait(x::Symbol)
   if x == :err
@@ -36,6 +47,8 @@ function symtotrait(x::Symbol)
     Propose
   elseif x == :randmutate
     RandMutate
+  elseif x == :seen
+    Seen
   else
     error("Unknown trait: $x")
   end

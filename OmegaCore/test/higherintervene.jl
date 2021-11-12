@@ -70,5 +70,6 @@ end
 
 @testset "Higher Intervention" begin
   test_hi()
+  test_hi_self()
   test_cd()
 end

@@ -1,4 +1,5 @@
 using OmegaCore
+using OmegaDistributions
 using Test
 using Distributions
 using OmegaTest
