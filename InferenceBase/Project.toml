@@ -5,4 +5,3 @@ version = "0.1.0"
 
 [deps]
 OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
-SoftPredicates = "5345b20a-9614-40c4-b281-8f4998fc0f3b"
