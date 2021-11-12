@@ -1,6 +1,6 @@
 # # Causal interventions
 using ..Var, ..Basis
-export |ᵈ, intervene, mergetags, Intervention, ValueIntervention, autointervention
+export |ᵈ, intervene, Intervention, ValueIntervention, autointervention
 using ..Var: Lift, DontLift, traitlift
 
 abstract type AbstractIntervention end

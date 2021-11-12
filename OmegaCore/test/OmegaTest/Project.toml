@@ -1,7 +1,0 @@
-name = "OmegaTest"
-uuid = "1de29bd8-166e-46b2-8642-f181c225c031"
-authors = ["Zenna Tavares <Zennatavares@gmail.com>"]
-version = "0.1.0"
-
-[deps]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

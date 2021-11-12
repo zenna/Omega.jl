@@ -33,19 +33,9 @@ function testsimple3()
   x.([ω, ω])
 end
 
-function testsimple4()
-  x = 1 ~ StdNormal{Float64}()
-  rng = Random.GLOBAL_RNG
-  ΩT = defΩ()
-  y = OmegaCore.condvar(x)
-  ω =  OmegaCore.OmegaRejectionSample.condomegasample(rng, ΩT, y, 5, OmegaCore.RejectionSample)
-  map(x, ω)
-end
-
 @testset "infer types" begin
   @test isinferred(testsimple1)
   @test isinferred(testsimple2)
   @test isinferred(testsimple3)
   @test isinferred(testsimple3a)
-  @test isinferred(testsimple4)
 end  

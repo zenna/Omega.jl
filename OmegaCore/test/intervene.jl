@@ -5,25 +5,6 @@ using OmegaDistributions
 using OmegaTest
 using OmegaCore.Interventions
 
-function test_mergetags()
-    x = 1 ~ Normal(0.0, 1.0)
-    y(ω) = x(ω) + 10.0
-    c1 = (ω -> 100.0)
-    c2 = (ω -> 200.0)
-    yi = intervene(y, x => c1)
-    yii = intervene(yi, x => c2)
-    yiii = intervene(yi, (x => c1, x => c2))
-    yiii2 = intervene(yi, (x => c2, x => c1))
-
-    nt1 = (intervene = yi.i,)
-    nt2 = (intervene = yii.i,)
-    ntmerged = mergetags(nt1, nt2)
-    @test isinferred(mergetags, nt1, nt2)
-
-  # Only one of these should be true
-  # @test ntmerged.intervene == yiii.i
-    @test ntmerged.intervene == yiii2.i
-end
 
 function test_changed_rettype_merge()
     xx = 1 ~ Categorical([0.5, 0.5])
@@ -169,30 +150,31 @@ function test_three_interventions()
     @test 99 <= randsample(zi) <= 101
 end
 
-function test_intervention_logpdf()
-  # Log density of model wrt ω
-    l = logpdf(m, ω)
+# function test_intervention_logpdf()
+#     x, y, m = test_model()
+#   # Log density of model wrt ω
+#     l = logpdf(m, ω)
 
-  # Check it is what it should be
-    @test l == logpdf(Normal(0, 1), x_) + logpdf(Normal(x_, 1), y_)
+#   # Check it is what it should be
+#     @test l == logpdf(Normal(0, 1), x_) + logpdf(Normal(x_, 1), y_)
 
-  # Intervened model
-    v_ = 100.0
+#   # Intervened model
+#     v_ = 100.0
 
-  # y had x been v_
-    yⁱ = y | had(x => v_)
+#   # y had x been v_
+#     yⁱ = y | had(x => v_)
 
-  # new model with Intervened variables
-    mⁱ = rt(x, yⁱ)
+#   # new model with Intervened variables
+#     mⁱ = rt(x, yⁱ)
 
-  # log pdf of interved model on same ω
-    lⁱ = logpdf(mⁱ, ω)
-    logpdf(x, ω)
+#   # log pdf of interved model on same ω
+#     lⁱ = logpdf(mⁱ, ω)
+#     logpdf(x, ω)
 
   
-    @test lⁱ == logpdf(Normal(0, 1), x_) + logpdf(Normal(v_, 1), y_)
-    @test lⁱ < l
-end
+#     @test lⁱ == logpdf(Normal(0, 1), x_) + logpdf(Normal(v_, 1), y_)
+#     @test lⁱ < l
+# end
 
 function test_self_intervene()
     p = 0.7
@@ -228,8 +210,6 @@ end
     test_intervene_diff_parents()
     test_two_interventions()
     test_three_interventions()
-    test_intervention_logpdf()
-    test_mergetags()
     test_merge_1()
     test_merge_2()
     test_merge_3()
