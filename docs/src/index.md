@@ -5,10 +5,10 @@ It was developed by [Zenna Tavares](http://zenna.org) with help from Javier Burr
 
 ## Quick Start
 
-Omega is built in Julia 1.0.  You can easily install it from a Julia repl with:
+Omega is built in Julia >1.6.  You can easily install it from a Julia REPL with:
 
 ```julia
-(v1.0) pkg> add Omega
+(v1.6) pkg> add Omega#master
 ```
 
 Check Omega is working and gives reasonable results with: 
