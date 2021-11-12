@@ -53,7 +53,8 @@ intervene(x, intervention::AbstractIntervention) = Intervened(x, intervention)
 intervene(x, p::Pair) = Intervened(x, autointervention(p))
 intervene(x, interventions::Tuple) =
   Intervened(x, MultiIntervention(map(autointervention, interventions)))
-
+intervene(x, a::Tuple, b::Tuple) =
+  Intervened(x, MultiIntervention(map((a_, b_) -> autointervention(a_ => b_), a, b)))
 @inline x |ᵈ i = intervene(x, i)
 
 ## Display

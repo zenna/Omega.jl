@@ -204,6 +204,13 @@ function test_self_intervene()
   # randsample(na4)
 end
 
+function test_many_intervene_tuple()
+  x = 1 ~ Normal(0, 1)
+  σ = 2 ~ Uniform(0, 0.1)
+  z =3 ~  Normal(x, σ)
+  @test isinferred(randsample, intervene(z, (x, σ), (100.0, 20.0)))
+end
+
 
 @testset "intervene" begin
     test_intervention()

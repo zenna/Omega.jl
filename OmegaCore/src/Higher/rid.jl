@@ -1,4 +1,5 @@
 import ..Interventions: intervene
+import ..Util: mapf
 export rid, ∥ᵈ
 "Represents the parent variables of `child`"
 struct Parents{T}
@@ -20,5 +21,8 @@ random-variable valued random variable defined as:
 """
 rid(x, θ) = ω -> intervene(x, θ => θ(ω))
 
+rid(x, θs::Tuple) = ω -> let θs_ = mapf(ω, θs)
+                          intervene(x, θs, θs_)
+                        end
 
 @inline x ∥ᵈ θ = rid(x, θ)
