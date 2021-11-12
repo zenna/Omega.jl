@@ -1,4 +1,7 @@
-using OmegaCore, OmegaMH
+import Pkg
+Pkg.develop(path = joinpath(pwd(), "..", "..", "connectors", "OmegaDistributions"))
+
+using OmegaCore, OmegaMH, OmegaDistributions
 using Test
 using Distributions
 using Random
