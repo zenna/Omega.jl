@@ -30,4 +30,7 @@ const >=̃ₚ = pwsoftgt
 const <=̃ₚ = pwsoftlt
 const <̃ₚ = pwsoftlt
 
+export ≊
+const ≊ = ==̃ₚ
+
 end

@@ -2,7 +2,17 @@ module Syntax
 
 using ..OmegaCore.Util: mapf
 using ..OmegaCore.Var: pw, liftapply
-export @joint
+export @joint, @~, @uid
+
+"Reduces to `@uid ~ expr`"
+macro ~(ex)
+  esc(:(~(@uid, ($ex))))
+end
+
+"autotomatically generated id"
+macro uid()
+  rand(Int)
+end
 
 """
 Random variable over named tuple using varnames as keys

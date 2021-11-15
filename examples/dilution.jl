@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.1
+# v0.17.0
 
 using Markdown
 using InteractiveUtils
@@ -142,7 +142,6 @@ UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 
 [compat]
 Distributions = "~0.23.12"
-Omega = "~0.2.0"
 UnicodePlots = "~2.4.6"
 """
 
@@ -242,7 +241,7 @@ uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
 
 [[InferenceBase]]
 deps = ["OmegaCore"]
-path = "../../../../../../../../Users/zenna/repos/Omega.jl/InferenceBase"
+path = "../../../home/zenna/repos/Omega.jl/InferenceBase"
 uuid = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
 version = "0.1.0"
 
@@ -324,31 +323,31 @@ uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 
 [[Omega]]
 deps = ["Distributions", "InferenceBase", "OmegaCore", "OmegaDistributions", "OmegaMH", "OmegaSoftPredicates", "Reexport", "ReplicaExchange", "SoftPredicates"]
-path = "../../../../../../../../Users/zenna/repos/Omega.jl"
+path = "../../../home/zenna/repos/Omega.jl"
 uuid = "1af16e33-887a-59b3-8344-18f1671b3ade"
 version = "0.2.0"
 
 [[OmegaCore]]
 deps = ["Future", "Random", "Reexport", "Spec"]
-path = "../../../../../../../../Users/zenna/repos/Omega.jl/OmegaCore"
+path = "../../../home/zenna/repos/Omega.jl/OmegaCore"
 uuid = "84d23798-d00f-4e9b-a82e-be69778c030a"
 version = "0.1.0"
 
 [[OmegaDistributions]]
 deps = ["Distributions", "OmegaCore"]
-path = "../../../../../../../../Users/zenna/repos/Omega.jl/connectors/OmegaDistributions"
+path = "../../../home/zenna/repos/Omega.jl/connectors/OmegaDistributions"
 uuid = "4ee16af8-c862-4b7a-9514-3b66b113c005"
 version = "0.1.0"
 
 [[OmegaMH]]
 deps = ["InferenceBase", "OmegaCore", "SoftPredicates"]
-path = "../../../../../../../../Users/zenna/repos/Omega.jl/OmegaMH"
+path = "../../../home/zenna/repos/Omega.jl/OmegaMH"
 uuid = "89eb2d39-e1f3-436d-870a-9a4679d6d79e"
 version = "0.1.0"
 
 [[OmegaSoftPredicates]]
 deps = ["InferenceBase", "OmegaCore", "SoftPredicates"]
-path = "../../../../../../../../Users/zenna/repos/Omega.jl/connectors/OmegaSoftPredicates"
+path = "../../../home/zenna/repos/Omega.jl/connectors/OmegaSoftPredicates"
 uuid = "ffc32627-273f-428b-9998-33a39d288549"
 version = "0.1.0"
 
@@ -404,7 +403,7 @@ version = "1.2.2"
 
 [[ReplicaExchange]]
 deps = ["InferenceBase", "OmegaCore", "Spec"]
-path = "../../../../../../../../Users/zenna/repos/Omega.jl/ReplicaExchange"
+path = "../../../home/zenna/repos/Omega.jl/ReplicaExchange"
 uuid = "5ad4e244-73e6-47c5-b007-45e12ac3dae1"
 version = "0.1.0"
 
@@ -435,7 +434,7 @@ uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
 
 [[SoftPredicates]]
 deps = ["Cassette", "DocStringExtensions", "InferenceBase", "LinearAlgebra", "Spec"]
-path = "../../../../../../../../Users/zenna/repos/Omega.jl/SoftPredicates"
+path = "../../../home/zenna/repos/Omega.jl/SoftPredicates"
 uuid = "5345b20a-9614-40c4-b281-8f4998fc0f3b"
 version = "0.1.0"
 

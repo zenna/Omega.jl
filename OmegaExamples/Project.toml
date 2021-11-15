@@ -1,0 +1,11 @@
+name = "OmegaExamples"
+uuid = "146a8ec6-757f-4f84-9ae7-6d55fe659c65"
+authors = ["Zenna Tavares <zennatavares@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+Omega = "1af16e33-887a-59b3-8344-18f1671b3ade"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+RCall = "6f49c342-dc21-5d91-9882-a32aef131414"
+UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"

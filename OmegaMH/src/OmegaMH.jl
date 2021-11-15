@@ -1,5 +1,6 @@
 module OmegaMH
 
+using InferenceBase
 # using TransformVariables
 
 include("mhcore.jl")
