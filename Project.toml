@@ -5,6 +5,7 @@ version = "0.2.0"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+FreqTables = "da1fdf0e-e0ff-5433-a45f-9bb5ff651cb1"
 InferenceBase = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
 OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
 OmegaDistributions = "4ee16af8-c862-4b7a-9514-3b66b113c005"
