@@ -1,14 +1,17 @@
 ### A Pluto.jl notebook ###
-# v0.14.7
+# v0.17.1
 
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 14c4144e-abc0-4802-8b26-f8f6f6a0ddc0
-using Omega
-
-# ╔═╡ bc0da6fe-5b09-4d49-9bd8-e0530fac0186
-using Distributions
+# ╔═╡ ace6ee53-4c3d-4742-b88e-2bdbe8adde32
+begin
+    import Pkg
+    # activate the shared project environment
+    Pkg.activate(Base.current_project())
+    using Omega, Distributions, UnicodePlots
+	using FreqTables
+end
 
 # ╔═╡ ad003e86-23b7-4c8e-a6eb-009b1ec73d25
 md"# Design
@@ -159,9 +162,9 @@ randsample(joint)
 md"It is important to note that `x1` and `x2` are __conditionally independent__ given μ"
 
 # ╔═╡ 9f7c47a3-bb65-4c27-a120-6cac16e727fe
-md"#### Multivariante Distributions
+md"#### Multivariate Distributions
 
-If we want to construct a array-valued random variable from a class we use `Mv`
+If we want to construct an array-valued random variable from a class we use `Mv`
 "
 
 # ╔═╡ 64cdcb20-3480-4c9c-9865-310729df9b9a
@@ -402,8 +405,7 @@ meandist(ω) = samplemean(ridxθ(ω))
 randsample(meandist, 100)
 
 # ╔═╡ Cell order:
-# ╠═14c4144e-abc0-4802-8b26-f8f6f6a0ddc0
-# ╠═bc0da6fe-5b09-4d49-9bd8-e0530fac0186
+# ╠═ace6ee53-4c3d-4742-b88e-2bdbe8adde32
 # ╟─ad003e86-23b7-4c8e-a6eb-009b1ec73d25
 # ╟─50bfb49f-7081-49e7-bda2-503804599d5e
 # ╟─99fc08f8-d2b2-11eb-0599-fba4c4ec5a1a
