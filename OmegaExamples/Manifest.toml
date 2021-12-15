@@ -114,18 +114,24 @@ git-tree-sha1 = "bf98fa45a0a4cee295de98d4c1462be26345b9a1"
 uuid = "9e997f8a-9a97-42d5-a9f1-ce6bfc15e2c0"
 version = "0.1.2"
 
+<<<<<<< HEAD
 [[Clustering]]
 deps = ["Distances", "LinearAlgebra", "NearestNeighbors", "Printf", "SparseArrays", "Statistics", "StatsBase"]
 git-tree-sha1 = "75479b7df4167267d75294d14b58244695beb2ac"
 uuid = "aaaa29a8-35af-508c-8bc3-b662a17a0fe5"
 version = "0.14.2"
 
+=======
+<<<<<<< HEAD
+>>>>>>> ff36859 (complete until ch 5)
 [[CodeTracking]]
 deps = ["InteractiveUtils", "UUIDs"]
 git-tree-sha1 = "9aa8a5ebb6b5bf469a7e0e2b5202cf6f8c291104"
 uuid = "da1fd8a2-8d9e-5ec2-8556-3022fb5608a2"
 version = "1.0.6"
 
+=======
+>>>>>>> f39a3f2 (complete until ch 5)
 [[ColorBrewer]]
 deps = ["Colors", "JSON", "Test"]
 git-tree-sha1 = "61c5334f33d91e570e1d0c3eb5465835242582c4"
@@ -326,9 +332,12 @@ git-tree-sha1 = "2db648b6712831ecb333eae76dbfd1c156ca13bb"
 uuid = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 version = "1.11.2"
 
+<<<<<<< HEAD
 [[FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 
+=======
+>>>>>>> f39a3f2 (complete until ch 5)
 [[FillArrays]]
 deps = ["LinearAlgebra", "Random", "SparseArrays", "Statistics"]
 git-tree-sha1 = "8756f9935b7ccc9064c6eef0bff0ad643df733a3"
@@ -366,14 +375,20 @@ uuid = "d7e528f0-a631-5988-bf34-fe36492bcfd7"
 version = "2.10.4+0"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> f39a3f2 (complete until ch 5)
 [[FreeTypeAbstraction]]
 deps = ["ColorVectorSpace", "Colors", "FreeType", "GeometryBasics", "StaticArrays"]
 git-tree-sha1 = "770050893e7bc8a34915b4b9298604a3236de834"
 uuid = "663a7486-cb36-511b-a19d-713bb74d65c9"
 version = "0.9.5"
 
+<<<<<<< HEAD
 =======
 >>>>>>> a92465d (Ch 2)
+=======
+>>>>>>> f39a3f2 (complete until ch 5)
 [[FreqTables]]
 deps = ["CategoricalArrays", "Missings", "NamedArrays", "Tables"]
 git-tree-sha1 = "488ad2dab30fd2727ee65451f790c81ed454666d"
@@ -461,6 +476,18 @@ git-tree-sha1 = "74ef6288d071f58033d54fd6708d4bc23a8b8972"
 uuid = "7746bdde-850d-59dc-9ae8-88ece973131d"
 version = "2.68.3+1"
 >>>>>>> a92465d (Ch 2)
+
+[[GraphMakie]]
+deps = ["GeometryBasics", "Graphs", "LinearAlgebra", "Makie", "NetworkLayout", "StaticArrays"]
+git-tree-sha1 = "e39e441fd067053fd093319ecd0e90a270950baa"
+uuid = "1ecd5474-83a3-4783-bb4f-06765db800d2"
+version = "0.3.0"
+
+[[Graphics]]
+deps = ["Colors", "LinearAlgebra", "NaNMath"]
+git-tree-sha1 = "1c5a84319923bea76fa145d49e93aa4394c73fc2"
+uuid = "a2bd30eb-e257-5431-a919-1863eab51364"
+version = "1.1.1"
 
 [[Graphite2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -647,6 +674,34 @@ version = "1.0.0"
 =======
 >>>>>>> a92465d (Ch 2)
 
+[[IfElse]]
+git-tree-sha1 = "debdd00ffef04665ccbb3e150747a77560e8fad1"
+uuid = "615f187c-cbe4-4ef1-ba3b-2fcf58d6d173"
+version = "0.1.1"
+
+[[ImageCore]]
+deps = ["AbstractFFTs", "ColorVectorSpace", "Colors", "FixedPointNumbers", "Graphics", "MappedArrays", "MosaicViews", "OffsetArrays", "PaddedViews", "Reexport"]
+git-tree-sha1 = "9a5c62f231e5bba35695a20988fc7cd6de7eeb5a"
+uuid = "a09fc81d-aa75-5fe9-8630-4744c3626534"
+version = "0.9.3"
+
+[[ImageIO]]
+deps = ["FileIO", "Netpbm", "OpenEXR", "PNGFiles", "TiffImages", "UUIDs"]
+git-tree-sha1 = "a2951c93684551467265e0e32b577914f69532be"
+uuid = "82e4d734-157c-48bb-816b-45c225c6df19"
+version = "0.5.9"
+
+[[Imath_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "87f7662e03a649cffa2e05bf19c303e168732d3e"
+uuid = "905a6f67-0a94-5f89-b386-d35d92009cd1"
+version = "3.1.2+0"
+
+[[IndirectArrays]]
+git-tree-sha1 = "012e604e1c7458645cb8b436f8fba789a51b257f"
+uuid = "9b13fd28-a010-5f03-acff-a1bbcff69959"
+version = "1.0.0"
+
 [[InferenceBase]]
 deps = ["OmegaCore"]
 path = "../InferenceBase"
@@ -754,12 +809,15 @@ git-tree-sha1 = "d735490ac75c5cb9f1b00d8b5509c11984dc6943"
 uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
 version = "2.1.0+0"
 
+<<<<<<< HEAD
 [[JuliaInterpreter]]
 deps = ["CodeTracking", "InteractiveUtils", "Random", "UUIDs"]
 git-tree-sha1 = "a2366b16704ffe78be1831341e6799ab2f4f07d2"
 uuid = "aa1ae85d-cabe-5617-a682-6adf51b2e16a"
 version = "0.9.0"
 
+=======
+>>>>>>> f39a3f2 (complete until ch 5)
 [[KernelDensity]]
 deps = ["Distributions", "DocStringExtensions", "FFTW", "Interpolations", "StatsBase"]
 git-tree-sha1 = "591e8dc09ad18386189610acafb970032c519707"
@@ -873,12 +931,15 @@ version = "0.3.5"
 [[Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
 
+<<<<<<< HEAD
 [[LoweredCodeUtils]]
 deps = ["JuliaInterpreter"]
 git-tree-sha1 = "f46e8f4e38882b32dcc11c8d31c131d556063f39"
 uuid = "6f1432cf-f94c-5a45-995e-cdbf5db27b0b"
 version = "2.2.0"
 
+=======
+>>>>>>> f39a3f2 (complete until ch 5)
 [[MKL_jll]]
 deps = ["Artifacts", "IntelOpenMP_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "Pkg"]
 git-tree-sha1 = "5455aef09b40e5020e1520f551fa3135040d4ed0"
@@ -986,6 +1047,7 @@ uuid = "86f7a689-2022-50b4-a561-43c23ac3c673"
 version = "0.9.6"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 [[NearestNeighbors]]
 deps = ["Distances", "StaticArrays"]
 git-tree-sha1 = "16baacfdc8758bc374882566c9187e785e85c2f0"
@@ -995,6 +1057,11 @@ version = "0.4.9"
 =======
 <<<<<<< HEAD
 >>>>>>> 27cf00e (Ch 2)
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> f39a3f2 (complete until ch 5)
+>>>>>>> ff36859 (complete until ch 5)
 [[Netpbm]]
 deps = ["FileIO", "ImageCore"]
 git-tree-sha1 = "18efc06f6ec36a8b801b23f076e3c6ac7c3bf153"
@@ -1007,8 +1074,11 @@ git-tree-sha1 = "24e10982e84dd35cd867102243454bf8a4581a76"
 uuid = "46757867-2c16-5918-afeb-47bfcb05e46a"
 version = "0.4.3"
 
+<<<<<<< HEAD
 =======
 >>>>>>> a92465d (Ch 2)
+=======
+>>>>>>> f39a3f2 (complete until ch 5)
 [[NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 
@@ -1289,12 +1359,15 @@ deps = ["UUIDs"]
 git-tree-sha1 = "8f82019e525f4d5c669692772a6f4b0a58b06a6a"
 uuid = "ae029012-a4dd-5104-9daa-d747884805df"
 version = "1.2.0"
+<<<<<<< HEAD
 
 [[Revise]]
 deps = ["CodeTracking", "Distributed", "FileWatching", "JuliaInterpreter", "LibGit2", "LoweredCodeUtils", "OrderedCollections", "Pkg", "REPL", "Requires", "UUIDs", "Unicode"]
 git-tree-sha1 = "2f9d4d6679b5f0394c52731db3794166f49d5131"
 uuid = "295af30f-e4ad-537b-8983-00126c2a3abe"
 version = "3.3.1"
+=======
+>>>>>>> f39a3f2 (complete until ch 5)
 
 [[Rmath]]
 deps = ["Random", "Rmath_jll"]
