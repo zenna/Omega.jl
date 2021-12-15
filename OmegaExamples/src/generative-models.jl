@@ -40,11 +40,14 @@ md"Run this program a few times. You will get back a different sample on each ex
 
 # ╔═╡ 0ce18f90-f2ef-490a-a7c4-40a6ccfa214a
 md"""
-A basic object in Omega is a random variable class.  Each class represents a sequence of random variables.  A class is analogous to a *plate* in Bayesian networks. You may sample from a random variable using `randsample`.
+A basic object in Omega is a random variable class (like `Bernoulli()` in the above example).  Each class represents a sequence of random variables.  A class is analogous to a *plate* in Bayesian networks.
 """
 
-# ╔═╡ db8c31e1-50c8-465a-a5cf-610c31a813c6
-md"To get a member of the random class, ie., generate a random variable, use `@~`"
+# ╔═╡ d70b97b5-af55-46f9-904e-309713603155
+md"""To get a member of the random class, ie., generate a random variable, use `@~`. Random variables are all functions of ω and `randsample` is used to sample from a random variable. Conceptually, this is done in the following two distinct steps:
+1. Construct a random $ω : Ω$, where $Ω$ can be though of as the space of exogenous variables as in causal graphical modelling nomenclature or simply the random number generator, `rng::Random.AbstractRNG`.
+2. Apply $ω$ to the random variable : $A(ω)$
+"""
 
 # ╔═╡ 2ad90265-8ef2-480f-81b0-7ed1a674011b
 md"If you run the program many times, and collect the values in a histogram, you can see what a typical sample looks like:"
@@ -54,7 +57,7 @@ histogram(randsample(coin_toss, 1000), bins = 1)
 
 # ╔═╡ 15920581-2258-42e1-ba73-da82b2baa7e0
 md"As you can see, the result is an approximately uniform distribution over true(1) and false(0).
-This way we can construct more complex expressions that describe more complicated random variables. For instance, here we describe a process that samples a number adding up several independent Bernoulli distributions:"
+This way we can construct more complex expressions that describe more complicated random variables. For instance, here we describe a process that samples a number adding up several independent Bernoulli distributions (`+ₚ` here is pointwise sum - the subscript p denotes the pointwise operation defined on a function):"
 
 # ╔═╡ 3f04b226-a38a-4804-8691-59332bfc8728
 b_sum = (@~ Bernoulli()) +ₚ (@~ Bernoulli()) +ₚ (@~ Bernoulli())
@@ -72,16 +75,16 @@ histogram(randsample(b_sum, 1000), bins = 3)
 md"Complex functions can also have other arguments. Here is a random variable that will only sometimes double its input:"
 
 # ╔═╡ 0974a6a9-859f-44a9-a17a-5ef90c789ce5
-begin
-	noisy_double(ω, x) = (@~ Bernoulli())(ω) ? 2*x : x
-	noisy_double(x) = ω -> noisy_double(ω, x)
-end
+noisy_double(x) = pw(ifelse, (@~ Bernoulli()), 2*x, x)
+
+# ╔═╡ 317cf40e-bafd-43f3-b855-9bfcf53c0f3a
+md"`pw` is the pointwise operation - which is defined on the function `ifelse` here."
 
 # ╔═╡ 11c2d2b5-0c14-4b23-9282-083ac6f07f6f
 randsample(noisy_double(3))
 
 # ╔═╡ c697307c-9d49-43a7-a379-f383780a1248
-md"By using higher-order functions we can construct and manipulate complex sampling processes. We use the ternary operator `condition ? if-true : if-false` to induce hierarchy. A good example comes from coin flipping…"
+md"By using higher-order functions we can construct and manipulate complex sampling processes. We use the `ifelse` function : `ifelse(condition, if-true, if-false)` to induce hierarchy. A good example comes from coin flipping…"
 
 # ╔═╡ 277b383e-c909-4424-91f1-f0f00b3531b4
 md"## Example: Flipping Coins"
@@ -90,7 +93,7 @@ md"## Example: Flipping Coins"
 md"The following program defines a fair coin, and flips it 20 times:"
 
 # ╔═╡ 3c5e0f1d-0379-4c92-817d-4e6ef2d7ed8e
-fair_coin(ω) = (@~ Bernoulli())(ω) ? 'h' : 't'
+fair_coin = pw(ifelse, (@~ Bernoulli()), 'h', 't')
 
 # ╔═╡ b7d24774-2f2b-4da8-9257-6fe3a424a869
 barplot(Dict(freqtable(randsample(fair_coin, 20))))
@@ -99,19 +102,16 @@ barplot(Dict(freqtable(randsample(fair_coin, 20))))
 md"This program defines a “trick” coin that comes up heads most of the time (95%), and flips it 20 times:"
 
 # ╔═╡ 5657d115-ebad-4731-b8e2-5d66da76f600
-trick_coin(ω) = (@~ Bernoulli(0.95))(ω) ? 'h' : 't'
+trick_coin = pw(ifelse, (@~ Bernoulli(0.95)), 'h', 't')
 
 # ╔═╡ 83f9117e-2c5b-47e8-a78f-3bd679ad95dc
 barplot(Dict(freqtable(randsample(trick_coin, 20))))
 
 # ╔═╡ 65e02cf5-bfd2-4d79-899c-57a64624dd71
-md"The higher-order function `make-coin` takes in a weight and outputs a function describing a coin with that weight. Then we can use `make-coin` to make the coins above, or others."
+md"The higher-order function `make_coin` takes in a weight and outputs a function describing a coin with that weight. Then we can use `make_coin` to make the coins above, or others."
 
 # ╔═╡ 65119d8b-a0d9-403f-9d42-ec6ef0ab3072
-begin
-	make_coin(weight, ω) = (@~ Bernoulli(weight))(ω) ? 'h' : 't'
-	make_coin(weight) = ω -> make_coin(weight, ω)
-end
+make_coin(weight) = pw(ifelse, (@~ Bernoulli(weight)), 'h', 't')
 
 # ╔═╡ 7fb8ded9-629a-4084-ba5b-779dbe251841
 begin
@@ -133,10 +133,7 @@ barplot(Dict(freqtable(randsample(bent_coin, 20))))
 md"We can also define a higher-order function that takes a “coin” and “bends it”:"
 
 # ╔═╡ 56304079-fc6c-474b-b257-9db330475786
-begin
-	bend(coin, ω) = coin(ω) == 'h' ? make_coin(0.7)(ω) : make_coin(0.1)(ω)
-	bend(coin) = ω -> bend(coin, ω)
-end
+bend(coin) = pw(ifelse, (coin ==ₚ 'h'), make_coin(0.7), make_coin(0.1))
 
 # ╔═╡ 4c343506-221d-4e8f-9398-725643bd74fc
 bent_coin1 = bend(fair_coin)
@@ -145,12 +142,12 @@ bent_coin1 = bend(fair_coin)
 barplot(Dict(freqtable(randsample(bent_coin1, 100))))
 
 # ╔═╡ 7d668805-db8f-4d76-812f-d9d86f44668e
-md"Here we visualize the number of heads we expect to see if we flip a weighted coin (weight = 0.8) 10 times. We’ll repeat this experiment 1000 times and then visualize the results. Try varying the coin weight or the number of repetitions to see how the expected distribution changes."
+md"Here we visualize the number of heads we expect to see if we flip a weighted coin ($weight = 0.8$) $10$ times. We’ll repeat this experiment 1000 times and then visualize the results. Try varying the coin weight or the number of repetitions to see how the expected distribution changes."
 
 # ╔═╡ 7a7711ba-65ea-459e-be55-da5f3e36a990
 begin
-	make_coin_binary(weight, ω, n) = (n~ Bernoulli(weight))(ω)
-	coin(n) = ω -> make_coin_binary(0.8, ω, n)
+	make_coin_binary(weight, n) = n ~ Bernoulli(weight)
+	coin(n) = make_coin_binary(0.8, n)
 end
 
 # ╔═╡ 500b46f9-f081-46d1-9fbf-5704c1068a75
@@ -166,14 +163,12 @@ md"## Example: Causal Models in Medical Diagnosis"
 md"Generative knowledge is often causal knowledge that describes how events or states of the world are related to each other. As an example of how causal knowledge can be encoded in Omega, consider a simplified medical scenario:"
 
 # ╔═╡ 74534019-62ee-494f-8ece-ac2d096543d9
-begin
+let
 	lung_cancer = @~ Bernoulli(0.01)
 	cold = @~ Bernoulli(0.2)
 	cough = cold |ₚ lung_cancer
+	randsample(cough)
 end
-
-# ╔═╡ 842d4001-1e45-4683-a0a9-d99c57de23cb
-randsample(cough)
 
 # ╔═╡ 4c21551f-75c3-4e9d-ac9f-aed939481c2e
 md"This program models the diseases and symptoms of a patient in a doctor’s office. It first specifies the base rates of two diseases the patient could have: lung cancer is rare while a cold is common, and there is an independent chance of having each disease. The program then specifies a process for generating a common symptom of these diseases – an effect with two possible causes: The patient coughs if they have a cold or lung cancer (or both).
@@ -181,18 +176,18 @@ Here is a more complex version of this causal model:"
 
 # ╔═╡ 17701d52-161b-447d-892f-3ca89d461ebd
 begin
-	lungcancer = @~ Bernoulli(0.01)
+	lung_cancer = @~ Bernoulli(0.01)
 	TB = @~ Bernoulli(0.005)
 	stomach_flu = @~ Bernoulli(0.1)
-	cold_ = @~ Bernoulli(0.2)
+	cold = @~ Bernoulli(0.2)
 	other = @~ Bernoulli(0.1)
 end
 
 # ╔═╡ 24a06c1c-29ac-45b3-b8fa-774ca2e4619e
-cough_ = pw(|, (cold_ &ₚ @~ Bernoulli()), (lung_cancer &ₚ @~ Bernoulli(0.3)), (TB &ₚ @~ Bernoulli(0.7)), (other &ₚ @~ Bernoulli(0.1)))
+cough = pw(|, (cold &ₚ @~ Bernoulli()), (lung_cancer &ₚ @~ Bernoulli(0.3)), (TB &ₚ @~ Bernoulli(0.7)), (other &ₚ @~ Bernoulli(0.1)))
 
 # ╔═╡ f5600317-7a50-4f16-9716-c4e3e24515bb
-fever = pw(|, (cold_ &ₚ @~ Bernoulli(0.3)), (stomach_flu &ₚ @~ Bernoulli()), (TB &ₚ @~ Bernoulli(0.1)), (other &ₚ @~ Bernoulli(0.01)))
+fever = pw(|, (cold &ₚ @~ Bernoulli(0.3)), (stomach_flu &ₚ @~ Bernoulli()), (TB &ₚ @~ Bernoulli(0.1)), (other &ₚ @~ Bernoulli(0.01)))
 
 # ╔═╡ f005e508-db7f-4d3d-997e-3bdbe0c4bb7e
 chest_pain = pw(|, (lung_cancer &ₚ @~ Bernoulli()), (TB &ₚ @~ Bernoulli()), (other &ₚ @~ Bernoulli(0.01)))
@@ -201,26 +196,26 @@ chest_pain = pw(|, (lung_cancer &ₚ @~ Bernoulli()), (TB &ₚ @~ Bernoulli()), 
 shortness_of_breath = pw(|, (lung_cancer &ₚ @~ Bernoulli()), (TB &ₚ @~ Bernoulli(0.2)), (other &ₚ @~ Bernoulli(0.01)))
 
 # ╔═╡ 47807da5-e1b6-49aa-849b-39d5cce05471
-symptoms(ω) = (cough = cough_(ω), fever = fever(ω), chest_pain = chest_pain(ω), shortness_of_breath = shortness_of_breath(ω))
+symptoms(ω) = (cough = cough(ω), fever = fever(ω), chest_pain = chest_pain(ω), shortness_of_breath = shortness_of_breath(ω))
 
 # ╔═╡ f755a265-1b88-47e2-97ee-5269964ff809
 randsample(symptoms)
 
 # ╔═╡ ceb6e5a8-8093-425e-b40d-9bd345c23e66
-md"Now there are four possible diseases and four symptoms. Each disease causes a different pattern of symptoms. The causal relations are now probabilistic: Only some patients with a cold have a cough (50%), or a fever (30%). There is also a catch-all disease category “other”, which has a low probability of causing any symptom. Noisy logical functions—functions built from and (`&&`), or (`||`), and distributions —provide a simple but expressive way to describe probabilistic causal dependencies between Boolean (true-false valued) variables.
-When you run the above code, the program generates a list of symptoms for a hypothetical patient. Most likely all the symptoms will be false, as (thankfully) each of these diseases is rare. Experiment with running the program multiple times. Now try modifying the function for one of the diseases, setting it to be true, to simulate only patients known to have that disease. For example, replace `LungCancer = @~ Bernoulli(0.01)` with `LungCancer = true`. Run the program several times to observe the characteristic patterns of symptoms for that disease."
+md"Now there are four possible diseases and four symptoms. Each disease causes a different pattern of symptoms. The causal relations are now probabilistic: Only some patients with a cold have a cough ($50\%$), or a fever ($30\%$). There is also a catch-all disease category “other”, which has a low probability of causing any symptom. Noisy logical functions—functions built from and (`&&`), or (`||`), and distributions —provide a simple but expressive way to describe probabilistic causal dependencies between Boolean (true-false valued) variables.
+When you run the above code, the program generates a list of symptoms for a hypothetical patient. Most likely all the symptoms will be false, as (thankfully) each of these diseases is rare. Experiment with running the program multiple times. Now try modifying the function for one of the diseases, setting it to be true, to simulate only patients known to have that disease. For example, replace `lung_cancer = @~ Bernoulli(0.01)` with `lung_cancer = true`. Run the program several times to observe the characteristic patterns of symptoms for that disease."
 
 # ╔═╡ 83aa6c42-a846-42d7-b9d0-c5b9e783c2cc
 md"## Prediction, Simulation, and Probabilities"
 
 # ╔═╡ 2cf11ab5-0fdf-43da-8987-2bed91ef3f14
-md"Suppose that we flip two fair coins, and return the list of their values:"
+md"Suppose that we flip two fair coins, and return the tuple of their values:"
 
 # ╔═╡ 54890932-a472-4ad4-a904-bc847551bfcb
-[randsample(@~ Bernoulli()), randsample(@~ Bernoulli())]
+(randsample(@~ Bernoulli()), randsample(@~ Bernoulli()))
 
 # ╔═╡ 1721f226-8d1d-4803-a445-925874e236c8
-md"How can we predict the return value of this program? For instance, how likely is it that we will see `[true, false]`? A probability is a number between 0 and 1 that expresses the answer to such a question: it is a degree of belief that we will see a given outcome, such as `[true, false]`. The probability of an event $A$ (such as the above program returning `[true, false]`) is usually written as $P(A)$.
+md"How can we predict the return value of this program? For instance, how likely is it that we will see `(true, false)`? A probability is a number between $0$ and $1$ that expresses the answer to such a question: it is a degree of belief that we will see a given outcome, such as `(true, false)`. The probability of an event $A$ (such as the above program returning `(true, false)`) is usually written as $P(A)$.
 A probability distribution is the probability of each possible outcome of an event. For instance, we can examine the probability distribution on values that can be returned by the above program by sampling many times and examining the histogram of return values:"
 
 # ╔═╡ f2fd33e0-3451-44cb-9e69-8b627abf7729
@@ -230,7 +225,7 @@ begin
 end
 
 # ╔═╡ a066a0a9-e28f-45ef-bfba-ef23eaf75f96
-md"We see by examining this histogram that `[true, false]` comes out about 25% of the time. We may define the probability of a return value to be the fraction of times (in the long run) that this value is returned from evaluating the program – then the probability of `[true, false]` from the above program is 0.25."
+md"We see by examining this histogram that `(true, false)` comes out about $25\%$ of the time. We may define the probability of a return value to be the fraction of times (in the long run) that this value is returned from evaluating the program – then the probability of `(true, false)` from the above program is $0.25$."
 
 # ╔═╡ e045e940-57ea-408c-a1ac-aa17516a7523
 md"## Distributions in Omega"
@@ -257,30 +252,29 @@ md"We can derive marginal distributions with the “rules of probability”. Thi
 md"#### Product Rule"
 
 # ╔═╡ 8283c98e-23eb-4a34-b4f2-14722a4afbe7
-md"In the above example, we take three steps to compute the output value: we create the first Bernoulli random variable, then the second, then we make a list of random variables and sample from it. To make this more clear let us re-write the program as:"
+md"In the above example, we take three steps to compute the output value: we create the first Bernoulli random variable, then the second, then we make a tuple of random variables and sample from it. To make this more clear let us re-write the program as:"
 
 # ╔═╡ 0add56e4-adba-448b-a6bc-8c17284bda01
-begin
-	A = @~ Bernoulli()
-	B = @~ Bernoulli()
-	C(ω) = [A(ω), B(ω)]
+let
+	A = 1 ~ Bernoulli()
+	B = 2 ~ Bernoulli()
+	C(ω) = (A(ω), B(ω))
+	randsample(C)
 end
 
-# ╔═╡ 33bb71af-e328-40ff-9143-1faaf01f9f0f
-randsample(C)
-
 # ╔═╡ 547eeca0-202d-4b43-8fc8-7d81c054bd02
-md"We can directly observe (as we did above) that the probability of true for $A$ is 0.5, and the probability of false from $B$ is 0.5. Can we use these two probabilities to arrive at the probability of 0.25 for the overall outcome `C = [true, false]`? Yes, using the product rule of probabilities: The probability of two random choices is the product of their individual probabilities. The probability of several random choices together is often called the joint probability and written as $P(A,B)$. Since the first and second random choices must each have their specified values in order to get `[true, false]` in the example, the joint probability is their product: 0.25.
-We must be careful when applying this rule, since the probability of a choice can depend on the probabilities of previous choices. For instance, we can visualize the the exact probability of `[true, false]` resulting from this program by defining a new random variable as follows -"
+md"We can directly observe (as we did above) that the probability of true for $A$ is $0.5$, and the probability of false from $B$ is $0.5$. Can we use these two probabilities to arrive at the probability of $0.25$ for the overall outcome `C = (true, false)`? Yes, using the product rule of probabilities: The probability of two random choices is the product of their individual probabilities. The probability of several random choices together is often called the joint probability and written as $P(A,B)$. Since the first and second random choices must each have their specified values in order to get `(true, false)` in the example, the joint probability is their product: $0.25$.
+
+We must be careful when applying this rule, since the probability of a choice can depend on the probabilities of previous choices. For instance, we can visualize the the exact probability of `(true, false)` resulting from this program by defining a new random variable as follows -"
 
 # ╔═╡ 25276e86-a816-4d37-baf2-6761971a9090
-a = (@~ Bernoulli())
+A = @~ Bernoulli()
 
 # ╔═╡ 1c260eff-636c-429d-992f-b7854f4398e1
-b(ω) = (@~ Bernoulli((a(ω) ? 0.3 : 0.7)))(ω)
+B = @~ Bernoulli(pw(ifelse, A, 0.3, 0.7))
 
 # ╔═╡ d57d23a3-7626-4b23-b1df-994951f5a12b
-rs = randsample(ω -> (a(ω), b(ω)), 1000)
+rs = randsample(ω -> (A(ω), B(ω)), 1000)
 
 # ╔═╡ 4a0255be-6b88-4f1b-80c0-eec1d70c0da6
 barplot(Dict(freqtable(rs)))
@@ -302,8 +296,8 @@ s = (@~ Bernoulli()) |ₚ (@~ Bernoulli())
 randsample(s)
 
 # ╔═╡ 21400744-aa27-4360-91ed-63f397d475ee
-md"We can sample from this program and determine that the probability of returning true is about 0.75.
-We cannot simply use the product rule to determine this probability because we don’t know the sequence of random choices that led to this return value. However we can notice that the program will return true if the two component choices are `[true, true]`, or `[true, false]`, or `[false, true]`. To combine these possibilities we use another rule for probabilities: If there are two alternative sequences of choices that lead to the same return value, the probability of this return value is the sum of the probabilities of the sequences. We can write this using probability notation as: $P(A)=∑P(A,B)$ over all $B$, where we view $A$ as the final value and $B$ as a random choice on the way to that value. Using the product rule we can determine that the probability in the example above is 0.25 for each sequence that leads to return value true, then, by the sum rule, the probability of true is 0.25+0.25+0.25=0.75.
+md"We can sample from this program and determine that the probability of returning true is about $0.75$.
+We cannot simply use the product rule to determine this probability because we don’t know the sequence of random choices that led to this return value. However we can notice that the program will return true if the two component choices are `[true, true]`, or `[true, false]`, or `[false, true]`. To combine these possibilities we use another rule for probabilities: If there are two alternative sequences of choices that lead to the same return value, the probability of this return value is the sum of the probabilities of the sequences. We can write this using probability notation as: $P(A)=∑P(A,B)$ over all $B$, where we view $A$ as the final value and $B$ as a random choice on the way to that value. Using the product rule we can determine that the probability in the example above is $0.25$ for each sequence that leads to return value true, then, by the sum rule, the probability of true is $0.25+0.25+0.25=0.75$.
 Using the sum rule to compute the probability of a final value is called is sometimes called marginalization, because the final distribution is the marginal distribution on final values. From the point of view of sampling processes marginalization is simply ignoring (or not looking at) intermediate random values that are created on the way to a final return value. From the point of view of directly computing probabilities, marginalization is summing over all the possible “histories” that could lead to a return value. Putting the product and sum rules together, the marginal probability of return values from a program that we have explored above is the sum over sampling histories of the product over choice probabilities—a computation that can quickly grow unmanageable, but can be approximated."
 
 # ╔═╡ 548d888e-2dd7-4a3d-b43c-21955283a920
@@ -337,15 +331,17 @@ f = 1 ~ Bernoulli()
 g = 1 ~ Bernoulli()
 
 # ╔═╡ 82a6be03-71fe-48d7-a2fa-53427f951cd2
-f(ω) == g(ω)
+f(ω) == g(ω) # Always returns true
 
 # ╔═╡ 8c06cba6-e1bc-4dc0-b6c2-a2b625313d6c
 md"Independent random variables of a random class can be created in Omega by changing the ID as follows -"
 
 # ╔═╡ a9d291a1-ab41-4756-937b-ae44a44012e4
-begin
+let
 	iid_1 = 1 ~ Bernoulli()
 	iid_2 = 2 ~ Bernoulli()
+	ω = defω()
+	iid_1(ω) == iid_2(ω) # Does not always return true
 end
 
 # ╔═╡ cb5cd097-1632-46ab-b311-ab89bc827034
@@ -385,12 +381,13 @@ md"As another example, here we define a function `flip_a_lot` that maps from an 
 flip_a_lot(n, ω) = (n ~ Bernoulli())(ω)
 
 # ╔═╡ b10cf079-1995-4af6-8ec0-f772d0e9d359
-begin
-	let
+let
 	ω = defω()
-	[[flip_a_lot(1, ω), flip_a_lot(12, ω), flip_a_lot(47, ω), flip_a_lot(1548, ω)],
- [flip_a_lot(1, ω), flip_a_lot(12, ω), flip_a_lot(47, ω), flip_a_lot(1548, ω)]]
-	end
+	[
+		[flip_a_lot(1, ω), flip_a_lot(12, ω), flip_a_lot(47, ω), flip_a_lot(1548, ω)],
+
+		[flip_a_lot(1, ω), flip_a_lot(12, ω), flip_a_lot(47, ω), flip_a_lot(1548, ω)]
+	]
 end
 
 # ╔═╡ 45d75c36-5af8-4211-9432-99cabe1e1aeb
@@ -407,7 +404,7 @@ md"There are a countably infinite number of such flips, each independent of all 
 # ╠═61f4d77b-eecf-4cca-ac01-944efe58d9bb
 # ╟─5a10bc0d-d676-4941-a1d5-41790ef255ec
 # ╟─0ce18f90-f2ef-490a-a7c4-40a6ccfa214a
-# ╟─db8c31e1-50c8-465a-a5cf-610c31a813c6
+# ╟─d70b97b5-af55-46f9-904e-309713603155
 # ╟─2ad90265-8ef2-480f-81b0-7ed1a674011b
 # ╠═9504162b-52e1-476d-8218-0afc2555e278
 # ╟─15920581-2258-42e1-ba73-da82b2baa7e0
@@ -417,6 +414,7 @@ md"There are a countably infinite number of such flips, each independent of all 
 # ╠═09595cc9-b08a-4465-a3e0-5d8e280530a2
 # ╟─6aa46f74-b3e2-4d12-abd0-90759023ecc5
 # ╠═0974a6a9-859f-44a9-a17a-5ef90c789ce5
+# ╟─317cf40e-bafd-43f3-b855-9bfcf53c0f3a
 # ╠═11c2d2b5-0c14-4b23-9282-083ac6f07f6f
 # ╟─c697307c-9d49-43a7-a379-f383780a1248
 # ╟─277b383e-c909-4424-91f1-f0f00b3531b4
@@ -443,7 +441,6 @@ md"There are a countably infinite number of such flips, each independent of all 
 # ╟─deb917d9-f885-4b7f-a85e-f2fcfab91183
 # ╟─4ef4f0dc-eb00-4fd0-a951-7e7d508cab06
 # ╠═74534019-62ee-494f-8ece-ac2d096543d9
-# ╠═842d4001-1e45-4683-a0a9-d99c57de23cb
 # ╟─4c21551f-75c3-4e9d-ac9f-aed939481c2e
 # ╠═17701d52-161b-447d-892f-3ca89d461ebd
 # ╠═24a06c1c-29ac-45b3-b8fa-774ca2e4619e
@@ -469,7 +466,6 @@ md"There are a countably infinite number of such flips, each independent of all 
 # ╟─10e3b2f2-68ec-4c19-b473-469a47815205
 # ╟─8283c98e-23eb-4a34-b4f2-14722a4afbe7
 # ╠═0add56e4-adba-448b-a6bc-8c17284bda01
-# ╠═33bb71af-e328-40ff-9143-1faaf01f9f0f
 # ╟─547eeca0-202d-4b43-8fc8-7d81c054bd02
 # ╠═25276e86-a816-4d37-baf2-6761971a9090
 # ╠═1c260eff-636c-429d-992f-b7854f4398e1
