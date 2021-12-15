@@ -407,7 +407,7 @@ randsample(meandist, 100)
 # ╔═╡ Cell order:
 # ╠═ace6ee53-4c3d-4742-b88e-2bdbe8adde32
 # ╟─ad003e86-23b7-4c8e-a6eb-009b1ec73d25
-# ╟─50bfb49f-7081-49e7-bda2-503804599d5e
+# ╠═50bfb49f-7081-49e7-bda2-503804599d5e
 # ╟─99fc08f8-d2b2-11eb-0599-fba4c4ec5a1a
 # ╟─eaa2ba5f-e319-4f74-9adc-87be3bc319d2
 # ╟─69ab85c4-2d16-4e67-88a3-6d50d64e5995
@@ -423,7 +423,7 @@ randsample(meandist, 100)
 # ╟─359a7e70-4662-4942-af96-441e24e15839
 # ╟─0d853129-a457-4650-843c-6443d4797b53
 # ╠═4a62d4ff-582e-4dc2-ac44-84c48433e078
-# ╟─0d5b28d1-5290-4266-b0ee-4c8924c0ec0e
+# ╠═0d5b28d1-5290-4266-b0ee-4c8924c0ec0e
 # ╠═1408729d-8870-4116-834e-7ebb8fcf0732
 # ╠═cbcd86a4-cece-4847-8cce-55e768ac63c6
 # ╟─6bd0f9bc-95d5-46c8-be44-edefeb561b0e
