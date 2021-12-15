@@ -16,7 +16,7 @@ end
 md"## Cognition and conditioning"
 
 # ╔═╡ 877ff248-596c-4755-8085-281d1752ec5b
-md"We have built up a tool set for constructing probabilistic generative models. These can represent knowledge about causal processes in the world: running one of these programs generates a particular outcome by sampling a “history” for that outcome. However, the power of a causal model lies in the flexible ways it can be used to reason about the world. In the last chapter we ran generative models forward to reason about outcomes from initial conditions. Generative models also enable reasoning in other ways. For instance, if we have a generative model in which X is the output of a process that depends on Y (say `X = coolFunction(Y)`) we may ask: “assuming I have observed a certain X, what must Y have been?” That is we can reason backward from outcomes to initial conditions. More generally, we can make hypothetical assumptions and reason about the generative history: “assuming something, how did the generative model run?” In this section we describe how a wide variety of such hypothetical inferences can be made from a single generative model by conditioning the model on an assumed or observed fact."
+md"We have built up a tool set for constructing probabilistic generative models. These can represent knowledge about causal processes in the world: running one of these programs generates a particular outcome by sampling a “history” for that outcome. However, the power of a causal model lies in the flexible ways it can be used to reason about the world. In the last chapter we ran generative models forward to reason about outcomes from initial conditions. Generative models also enable reasoning in other ways. For instance, if we have a generative model in which $X$ is the output of a process that depends on $Y$ (say `X = coolFunction(Y)`) we may ask: “assuming I have observed a certain $X$, what must $Y$ have been?” That is we can reason backward from outcomes to initial conditions. More generally, we can make hypothetical assumptions and reason about the generative history: “assuming something, how did the generative model run?” In this section we describe how a wide variety of such hypothetical inferences can be made from a single generative model by conditioning the model on an assumed or observed fact."
 
 # ╔═╡ a0d93e64-92ca-4d32-905f-b99e5f3780d5
 md"Much of cognition can be understood in terms of conditional inference. In its most basic form, causal attribution is conditional inference: given some observed effects, what were the likely causes? Predictions are conditional inferences in the opposite direction: given that I have observed some cause, what are its likely effects? These inferences can be described by conditioning a probabilistic program that expresses a causal model. The acquisition of that causal model, or learning, is also conditional inference at a higher level of abstraction: given our general knowledge of how causal relations operate in the world, and some observed events in which candidate causes and effects co-occur in various ways, what specific causal relations are likely to hold between these observed variables?"
@@ -40,38 +40,38 @@ md"Suppose that we know some fixed fact, and we wish to consider hypotheses abou
 md"Consider the following simple generative model:"
 
 # ╔═╡ c794ee68-86a0-49f8-9054-2f5efadd053d
-A = @~ Bernoulli()
+A = 1 ~ Bernoulli()
 
-# ╔═╡ 2163b19f-4691-4337-865d-c7c20ecce4f5
-B = @~ Bernoulli()
+# ╔═╡ 8091bb8c-2f29-4b5c-b2b1-15c3ead9b70f
+B = 2 ~ Bernoulli()
 
-# ╔═╡ d6398ac5-bcf2-4b8b-b82c-e79809cedd00
-C = @~ Bernoulli()
+# ╔═╡ af8e6721-0af4-42f3-9c50-2e243524260b
+C = 3 ~ Bernoulli()
 
-# ╔═╡ 92ab19b1-e2d1-4e1c-808b-28819a1be443
+# ╔═╡ 78fcf1a2-19f0-4b6a-9a45-3af4b45b20f2
 model = pw(+, A, B, C)
 
-# ╔═╡ efc2efe9-0c91-4cb2-a306-51173b151252
+# ╔═╡ ae9646da-2e65-4566-8953-a761864b924f
 histogram(randsample(model, 1000), bins = 3)
 
 # ╔═╡ a6072ac1-8586-47c0-add5-f076ea6b71d8
-md"The process described in model samples three numbers and adds them. The value of the final expression here is 0, 1, 2 or 3. A priori, each of the variables `A`, `B`, `C` has .5 probability of being 1 or 0. However, suppose that we know that the sum `model` is equal to 3. How does this change the space of possible values that variable `A` could have taken? `A` (and `B` and `C`) must be equal to 1 for this result to happen. We can see this in the following Omega inference, where we use `|ᶜ` to express the desired assumption:"
+md"The process described in model samples three numbers and adds them. The value of the final expression here is $0$, $1$, $2$ or $3$. A priori, each of the variables `A`, `B`, `C` has $0.5$ probability of being $1$ or $0$. However, suppose that we know that the sum `model` is equal to $3$. How does this change the space of possible values that variable `A` could have taken? `A` (and `B` and `C`) must be _equal_ to $1$ for this result to happen. We can see this in the following Omega inference, where we use `|ᶜ` to express the desired assumption (ie., to condition on random variables):"
 
 # ╔═╡ 0efba943-013b-40cc-8819-ba6852214543
-A_cnd = (A |ᶜ (model ==ₚ 3))
+A_cnd = A |ᶜ (model ==ₚ 3)
 
 # ╔═╡ ca821906-6411-43c7-bbd3-93b72978a767
 histogram(randsample(A_cnd, 100))
 
 # ╔═╡ 9bc0bc9f-51f2-4b8c-8ced-eb015ef5c4de
 md"""
-The output here describes appropriate beliefs about the likely value of `A`, conditioned on `model` being equal to 3.
+The output here describes appropriate beliefs about the likely value of `A`, conditioned on `model` being equal to $3$.
 
-Now suppose that we condition on `model` being greater than or equal to 2. Then `A` need not be 1, but it is more likely than not to be. (Why?) The corresponding plot shows the appropriate distribution of beliefs for `A` conditioned on this new fact:
+Now suppose that we condition on `model` being greater than or equal to $2$. Then `A` need not be $1$, but it is more likely than not to be. The corresponding plot shows the appropriate distribution of beliefs for `A` conditioned on this new fact:
 """
 
 # ╔═╡ 44be800d-abc8-476f-80d3-7f5a733f8c31
-A_cnd_new = (A |ᶜ (model >=ₚ 2))
+A_cnd_new = A |ᶜ (model >=ₚ 2)
 
 # ╔═╡ aa6705f4-1c2d-4556-954d-f3b198f7f3ba
 histogram(randsample(A_cnd_new, 100), bins = 1)
@@ -81,29 +81,29 @@ md"### Rejection Sampling"
 
 # ╔═╡ 525fd3ab-ed0b-4d49-ba9c-6d71aec802a8
 md"""
-How can we imagine answering a hypothetical such as those above? We have already seen how to get a sample from a generative model. We can get conditional samples by forward sampling the entire model, but only keeping the sample if the value passed to condition is true. For instance, to sample from the above model “`A` given that `model` is greater than or equal to 2” we could:
+How can we imagine answering a hypothetical such as those above? We have already seen how to get a sample from a generative model. We can get conditional samples by forward sampling the entire model, but only keeping the sample if the value passed to condition is true. For instance, to sample from the above model “`A` given that `model` is greater than or equal to $2$” we could:
 """
 
 # ╔═╡ 7fe0569f-772b-4cf6-bed2-f79a7f10ae17
-A_(n, ω) = (n ~ Bernoulli())(ω)
+A_ = @~ Bernoulli()
 
 # ╔═╡ 8321b19d-2577-4809-aa00-f12f90a6f2c2
-B_(n, ω) = (n ~ Bernoulli())(ω)
+B_ = @~ Bernoulli()
 
 # ╔═╡ 46f605cf-bb66-4845-b33f-1ded5fd08d75
-C_(n, ω) = (n ~ Bernoulli())(ω)
+C_ = @~ Bernoulli()
 
 # ╔═╡ e1e88bc4-9c29-4465-b73f-52737c42ca19
-D(n, ω) = A_(n, ω) + B_(n+1, ω) + C_(n+2, ω)
+D = A_ +ₚ B_ +ₚ C_
 
 # ╔═╡ b15a1f8e-2427-42a1-a3be-ee2b8d49adf4
-take_sample(ω, n = 0) = (D(n, ω) >= 2) ? A_(n, ω) : take_sample(ω, n + 3)
+take_sample(ω) = (D(ω) >= 2) ? A_(ω) : take_sample(defω())
 
 # ╔═╡ e0c9c0d1-cd53-4a0f-858b-ee60b70e2a54
-histogram(randsample(ω -> take_sample(ω), 100), bins = 1)
+histogram(randsample(take_sample, 1000), bins = 1)
 
 # ╔═╡ 7be5d173-d327-4126-9764-89183d23ddb1
-md"Notice that we have used recursion to sample the model repeatedly until D >= 2 is true, and we then return A: we generate and test until the condition is satisfied. This process is known as _rejection sampling_."
+md"Notice that we have used recursion to sample the model repeatedly until `D` >= 2 is true, and we then return `A_`: we generate and test until the condition is satisfied. This process is known as _rejection sampling_."
 
 # ╔═╡ 6b67ec11-2e8a-414f-85ee-16a5f2f9eb7e
 md"### Bayes' Rule"
@@ -125,7 +125,7 @@ observed_data = true
 prior = @~ Bernoulli()
 
 # ╔═╡ abc5ca50-e65e-40a0-8e5a-bb3f95388d82
-likelihood(h) = ω -> h(ω) ? (@~ Bernoulli(0.9))(ω) : (@~ Bernoulli(0.1))(ω)
+likelihood(h) = pw(ifelse, h, (@~ Bernoulli(0.9)), (@~ Bernoulli(0.1)))
 
 # ╔═╡ 20670696-b03e-4098-ac45-5dce59d389ed
 posterior = prior |ᶜ (likelihood(prior) ==ₚ observed_data)
@@ -149,25 +149,21 @@ md"A very common pattern is to condition directly on the value of a sample from 
 # ╔═╡ e76cbb9f-fbd3-4d63-8030-8d3dcc127240
 true_X = @~ Normal(0, 1)
 
-# ╔═╡ a6471ed4-0168-4a94-b661-896d876b1fdc
+# ╔═╡ 648b4577-6464-4419-b53c-c6deebf43c10
 obs_X(ω) = (@~ Normal(true_X(ω), 0.1))(ω)
+# obs_X = @~ Normal(true_X, 0.1)
+
+# ╔═╡ 737a2418-1054-45c7-adb3-fa294bee458a
+md"Alternatively, a more convenient way to define `obs_X` is - `obs_X = @~ Normal(true_X, 0.1)` in Omega."
 
 # ╔═╡ 48e557ae-aaf3-4d59-8728-85634242c79b
-cnd_true_X(ω) = true_X(ω) |ᶜ (obs_X(ω) == 0.2)
+cnd_true_X = true_X |ᶜ (obs_X ==ₚ 0.2)
 
 # ╔═╡ 5e5073bd-6866-4adb-863e-661a0a9b3bdf
 # randsample(cnd_true_X)
 
 # ╔═╡ 967c0589-e549-40d1-9ed3-8ca71a380b4e
-md"You will note that the above function never finishes. (Why? Think about what rejection sampling tries to do here…) 
-
-In Omega we have soft conditioning, to express conditioning on continuous variables:"
-
-# ╔═╡ a5127c7d-766e-4b6b-82b9-ee9536e233b4
-cnd_true_X_s(ω) = true_X(ω) |ᶜ (obs_X(ω) ==ₛ 0.2)
-
-# ╔═╡ 1c8850df-1546-42cf-92d1-f6a282ee4352
-randsample(cnd_true_X_s)
+md"You will note that the above function never finishes. (Why? Think about what rejection sampling tries to do here…) "
 
 # ╔═╡ b3ae8730-18a4-488e-bbda-4402576a6439
 md"### Example: Reasoning about Tug of War"
@@ -176,13 +172,13 @@ md"### Example: Reasoning about Tug of War"
 md"Imagine a game of tug of war, where each person may be strong or weak, and may be lazy or not on each match. If a person is lazy they only pull with half their strength. The team that pulls hardest will win. We assume that strength is a continuous property of an individual, and that on any match, each person has a 1 in 3 chance of being lazy."
 
 # ╔═╡ 07cfafb4-bc93-4c80-9c63-688f5afb8176
-strength(person, ω) = (person ~ TruncatedNormal(1, 1, 0.01, Inf))(ω)
+strength(person) = person ~ TruncatedNormal(1, 1, 0.01, Inf)
 
 # ╔═╡ ca86dc25-90a8-49d1-b69f-b2e073bdf9f6
 lazy(n, ω) = (n ~ Bernoulli(1/3))(ω)
 
 # ╔═╡ 4509461c-6934-4cec-bd25-40334b390dcd
-pulling(n, person, ω) = lazy(n, ω) ? strength(person, ω) / 2 : strength(person, ω)
+pulling(n, person, ω) = lazy(n, ω) ? strength(person)(ω) / 2 : strength(person)(ω)
 
 # ╔═╡ ac581943-b6db-4e71-bd72-2de782fe6eba
 function total_pulling(n, team, ω)
@@ -194,7 +190,16 @@ function total_pulling(n, team, ω)
 end
 
 # ╔═╡ 0d99389d-59dd-4c49-b603-94ad8fd731f1
-winner(team1, team2) = ω -> ((total_pulling(0, team1, ω) > total_pulling(length(team1), team2, ω)) ? team1 : team2)
+begin
+	function winner(team1, team2, ω)
+		if total_pulling(0, team1, ω) > total_pulling(length(team1), team2, ω)
+			return team1
+		else
+			return team2
+		end
+	end
+	winner(team1, team2) = ω -> winner(team1, team2, ω)
+end
 
 # ╔═╡ 593c3edc-3dda-4ada-bd8a-cdf9d81baa7e
 begin
@@ -218,7 +223,7 @@ We can use this to ask a variety of different questions. For instance, how likel
 beat(team1, team2) = (winner(team1, team2) ==ₚ team1)
 
 # ╔═╡ 5cc66ffc-9751-47d6-b9a9-5c37747b0a63
-cnd_str = (ω -> strength(team1.bob, ω)) |ᶜ beat(team1, team2)
+cnd_str = strength(team1.bob) |ᶜ beat(team1, team2)
 
 # ╔═╡ 7e8efa1e-9bb7-494b-9120-97eedc5777fb
 randsample(cnd_str)
@@ -236,8 +241,12 @@ begin
 	team_B = (jim = 6, sue = 3)
 end
 
+# ╔═╡ 1e9f74fd-a19c-4a2b-8065-5dd44be6092a
+condition = 
+	(strength(team_A.mary) >=ₚ strength(team_B.sue)) &ₚ beat((bob = 2, ), (jim = 6, ))
+
 # ╔═╡ b3dad899-f286-4145-9725-afce161d61f7
-cnd_beat = beat(team_A, team_B) |ᶜ (((ω -> strength(team_A.mary, ω)) >=ₚ (ω -> strength(team_B.sue, ω))) &ₚ beat((bob = 2, ), (jim = 6, )))
+cnd_beat = beat(team_A, team_B) |ᶜ condition
 
 # ╔═╡ 6d9b2966-05d1-4468-8e53-36ccfd07bf75
 randsample(cnd_beat)
@@ -258,7 +267,8 @@ md"What is your intuition? Many people without training in statistical inference
 breast_cancer = @~ Bernoulli(0.01)
 
 # ╔═╡ 86bbdeb9-4aa4-4355-bc7c-31b2b3948c5a
-positive_mammogram(ω) = breast_cancer(ω) ? (@~ Bernoulli(0.8))(ω) : (@~ Bernoulli(0.096))(ω)
+positive_mammogram(ω) = 
+	breast_cancer(ω) ? (@~ Bernoulli(0.8))(ω) : (@~ Bernoulli(0.096))(ω)
 
 # ╔═╡ 3fe0fbb3-5033-4e29-9906-a8f098bd6243
 breast_cancer_cond = breast_cancer |ᶜ positive_mammogram
@@ -306,7 +316,8 @@ breast_cancer_ = @~ Bernoulli(0.01)
 benign_cyst = @~ Bernoulli(0.2)
 
 # ╔═╡ 85ecb534-af6d-468f-83f8-a26684080bb8
-positive_mammogram_ = (breast_cancer_ &ₚ @~ Bernoulli(0.8)) |ₚ (benign_cyst &ₚ @~ Bernoulli())
+positive_mammogram_ = 
+		(breast_cancer_ &ₚ @~ Bernoulli(0.8)) |ₚ (benign_cyst &ₚ @~ Bernoulli())
 
 # ╔═╡ 08a67559-33e6-479a-932f-d868b638dd6e
 breast_cancer_cond_ = breast_cancer_ |ᶜ positive_mammogram_
@@ -329,16 +340,34 @@ begin
 end
 
 # ╔═╡ d438dd9c-5f2c-4417-956d-62e7b7b863d0
-cough = pw(|, (cold &ₚ @~ Bernoulli()), (lung_cancer &ₚ @~ Bernoulli(0.3)), (TB &ₚ @~ Bernoulli(0.7)), (other &ₚ @~ Bernoulli(0.01)))
+cough = pw(|, 
+		(cold &ₚ @~ Bernoulli()), 
+		(lung_cancer &ₚ @~ Bernoulli(0.3)), 
+		(TB &ₚ @~ Bernoulli(0.7)), 
+		(other &ₚ @~ Bernoulli(0.01))
+)
 
 # ╔═╡ 1458c2a1-bacf-4433-9984-16be0b76eed3
-fever = pw(|, (cold &ₚ @~ Bernoulli(0.3)), (stomach_flu &ₚ @~ Bernoulli()), (TB &ₚ @~ Bernoulli(0.1)), (other &ₚ @~ Bernoulli(0.01)))
+fever = pw(|, 
+	(cold &ₚ @~ Bernoulli(0.3)), 
+	(stomach_flu &ₚ @~ Bernoulli()), 
+	(TB &ₚ @~ Bernoulli(0.1)), 
+	(other &ₚ @~ Bernoulli(0.01))
+)
 
 # ╔═╡ db5b3112-9ab0-4f53-9f5a-0c6f6714a87e
-chest_pain = pw(|, (lung_cancer &ₚ @~ Bernoulli()), (TB &ₚ @~ Bernoulli()), (other &ₚ @~ Bernoulli(0.01)))
+chest_pain = pw(|, 
+	(lung_cancer &ₚ @~ Bernoulli()), 
+	(TB &ₚ @~ Bernoulli()), 
+	(other &ₚ @~ Bernoulli(0.01))
+)
 
 # ╔═╡ 4596dd12-94d6-4c5f-a813-93681cdca973
-shortness_of_breath = pw(|, (lung_cancer &ₚ @~ Bernoulli()), (TB &ₚ @~ Bernoulli(0.2)), (other &ₚ @~ Bernoulli(0.01)))
+shortness_of_breath = pw(|, 
+	(lung_cancer &ₚ @~ Bernoulli()), 
+	(TB &ₚ @~ Bernoulli(0.2)), 
+	(other &ₚ @~ Bernoulli(0.01))
+)
 
 # ╔═╡ 3ad98347-598b-4b61-8a63-461cd98e1f89
 lung_cancer_cond = lung_cancer |ᶜ (pw(&, cough, chest_pain, shortness_of_breath))
@@ -371,16 +400,34 @@ begin
 end
 
 # ╔═╡ 72d53f12-d2a1-4ddc-9c8b-5694c85a6d7b
-cough_ = pw(|, (cold_ &ₚ @~ Bernoulli()), (lung_cancer_ &ₚ @~ Bernoulli(0.3)), (TB_ &ₚ @~ Bernoulli(0.7)), (other &ₚ @~ Bernoulli(0.01)))
+cough_ = pw(|, 
+	(cold_ &ₚ @~ Bernoulli()), 
+	(lung_cancer_ &ₚ @~ Bernoulli(0.3)), 
+	(TB_ &ₚ @~ Bernoulli(0.7)), 
+	(other &ₚ @~ Bernoulli(0.01))
+)
 
 # ╔═╡ d94c1ee5-e729-4abe-9e84-68a1816cc886
-fever_ = pw(|, (cold_ &ₚ @~ Bernoulli(0.3)), (stomach_flu &ₚ @~ Bernoulli()), (TB_ &ₚ @~ Bernoulli(0.1)), (other &ₚ @~ Bernoulli(0.01)))
+fever_ = pw(|, 
+	(cold_ &ₚ @~ Bernoulli(0.3)), 
+	(stomach_flu &ₚ @~ Bernoulli()), 
+	(TB_ &ₚ @~ Bernoulli(0.1)), 
+	(other &ₚ @~ Bernoulli(0.01))
+)
 
 # ╔═╡ ffa7d097-16ea-4e17-8aae-6e36302fe6cc
-chest_pain_ = pw(|, (lung_cancer_ &ₚ @~ Bernoulli()), (TB_ &ₚ @~ Bernoulli()), (other &ₚ @~ Bernoulli(0.01)))
+chest_pain_ = pw(|, 
+	(lung_cancer_ &ₚ @~ Bernoulli()), 
+	(TB_ &ₚ @~ Bernoulli()), 
+	(other &ₚ @~ Bernoulli(0.01))
+)
 
 # ╔═╡ 8796daf8-ed11-4131-9e2f-c629cf65d02b
-shortness_of_breath_ = pw(|, (lung_cancer_ &ₚ @~ Bernoulli()), (TB_ &ₚ @~ Bernoulli(0.2)), (other &ₚ @~ Bernoulli(0.01)))
+shortness_of_breath_ = pw(|, 
+	(lung_cancer_ &ₚ @~ Bernoulli()), 
+	(TB_ &ₚ @~ Bernoulli(0.2)), 
+	(other &ₚ @~ Bernoulli(0.01))
+)
 
 # ╔═╡ 488000ac-4d99-436d-91eb-af526773ca40
 lung_cancer_cond_ = lung_cancer_ |ᶜ (pw(&, cough_, chest_pain_, shortness_of_breath_))
@@ -409,10 +456,10 @@ md"Under this model, a patient with coughing, chest pain and shortness of breath
 # ╟─bcfd08bc-91f6-4745-aeb0-9e7ecd218388
 # ╟─70d10737-6ec4-43fc-822d-a7db70fce4d0
 # ╠═c794ee68-86a0-49f8-9054-2f5efadd053d
-# ╠═2163b19f-4691-4337-865d-c7c20ecce4f5
-# ╠═d6398ac5-bcf2-4b8b-b82c-e79809cedd00
-# ╠═92ab19b1-e2d1-4e1c-808b-28819a1be443
-# ╠═efc2efe9-0c91-4cb2-a306-51173b151252
+# ╠═8091bb8c-2f29-4b5c-b2b1-15c3ead9b70f
+# ╠═af8e6721-0af4-42f3-9c50-2e243524260b
+# ╠═78fcf1a2-19f0-4b6a-9a45-3af4b45b20f2
+# ╠═ae9646da-2e65-4566-8953-a761864b924f
 # ╟─a6072ac1-8586-47c0-add5-f076ea6b71d8
 # ╠═0efba943-013b-40cc-8819-ba6852214543
 # ╠═ca821906-6411-43c7-bbd3-93b72978a767
@@ -439,12 +486,11 @@ md"Under this model, a patient with coughing, chest pain and shortness of breath
 # ╟─81eea9c8-c365-4bf0-91e9-e0603034f8bc
 # ╟─60fca96c-2b8f-48e8-9d3c-4589e68743d7
 # ╠═e76cbb9f-fbd3-4d63-8030-8d3dcc127240
-# ╠═a6471ed4-0168-4a94-b661-896d876b1fdc
+# ╠═648b4577-6464-4419-b53c-c6deebf43c10
+# ╟─737a2418-1054-45c7-adb3-fa294bee458a
 # ╠═48e557ae-aaf3-4d59-8728-85634242c79b
 # ╠═5e5073bd-6866-4adb-863e-661a0a9b3bdf
 # ╟─967c0589-e549-40d1-9ed3-8ca71a380b4e
-# ╠═a5127c7d-766e-4b6b-82b9-ee9536e233b4
-# ╠═1c8850df-1546-42cf-92d1-f6a282ee4352
 # ╟─b3ae8730-18a4-488e-bbda-4402576a6439
 # ╟─3a8aef72-4569-4b2d-b6f8-596a7ccd1113
 # ╠═07cfafb4-bc93-4c80-9c63-688f5afb8176
@@ -460,6 +506,7 @@ md"Under this model, a patient with coughing, chest pain and shortness of breath
 # ╠═7e8efa1e-9bb7-494b-9120-97eedc5777fb
 # ╟─a51f14db-1c6d-441d-b4bb-d9fe7fc90b21
 # ╠═3d6a5835-356c-45ee-b3b7-c25b6d5da4b8
+# ╠═1e9f74fd-a19c-4a2b-8065-5dd44be6092a
 # ╠═b3dad899-f286-4145-9725-afce161d61f7
 # ╠═6d9b2966-05d1-4468-8e53-36ccfd07bf75
 # ╟─e3d5606f-7d01-44db-8449-81fa67c7209d
