@@ -153,7 +153,7 @@ goal_post_samples = randsample(goal_posterior, 1000)
 barplot(Dict(freqtable(goal_post_samples)))
 
 # ╔═╡ 402d913d-8788-4ade-a11e-d0f09853e5f5
-md"Now let’s imagine a more ambiguous case: button b is “broken” and will (uniformly) randomly result in a food from the machine. If we see Sally press button $2$, what goal is she most likely to have?"
+md"Now let’s imagine a more ambiguous case: button $2$ is “broken” and will (uniformly) randomly result in a food from the machine. If we see Sally press button $2$, what goal is she most likely to have?"
 
 # ╔═╡ 0a4ac84e-f51a-41f3-88a2-65cb695b45cf
 function vending_machine_broken(ω, action)
@@ -397,7 +397,7 @@ histogram(kg_one_press_cookie_prob)
 # ╔═╡ ca810a1d-7346-414a-9cec-2fea3e82e2e5
 md"""
 ## Inferring whether they know
-Let’s imagine that we (the observer) know that the vending machine actually tends to return a bagel for button a and a cookie for button b. But we don’t know if Sally knows this! Instead we see Sally announce that she wants a cookie, but pushes button a. How can we determine, from her actions, whether Sally is knowledgeable or ignorant? We hypothesize that if she is ignorant, Sally chooses according to a random vending machine. We can then infer her knowledge state:
+Let’s imagine that we (the observer) know that the vending machine actually tends to return a bagel for button $1$ and a cookie for button $2$. But we don’t know if Sally knows this! Instead we see Sally announce that she wants a cookie, but pushes button $1$. How can we determine, from her actions, whether Sally is knowledgeable or ignorant? We hypothesize that if she is ignorant, Sally chooses according to a random vending machine. We can then infer her knowledge state:
 """
 
 # ╔═╡ f87269c5-e8ef-4962-8657-322eae99647d
@@ -430,7 +430,7 @@ md"""
 This is a very simple example, but it illustrates how we can represent a difference in knowledge between the observer and the observed agent by simply using different world models (the vending machines) for explaining the action (in `choose_action_stochastic`) and for explaining the outcome (in `|ᶜ`).
 
 ## Inferring what they believe
-Above we assumed that if Sally is ignorant, she chooses based on a random machine. This is both not flexible enough and too strong an assumption. Indeed, Sally may have all kinds of specific (and potentially false) beliefs about vending machines. To capture this, we can represent Sally’s beliefs as a separate randomly chosen vending machine: by passing this into Sally’s chooseAction we indicate these are Sally’s beliefs, by putting this inside the outer Infer we represent the observer reasoning about Sally’s beliefs:
+Above we assumed that if Sally is ignorant, she chooses based on a random machine. This is both not flexible enough and too strong an assumption. Indeed, Sally may have all kinds of specific (and potentially false) beliefs about vending machines. To capture this, we can represent Sally’s beliefs as a separate randomly chosen vending machine: by passing this into Sally’s `choose_action_stochastic` we indicate these are Sally’s beliefs, by putting this inside the outer Infer we represent the observer reasoning about Sally’s beliefs:
 """
 
 # ╔═╡ 3a8d3c56-b89e-4ed1-8cd1-803a641bece7
