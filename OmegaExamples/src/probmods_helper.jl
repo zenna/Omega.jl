@@ -1,6 +1,7 @@
 # Helper functions for probmods
 using UnicodePlots, Distributions, Omega, FreqTables
-export viz, UniformDraw, Dirichlet, pget, ifelseₚ
+
+export viz, UniformDraw, pget, Dirichlet
 
 "To visualize the generated samples of a random variable"
 viz(var::Vector{T} where {T<:Union{String,Char}}) =
@@ -28,4 +29,3 @@ end
 
 # Other utility functions
 pget(x) = i -> x[i]
-ifelseₚ(cond, x, y) = pw(ifelse, cond, x, y)
