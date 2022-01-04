@@ -1,27 +1,29 @@
 # Helper functions for probmods
+using UnicodePlots, Distributions, Omega, FreqTables
+export viz, UniformDraw, Dirichlet, pget, ifelseₚ
 
 "To visualize the generated samples of a random variable"
-viz(var::Vector{T} where T<:Union{String, Char}) = 	
-		barplot(Dict(freqtable(var)))
+viz(var::Vector{T} where {T<:Union{String,Char}}) =
+    barplot(Dict(freqtable(var)))
 viz(var::Vector{<:Real}) = histogram(var, symbols = ["■"])
 viz(var::Vector{Bool}) = viz(string.(var))
 
 # Required aditional distributions -
 struct UniformDraw{T}
-	elem::T
+    elem::T
 end
-(u::UniformDraw)(i, ω) = 
-	u.elem[(i ~ DiscreteUniform(1, length(u.elem)))(ω)]
-	
-struct Dirichlet{T}
-	α::T
+(u::UniformDraw)(i, ω) =
+    u.elem[(i ~ DiscreteUniform(1, length(u.elem)))(ω)]
+
+struct Dirichlet{V}
+    α::V
 end
-Dirichlet(k::Int64, a::Real) = Dirichlet(a.*ones(k))
+Dirichlet(k::Int64, a::Real) = Dirichlet(a .* ones(k))
 
 function (d::Dirichlet)(i, ω)
-	gammas = [((i..., j) ~ Gamma(αj))(ω) for (j, αj) in enumerate(d.α)]
-	Σ = sum(gammas)
-	[gamma/Σ for gamma in gammas]
+    gammas = [((i..., j) ~ Gamma(αj))(ω) for (j, αj) in enumerate(d.α)]
+    Σ = sum(gammas)
+    [gamma / Σ for gamma in gammas]
 end
 
 # Other utility functions
