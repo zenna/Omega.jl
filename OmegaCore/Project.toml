@@ -11,6 +11,7 @@ Spec = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
 
 [compat]
 Reexport = "0.2, 1"
+Spec = "0.3"
 
 [extras]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
