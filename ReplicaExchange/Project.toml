@@ -10,4 +10,4 @@ Spec = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
 
 [compat]
 InferenceBase = "0.1.0"
-Spec = "0.2.0"
+Spec = "0.3.0"
