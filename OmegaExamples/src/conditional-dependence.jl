@@ -6,15 +6,17 @@ using InteractiveUtils
 
 # ╔═╡ a6793602-5caa-11ec-1047-f9c7ee843ccf
 begin
-    import Pkg
+	import Pkg
     # activate the shared project environment
     Pkg.activate(Base.current_project())
-    using Omega, Distributions, UnicodePlots, FreqTables
-	using GraphPlot, Graphs, Colors
+    using Omega, Distributions, UnicodePlots, OmegaExamples
 end
 
+# ╔═╡ e32ccfe6-d204-4e2c-835f-d207a00575d4
+using GraphPlot, Graphs, Colors
+
 # ╔═╡ 7b2999d0-e66b-4212-be30-3be990be04f9
-md"### From A Priori Dependence to Conditional Dependence"
+md"### From _A Priori_ Dependence to Conditional Dependence"
 
 # ╔═╡ 68841072-3016-4de8-9fad-3d4d8be3fc5b
 md"""
@@ -43,9 +45,6 @@ end
 # ╔═╡ 34d232f9-a8bb-47ad-82e6-9280fd0bca98
 C = @~ Bernoulli()
 
-# ╔═╡ c2242a03-c976-4454-8be3-4cd2b27adc50
-ifelseₚ(cond, p, q) = pw(ifelse, cond, p, q) # cond ? p : q
-
 # ╔═╡ 64335ca1-48a9-435d-93f5-c71adfa71677
 B = ifelseₚ(C, (@~ Bernoulli(0.5)), (@~ Bernoulli(0.9)))
 
@@ -59,13 +58,13 @@ B_cond_A(A_val) = B |ᶜ (C &ₚ (A ==ₚ A_val))
 md"Histogram of `B` conditioned on when `A` is `true` :"
 
 # ╔═╡ f002b30b-ad9d-4bc8-b38e-cc1fcb7bbc62
-histogram(randsample(B_cond_A(true), 1000), bins = 1)
+viz(randsample(B_cond_A(true), 1000))
 
 # ╔═╡ 58c19d66-48a2-491a-9651-8b5340c4b4f8
 md"Histogram of `B` conditioned on when `A` is `false` :"
 
 # ╔═╡ 0e70a11d-a3d9-473a-9bcc-666d02fe56c8
-histogram(randsample(B_cond_A(false), 1000), bins = 1)
+viz(randsample(B_cond_A(false), 1000))
 
 # ╔═╡ c17a0aa6-8991-4798-b478-899859a4123c
 md"""
@@ -91,10 +90,10 @@ let
 end
 
 # ╔═╡ 6a911b82-abd4-4fb3-890d-83575a23c514
-D = 1 ~ Bernoulli()
+D = @~ Bernoulli()
 
 # ╔═╡ 8a779fe1-fe21-428d-8d1e-0598e8c53e14
-E = 2 ~ Bernoulli()
+E = @~ Bernoulli()
 
 # ╔═╡ 48ebe872-8c2f-477f-b09a-2c91725f590a
 F = ifelseₚ((D |ₚ E), (@~ Bernoulli(0.9)), (@~ Bernoulli(0.2)))
@@ -106,13 +105,13 @@ E_cond_D(D_val) = E |ᶜ (F &ₚ (D ==ₚ D_val))
 md"Histogram of `E` conditioned on `D` when `D` is `true` :"
 
 # ╔═╡ e54f25e2-1f02-4b33-a033-4f9d5fc855ef
-histogram(randsample(E_cond_D(true), 1000), bins = 1)
+viz(randsample(E_cond_D(true), 1000))
 
 # ╔═╡ 4613124b-2ff9-46a5-8740-691730b55684
 md"Histogram of `E` conditioned on `D` when `D` is `false` :"
 
 # ╔═╡ 54087a09-3774-472a-987e-a67f691a9d65
-histogram(randsample(E_cond_D(false), 1000), bins = 1)
+viz(randsample(E_cond_D(false), 1000))
 
 # ╔═╡ 8b154a12-b15a-4fea-83ea-2b43af19e03d
 md"""
@@ -127,13 +126,13 @@ Suppose we condition on observing the sum of two integers drawn uniformly from 0
 """
 
 # ╔═╡ 099a9976-611d-4d0a-9e7e-e1a505df3a9a
-int_1 = 1 ~ DiscreteUniform(0, 9)
+int_1 = @~ DiscreteUniform(0, 9)
 
 # ╔═╡ b3c69b87-405f-4cef-ba52-d0986328f739
-int_2 = 2 ~ DiscreteUniform(0, 9)
+int_2 = @~ DiscreteUniform(0, 9)
 
 # ╔═╡ dc660eb9-2868-4773-8387-195133311851
-ints(ω) = (int_1(ω), int_2(ω))
+ints = @joint int_1 int_2
 
 # ╔═╡ 82bb2560-4003-4651-9859-ecfa664e7a22
 sum_cond = ints |ᶜ (int_1 +ₚ int_2 ==ₚ 9)
@@ -142,7 +141,7 @@ sum_cond = ints |ᶜ (int_1 +ₚ int_2 ==ₚ 9)
 val = randsample(sum_cond, 1000)
 
 # ╔═╡ 998e9e30-af54-4ced-afb2-44e9ca5c10e1
-scatterplot([v[1] for v in val], [v[2] for v in val])
+scatterplot([v.int_1 for v in val], [v.int_2 for v in val], marker = :xcross)
 
 # ╔═╡ 781d2a73-7060-42b2-9db0-ea0c5da76f68
 md"""
@@ -156,7 +155,7 @@ eq_cond = ints |ᶜ (int_1 ==ₚ int_2)
 val_eq = randsample(eq_cond, 1000)
 
 # ╔═╡ b5be4e3e-be2a-41f8-9038-773eda8b8073
-scatterplot([v[1] for v in val_eq], [v[1] for v in val_eq])
+scatterplot([v.int_1 for v in val_eq], [v.int_2 for v in val_eq], marker = :xcross)
 
 # ╔═╡ f6bc26c5-ff48-48b1-b98e-9ea64df1f6f2
 md"""
@@ -165,29 +164,29 @@ Now, of course, `int_1` and `int_2` go from being independent a priori to being 
 * `pw(abs, (int_1 -ₚ int_2)) <ₚ 2`
 * `(int_1 +ₚ int_2 >=ₚ 9) &ₚ (int_1 +ₚ int_2 <=ₚ 11)`
 * `pw(abs, (int_1 -ₚ int_2)) ==ₚ 2`
-* `pw(%, (A -ₚ B), 10) ==ₚ 3` # (int_1 $-$ int_2) $%$ 10 $==$ 3 
-* `pw(%, int_1, 2) ==ₚ pw(%, int_2, 2)` # int_1 $%$ 2 $==$ int_2 $%$ 2
+* `pw(%, (A -ₚ B), 10) ==ₚ 3` # (int_1 $-$ int_2) $\%$ 10 $==$ 3 
+* `pw(%, int_1, 2) ==ₚ pw(%, int_2, 2)` # int_1 $\%$ 2 $==$ int_2 $\%$ 2
 """
 
 # ╔═╡ c9e9ac6c-a2ce-45e2-8c65-c8815b65f692
 md"### Non-monotonic Reasoning"
 
-# ╔═╡ f406a180-150f-47f2-a8b0-1d918738e3ec
-md"""
-One reason explaining away is an important phenomenon in probabilistic inference is that it is an example of non-monotonic reasoning. In formal logic, a theory is said to be monotonic if adding an assumption (or formula) to the theory never reduces the set of conclusions that can be drawn. Most traditional logics (e.g. First Order) are monotonic, but human reasoning does not seem to be. For instance, if I tell you that Tweety is a bird, you conclude that he can fly; if I now tell you that Tweety is an ostrich you retract the conclusion that he can fly. Over the years many non-monotonic logics have been introduced to model aspects of human reasoning. One of the first reasons that probabilistic reasoning with Bayesian networks was recognized as important for AI was that it could perspicuously capture these patterns of reasoning (Pearl, 1988).
-
-Another way to think about monotonicity is by considering the trajectory of our belief in a specific proposition, as we gain additional relevant information. In traditional logic, there are only three states of belief: true, false, and unknown (when neither a proposition nor its negation can be proven). As we learn more about the world, maintaining logical consistency requires that our belief in any proposition only move from unknown to true or false. That is our “confidence” in any conclusion only increases (and only does so in one giant leap from unknown to true or false).
-
-In a probabilistic approach, by contrast, belief comes in a whole spectrum of degrees. We can think of confidence as a measure of how far our beliefs are from a uniform distribution—how close to the extremes of 0 or 1. In probabilistic inference, unlike in traditional logic, our confidence in a proposition can both increase and decrease. Even fairly simple probabilistic models can induce complex explaining-away dynamics that lead our degree of belief in a proposition to reverse directions multiple times as observations accumulate.
-"""
-
-# ╔═╡ 2b360158-08f5-46d2-98d8-10e764de554c
-md"#### Example: Medical Diagnosis"
-
 # ╔═╡ 71e44172-66f8-4989-aca6-bf1ef3964122
 md"""
 The medical scenario is a great model to explore screening off and explaining away. In this model `smokes` is statistically dependent on several symptoms—`cough`, `chest_pain`, and `shortness_of_breath`—due to a causal chain between them mediated by `lung_disease`. We can see this easily by conditioning on these symptoms and looking at `smokes`:
 """
+
+# ╔═╡ f406a180-150f-47f2-a8b0-1d918738e3ec
+md"""
+One reason explaining away is an important phenomenon in probabilistic inference is that it is an example of non-monotonic reasoning. In formal logic, a theory is said to be monotonic if adding an assumption (or formula) to the theory never reduces the set of conclusions that can be drawn. Most traditional logics (e.g. First Order) are monotonic, but human reasoning does not seem to be. For instance, if I tell you that Tweety is a bird, you conclude that he can fly; if I now tell you that Tweety is an ostrich you retract the conclusion that he can fly. Over the years many non-monotonic logics have been introduced to model aspects of human reasoning. One of the first reasons that probabilistic reasoning with Bayesian networks was recognized as important for AI was that it could perspicuously capture these patterns of reasoning ([Pearl, 1988](https://scholar.google.com/scholar?q=%22Probabilistic%20reasoning%20in%20intelligent%20systems%3A%20networks%20of%20plausible%20inference%22)).
+
+Another way to think about monotonicity is by considering the trajectory of our belief in a specific proposition, as we gain additional relevant information. In traditional logic, there are only three states of belief: true, false, and unknown (when neither a proposition nor its negation can be proven). As we learn more about the world, maintaining logical consistency requires that our belief in any proposition only move from unknown to true or false. That is our “confidence” in any conclusion only increases (and only does so in one giant leap from unknown to true or false).
+
+In a probabilistic approach, by contrast, belief comes in a whole spectrum of degrees. We can think of confidence as a measure of how far our beliefs are from a uniform distribution—how close to the extremes of $0$ or $1$. In probabilistic inference, unlike in traditional logic, our confidence in a proposition can both increase and decrease. Even fairly simple probabilistic models can induce complex explaining-away dynamics that lead our degree of belief in a proposition to reverse directions multiple times as observations accumulate.
+"""
+
+# ╔═╡ 2b360158-08f5-46d2-98d8-10e764de554c
+md"#### Example: Medical Diagnosis"
 
 # ╔═╡ a2bf38d2-edc8-410f-8a3f-ec80f1bc9376
 smokes = @~ Bernoulli(0.2)
@@ -199,7 +198,10 @@ lung_disease = (smokes &ₚ @~ Bernoulli(0.1)) |ₚ @~ Bernoulli(0.001)
 cold = @~ Bernoulli(0.02)
 
 # ╔═╡ a5b4825b-7df0-44ca-b5c0-29da7c9b7e94
-cough = pw(|, (cold &ₚ @~ Bernoulli()), (lung_disease &ₚ @~ Bernoulli()), @~ Bernoulli(0.001)) 
+cough = pw(|, 
+	(cold &ₚ @~ Bernoulli()), 
+	(lung_disease &ₚ @~ Bernoulli()), 
+	@~ Bernoulli(0.001)) 
 
 # ╔═╡ 58d05c77-4593-4ef3-bc81-4213bbb63def
 fever = (cold &ₚ @~ Bernoulli(0.3)) |ₚ @~ Bernoulli(0.01)
@@ -214,7 +216,7 @@ shortness_of_breath = (lung_disease &ₚ @~ Bernoulli(0.2)) |ₚ @~ Bernoulli(0.
 smokes_cond_c_cp_sob = smokes |ᶜ pw(&, cough, chest_pain, shortness_of_breath)
 
 # ╔═╡ 370c6749-de71-4783-a831-02b8c692181b
-histogram(randsample(smokes_cond_c_cp_sob, 1000), bins = 1)
+viz(randsample(smokes_cond_c_cp_sob, 1000))
 
 # ╔═╡ 7e98268f-81c5-4e63-9f34-7af0f75f415e
 md"""
@@ -224,7 +226,8 @@ Now, suppose we condition also on knowledge about the function that mediates the
 """
 
 # ╔═╡ 30b6fb25-2c81-4975-bc52-1c31ce79047b
-smokes_cond_c_cp_sob_ld = smokes |ᶜ pw(&, lung_disease, cough, chest_pain, shortness_of_breath)
+smokes_cond_c_cp_sob_ld = 
+	smokes |ᶜ pw(&, lung_disease, cough, chest_pain, shortness_of_breath)
 
 # ╔═╡ 7cd38ff5-e93b-4ad4-ac94-4b1b2042a063
 md"""
@@ -236,38 +239,41 @@ To illustrate, observe how the probabilities of `cold` and `lung_disease` change
 """
 
 # ╔═╡ be042ac7-93f1-4ab8-9420-fe06ceafa945
-histogram(randsample(smokes_cond_c_cp_sob_ld, 1000), bins = 1)
+viz(randsample(smokes_cond_c_cp_sob_ld, 1000))
 
 # ╔═╡ 40794e8e-53f9-4204-8bda-551b6c51cc7e
-cold_cond_on_cough = cold |ᶜ cough
+ld_and_cold = @joint lung_disease cold
+
+# ╔═╡ ea8fdf94-9de7-4a67-906e-d0024d873f82
+ld_and_cold_cond = ld_and_cold |ᶜ cough
 
 # ╔═╡ 6400f767-dcb1-4230-90b9-b6d23066c0fd
-histogram(randsample(cold_cond_on_cough, 1000), bins = 1)
+cond_cough_samples = randsample(ld_and_cold_cond, 1000)
 
-# ╔═╡ a2c8cc36-e109-45ea-9c8b-d579e3d183b3
-ld_cond_on_cough = lung_disease |ᶜ cough
+# ╔═╡ 28be1b57-23ac-4d2f-854c-2d81872b3853
+viz(cond_cough_samples)
 
-# ╔═╡ c4dff21e-d179-4d1c-8eac-d922b8316f42
-histogram(randsample(ld_cond_on_cough, 1000), bins = 1)
+# ╔═╡ 50ba4c2f-d514-4904-b82c-dc9dfb24a5f2
+viz_marginals(cond_cough_samples)
 
 # ╔═╡ 3527c191-c5ab-424c-9bb0-ac3e40377fa1
 md"""
-Both cold and lung disease are now far more likely that their baseline probability: the probability of having a cold increases from $2\%$ to around $50\%$; the probability of having lung disease also increases from $2.1\%$ to around $50\%$.
+Both cold and lung disease are now far more likely than their baseline probability: the probability of having a cold increases from $2\%$ to around $50\%$; the probability of having lung disease also increases from $2.1\%$ to around $50\%$.
 
-Now suppose we also learn that the patient does not have a cold.
+Now suppose we also learn that the patient does _not_ have a cold.
 """
 
 # ╔═╡ 9112f40c-09b6-4e29-8d21-8b183026b8d6
-cold_cond_cough_not_cold = cold |ᶜ (cough &ₚ !ₚ(cold))
+cond_cough_not_cold = ld_and_cold |ᶜ (cough &ₚ !ₚ(cold))
+
+# ╔═╡ 2f383a73-2e95-4d0a-adf0-ed80bbb8ec63
+cond_cough_not_cold_samples = randsample(cond_cough_not_cold, 1000)
 
 # ╔═╡ 0834861d-e58e-4880-a5c5-26958e295015
-histogram(randsample(cold_cond_cough_not_cold, 1000), bins = 1)
-
-# ╔═╡ 9ec9ee39-3925-4e38-8af9-cf4451011626
-ld_cond_cough_not_cold = lung_disease |ᶜ (cough &ₚ !ₚ(cold))
+viz(cond_cough_not_cold_samples)
 
 # ╔═╡ 364e646e-c951-43ee-a292-268358bbd7b3
-histogram(randsample(ld_cond_cough_not_cold, 1000), bins = 1)
+viz_marginals(cond_cough_not_cold_samples)
 
 # ╔═╡ f8c9aca8-b4d0-463a-8d7b-837b80ac8734
 md"""
@@ -275,20 +281,20 @@ The probability of having lung disease increases dramatically. If instead we had
 """
 
 # ╔═╡ cd7b7f8e-8895-415b-88ac-1d72e7285b39
-cold_cond_cough_and_cold = cold |ᶜ (cough &ₚ cold)
+cond_cough_and_cold = ld_and_cold |ᶜ (cough &ₚ cold)
 
-# ╔═╡ c8c41449-b0bd-4e8a-9fc3-6030900d946a
-histogram(randsample(cold_cond_cough_and_cold, 1000), bins = 1)
+# ╔═╡ 7f797ddf-7d52-4fc9-aa7b-a1659030bc12
+cond_cough_cold_samples = randsample(cond_cough_and_cold, 1000)
 
-# ╔═╡ e6b1595e-0ad0-494d-9035-c3c97d7f757b
-ld_cond_cough_and_cold = lung_disease |ᶜ (cough &ₚ cold)
+# ╔═╡ af695d20-321c-4d7e-9d23-7f015e064446
+viz(cond_cough_cold_samples)
 
-# ╔═╡ 36acd72c-6a04-4410-a5dd-630d96a2fc63
-histogram(randsample(ld_cond_cough_and_cold, 1000), bins = 1)
+# ╔═╡ 53d0ed94-a69f-419c-8880-8cc8e162e2bf
+viz_marginals(cond_cough_cold_samples)
 
 # ╔═╡ 49c97d61-994c-40d0-a76c-eccabc432fa4
 md"""
-This is the conditional statistical dependence between lung disease and cold, given cough: Learning that the patient does in fact have a cold “explains away” the observed cough, so the alternative of lung disease decreases to a much lower value — roughly back to its 1 in a 1000 rate in the general population. If on the other hand, we had learned that the patient does not have a cold, so the most likely alternative to lung disease is not in fact available to “explain away” the observed cough, that raises the conditional probability of lung disease dramatically. As an exercise, check that if we remove the observation of coughing, the observation of having a cold or not has no influence on our belief about lung disease; this effect is purely conditional on the observation of a common effect of these two causes.
+This is the conditional statistical dependence between lung disease and cold, given cough: Learning that the patient does in fact have a cold “explains away” the observed cough, so the alternative of lung disease decreases to a much lower value — roughly back to its $1$ in a $1000$ rate in the general population. If on the other hand, we had learned that the patient does not have a cold, so the most likely alternative to lung disease is not in fact available to “explain away” the observed cough, which raises the conditional probability of lung disease dramatically. As an exercise, check that if we remove the observation of coughing, the observation of having a cold or not has no influence on our belief about lung disease; this effect is purely conditional on the observation of a common effect of these two causes.
 
 Explaining away effects can be more indirect. Instead of observing the truth value of cold, a direct alternative cause of cough, we might simply observe another symptom that provides evidence for cold, such as fever. Compare these conditions using the above program to see an “explaining away” conditional dependence in belief between `fever` and `lung_disease`.
 """
@@ -307,8 +313,17 @@ fair_exam = @~ Bernoulli(0.8)
 # ╔═╡ 35563ad5-7ed5-4a22-9af1-e52d36499d74
 does_homework = @~ Bernoulli(0.8)
 
+# ╔═╡ 73c7cae9-9915-454c-b855-35c20210fc10
+function pass_prob(ω) 
+	if fair_exam(ω)
+		return does_homework(ω) ? 0.9 : 0.4
+	else
+		return does_homework(ω) ? 0.6 : 0.2
+	end
+end
+
 # ╔═╡ 0c566edd-f08d-4863-be84-765a015dd999
-pass = @~ Bernoulli(ifelseₚ(fair_exam, ifelseₚ(does_homework, 0.9, 0.4), ifelseₚ(does_homework, 0.6, 0.2)))
+pass = @~ Bernoulli(pass_prob)
 
 # ╔═╡ e74d6024-5111-43b7-a101-3fdf7a417e38
 fair_exam_cond_not_pass = fair_exam |ᶜ !ₚ(pass)
@@ -317,7 +332,14 @@ fair_exam_cond_not_pass = fair_exam |ᶜ !ₚ(pass)
 does_homework_cond_not_pass = does_homework |ᶜ !ₚ(pass)
 
 # ╔═╡ 480bba39-ce0d-4807-a126-86f11ef5b9bb
-barplot(Dict(freqtable(randsample(ω -> (fair_exam_cond_not_pass(ω), does_homework_cond_not_pass(ω)), 1000))), ylabel = "(does_homework, fair_exam)", xlabel = "Frequency")
+samples_cond_not_pass =
+	randsample((@joint fair_exam_cond_not_pass does_homework_cond_not_pass), 1000)
+
+# ╔═╡ 59f754da-897f-4564-b944-b8230ad3ea8b
+viz_marginals(samples_cond_not_pass)
+
+# ╔═╡ 8f69934f-d348-4321-a39d-422e975f0258
+viz(samples_cond_not_pass)
 
 # ╔═╡ 23b8c71c-a120-4583-aaa6-03ca0fbab36d
 md"Now what if you have evidence from several students and several exams? We first re-write the above model to allow many students and exams:"
@@ -346,14 +368,22 @@ does_homework_bill(condition) = does_homework_m(bill) |ᶜ condition
 # ╔═╡ 4bcdc303-b2cf-4027-9670-71b2ccdb412f
 fair_exam_exam1(condition) = fair_exam_m(exam1) |ᶜ condition
 
+# ╔═╡ a1e93444-6777-4d7e-a9a5-e3f380c2e01a
+joint(condition) = ω -> (fair_exam_exam1 = fair_exam_exam1(condition)(ω), 
+	does_homework_bill = does_homework_bill(condition)(ω))
+
 # ╔═╡ 4189eedc-e757-4edd-8581-114526440dbb
-p(condition) = Dict(freqtable(randsample(ω -> (fair_exam_exam1(condition)(ω), does_homework_bill(condition)(ω)), 1000)))
+p(condition) = 
+	randsample(joint(condition), 1000)
 
 # ╔═╡ 15bc136b-7d4d-4aae-b748-916e4fc03e04
 c = !ₚ(pass_m(exam1, bill))
 
-# ╔═╡ a20ed174-9487-46b7-92ac-13a65604fb29
-barplot(p(c), ylabel = "(does_homework(Bill), fair_exam(Exam1))", xlabel = "Frequency")
+# ╔═╡ f566cdd4-e4f9-4851-ae1d-d2905d78f97a
+viz(p(c))
+
+# ╔═╡ 8008a8d8-75c8-4ff6-a86e-c32c4c13d80f
+viz_marginals(p(c))
 
 # ╔═╡ 1d0db992-a354-4544-9120-069e99352ee2
 md"""
@@ -368,7 +398,10 @@ See how conditional inferences about Bill and exam 1 change as you add in more d
 c1 = !ₚ(pass_m(exam1, bill)) &ₚ !ₚ(pass_m(bill, 102))
 
 # ╔═╡ 75615669-497e-4f95-a358-1f6c2f233bf6
-barplot(p(c1), ylabel = "(does_homework(Bill), fair_exam(Exam1))", xlabel = "Frequency")
+viz(p(c1))
+
+# ╔═╡ f06b4818-395a-42dc-a923-000ef053d53c
+viz_marginals(p(c1))
 
 # ╔═╡ 49a11937-3893-476e-b618-efd713903589
 md"""
@@ -428,26 +461,26 @@ end
 blicket_cond = blicket(1) |ᶜ machine([1, 2])
 
 # ╔═╡ f4aa162d-9ff7-4db2-94d6-98c85da8a395
-histogram(randsample(blicket_cond, 1000), bins = 1)
+viz(randsample(blicket_cond, 1000))
 
 # ╔═╡ a0afd23b-636e-4a62-a242-07e1480f7d72
 md"The backward blocking scenario described above:"
 
 # ╔═╡ 8981dd2a-3d8d-43e2-b504-72352d69cb1c
-histogram(randsample(blicket(1) |ᶜ machine([2]), 1000), bins = 1)
+viz(randsample(blicket(1) |ᶜ machine([2]), 1000))
 
 # ╔═╡ beb0f49a-03b9-496c-abf3-f32b6d37766f
 md"[Sobel et al. (2004)](https://scholar.google.com/scholar?q=%22Children%27s%20causal%20inferences%20from%20indirect%20evidence%3A%20Backwards%20blocking%20and%20Bayesian%20reasoning%20in%20preschoolers%22) tried this with children, finding that four year-olds perform similarly to the model: evidence that $B$ is a blicket explains away the evidence that $A$ and $B$ made the detector go away."
 
 # ╔═╡ Cell order:
 # ╠═a6793602-5caa-11ec-1047-f9c7ee843ccf
+# ╠═e32ccfe6-d204-4e2c-835f-d207a00575d4
 # ╟─7b2999d0-e66b-4212-be30-3be990be04f9
 # ╟─68841072-3016-4de8-9fad-3d4d8be3fc5b
 # ╟─5c2d0805-2039-4c42-9b86-17216dab9319
 # ╟─346f4f4a-23ff-4ede-b95f-14b257bbaf8b
 # ╟─035aa787-f941-43e4-937e-accefbb7498c
 # ╠═34d232f9-a8bb-47ad-82e6-9280fd0bca98
-# ╠═c2242a03-c976-4454-8be3-4cd2b27adc50
 # ╠═64335ca1-48a9-435d-93f5-c71adfa71677
 # ╠═7d51eedb-d042-446f-a2f7-da7c4b3e58c2
 # ╠═e6481a46-550d-443d-b4f7-9ad961a1e957
@@ -481,9 +514,9 @@ md"[Sobel et al. (2004)](https://scholar.google.com/scholar?q=%22Children%27s%20
 # ╠═b5be4e3e-be2a-41f8-9038-773eda8b8073
 # ╟─f6bc26c5-ff48-48b1-b98e-9ea64df1f6f2
 # ╟─c9e9ac6c-a2ce-45e2-8c65-c8815b65f692
+# ╟─71e44172-66f8-4989-aca6-bf1ef3964122
 # ╟─f406a180-150f-47f2-a8b0-1d918738e3ec
 # ╟─2b360158-08f5-46d2-98d8-10e764de554c
-# ╟─71e44172-66f8-4989-aca6-bf1ef3964122
 # ╠═a2bf38d2-edc8-410f-8a3f-ec80f1bc9376
 # ╠═384aa2e3-c9be-4014-bac0-91adeb50a92d
 # ╠═b442387a-f1c3-4437-a7c3-4b4115625d83
@@ -498,28 +531,32 @@ md"[Sobel et al. (2004)](https://scholar.google.com/scholar?q=%22Children%27s%20
 # ╟─7cd38ff5-e93b-4ad4-ac94-4b1b2042a063
 # ╠═be042ac7-93f1-4ab8-9420-fe06ceafa945
 # ╠═40794e8e-53f9-4204-8bda-551b6c51cc7e
+# ╠═ea8fdf94-9de7-4a67-906e-d0024d873f82
 # ╠═6400f767-dcb1-4230-90b9-b6d23066c0fd
-# ╠═a2c8cc36-e109-45ea-9c8b-d579e3d183b3
-# ╠═c4dff21e-d179-4d1c-8eac-d922b8316f42
+# ╠═28be1b57-23ac-4d2f-854c-2d81872b3853
+# ╠═50ba4c2f-d514-4904-b82c-dc9dfb24a5f2
 # ╟─3527c191-c5ab-424c-9bb0-ac3e40377fa1
 # ╠═9112f40c-09b6-4e29-8d21-8b183026b8d6
+# ╠═2f383a73-2e95-4d0a-adf0-ed80bbb8ec63
 # ╠═0834861d-e58e-4880-a5c5-26958e295015
-# ╠═9ec9ee39-3925-4e38-8af9-cf4451011626
 # ╠═364e646e-c951-43ee-a292-268358bbd7b3
 # ╟─f8c9aca8-b4d0-463a-8d7b-837b80ac8734
 # ╠═cd7b7f8e-8895-415b-88ac-1d72e7285b39
-# ╠═c8c41449-b0bd-4e8a-9fc3-6030900d946a
-# ╠═e6b1595e-0ad0-494d-9035-c3c97d7f757b
-# ╠═36acd72c-6a04-4410-a5dd-630d96a2fc63
+# ╠═7f797ddf-7d52-4fc9-aa7b-a1659030bc12
+# ╠═af695d20-321c-4d7e-9d23-7f015e064446
+# ╠═53d0ed94-a69f-419c-8880-8cc8e162e2bf
 # ╟─49c97d61-994c-40d0-a76c-eccabc432fa4
 # ╟─62e6f8fc-b347-4b1f-992a-02fad6c9de08
 # ╟─249075ae-9124-4ab5-9cb8-6974df32db97
 # ╠═95fe40b5-3ccf-4a2c-b1f7-a76a0bfe0330
 # ╠═35563ad5-7ed5-4a22-9af1-e52d36499d74
+# ╠═73c7cae9-9915-454c-b855-35c20210fc10
 # ╠═0c566edd-f08d-4863-be84-765a015dd999
 # ╠═e74d6024-5111-43b7-a101-3fdf7a417e38
 # ╠═44e0070a-0a84-4231-8ecf-64759e033c5b
 # ╠═480bba39-ce0d-4807-a126-86f11ef5b9bb
+# ╠═59f754da-897f-4564-b944-b8230ad3ea8b
+# ╠═8f69934f-d348-4321-a39d-422e975f0258
 # ╟─23b8c71c-a120-4583-aaa6-03ca0fbab36d
 # ╠═c766e854-33f2-407e-a337-c1479df409ea
 # ╠═af7ed22e-741e-47bd-8d89-98c1e463c55b
@@ -527,12 +564,15 @@ md"[Sobel et al. (2004)](https://scholar.google.com/scholar?q=%22Children%27s%20
 # ╠═ea02c349-ecbf-4054-bedf-de5fb5a89b28
 # ╠═99c09e92-c725-473b-998e-9f5c09166715
 # ╠═4bcdc303-b2cf-4027-9670-71b2ccdb412f
+# ╠═a1e93444-6777-4d7e-a9a5-e3f380c2e01a
 # ╠═4189eedc-e757-4edd-8581-114526440dbb
 # ╠═15bc136b-7d4d-4aae-b748-916e4fc03e04
-# ╠═a20ed174-9487-46b7-92ac-13a65604fb29
+# ╠═f566cdd4-e4f9-4851-ae1d-d2905d78f97a
+# ╠═8008a8d8-75c8-4ff6-a86e-c32c4c13d80f
 # ╟─1d0db992-a354-4544-9120-069e99352ee2
 # ╠═9eb80385-0ba2-4098-9f69-90c5dba05401
 # ╠═75615669-497e-4f95-a358-1f6c2f233bf6
+# ╠═f06b4818-395a-42dc-a923-000ef053d53c
 # ╟─49a11937-3893-476e-b618-efd713903589
 # ╟─b91191aa-b121-42c2-aac1-67c94923d287
 # ╟─fd21ac96-dff2-4645-b3f4-e2dc2aaabc96

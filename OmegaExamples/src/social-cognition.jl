@@ -9,7 +9,7 @@ begin
     import Pkg
     # activate the shared project environment
     Pkg.activate(Base.current_project())
-    using Omega, Distributions, UnicodePlots, FreqTables
+    using Omega, Distributions, UnicodePlots, OmegaExamples
 end
 
 # ╔═╡ 798f9234-39f5-42dc-9fe7-48f7c77cf2d2
@@ -50,7 +50,7 @@ randsample(random_widgets)
 tolerance_ = randsample(tolerance |ᶜ (random_widgets ==ₚ actual_widgets), 1000)
 
 # ╔═╡ 7d411137-313e-473a-b9ef-4c82ccb3e2d8
-histogram(tolerance_)
+viz(tolerance_)
 
 # ╔═╡ 38576ae3-8cee-4ba0-9eb4-d81c167c808b
 md"But notice that the definition of getGoodWidget is exactly like the definition of rejection sampling! We can re-write this much more simply"
@@ -65,7 +65,7 @@ get_good_widget_simple = widget |ᶜ (widget >ₚ tolerance)
 md"`randsample` uses rejection sampling by default, but we could also explicitly specify it by using `alg` keyword as given below:"
 
 # ╔═╡ 9de65884-f298-44ca-bfc2-88929cb42f2d
-histogram(randsample(get_good_widget_simple, 1000, alg = RejectionSample), bins = 7) 
+viz(randsample(get_good_widget_simple, 1000, alg = RejectionSample)) 
 
 # ╔═╡ d3dfb144-2d16-4528-85ab-2dcaf7e6643e
 md"""
@@ -103,13 +103,10 @@ end
 sally_cookie_samples = randsample(choose_action("cookie", vending_machine), 1000)
 
 # ╔═╡ ef0c5d84-8e90-4508-a56b-cf621ce1e887
-barplot(Dict(freqtable(string.(sally_cookie_samples))))
+viz(sally_cookie_samples)
 
 # ╔═╡ 58ec1fc3-2ac8-4ed3-9028-e09dbc10cfc7
 md"""We see, unsurprisingly, that if Sally wants a cookie, she will always press button $2$. In a world that is not quite so deterministic Sally’s actions will be more stochastic:"""
-
-# ╔═╡ 1fab7ab9-258d-4526-ac80-52b107058fe2
-pget(xs) = i -> xs[i]
 
 # ╔═╡ deaa4d92-1863-4963-8a54-25b925240c5e
 function vending_machine_stochastic(ω, action)
@@ -127,10 +124,11 @@ function choose_action_stochastic(goal_state, transition)
 end
 
 # ╔═╡ 041bd9be-7161-4e2c-8ea1-f1e93c63836e
-action_samples = randsample(choose_action_stochastic("cookie", vending_machine_stochastic), 100)
+action_samples = 
+	randsample(choose_action_stochastic("cookie", vending_machine_stochastic), 100)
 
 # ╔═╡ 95cc8a2b-3280-4ed0-9d64-488062b09a10
-histogram(action_samples, bins = 1)
+viz(string.(action_samples))
 
 # ╔═╡ 6f619867-9af2-47d9-9621-759b65593a84
 md"## Inferring Goals
@@ -150,7 +148,7 @@ goal_posterior = goal |ᶜ (action_dist ==ₚ 2)
 goal_post_samples = randsample(goal_posterior, 1000)
 
 # ╔═╡ 5e752da6-f784-4af1-b51a-9a13f64eff50
-barplot(Dict(freqtable(goal_post_samples)))
+viz(goal_post_samples)
 
 # ╔═╡ 402d913d-8788-4ade-a11e-d0f09853e5f5
 md"Now let’s imagine a more ambiguous case: button $2$ is “broken” and will (uniformly) randomly result in a food from the machine. If we see Sally press button $2$, what goal is she most likely to have?"
@@ -176,7 +174,7 @@ goal_posterior_broken = goal |ᶜ (action_dist_broken ==ₚ 2)
 goal_post_broken_samples = randsample(goal_posterior_broken, 1000)
 
 # ╔═╡ 567147c8-6815-48c9-a72e-076b101555e5
-barplot(Dict(freqtable(goal_post_broken_samples))) # Isn't right : should get 3:7, now it is 1:1
+viz(goal_post_broken_samples) # Isn't right : should get 3:7, now it is 1:1
 
 # ╔═╡ c33a7649-1a0e-44ac-9b32-3afdb4abf564
 # md"Despite the fact that button $2$ is equally likely to result in either bagel or cookie, we have inferred that Sally probably wants a cookie. This is a result of the inference implicitly taking into account the counterfactual alternatives: if Sally had wanted a bagel, she would have likely pressed button $1$. The inner query takes these alternatives into account, adjusting the probability of the observed action based on alternative goals."
@@ -206,7 +204,7 @@ goal_prior(ω) = (@~ Bernoulli(preference))(ω) ? "bagel" : "cookie"
 
 # ╔═╡ 00ec2e96-85ae-410f-b3d1-efb4253da2aa
 action_dist_has_preference(i, ω) = 
-choose_action_(goal_prior(ω), vending_machine_stochastic, i)(ω)
+	choose_action_(goal_prior(ω), vending_machine_stochastic, i)(ω)
 
 # ╔═╡ 003c79ab-1611-4a3e-963b-69215d886a2d
 random_actions = manynth(action_dist_has_preference, 1:3)
@@ -216,7 +214,7 @@ goal_posterior_samples =
 		randsample(goal_prior |ᶜ (random_actions ==ₚ [2, 2, 2]), 1000)
 
 # ╔═╡ 3c1c3c99-b5d1-4266-b788-e4f3093fa8ec
-barplot(Dict(freqtable(goal_posterior_samples)))
+viz(goal_posterior_samples)
 
 # ╔═╡ 4cf196fe-e24e-4f7c-8b96-3ebdd4b30cca
 md"""
@@ -237,7 +235,7 @@ end
 
 # ╔═╡ 54f8f9d7-6eaf-4398-a58f-26460f138d77
 action_dist_cookie(i, ω) = 
-choose_action_(goal_prior(ω), vending_machine_cookie, i)(ω)
+	choose_action_(goal_prior(ω), vending_machine_cookie, i)(ω)
 
 # ╔═╡ ef2ce2f6-e013-4a45-8971-8ceb25464b69
 random_actions_cookie = manynth(action_dist_cookie, 1:3)
@@ -247,7 +245,7 @@ goal_posterior_cookie_samples =
 		randsample(goal_prior |ᶜ (random_actions_cookie ==ₚ [2, 2, 2]), 1000)
 
 # ╔═╡ aa9fc886-f3ca-4ba4-820c-2df951431ee8
-barplot(Dict(freqtable(goal_posterior_cookie_samples))) # counterfactuals?
+viz(goal_posterior_cookie_samples) # counterfactuals?
 
 # ╔═╡ bdae86a5-ffa0-4a40-a9d9-cc74e7b2685b
 md"""
@@ -292,17 +290,8 @@ buttons_posterior = buttons |ᶜ ((action_dist_know ==ₚ 2) &ₚ (goal ==ₚ "c
 # ╔═╡ fe8cd9b8-dd5a-4e3f-8ad6-5e83da95ac99
 buttons_joint_samples = randsample(buttons_posterior, 1000)
 
-# ╔═╡ 4ff9d1cf-90f8-4b0f-90ff-cad5312b92db
-button_1_marginal_samples = map(b -> b.button_1, buttons_joint_samples)
-
 # ╔═╡ bff4d249-fcd3-4579-94b3-47a218fe7404
-barplot(Dict(freqtable(button_1_marginal_samples)))
-
-# ╔═╡ 30b61892-a83e-4457-98b1-867b66e1321d
-button_2_marginal_samples = map(b -> b.button_2, buttons_joint_samples)
-
-# ╔═╡ aaac91be-6a4a-4290-a8d1-f4ef83bf3461
-barplot(Dict(freqtable(button_2_marginal_samples)))
+viz_marginals(buttons_joint_samples)
 
 # ╔═╡ 4c7553e7-98a4-4b3a-be3a-121b40e263df
 md"""
@@ -340,17 +329,8 @@ buttons_posterior_ =
 # ╔═╡ 731b1469-c307-4425-bbdd-6f07741354a8
 buttons_joint_samples_ = randsample(buttons_posterior_, 1000)
 
-# ╔═╡ 862eb6ab-a805-4267-8e65-4187736ad523
-button_once_marginal_samples = map(b -> b.button_once, buttons_joint_samples_)
-
 # ╔═╡ e66754b1-e389-4691-903f-dbb01aaa16af
-barplot(Dict(freqtable(button_once_marginal_samples)))
-
-# ╔═╡ 86cb8c39-5ec4-49a5-aa59-483a59a26c06
-button_twice_marginal_samples = map(b -> b.button_twice, buttons_joint_samples_)
-
-# ╔═╡ bc7b13f0-182c-4698-b09e-d0cde415e774
-barplot(Dict(freqtable(button_twice_marginal_samples)))
+viz_marginals(buttons_joint_samples_)
 
 # ╔═╡ db5df471-6ddd-41be-8cd8-eca55dc5f729
 md"""
@@ -365,28 +345,17 @@ knowledge_and_goals(ω) = (goal = goal(ω),
           one_press_cookie_prob = 1 - (1 ~ buttons_to_bagel_probs)(ω))
 
 # ╔═╡ ea60f93d-7e68-473b-aa7c-1d79c9c22b6b
-kg_posterior = knowledge_and_goals |ᶜ (((2 ~ vending_machine_one_button) ==ₚ "cookie") &ₚ (action_dist_one_button ==ₚ 2))
+kg_posterior = 
+	knowledge_and_goals |ᶜ (((2 ~ vending_machine_one_button) ==ₚ "cookie") &ₚ (action_dist_one_button ==ₚ 2))
 
 # ╔═╡ fba8029e-0167-4940-aeb5-71029acc61fb
 kg_samples = randsample(kg_posterior, 1000)
 
-# ╔═╡ 5e1861df-9f3b-49dd-a786-b56a4e380223
-kg_goals = map(b -> b.goal, kg_samples)
+# ╔═╡ 63497503-d967-467b-8962-c14089454d0d
+kg_ = map(b -> Base.structdiff(b, (one_press_cookie_prob = b.one_press_cookie_prob, )), kg_samples) 
 
 # ╔═╡ 6e3de869-b82a-4765-b22c-d13ebc343fb0
-barplot(Dict(freqtable(kg_goals)))
-
-# ╔═╡ 05bd87c7-c994-4044-968c-e35644b67b66
-kg_one = map(b -> b.one_press_result, kg_samples)
-
-# ╔═╡ 89aeb454-7d97-45f2-9282-97426129bf8b
-kg_two = map(b -> b.two_press_result, kg_samples)
-
-# ╔═╡ 23b85822-9bbb-4883-987b-9174d3f25a00
-barplot(Dict(freqtable(kg_two)))
-
-# ╔═╡ 394a60fe-1151-4d39-ae54-734cad3d30cb
-barplot(Dict(freqtable(kg_one)))
+viz_marginals(kg_)
 
 # ╔═╡ d9ab6345-0b66-44a0-a701-b83980760c1c
 kg_one_press_cookie_prob = map(b -> b.one_press_cookie_prob, kg_samples)
@@ -423,7 +392,7 @@ knows = @~ Bernoulli()
 s = randsample(knows |ᶜ (((ω -> choose_action_stochastic("cookie", knows(ω) ? true_vending_machine : random_machine)(ω)) ==ₚ 1) &ₚ ((ω -> true_vending_machine(ω, 1)) ==ₚ "bagel")), 1000)
 
 # ╔═╡ 65d1c8e0-e847-4d84-b7b7-1cf24cfce057
-barplot(Dict(freqtable(string.(s))))
+viz(s)
 
 # ╔═╡ 8764c334-f275-40d1-b455-d5a28c7793e4
 md"""
@@ -447,7 +416,7 @@ end
 s_ = randsample((ω -> sally_machine(ω, 1)) |ᶜ (((ω -> choose_action_stochastic("cookie", sally_machine)(ω)) ==ₚ 1) &ₚ ((ω -> true_vending_machine(ω, 1)) ==ₚ "bagel")), 1000)
 
 # ╔═╡ 6d62e403-bfe4-4bef-8092-c9a20b884bab
-barplot(Dict(freqtable(string.(s_))))
+viz(s_)
 
 # ╔═╡ 2f2b71f6-7e60-44cb-96d0-9a20578d258e
 md"In the developmental psychology literature, the ability to represent and reason about other people’s _false beliefs_ has been extensively investigated as a hallmark of human Theory of Mind."
@@ -595,7 +564,6 @@ histogram(randsample(listener("some", 1), 1000), bins = 3) # graph isn't same - 
 # ╠═94a623bd-0c48-478c-802a-21288ce6c9a5
 # ╠═ef0c5d84-8e90-4508-a56b-cf621ce1e887
 # ╟─58ec1fc3-2ac8-4ed3-9028-e09dbc10cfc7
-# ╠═1fab7ab9-258d-4526-ac80-52b107058fe2
 # ╠═deaa4d92-1863-4963-8a54-25b925240c5e
 # ╠═64c941d8-900e-41a8-b5ab-3539b45dccfb
 # ╠═041bd9be-7161-4e2c-8ea1-f1e93c63836e
@@ -638,10 +606,7 @@ histogram(randsample(listener("some", 1), 1000), bins = 3) # graph isn't same - 
 # ╠═104c3b09-00d2-444f-a54d-bfef3b23bb79
 # ╠═02213e53-3ae7-4648-90f5-8550960ff2d8
 # ╠═fe8cd9b8-dd5a-4e3f-8ad6-5e83da95ac99
-# ╠═4ff9d1cf-90f8-4b0f-90ff-cad5312b92db
 # ╠═bff4d249-fcd3-4579-94b3-47a218fe7404
-# ╠═30b61892-a83e-4457-98b1-867b66e1321d
-# ╠═aaac91be-6a4a-4290-a8d1-f4ef83bf3461
 # ╟─4c7553e7-98a4-4b3a-be3a-121b40e263df
 # ╠═2223b737-71d8-4561-a692-b90d057c6f5b
 # ╠═aa93c504-d85e-4224-a2a5-649e51f25aa9
@@ -650,20 +615,13 @@ histogram(randsample(listener("some", 1), 1000), bins = 3) # graph isn't same - 
 # ╠═31b13fda-f3ef-4b9f-b53c-f648424efcda
 # ╠═181819f5-0644-4d9b-be8a-05ada90f3575
 # ╠═731b1469-c307-4425-bbdd-6f07741354a8
-# ╠═862eb6ab-a805-4267-8e65-4187736ad523
 # ╠═e66754b1-e389-4691-903f-dbb01aaa16af
-# ╠═86cb8c39-5ec4-49a5-aa59-483a59a26c06
-# ╠═bc7b13f0-182c-4698-b09e-d0cde415e774
 # ╟─db5df471-6ddd-41be-8cd8-eca55dc5f729
 # ╠═a981b051-e6fc-4c35-88c8-f7f98a956d86
 # ╠═ea60f93d-7e68-473b-aa7c-1d79c9c22b6b
 # ╠═fba8029e-0167-4940-aeb5-71029acc61fb
-# ╠═5e1861df-9f3b-49dd-a786-b56a4e380223
+# ╠═63497503-d967-467b-8962-c14089454d0d
 # ╠═6e3de869-b82a-4765-b22c-d13ebc343fb0
-# ╠═05bd87c7-c994-4044-968c-e35644b67b66
-# ╠═23b85822-9bbb-4883-987b-9174d3f25a00
-# ╠═89aeb454-7d97-45f2-9282-97426129bf8b
-# ╠═394a60fe-1151-4d39-ae54-734cad3d30cb
 # ╠═d9ab6345-0b66-44a0-a701-b83980760c1c
 # ╠═28533c5e-f2dc-46b3-9119-19bcb1b0f4ff
 # ╟─ca810a1d-7346-414a-9cec-2fea3e82e2e5
