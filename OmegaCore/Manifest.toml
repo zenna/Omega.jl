@@ -114,11 +114,9 @@ uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
 
 [[Spec]]
 deps = ["Cassette", "MLStyle", "Parameters", "Pkg", "Random", "Test"]
-git-tree-sha1 = "899828142b5eee97a5db230830e43b103df0e8bb"
-repo-rev = "master"
-repo-url = "https://github.com/zenna/Spec.jl.git"
+git-tree-sha1 = "8747d1a0032266bc7e9b795f85062dfa680311cf"
 uuid = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
-version = "0.2.0"
+version = "0.3.0"
 
 [[TOML]]
 deps = ["Dates"]
