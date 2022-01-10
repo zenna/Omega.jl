@@ -1,5 +1,6 @@
 # Helper functions for probmods
 using UnicodePlots, Distributions, Omega, FreqTables
+using PlutoUI
 
 export viz, UniformDraw, pget, Dirichlet, viz_marginals
 
@@ -8,13 +9,15 @@ viz(var::Vector{T} where {T<:Union{String,Char}}) =
     barplot(Dict(freqtable(var)))
 viz(var::Vector{<:Real}) = histogram(var, symbols = ["■"])
 viz(var::Vector{Bool}) = viz(string.(var))
-viz(var::Vector{NamedTuple{U, V}}) where {U, V} = barplot(Dict(freqtable(var)), ylabel = string(U[1], ", ", U[2]), xlabel = "Frequency")
+viz(var::Vector{NamedTuple{U, V}}) where {U, V} = 
+    barplot(Dict(freqtable(var)), ylabel = string(U[1], ", ", U[2]), xlabel = "Frequency")
+
 function viz_marginals(var::Vector{NamedTuple{U, V}}) where {U, V}
-	begin
-		for i in 1:length(U)
-			viz(map(x -> x[U[i]], var))
-		end
-	end
+    c = barplot(Dict(freqtable(string.(U[1], "_", map(x -> x[U[1]], var)))))
+    for i in 2:length(U)
+        barplot!(c, Dict(freqtable(string.(U[i], "_", map(x -> x[U[i]], var)))))
+    end
+    c
 end
 
 # Required aditional distributions -
