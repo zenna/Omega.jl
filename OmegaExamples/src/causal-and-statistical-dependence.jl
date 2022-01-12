@@ -9,19 +9,11 @@ begin
 	import Pkg
     # activate the shared project environment
     Pkg.activate(Base.current_project())
-<<<<<<< HEAD
     using Omega, Distributions, UnicodePlots, OmegaExamples
 end
 
 # ╔═╡ ff1115c2-6e2a-49af-93dd-610a1346fb5f
 md"# Causal Dependence"
-=======
-    using Omega, Distributions, UnicodePlots
-end
-
-# ╔═╡ ff1115c2-6e2a-49af-93dd-610a1346fb5f
-md"## Causal Dependence"
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ 7380e30d-6b9a-438c-8fc2-2521861db9be
 md"""
@@ -43,11 +35,7 @@ Let’s examine this notion of “causal dependence” a little more carefully. 
 let
 	C = @~ Bernoulli()
 	B = @~ Bernoulli()
-<<<<<<< HEAD
 	A = ifelseₚ(B, (@~ Bernoulli(0.1)), (@~ Bernoulli(0.4)))
-=======
-	A(ω) = B(ω) ? (@~ Bernoulli(0.1))(ω) : (@~ Bernoulli(0.4))(ω)
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 	randsample(A |ₚ C)
 end
 
@@ -68,15 +56,11 @@ lung_disease = (smokes &ₚ (@~ Bernoulli(0.1))) |ₚ (@~ Bernoulli(0.001))
 cold = @~ Bernoulli(0.02)
 
 # ╔═╡ e7933f47-1cef-44ad-bbbf-271a07451127
-<<<<<<< HEAD
 cough = pw(|, 
 	(cold &ₚ @~ Bernoulli()), 
 	(lung_disease &ₚ @~ Bernoulli()), 
 	@~ Bernoulli(0.001)
 )
-=======
-cough = pw(|, (cold &ₚ @~ Bernoulli()), (lung_disease &ₚ @~ Bernoulli()), @~ Bernoulli(0.001))
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ c4564628-3072-4780-9bea-e25926a1abc2
 fever = (cold &ₚ @~ Bernoulli()) |ₚ @~ Bernoulli(0.01)
@@ -91,21 +75,13 @@ shortness_of_breath = (lung_disease &ₚ @~ Bernoulli(0.2)) |ₚ @~ Bernoulli(0.
 cold_cond = cold |ᶜ cough
 
 # ╔═╡ 27680eca-bd6a-427f-9537-08e33c96c873
-<<<<<<< HEAD
 viz(randsample(cold_cond, 100))
-=======
-histogram(randsample(cold_cond, 100), bins = 1)
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ facacf68-ba53-4aa4-8c1a-5cb34c7effcb
 lung_disease_cond = lung_disease |ᶜ cough
 
 # ╔═╡ a4c2bfec-e14e-4bfb-a6f4-560671f417b6
-<<<<<<< HEAD
 viz(randsample(lung_disease_cond, 100))
-=======
-histogram(randsample(lung_disease_cond, 100), bins = 1)
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ e5251e1d-7823-4e99-acd2-98fccdcf68ed
 md"""
@@ -113,22 +89,14 @@ Here, `cough` depends causally on both `lung_disease` and `cold`, while `fever` 
 
 We haven’t made the notion of “direct” causal dependence precise: do we want to say that `cough` depends directly on `cold`, or only directly on the expression `(cold &ₚ @~ Bernoulli()) |ₚ ...`? This can be resolved in several ways that all result in similar intuitions. For instance, we could first re-write the program into a form where each intermediate expression is named (called A-normal form) and then say direct dependence is when one expression immediately includes the name of another.
 
-<<<<<<< HEAD
 There are several special situations that are worth mentioning. In some cases, whether expression $A$ requires expression $B$ will depend on the value of some third expression $C$. For example, here is a particular way of writing a noisy-AND relationship:
-=======
-There are several special situations that are worth mentioning. In some cases, whether expression $A$ requires expression $B$ will depend on the value of some third expression $C$. For example, here is a particular way of writing a noisy - AND relationship:
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 """
 
 # ╔═╡ 8d748761-173f-4675-bc69-6218c1541817
 let
 	C = @~ Bernoulli()
 	B = @~ Bernoulli()
-<<<<<<< HEAD
 	A = ifelseₚ(C, ifelseₚ(B, (@~ Bernoulli(0.85)), false), false)
-=======
-	A(ω) = (C(ω) ? (B(ω) ? (@~ Bernoulli(0.85))(ω) : false) : false)
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 	randsample(A)
 end
 
@@ -139,11 +107,7 @@ md"`A` always requires `C`, but only evaluates `B` if `C` returns true. Under th
 md"Another nuance is that an expression that occurs inside a function body may get evaluated several times in a program execution. In such cases it is useful to speak of causal dependence between specific evaluations of two expressions. (However, note that if a specific evaluation of `A` depends on a specific evaluation of `B`, then any other specific evaluation of `A` will depend on some specific evaluation of `B`)"
 
 # ╔═╡ 3bf0f745-1d50-4321-9d30-31c81cb0ba3c
-<<<<<<< HEAD
 md"## Detecting Dependence Through Intervention"
-=======
-md"### Detecting Dependence Through Intervention"
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ 0ac222fe-5749-4122-b8c3-66f7ef237c60
 md"""
@@ -157,22 +121,14 @@ This method is known in the causal Bayesian network literature as the “do oper
 
 # ╔═╡ 878a4b36-a509-478a-812a-ac2a814de89b
 md"""
-<<<<<<< HEAD
 For example, in the above example of medical diagnosis, we now give our hypothetical patient a cold — say, by exposing him to a strong cocktail of cold viruses. We should not model this as an observation (e.g. by conditioning on having a cold), because we have taken direct action to change the normal causal structure. Instead, we implement intervention by directly editing the random variables:
-=======
-For example, in the above example of medical diagnosis, we now give our hypothetical patient a cold — for example, by exposing him to a strong cocktail of cold viruses. We should not model this as an observation (e.g. by conditioning on having a cold), because we have taken direct action to change the normal causal structure. Instead we implement intervention by directly editing the random variables:
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 """
 
 # ╔═╡ e1ce6bfa-f414-4d6c-8dac-a22c60823e01
 cough_intervened = cough |ᵈ (cold => true)
 
 # ╔═╡ 34b54b3e-6581-450d-8685-ce50b85ae836
-<<<<<<< HEAD
 viz(randsample(cough_intervened, 100))
-=======
-histogram(randsample(cough_intervened, 100), bins = 1)
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ a7e319f7-934c-4eae-86bf-65006b501ff9
 md"""
@@ -200,7 +156,6 @@ A = @~ Bernoulli()
 C = @~ Bernoulli()
 
 # ╔═╡ fd9cd041-792d-4489-bf69-4f6680e9efb9
-<<<<<<< HEAD
 B = ifelseₚ(C, (@~ Bernoulli(0.1)), (@~ Bernoulli(0.4)))
 
 # ╔═╡ 4cd4bcd9-21ac-455b-a086-0b4502b10617
@@ -208,15 +163,6 @@ viz(randsample((B |ᶜ (C ==ₚ true)), 1000))
 
 # ╔═╡ 6418a755-32b8-491d-85d1-67683f4a05f8
 viz(randsample((B |ᶜ (C ==ₚ false)), 1000))
-=======
-B(ω) = C(ω) ? (@~ Bernoulli(0.1))(ω) : (@~ Bernoulli(0.4))(ω)
-
-# ╔═╡ 4cd4bcd9-21ac-455b-a086-0b4502b10617
-histogram(randsample((B |ᶜ (C ==ₚ true)), 1000), bins = 1)
-
-# ╔═╡ 6418a755-32b8-491d-85d1-67683f4a05f8
-histogram(randsample((B |ᶜ (C ==ₚ false)), 1000), bins = 1)
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ 94846995-9616-4ea9-b0de-de065960fd57
 md"""
@@ -229,7 +175,6 @@ Correlation is not just a symmetrized version of causality. Two events may be st
 X  = @~ Bernoulli()
 
 # ╔═╡ d41077b8-eaf6-474d-8113-a35c82b06a8d
-<<<<<<< HEAD
 Y = ifelseₚ(X, (@~ Bernoulli()), (@~ Bernoulli(0.9)))
 
 # ╔═╡ 1df8c40c-c894-4fa2-b80f-91a5f5f3bfd1
@@ -246,24 +191,6 @@ md"""
 Situations like this are extremely common. In the medical example above, `cough` and `fever` are not causally dependent but they are statistically dependent because they both depend on `cold`; likewise for `chest_pain` and `shortness_of_breath` which both depend on `lung_disease`. Here we can read off these facts from the program definitions, but more generally all of these relations can be diagnosed by reasoning using `|ᶜ`.
 
 Successful learning and reasoning with causal models typically depend on exploiting the close coupling between causation and correlation. Causal relations are typically unobservable, while correlations are observable from data. Noticing patterns of correlation is thus often the beginning of causal learning, or discovering what causes what. On the other hand, with a causal model already in place, reasoning about the statistical dependencies implied by the model allows us to predict many aspects of the world not directly observed from those aspects we do observe.
-=======
-Y(ω) = X(ω) ? (@~ Bernoulli())(ω) : (@~ Bernoulli(0.9))(ω)
-
-# ╔═╡ 1df8c40c-c894-4fa2-b80f-91a5f5f3bfd1
-Z(ω) = X(ω) ? (@~ Bernoulli(0.1))(ω) : (@~ Bernoulli(0.4))(ω)
-
-# ╔═╡ 24f23296-cb77-481a-a8ac-05ec3ed65bcf
-histogram(randsample((Z |ᶜ (Y ==ₚ true)), 100), bins = 1)
-
-# ╔═╡ c285f6c4-ae2d-4d2b-900e-7bf31482fdba
-histogram(randsample((Z |ᶜ (Y ==ₚ false)), 100), bins = 1)
-
-# ╔═╡ 2fa92448-bc3b-49df-bebf-32e443487d7c
-md"""
-Situations like this are extremely common. In the medical example above, `cough` and `fever` are not causally dependent but they are statistically dependent, because they both depend on `cold`; likewise for `chest_pain` and `shortness_of_breath` which both depend on `lung_disease`. Here we can read off these facts from the program definitions, but more generally all of these relations can be diagnosed by reasoning using `intervene`.
-
-Successful learning and reasoning with causal models typically depends on exploiting the close coupling between causation and correlation. Causal relations are typically unobservable, while correlations are observable from data. Noticing patterns of correlation is thus often the beginning of causal learning, or discovering what causes what. On the other hand, with a causal model already in place, reasoning about the statistical dependencies implied by the model allows us to predict many aspects of the world not directly observed from those aspects we do observe.
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 """
 
 # ╔═╡ 61390b9e-ef3b-4c80-849b-b9494ec66841
@@ -276,15 +203,9 @@ _Graphical models_ are an extremely important idea in modern machine learning: a
 
 # ╔═╡ 97cf5a87-fc8d-4cf8-8a87-48eace44c04a
 md"""
-<<<<<<< HEAD
 Simple generative models will have a corresponding graphical model that captures all of the dependencies (and independencies) of the model, without capturing the precise form of these functions. The CPTs provide a less compact representation of the conditional probabilities compared to Omega programs, which express the _structural causal model_ (SCM) of the models).
 
 More complicated generative models, which can be expressed as probabilistic programs, often don’t have a graphical model (or rather they have many approximations, none of which captures all independencies). Recursive models generally give rise to ambiguous (or loopy) Bayes nets.
-=======
-Simple generative models will have a corresponding graphical model that captures all of the dependencies (and independencies) of the model, without capturing the precise form of these functions. The CPTs provide a less compact representation of the conditional probabilities compared to Omega programs.
-
-More complicated generative models, which can be expressed as probabilistic programs, often don’t have such a graphical model (or rather they have many approximations, none of which captures all independencies). Recursive models generally give rise to such ambiguous (or loopy) Bayes nets.
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 """
 
 # ╔═╡ Cell order:

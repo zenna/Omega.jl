@@ -9,36 +9,22 @@ begin
     import Pkg
     # activate the shared project environment
     Pkg.activate(Base.current_project())
-<<<<<<< HEAD
     using Omega, Distributions, UnicodePlots, OmegaExamples
 end
 
 # ╔═╡ ce896412-97f8-4102-9ed5-bc74dfdb26d4
 md"### Models, simulation, and degrees of belief"
-=======
-    using Omega, Distributions, UnicodePlots
-	using FreqTables
-end
-
-# ╔═╡ ce896412-97f8-4102-9ed5-bc74dfdb26d4
-md"## Models, simulation, and degrees of belief"
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ cd268cc7-e246-4254-94eb-4809e96b224b
 md"One view of knowledge is that the mind maintains working models of parts of the world. ‘Model’ in the sense that it captures some of the structure in the world, but not all (and what it captures need not be exactly what is in the world—just what is useful). ‘Working’ in the sense that it can be used to simulate this part of the world, imagining what will follow from different initial conditions."
 
 # ╔═╡ f68ca668-e238-4aa2-82be-c2320336e2e9
-<<<<<<< HEAD
 md"# Building Generative Models"
-=======
-md"## Building Generative Models"
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ 2cd7584f-5c78-4d3a-93dc-16da97146e98
 md"We wish to describe in formal terms how to generate states of the world. That is, we wish to describe the causal process, or steps that unfold, leading to some potentially observable states. The key idea of this section is that these generative processes can be described as computations—computations that involve random choices to capture uncertainty about the process.
 Programming languages are formal systems for describing what (deterministic) computation a computer should do. Modern programming languages offer a wide variety of different ways to describe computation; each makes some processes simple to describe and others more complex. However, a key tenet of computer science is that all of these languages have the same fundamental power: any computation that can be described with one programming language can be described by another. (More technically this Church-Turing thesis posits that many specific computational systems capture the set of all effectively computable procedures. These are called universal systems.)"
 
-<<<<<<< HEAD
 # ╔═╡ cb28a5c4-a721-4a53-a179-adedf4f71237
 md"""
 [Omega](https://github.com/zenna/Omega.jl) is a programming language that describes probabilistic computation. 
@@ -67,21 +53,10 @@ md"`randsample` is used to sample from a random variable:"
 
 # ╔═╡ d607d2e0-84a5-4dfd-a281-f5c64cfe1e2d
 randsample(a)
-=======
-# ╔═╡ f73ecbe1-05e3-4422-9c23-f4e8d345d566
-md"The key idea is that we have primitive operations that describe not only deterministic functions (like `and`) but stochastic operations. For example, sampling from a Bernoulli distribution can be thought of as simulating a (possibly biased) coin toss:"
-
-# ╔═╡ 3c73f032-eedf-4d99-8489-a98ccf4b8805
-coin_toss = @~ Bernoulli()
-
-# ╔═╡ 61f4d77b-eecf-4cca-ac01-944efe58d9bb
-randsample(coin_toss)
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ 5a10bc0d-d676-4941-a1d5-41790ef255ec
 md"Run this program a few times. You will get back a different sample on each execution."
 
-<<<<<<< HEAD
 # ╔═╡ 02ca238e-5a17-42dc-92a1-be975db0e7cd
 md"To understand how `randsample` works, a key concept to know is the Ω object in Omega.jl."
 
@@ -97,20 +72,10 @@ There are a few perspectives on what Ω is:
 # ╔═╡ d70b97b5-af55-46f9-904e-309713603155
 md"""
 Conceptually, sampling from a random variable is done in the following two distinct steps:
-=======
-# ╔═╡ 0ce18f90-f2ef-490a-a7c4-40a6ccfa214a
-md"""
-A basic object in Omega is a random variable class (like `Bernoulli()` in the above example).  Each class represents a sequence of random variables.  A class is analogous to a *plate* in Bayesian networks.
-"""
-
-# ╔═╡ d70b97b5-af55-46f9-904e-309713603155
-md"""To get a member of the random class, ie., generate a random variable, use `@~`. Random variables are all functions of ω and `randsample` is used to sample from a random variable. Conceptually, this is done in the following two distinct steps:
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 1. Construct a random $ω : Ω$, where $Ω$ can be though of as the space of exogenous variables as in causal graphical modelling nomenclature or simply the random number generator, `rng::Random.AbstractRNG`.
 2. Apply $ω$ to the random variable : $A(ω)$
 """
 
-<<<<<<< HEAD
 # ╔═╡ 0360ccef-ccf4-4284-80a9-ee5ed40becc4
 md"### Primitive and Composite Classes in Omega"
 
@@ -170,60 +135,36 @@ coin_toss = @~ Bernoulli()
 # ╔═╡ 61f4d77b-eecf-4cca-ac01-944efe58d9bb
 randsample(coin_toss)
 
-=======
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 # ╔═╡ 2ad90265-8ef2-480f-81b0-7ed1a674011b
 md"If you run the program many times, and collect the values in a histogram, you can see what a typical sample looks like:"
 
 # ╔═╡ 9504162b-52e1-476d-8218-0afc2555e278
-<<<<<<< HEAD
 viz(randsample(coin_toss, 1000))
 
 # ╔═╡ 15920581-2258-42e1-ba73-da82b2baa7e0
 md"As you can see, the result is an approximately uniform distribution over true(1) and false(0).
 This way we can construct more complex expressions that describe more complicated random variables. For instance, here we describe a process that samples a number adding up several independent Bernoulli distributions:"
-=======
-histogram(randsample(coin_toss, 1000), bins = 1)
-
-# ╔═╡ 15920581-2258-42e1-ba73-da82b2baa7e0
-md"As you can see, the result is an approximately uniform distribution over true(1) and false(0).
-This way we can construct more complex expressions that describe more complicated random variables. For instance, here we describe a process that samples a number adding up several independent Bernoulli distributions (`+ₚ` here is pointwise sum - the subscript p denotes the pointwise operation defined on a function):"
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ 3f04b226-a38a-4804-8691-59332bfc8728
 b_sum = (@~ Bernoulli()) +ₚ (@~ Bernoulli()) +ₚ (@~ Bernoulli())
 
-<<<<<<< HEAD
 # ╔═╡ 9bc6817f-4874-43f9-a5be-e71d5b18f7b9
 md"`+ₚ` here is pointwise sum - the subscript p denotes the pointwise operation defined on a function"
 
-=======
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 # ╔═╡ db8d667c-5ad7-4deb-b020-13d645bedbf9
 randsample(b_sum)
 
 # ╔═╡ 5444fd8d-8ff3-4b30-9942-067dca8a1126
-<<<<<<< HEAD
 md"We have constructed a random variable that is a sum of three random variables and sampled from it. We can construct such complex random variables from the primitive ones."
 
 # ╔═╡ 09595cc9-b08a-4465-a3e0-5d8e280530a2
 viz(randsample(b_sum, 1000))
-=======
-md"We have constructed a random variable that is a sum of three random variables so that we may sample from it. We can construct such complex random varibales from the primitive ones."
-
-# ╔═╡ 09595cc9-b08a-4465-a3e0-5d8e280530a2
-histogram(randsample(b_sum, 1000), bins = 3)
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ 6aa46f74-b3e2-4d12-abd0-90759023ecc5
 md"Complex functions can also have other arguments. Here is a random variable that will only sometimes double its input:"
 
 # ╔═╡ 0974a6a9-859f-44a9-a17a-5ef90c789ce5
-<<<<<<< HEAD
 noisy_double(x) = ifelseₚ((@~ Bernoulli()), 2*x, x)
-=======
-noisy_double(x) = pw(ifelse, (@~ Bernoulli()), 2*x, x)
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ 317cf40e-bafd-43f3-b855-9bfcf53c0f3a
 md"`pw` is the pointwise operation - which is defined on the function `ifelse` here."
@@ -232,17 +173,12 @@ md"`pw` is the pointwise operation - which is defined on the function `ifelse` h
 randsample(noisy_double(3))
 
 # ╔═╡ c697307c-9d49-43a7-a379-f383780a1248
-<<<<<<< HEAD
 md"By using higher-order functions we can construct and manipulate complex sampling processes. We use the `ifelseₚ` function: `ifelseₚ(condition, if-true, if-false)` to induce hierarchy. A good example comes from coin flipping…"
-=======
-md"By using higher-order functions we can construct and manipulate complex sampling processes. We use the `ifelse` function : `ifelse(condition, if-true, if-false)` to induce hierarchy. A good example comes from coin flipping…"
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ 277b383e-c909-4424-91f1-f0f00b3531b4
 md"## Example: Flipping Coins"
 
 # ╔═╡ f58cd6ff-9023-4dc7-9213-2279f5aebf72
-<<<<<<< HEAD
 md"The following program defines a fair coin, and flips it $20$ times:"
 
 # ╔═╡ 3c5e0f1d-0379-4c92-817d-4e6ef2d7ed8e
@@ -259,34 +195,12 @@ trick_coin = ifelseₚ((@~ Bernoulli(0.95)), 'h', 't')
 
 # ╔═╡ 83f9117e-2c5b-47e8-a78f-3bd679ad95dc
 viz(randsample(trick_coin, 20))
-=======
-md"The following program defines a fair coin, and flips it 20 times:"
-
-# ╔═╡ 3c5e0f1d-0379-4c92-817d-4e6ef2d7ed8e
-fair_coin = pw(ifelse, (@~ Bernoulli()), 'h', 't')
-
-# ╔═╡ b7d24774-2f2b-4da8-9257-6fe3a424a869
-barplot(Dict(freqtable(randsample(fair_coin, 20))))
-
-# ╔═╡ a54a2d2f-4c4b-46b1-aa7a-2ca5e6203067
-md"This program defines a “trick” coin that comes up heads most of the time (95%), and flips it 20 times:"
-
-# ╔═╡ 5657d115-ebad-4731-b8e2-5d66da76f600
-trick_coin = pw(ifelse, (@~ Bernoulli(0.95)), 'h', 't')
-
-# ╔═╡ 83f9117e-2c5b-47e8-a78f-3bd679ad95dc
-barplot(Dict(freqtable(randsample(trick_coin, 20))))
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ 65e02cf5-bfd2-4d79-899c-57a64624dd71
 md"The higher-order function `make_coin` takes in a weight and outputs a function describing a coin with that weight. Then we can use `make_coin` to make the coins above, or others."
 
 # ╔═╡ 65119d8b-a0d9-403f-9d42-ec6ef0ab3072
-<<<<<<< HEAD
 make_coin(weight) = ifelseₚ((@~ Bernoulli(weight)), 'h', 't')
-=======
-make_coin(weight) = pw(ifelse, (@~ Bernoulli(weight)), 'h', 't')
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ 7fb8ded9-629a-4084-ba5b-779dbe251841
 begin
@@ -296,7 +210,6 @@ begin
 end
 
 # ╔═╡ 7ff75111-cdde-466f-8b85-572a0e8a68bd
-<<<<<<< HEAD
 viz(randsample(fair_coin1, 20))
 
 # ╔═╡ 31f991a8-eb5e-413b-a3db-3058a6bde18d
@@ -304,35 +217,18 @@ viz(randsample(trick_coin1, 20))
 
 # ╔═╡ 8c354058-4168-4591-9a16-778031ec1d3a
 viz(randsample(bent_coin, 20))
-=======
-barplot(Dict(freqtable(randsample(fair_coin1, 20))))
-
-# ╔═╡ 31f991a8-eb5e-413b-a3db-3058a6bde18d
-barplot(Dict(freqtable(randsample(trick_coin1, 20))))
-
-# ╔═╡ 8c354058-4168-4591-9a16-778031ec1d3a
-barplot(Dict(freqtable(randsample(bent_coin, 20))))
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ 15dacfed-9db5-4a3e-ba21-edbfcb3dc690
 md"We can also define a higher-order function that takes a “coin” and “bends it”:"
 
 # ╔═╡ 56304079-fc6c-474b-b257-9db330475786
-<<<<<<< HEAD
 bend(coin) = ifelseₚ((coin ==ₚ 'h'), make_coin(0.7), make_coin(0.1))
-=======
-bend(coin) = pw(ifelse, (coin ==ₚ 'h'), make_coin(0.7), make_coin(0.1))
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ 4c343506-221d-4e8f-9398-725643bd74fc
 bent_coin1 = bend(fair_coin)
 
 # ╔═╡ 0d487cd0-e3d6-4623-98ea-a4dc649a0d9e
-<<<<<<< HEAD
 viz(randsample(bent_coin1, 100))
-=======
-barplot(Dict(freqtable(randsample(bent_coin1, 100))))
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ 7d668805-db8f-4d76-812f-d9d86f44668e
 md"Here we visualize the number of heads we expect to see if we flip a weighted coin ($weight = 0.8$) $10$ times. We’ll repeat this experiment 1000 times and then visualize the results. Try varying the coin weight or the number of repetitions to see how the expected distribution changes."
@@ -347,11 +243,7 @@ end
 c = pw(+, [coin(i) for i in 1:10]...)
 
 # ╔═╡ 83b2661d-a893-44a8-8138-13779356a7c0
-<<<<<<< HEAD
 viz(randsample(c, 1000))
-=======
-histogram(randsample(c, 1000), bins = 10)
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ deb917d9-f885-4b7f-a85e-f2fcfab91183
 md"## Example: Causal Models in Medical Diagnosis"
@@ -381,7 +273,6 @@ begin
 end
 
 # ╔═╡ 24a06c1c-29ac-45b3-b8fa-774ca2e4619e
-<<<<<<< HEAD
 cough = pw(|, 
 	(cold &ₚ @~ Bernoulli()), 
 	(lung_cancer &ₚ @~ Bernoulli(0.3)), 
@@ -413,31 +304,12 @@ shortness_of_breath = pw(|,
 
 # ╔═╡ 47807da5-e1b6-49aa-849b-39d5cce05471
 symptoms = @joint cough fever chest_pain shortness_of_breath
-=======
-cough = pw(|, (cold &ₚ @~ Bernoulli()), (lung_cancer &ₚ @~ Bernoulli(0.3)), (TB &ₚ @~ Bernoulli(0.7)), (other &ₚ @~ Bernoulli(0.1)))
-
-# ╔═╡ f5600317-7a50-4f16-9716-c4e3e24515bb
-fever = pw(|, (cold &ₚ @~ Bernoulli(0.3)), (stomach_flu &ₚ @~ Bernoulli()), (TB &ₚ @~ Bernoulli(0.1)), (other &ₚ @~ Bernoulli(0.01)))
-
-# ╔═╡ f005e508-db7f-4d3d-997e-3bdbe0c4bb7e
-chest_pain = pw(|, (lung_cancer &ₚ @~ Bernoulli()), (TB &ₚ @~ Bernoulli()), (other &ₚ @~ Bernoulli(0.01)))
-
-# ╔═╡ 3dfc6973-f996-4020-b461-016b46f87659
-shortness_of_breath = pw(|, (lung_cancer &ₚ @~ Bernoulli()), (TB &ₚ @~ Bernoulli(0.2)), (other &ₚ @~ Bernoulli(0.01)))
-
-# ╔═╡ 47807da5-e1b6-49aa-849b-39d5cce05471
-symptoms(ω) = (cough = cough(ω), fever = fever(ω), chest_pain = chest_pain(ω), shortness_of_breath = shortness_of_breath(ω))
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ f755a265-1b88-47e2-97ee-5269964ff809
 randsample(symptoms)
 
 # ╔═╡ ceb6e5a8-8093-425e-b40d-9bd345c23e66
-<<<<<<< HEAD
 md"Now there are four possible diseases and four symptoms. Each disease causes a different pattern of symptoms. The causal relations are now probabilistic: Only some patients with a cold have a cough ($50\%$), or a fever ($30\%$). There is also a catch-all disease category “other”, which has a low probability of causing any symptom. Noisy logical functions—functions built from and (`&ₚ`), or (`|ₚ`), and distributions —provide a simple but expressive way to describe probabilistic causal dependencies between Boolean (true-false valued) variables.
-=======
-md"Now there are four possible diseases and four symptoms. Each disease causes a different pattern of symptoms. The causal relations are now probabilistic: Only some patients with a cold have a cough ($50\%$), or a fever ($30\%$). There is also a catch-all disease category “other”, which has a low probability of causing any symptom. Noisy logical functions—functions built from and (`&&`), or (`||`), and distributions —provide a simple but expressive way to describe probabilistic causal dependencies between Boolean (true-false valued) variables.
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 When you run the above code, the program generates a list of symptoms for a hypothetical patient. Most likely all the symptoms will be false, as (thankfully) each of these diseases is rare. Experiment with running the program multiple times. Now try modifying the function for one of the diseases, setting it to be true, to simulate only patients known to have that disease. For example, replace `lung_cancer = @~ Bernoulli(0.01)` with `lung_cancer = true`. Run the program several times to observe the characteristic patterns of symptoms for that disease."
 
 # ╔═╡ 83aa6c42-a846-42d7-b9d0-c5b9e783c2cc
@@ -447,11 +319,7 @@ md"## Prediction, Simulation, and Probabilities"
 md"Suppose that we flip two fair coins, and return the tuple of their values:"
 
 # ╔═╡ 54890932-a472-4ad4-a904-bc847551bfcb
-<<<<<<< HEAD
 randsample(((@~ Bernoulli()), (@~ Bernoulli())))
-=======
-(randsample(@~ Bernoulli()), randsample(@~ Bernoulli()))
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ 1721f226-8d1d-4803-a445-925874e236c8
 md"How can we predict the return value of this program? For instance, how likely is it that we will see `(true, false)`? A probability is a number between $0$ and $1$ that expresses the answer to such a question: it is a degree of belief that we will see a given outcome, such as `(true, false)`. The probability of an event $A$ (such as the above program returning `(true, false)`) is usually written as $P(A)$.
@@ -459,36 +327,13 @@ A probability distribution is the probability of each possible outcome of an eve
 
 # ╔═╡ f2fd33e0-3451-44cb-9e69-8b627abf7729
 begin 
-<<<<<<< HEAD
 	random_pair = ((@~ Bernoulli()), (@~ Bernoulli()))
 	viz(string.(randsample(random_pair, 1000)))
-=======
-	random_pair(ω) = ((@~ Bernoulli())(ω), (@~ Bernoulli())(ω))
-	barplot(Dict(freqtable(randsample(random_pair, 1000))))
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 end
 
 # ╔═╡ a066a0a9-e28f-45ef-bfba-ef23eaf75f96
 md"We see by examining this histogram that `(true, false)` comes out about $25\%$ of the time. We may define the probability of a return value to be the fraction of times (in the long run) that this value is returned from evaluating the program – then the probability of `(true, false)` from the above program is $0.25$."
 
-<<<<<<< HEAD
-=======
-# ╔═╡ e045e940-57ea-408c-a1ac-aa17516a7523
-md"## Distributions in Omega"
-
-# ╔═╡ bf29108d-38c4-46d9-8469-8decb6ae3266
-md"Omega comes with a set of built-in primitive random variable classes, such as `StdNormal` and `StdUniform`.  There are parameterless infinite sets of random variables."
-
-# ╔═╡ fb2e135f-219f-4644-80a6-f3bb8d9806e8
-As = StdNormal{Float64}()
-
-# ╔═╡ 0c75b6ad-a56b-44fb-a67a-f31e873c1e76
-rv = @~ As
-
-# ╔═╡ 6aab43b7-ee98-4d37-805c-51ace532012c
-randsample(rv)
-
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 # ╔═╡ 98da911f-1338-4651-9e20-aaeab6c81c50
 md"## The rules of probability"
 
@@ -503,15 +348,9 @@ md"In the above example, we take three steps to compute the output value: we cre
 
 # ╔═╡ 0add56e4-adba-448b-a6bc-8c17284bda01
 let
-<<<<<<< HEAD
 	A = @~ Bernoulli()
 	B = @~ Bernoulli()
 	C = @joint A B
-=======
-	A = 1 ~ Bernoulli()
-	B = 2 ~ Bernoulli()
-	C(ω) = (A(ω), B(ω))
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 	randsample(C)
 end
 
@@ -524,7 +363,6 @@ We must be careful when applying this rule, since the probability of a choice ca
 A = @~ Bernoulli()
 
 # ╔═╡ 1c260eff-636c-429d-992f-b7854f4398e1
-<<<<<<< HEAD
 B = @~ Bernoulli(ifelseₚ(A, 0.3, 0.7))
 
 # ╔═╡ d57d23a3-7626-4b23-b1df-994951f5a12b
@@ -532,15 +370,6 @@ rs = randsample((A, B), 1000)
 
 # ╔═╡ 4a0255be-6b88-4f1b-80c0-eec1d70c0da6
 viz(string.(rs))
-=======
-B = @~ Bernoulli(pw(ifelse, A, 0.3, 0.7))
-
-# ╔═╡ d57d23a3-7626-4b23-b1df-994951f5a12b
-rs = randsample(ω -> (A(ω), B(ω)), 1000)
-
-# ╔═╡ 4a0255be-6b88-4f1b-80c0-eec1d70c0da6
-barplot(Dict(freqtable(rs)))
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ 4fc6e919-7026-4c13-88fe-bd7956e1bb6e
 md"In general, the joint probability of two random choices $A$ and $B$ made sequentially, in that order, can be written as $P(A,B)=P(A)P(B|A)$. This is read as the product of the probability of $A$ and the probability of “$B$ given $A$”, or “$B$ conditioned on $A$”. That is, the probability of making choice $B$ given that choice $A$ has been made in a certain way. Only when the second choice does not depend on (or “look at”) the first choice does this expression reduce to a simple product of the probabilities of each choice individually: $P(A,B)=P(A)P(B)$.
@@ -560,11 +389,7 @@ randsample(s)
 
 # ╔═╡ 21400744-aa27-4360-91ed-63f397d475ee
 md"We can sample from this program and determine that the probability of returning true is about $0.75$.
-<<<<<<< HEAD
 We cannot simply use the product rule to determine this probability because we don’t know the sequence of random choices that led to this return value. However we can notice that the program will return true if the two-component choices are `(true, true)`, or `(true, false)`, or `(false, true)`. To combine these possibilities we use another rule for probabilities: If there are two alternative sequences of choices that lead to the same return value, the probability of this return value is the sum of the probabilities of the sequences. We can write this using probability notation as: $P(A)=∑P(A,B)$ over all $B$, where we view $A$ as the final value and $B$ as a random choice on the way to that value. Using the product rule we can determine that the probability in the example above is $0.25$ for each sequence that leads to return value true, then, by the sum rule, the probability of true is $0.25+0.25+0.25=0.75$.
-=======
-We cannot simply use the product rule to determine this probability because we don’t know the sequence of random choices that led to this return value. However we can notice that the program will return true if the two component choices are `[true, true]`, or `[true, false]`, or `[false, true]`. To combine these possibilities we use another rule for probabilities: If there are two alternative sequences of choices that lead to the same return value, the probability of this return value is the sum of the probabilities of the sequences. We can write this using probability notation as: $P(A)=∑P(A,B)$ over all $B$, where we view $A$ as the final value and $B$ as a random choice on the way to that value. Using the product rule we can determine that the probability in the example above is $0.25$ for each sequence that leads to return value true, then, by the sum rule, the probability of true is $0.25+0.25+0.25=0.75$.
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 Using the sum rule to compute the probability of a final value is called is sometimes called marginalization, because the final distribution is the marginal distribution on final values. From the point of view of sampling processes marginalization is simply ignoring (or not looking at) intermediate random values that are created on the way to a final return value. From the point of view of directly computing probabilities, marginalization is summing over all the possible “histories” that could lead to a return value. Putting the product and sum rules together, the marginal probability of return values from a program that we have explored above is the sum over sampling histories of the product over choice probabilities—a computation that can quickly grow unmanageable, but can be approximated."
 
 # ╔═╡ 548d888e-2dd7-4a3d-b43c-21955283a920
@@ -580,11 +405,7 @@ geometric(p, ω, n = 0) = (n ~ Bernoulli(p))(ω) ? 0 : 1 + geometric(p, ω, n + 
 randsample(ω -> geometric(0.6, ω))
 
 # ╔═╡ f31df26e-0f92-4957-8569-05c10f4adec8
-<<<<<<< HEAD
 md"There is no upper bound on how long the computation can go on, although the probability of reaching some number declines quickly as we go. Indeed, stochastic recursions must be constructed to halt eventually (with probability $1$)."
-=======
-md"There is no upper bound on how long the computation can go on, although the probability of reaching some number declines quickly as we go. Indeed, stochastic recursions must be constructed to halt eventually (with probability 1)."
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ 073f84a2-8cc8-4683-bff5-a2849806ecb7
 md"## Persistent Randomness"
@@ -605,11 +426,7 @@ g = 1 ~ Bernoulli()
 f(ω) == g(ω) # Always returns true
 
 # ╔═╡ 8c06cba6-e1bc-4dc0-b6c2-a2b625313d6c
-<<<<<<< HEAD
 md"Independent random variables of a random class can be created in Omega by changing the `id` as follows -"
-=======
-md"Independent random variables of a random class can be created in Omega by changing the ID as follows -"
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ a9d291a1-ab41-4756-937b-ae44a44012e4
 let
@@ -626,19 +443,11 @@ md"Sometimes we require the results of the stochastic process to be random but p
 function eye_colour(n, ω)
 	d = (n ~ DiscreteUniform(1, 3))(ω)
 	if d == 1
-<<<<<<< HEAD
 		return :blue
 	elseif d == 2
 		return :green
 	else
 		return :brown
-=======
-		return "blue"
-	elseif d == 2
-		return "green"
-	else
-		return "brown"
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 	end
 end
 
@@ -652,11 +461,7 @@ alice = 2
 randsample(ω -> [eye_colour(bob, ω), eye_colour(alice, ω), eye_colour(bob, ω)])
 
 # ╔═╡ 72c80751-7a95-4e2d-9415-83129c934bcc
-<<<<<<< HEAD
 md"Bob's eye colour is consistent every time we call the above `randsample`."
-=======
-md"Bob's eye colour is consistent time we call the ablove `randsample`."
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 
 # ╔═╡ 7c838e1b-9ff7-45eb-8e7b-656435671e4e
 md"This type of modeling is called random world style ([McAllester et al., 2008](https://dspace.mit.edu/handle/1721.1/41516)). Note that we don’t have to specify ahead of time the people whose eye color we will ask about: the distribution on eye colors is implicitly defined over the infinite set of possible people, but only constructed “lazily” when needed."
@@ -669,19 +474,10 @@ flip_a_lot(n, ω) = (n ~ Bernoulli())(ω)
 
 # ╔═╡ b10cf079-1995-4af6-8ec0-f772d0e9d359
 let
-<<<<<<< HEAD
 	randsample(ω -> [
 		[flip_a_lot(1, ω), flip_a_lot(12, ω), flip_a_lot(47, ω), flip_a_lot(1548, ω)],
 		[flip_a_lot(1, ω), flip_a_lot(12, ω), flip_a_lot(47, ω), flip_a_lot(1548, ω)]
 	])
-=======
-	ω = defω()
-	[
-		[flip_a_lot(1, ω), flip_a_lot(12, ω), flip_a_lot(47, ω), flip_a_lot(1548, ω)],
-
-		[flip_a_lot(1, ω), flip_a_lot(12, ω), flip_a_lot(47, ω), flip_a_lot(1548, ω)]
-	]
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 end
 
 # ╔═╡ 45d75c36-5af8-4211-9432-99cabe1e1aeb
@@ -693,7 +489,6 @@ md"There are a countably infinite number of such flips, each independent of all 
 # ╟─cd268cc7-e246-4254-94eb-4809e96b224b
 # ╟─f68ca668-e238-4aa2-82be-c2320336e2e9
 # ╟─2cd7584f-5c78-4d3a-93dc-16da97146e98
-<<<<<<< HEAD
 # ╟─cb28a5c4-a721-4a53-a179-adedf4f71237
 # ╟─0ce18f90-f2ef-490a-a7c4-40a6ccfa214a
 # ╠═354e3b5a-4d1e-43ee-b1bb-e8620fba49e7
@@ -723,22 +518,11 @@ md"There are a countably infinite number of such flips, each independent of all 
 # ╟─0ae343fa-bc62-48ac-a34e-d21028531530
 # ╠═3c73f032-eedf-4d99-8489-a98ccf4b8805
 # ╠═61f4d77b-eecf-4cca-ac01-944efe58d9bb
-=======
-# ╟─f73ecbe1-05e3-4422-9c23-f4e8d345d566
-# ╠═3c73f032-eedf-4d99-8489-a98ccf4b8805
-# ╠═61f4d77b-eecf-4cca-ac01-944efe58d9bb
-# ╟─5a10bc0d-d676-4941-a1d5-41790ef255ec
-# ╟─0ce18f90-f2ef-490a-a7c4-40a6ccfa214a
-# ╟─d70b97b5-af55-46f9-904e-309713603155
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 # ╟─2ad90265-8ef2-480f-81b0-7ed1a674011b
 # ╠═9504162b-52e1-476d-8218-0afc2555e278
 # ╟─15920581-2258-42e1-ba73-da82b2baa7e0
 # ╠═3f04b226-a38a-4804-8691-59332bfc8728
-<<<<<<< HEAD
 # ╟─9bc6817f-4874-43f9-a5be-e71d5b18f7b9
-=======
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 # ╠═db8d667c-5ad7-4deb-b020-13d645bedbf9
 # ╟─5444fd8d-8ff3-4b30-9942-067dca8a1126
 # ╠═09595cc9-b08a-4465-a3e0-5d8e280530a2
@@ -786,14 +570,6 @@ md"There are a countably infinite number of such flips, each independent of all 
 # ╟─1721f226-8d1d-4803-a445-925874e236c8
 # ╠═f2fd33e0-3451-44cb-9e69-8b627abf7729
 # ╟─a066a0a9-e28f-45ef-bfba-ef23eaf75f96
-<<<<<<< HEAD
-=======
-# ╟─e045e940-57ea-408c-a1ac-aa17516a7523
-# ╟─bf29108d-38c4-46d9-8469-8decb6ae3266
-# ╠═fb2e135f-219f-4644-80a6-f3bb8d9806e8
-# ╠═0c75b6ad-a56b-44fb-a67a-f31e873c1e76
-# ╠═6aab43b7-ee98-4d37-805c-51ace532012c
->>>>>>> 63fbb76089f4363343026a16775994327da52903
 # ╟─98da911f-1338-4651-9e20-aaeab6c81c50
 # ╟─27fe69b6-ba83-4b79-8f30-df5841650e23
 # ╟─10e3b2f2-68ec-4c19-b473-469a47815205
