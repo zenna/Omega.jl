@@ -1,6 +1,5 @@
 # Helper functions for probmods
 using UnicodePlots, Distributions, Omega, FreqTables
-using PlutoUI
 
 export viz, UniformDraw, pget, Dirichlet, viz_marginals
 
