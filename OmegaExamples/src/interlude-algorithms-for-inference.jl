@@ -9,11 +9,7 @@ begin
     import Pkg
     # activate the shared project environment
     Pkg.activate(Base.current_project())
-    using Omega, Distributions, UnicodePlots, FreqTables
-	viz(var::Vector{T} where T<:Union{String, Char}) = 	
-		barplot(Dict(freqtable(var)))
-	viz(var::Vector{<:Real}) = histogram(var, symbols = ["■"])
-	viz(var::Vector{Bool}) = viz(string.(var))
+    using Omega, Distributions, UnicodePlots, OmegaExamples
 end
 
 # ╔═╡ e9b1baa3-1f0b-410a-b945-293c19d02a8f
@@ -37,6 +33,26 @@ end
 
 # ╔═╡ ae42cfc9-57cd-4b1f-b909-5e7aa948eb42
 md"Even for this simple program, lowering the baserate by just one order of magnitude, to $0.01$, will make rejection sampling impractical."
+
+# ╔═╡ 5533a337-c611-4ba5-a2f4-c092725c5757
+md"""
+There are many other algorithms and techniques for probabilistic inference, reviewed below. They each have their own performance characteristics. For instance, _Markov chain Monte Carlo_ inference approximates the posterior distribution via a random walk (described in detail below).
+"""
+
+# ╔═╡ 697034c7-8bdc-42b6-bf15-e2bea6be0919
+@timed let
+		A = @~ Bernoulli(baserate)
+		B = @~ Bernoulli(baserate)
+		C = @~ Bernoulli(baserate)
+		randsample(A |ᶜ (A +ₚ B +ₚ C >=ₚ 2), 100, alg = MH)
+end
+
+# ╔═╡ 1f49b556-cb7e-4a36-b0aa-0009d22d0255
+md"""
+See what happens in the above inference as you lower the baserate. Unlike rejection sampling, inference will not slow down appreciably (but results will become less stable). Inference should also not slow down exponentially as the size of the state space is increased. This is an example of the kind of trade-offs that are common between different inference algorithms.
+
+The varying performance characteristics of different algorithms for (approximate) inference mean that getting accurate results for complex models can depend on choosing the right algorithm (with the right parameters). In what follows we aim to gain some intuition for how and when algorithms work, without being exhaustive.
+"""
 
 # ╔═╡ 542a3458-731d-4326-944f-de2e519144a7
 md"""
@@ -230,43 +246,15 @@ end
 # ╔═╡ 6edb1b62-0b18-4a05-b42b-c353243a5454
 md"Note that the transition function that is automatically derived using the MH recipe is actually the same as the one we wrote by hand earlier."
 
-# ╔═╡ 5dba8a3f-dd6f-4af2-9c95-96f02d10650f
-md"""
-# Variational Inference
-The previous parts of this chapter focused on Monte Carlo methods for approximate inference: algorithms that generate a (large) collection of samples to represent a conditional distribution. Another way to represent a distribution is by finding the closest approximation among a set (or “family”) of simpler distributions. This is the approach taken by variational inference. At a high level, we declare a set of models that have the same choices as our target model, but don’t have any conditions; we then try to find the member of this set closest to our target model and use it for inference.
-
-To search for a good approximating model, we will eventually use gradient-based techniques. For this reason, we don’t want a set of isolated models, but a continuous family.
-"""
-
-# ╔═╡ ae2067f0-2fbc-40b5-b865-26efaba56954
-md"""
-Once we have specified the target model and the family we’ll use to approximate it, our goal is to find the best member of the family – that is the one closest to the target model. Formally we want the member of the family with smallest Kullback-Liebler distance to the target model. This is called variational inference.
-"""
-
-# ╔═╡ 077a3b6c-aea4-487d-98ac-d421aa930246
-true_μ = 3.5
-
-# ╔═╡ e153d51a-0929-46b2-84a8-1081974f3512
-true_σ = 0.8
-
-# ╔═╡ 161ae544-72b3-484a-bb31-7bca1d210afa
-data = randsample((@~ Normal(true_μ, true_σ)), 100)
-
-# ╔═╡ 3d7f349c-e415-4602-bac3-9253db912ddf
-μ = @~ Normal(0, 20)
-
-# ╔═╡ f0173f05-03a5-41dd-b417-06e64b03e2b4
-σ = @~ Normal(0, 1)
-
-# ╔═╡ fe1690c9-63e0-4b69-880c-7c14a431c038
-
-
 # ╔═╡ Cell order:
 # ╠═c8bab010-6162-11ec-07f9-ef4b5f242a82
 # ╟─e9b1baa3-1f0b-410a-b945-293c19d02a8f
 # ╠═bb390f80-b3d5-4123-8576-9bcedf005042
 # ╠═27815642-3d3b-4687-b06a-ac9dc48aa05c
 # ╟─ae42cfc9-57cd-4b1f-b909-5e7aa948eb42
+# ╟─5533a337-c611-4ba5-a2f4-c092725c5757
+# ╠═697034c7-8bdc-42b6-bf15-e2bea6be0919
+# ╟─1f49b556-cb7e-4a36-b0aa-0009d22d0255
 # ╟─542a3458-731d-4326-944f-de2e519144a7
 # ╠═f561d04e-271c-44fc-b54c-c928f330e436
 # ╠═767eba7d-5ca7-4038-8972-613f3378a1f5
@@ -308,11 +296,3 @@ data = randsample((@~ Normal(true_μ, true_σ)), 100)
 # ╠═0c3131b0-04a0-411d-940f-db5bf24966d0
 # ╠═f48fb481-68b9-4c44-941b-13e3eaeb1a1c
 # ╟─6edb1b62-0b18-4a05-b42b-c353243a5454
-# ╟─5dba8a3f-dd6f-4af2-9c95-96f02d10650f
-# ╟─ae2067f0-2fbc-40b5-b865-26efaba56954
-# ╠═077a3b6c-aea4-487d-98ac-d421aa930246
-# ╠═e153d51a-0929-46b2-84a8-1081974f3512
-# ╠═161ae544-72b3-484a-bb31-7bca1d210afa
-# ╠═3d7f349c-e415-4602-bac3-9253db912ddf
-# ╠═f0173f05-03a5-41dd-b417-06e64b03e2b4
-# ╠═fe1690c9-63e0-4b69-880c-7c14a431c038
