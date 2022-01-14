@@ -1,7 +1,7 @@
 import ..Tagging: hastag, traithastag, tag, mergetag
 import ..Util: mergef, rmkey
 import ..Traits: traits
-export AbstractΩ, defΩ, defω, resolve, idtype, replacetags, like
+export AbstractΩ, defΩ, defω, defsubspace, resolve, idtype, replacetags, like
 import Random
 
 # # Sample Space
@@ -31,13 +31,12 @@ hastag(ω::AbstractΩ, tag) = hastag(ω.tags, tag)
 traits(ω::AbstractΩ) = traits(ω.tags) # FIXME: Do this at the type level
 
 # function tags end
+"split(ω) = (ωₗ, ωᵣ) splits ω into two ωs such that"
+function split end
+@post split(ω) = (ωₗ, ωᵣ = __ret__[1]; isindependent(ωₗ, ωᵣ))
 
-# # Defaults
-"Default sample space"
-function defΩ end
-
-"Default sample space object"
-function defω end
+splitl(ω) = split(ω)[1]
+splitr(ω) = split(ω)[2]
 
 # FIXME MOve this somewhere (shouldnt really be in AbstractΩ)
 
@@ -56,6 +55,10 @@ function subspace end
 
 "`proj(ω, ss)` Project `ω` onto subspace `ss`"
 function proj end
+# Explain what project means
+
+"`update(ω, ss)` Change subspace of  `ω` onto to `ss`"
+function updatesubspace end
 
 ## Updating Interface
 export update
@@ -64,3 +67,12 @@ export update
 
 # "Equivalent to setindex!, returns mutated ω"
 # function update!(ω, k, v) end
+# # Defaults
+"Default sample space"
+function defΩ end
+
+"Default sample space object"
+function defω end
+
+"Default sample space object"
+function defsubspace end

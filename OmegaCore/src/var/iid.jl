@@ -1,5 +1,8 @@
 export iid,  <|, <|ⁿ
 
+"Sequence of random variables xs are mutually independent "
+function ismutuallyindep(xs) end 
+
 struct IID{F}
   f::F
 end
@@ -15,6 +18,7 @@ Sequence of independent raandom variables.
 Sequence `(x1, x2, ...)`` which are all mutually independent
 """
 @inline iid(f) = IID(f)
+@post iid(f) = ismutuallyindep(__ret__)
 
 @inline (x::IID)(i, ω) = x.f(Basis.proj(ω, i))
 

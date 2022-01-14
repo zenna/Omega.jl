@@ -1,20 +1,20 @@
 ### A Pluto.jl notebook ###
-# v0.14.7
+# v0.17.5
 
 using Markdown
 using InteractiveUtils
 
+# ╔═╡ 84739f36-65fb-4a36-a342-ae0985a759a7
+begin
+    import Pkg
+    # activate the shared project environment|
+    Pkg.activate(Base.current_project())
+    using Omega, Distributions, UnicodePlots
+	using FreqTables
+end
+
 # ╔═╡ f3425176-7770-11eb-2f05-73bfcf67cc5a
 using Revise
-
-# ╔═╡ f847f340-7770-11eb-3231-d10bb101f2a2
-using Omega
-
-# ╔═╡ 72b4e374-7771-11eb-3a0a-3dc3066ee8be
-using Distributions
-
-# ╔═╡ f4126600-7771-11eb-357d-19b214eba52a
-using UnicodePlots
 
 # ╔═╡ 00a63758-7783-11eb-1b13-e7ad1ff457cd
 using PlutoUI
@@ -34,6 +34,9 @@ import Plots
 # ╔═╡ 05e99288-7787-11eb-2d06-f96f8b7f16e0
 md"## The generative model"
 
+# ╔═╡ 3ee1698e-9b28-4693-80ca-2ebcb51e7d7f
+md"An aircraft is defined by a position and velocity"
+
 # ╔═╡ 2d7e1730-7771-11eb-1d47-c9e05121d38b
 struct Aircraft{P, V}
   position::P
@@ -44,17 +47,17 @@ end
 md"The number of aircraft is unknown, and for each aircraft the position and velocity is uncertain"
 
 # ╔═╡ 66794654-7771-11eb-3044-ad6cf0b566f0
-num_aircraft = 1 ~ Poisson(5)
+num_aircraft = @~ Poisson(5)
 
 # ╔═╡ a4756686-7773-11eb-01bc-b1231fd5418a
 xlb, xub, ylb, yub = 0, 1, 0, 1
 
 # ╔═╡ aac835ae-7771-11eb-2792-838c80957a3d
 function init_state(ω)
-  x = 2 ~ Uniform(xlb, xub)
-  y = 3 ~ Uniform(ylb, yub)
-  vx = 4 ~ Normal(0, 1)
-  vy = 5 ~ Normal(0, 1)
+  x = @~ Uniform(xlb, xub)
+  y = @~ Uniform(ylb, yub)
+  vx = @~ Normal(0, 1)
+  vy = @~ Normal(0, 1)
   Aircraft((x(ω), y(ω)), (vx(ω), vy(ω)))
 end
 
@@ -76,7 +79,14 @@ end
 
 
 # ╔═╡ 1ff3e3a2-7775-11eb-2c0c-7d255b3404ef
-aircraft(ω) = ω |> (1:num_aircraft(ω) <|ⁿ init_state)
+aircraft(ω) = manynth(init_state, num_aircraft(ω))(ω)
+#|> (1:num_aircraft(ω) <|ⁿ init_state)
+
+# ╔═╡ 2d60c906-b5cb-4e44-951c-e52f32568b73
+randsample(aircraft)
+
+# ╔═╡ f752da61-6d82-4b75-93e9-50a4001b5aa6
+#aircraft = manynth(init_state, num_aircraft)
 
 # ╔═╡ af7af430-7774-11eb-3133-bfe35d03939d
 state_transition(s; dt = 0.1) = 
@@ -147,14 +157,13 @@ md"""Given a model we can do inference, sample from the posterior of any of the 
 length(traj_sample[1])
 
 # ╔═╡ Cell order:
+# ╠═84739f36-65fb-4a36-a342-ae0985a759a7
 # ╟─0042d812-7771-11eb-0aff-dd1d6767a96a
 # ╠═f3425176-7770-11eb-2f05-73bfcf67cc5a
-# ╠═f847f340-7770-11eb-3231-d10bb101f2a2
-# ╠═72b4e374-7771-11eb-3a0a-3dc3066ee8be
-# ╠═f4126600-7771-11eb-357d-19b214eba52a
 # ╠═00a63758-7783-11eb-1b13-e7ad1ff457cd
 # ╠═6903f06e-7789-11eb-2715-51b9c5b5f4af
 # ╟─05e99288-7787-11eb-2d06-f96f8b7f16e0
+# ╟─3ee1698e-9b28-4693-80ca-2ebcb51e7d7f
 # ╠═2d7e1730-7771-11eb-1d47-c9e05121d38b
 # ╟─15aeba40-7787-11eb-36de-25338cdfbca3
 # ╠═66794654-7771-11eb-3044-ad6cf0b566f0
@@ -164,6 +173,8 @@ length(traj_sample[1])
 # ╠═ce00d2c4-7776-11eb-1f25-f5eef5704c38
 # ╠═eefa9a2c-778b-11eb-37d1-c39cc9cc53f7
 # ╠═1ff3e3a2-7775-11eb-2c0c-7d255b3404ef
+# ╠═2d60c906-b5cb-4e44-951c-e52f32568b73
+# ╠═f752da61-6d82-4b75-93e9-50a4001b5aa6
 # ╠═af7af430-7774-11eb-3133-bfe35d03939d
 # ╠═6de7d402-7774-11eb-109d-5f8fb82851c7
 # ╠═b415b1c8-7784-11eb-1a8b-0b437ab2432d

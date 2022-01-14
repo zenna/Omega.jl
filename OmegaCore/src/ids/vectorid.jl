@@ -9,6 +9,8 @@ const VectorID = Vector{Int64}
 @inline append(a::Vector{T}, b::T) where T = vcat(a, T[b])
 @inline singletonid(::Type{Vector{T}}, i::Vararg{T, N}) where {T, N} = T[i...]
 
+combine(a::Vector, b::Vector) = append(a, b)
+
 # @inline firstelem(::Vector{T}) where T = zero(T)
 # function increment(a::Vector)
 #   b = copy(a)
