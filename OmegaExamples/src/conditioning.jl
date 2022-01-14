@@ -97,7 +97,7 @@ C_ = @~ Bernoulli()
 D = A_ +ₚ B_ +ₚ C_
 
 # ╔═╡ b15a1f8e-2427-42a1-a3be-ee2b8d49adf4
-take_sample(ω) = (D(ω) >= 2) ? A_(ω) : take_sample(defω())
+take_sample(ω) = (D(ω) >= 2) ? A_(ω) : take_sample(split(ω))
 
 # ╔═╡ e0c9c0d1-cd53-4a0f-858b-ee60b70e2a54
 histogram(randsample(take_sample, 1000), bins = 1)

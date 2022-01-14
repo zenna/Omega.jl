@@ -9,11 +9,7 @@ begin
     import Pkg
     # activate the shared project environment
     Pkg.activate(Base.current_project())
-    using Omega, Distributions, UnicodePlots, FreqTables
-	viz(var::Vector{T} where T<:Union{String, Char}) = 	
-		barplot(Dict(freqtable(var)))
-	viz(var::Vector{<:Real}) = histogram(var, symbols = ["■"])
-	viz(var::Vector{Bool}) = viz(string.(var))
+    using Omega, Distributions, UnicodePlots, OmegaExamples
 end
 
 # ╔═╡ 3cbb6cf1-07b9-4706-a178-c370096ea159
@@ -159,39 +155,46 @@ b = @~ StdNormal{Float64}() # true intercept
 # ╔═╡ 63c901a7-3efb-414a-85b0-71bbbb1de894
 bin(ω, n, age, a, b, i) = (i ~ Binomial(n, logistic(a(ω) * age + b(ω))))(ω)
 
-# ╔═╡ 1fb52907-8e31-423f-bdb9-05b01b18c1d8
-randsample(ω -> map(d -> bin(ω, d[2].n, d[2].age, a, b, d[1]), enumerate(data)))
-
 # ╔═╡ 998a3439-2be5-4e2e-a7ad-ed11b8d17f62
-begin
-	a_ = @~ StdNormal{Float64}()
-	b_ = @~ StdNormal{Float64}()
-	# for i in 1:length(data)
-	a_1 = a_ |ᶜ ((ω -> bin(ω, data[1].n, data[1].age, a_, b_, (@uid, 1))) ==ₚ data[1].k)
-	a_2 = a_1 |ᶜ ((ω -> bin(ω, data[2].n, data[2].age, a_, b_, (@uid, 2))) ==ₚ data[2].k)
-	a_3 = a_2 |ᶜ ((ω -> bin(ω, data[3].n, data[3].age, a_, b_, (@uid, 3))) ==ₚ data[3].k)
-	a_4 = a_3 |ᶜ ((ω -> bin(ω, data[4].n, data[4].age, a_, b_, (@uid, 4))) ==ₚ data[4].k)
-	# end
-	randsample(a_4)
-	# histogram(randsample(a_cond, 1000))
-end
+evidence = pw(&, 
+	((ω -> bin(ω, data[1].n, data[1].age, a, b, (@uid, 1))) ==ₚ data[1].k),
+	((ω -> bin(ω, data[2].n, data[2].age, a, b, (@uid, 2))) ==ₚ data[2].k),
+	((ω -> bin(ω, data[3].n, data[3].age, a, b, (@uid, 3))) ==ₚ data[3].k),
+	((ω -> bin(ω, data[4].n, data[4].age, a, b, (@uid, 4))) ==ₚ data[4].k)
+) # map gives the same variables for `bin`
+
+# ╔═╡ fa5f280b-eb1b-483b-b7b9-05ef931b80a5
+a_posterior = a |ᶜ evidence
+
+# ╔═╡ 08cfd264-9969-4436-9af8-a1e5c342dc9e
+b_posterior = b |ᶜ evidence
+
+# ╔═╡ d9e93d06-0fab-4c44-89ba-f7ea17ddc908
+posterior = @joint a_posterior b_posterior
+
+# ╔═╡ 181a9dbf-550d-439e-a9f2-f67aae3fb992
+viz_margnials(randsample(posterior, 1000, alg = MH))
+
+# ╔═╡ 383f3eee-9fef-47ce-91b6-b4adbdea819b
+md"""
+Looking at the parameter posteriors we see that there seems to be an effect of age: the parameter `a` is greater than zero, so older people are more likely to vote for candidate A. But how well does the model really explain the data?
+
+### Posterior prediction and model checking
+The posterior predictive distribution describes what data you should expect to see, given the model you’ve assumed and the data you’ve collected so far. If the model is able to describe the data you’ve collected, then the model shouldn’t be surprised if you got the same data by running the experiment again. That is, the most likely data for your model after observing your data should be the data you observed. It is natural then to use the posterior predictive distribution to examine the descriptive adequacy of a model. If these predictions do not match the data already seen (i.e., the data used to arrive at the posterior distribution over parameters), the model is descriptively inadequate.
+
+A common way to check whether the posterior predictive matches the data, imaginatively called a posterior predictive check, is to plot some statistics of your data vs the expectation of these statistics according to the predictive. Let’s do this for the number of votes in each age group:
+"""
 
 # ╔═╡ 01748bea-e5d6-4a2c-8597-7e65f3064eff
-begin
-	predictive = []
-	push!(predictive, ω -> (bin(ω, 20, 20, (@uid, @uid, 1))))
-	push!(predictive, ω -> (bin(ω, 20, 30, (@uid, @uid, 2))))
-	push!(predictive, ω -> (bin(ω, 20, 40, (@uid, @uid, 3))))
-	push!(predictive, ω -> (bin(ω, 20, 50, (@uid, @uid, 4))))
-end
+predictive = [
+	ω -> (bin(ω, 20, 20, a_posterior, b_posterior, (@uid, @uid, 1)))
+	ω -> (bin(ω, 20, 30, a_posterior, b_posterior, (@uid, @uid, 2)))
+	ω -> (bin(ω, 20, 40, a_posterior, b_posterior, (@uid, @uid, 3)))
+	ω -> (bin(ω, 20, 50, a_posterior, b_posterior, (@uid, @uid, 4)))
+]
 
 # ╔═╡ 349c946e-2f52-49f7-bd8a-46a8ff074dbd
-begin
-	posterior_samples = []
-	# for i in 1:length(data)
-	push!(posterior_samples, randsample(predictive[1] |ᶜ ((ω -> bin(ω, data[1].n, data[1].age, a, b, (@uid, 1))) ==ₚ data[1].k), 1000))
-	# end
-end
+posterior_samples = randsample.(predictive, 1000, alg = MH)
 
 # ╔═╡ afeffccd-1473-470a-bbeb-5208b9dc7e95
 ppstats = mean.(posterior_samples)
@@ -200,7 +203,7 @@ ppstats = mean.(posterior_samples)
 datastats = map(d -> d.k, data)
 
 # ╔═╡ c474e003-9e02-49ed-94f9-726b09cde964
-scatterplot(ppstats, datastats, marker = :xcross) # wrong - because `predictive` is the same function for all?
+scatterplot(ppstats, datastats, marker = :xcross)
 
 # ╔═╡ 06c7f3b6-2cc9-4f9f-990b-e6bd9b76f564
 md"""
@@ -229,7 +232,7 @@ end
 x_(ω) = (@~ Bernoulli())(ω) ? "simple" : "complex"
 
 # ╔═╡ d5130e27-356a-4d32-8a40-4f487eab7a9f
-p_(ω) = (x(ω) == "simple") ? 0.5 : (@~ StdUniform{Float64}())(ω)
+p_(ω) = (x_(ω) == "simple") ? 0.5 : (@~ StdUniform{Float64}())(ω)
 
 # ╔═╡ 24e1cd10-da09-4a5c-9e1f-55b34f1dcb2a
 posterior_ = x_ |ᶜ ((ω ->  (@~ Binomial(n_, p_(ω)))(ω))==ₚ k_)
@@ -246,9 +249,6 @@ This model is an example from the classical hypothesis testing framework. We con
 One might have a conceptual worry: Isn’t the second model just a more general case of the first model? That is, if the second model has a uniform distribution over $p$, then $p: 0.5$ is included in the second model. Fortunately, the posterior on models automatically penalizes the more complex model when it’s flexibility isn’t needed. (To verify this, set `k=10` in the example.) This idea is called the principle of parsimony or _Occam’s razor_, and will be discussed at length later. For now, it’s sufficient to know that more complex models will be penalized for being more complex, intuitively because they will be diluting their predictions. At the same time, more complex models are more flexible and can capture a wider variety of data (they are able to bet on more horses, which increases the chance that they will win some money). Bayesian model comparison lets us weigh these costs and benefits.
 """
 
-# ╔═╡ e131adf1-a1cd-458d-a937-a088393bc658
-# The above isn't done here, is it possible in Omega? if so, how?
-
 # ╔═╡ ad26adcb-7974-4871-8efe-004b996dfae1
 md"""
 ## Bayes’ factor
@@ -264,13 +264,13 @@ simple_model = @~ Binomial(n_, 0.5)
 complex_model(ω) = (@~ Binomial(n_, (@~ StdUniform{Float64}())(ω)))(ω)
 
 # ╔═╡ 29a88d50-02c8-481c-9099-5e83b70e3414
-simple_likelihood = log(mean(randsample(simple_model, 1000)))
+# simple_likelihood = logpdf(simple_model, k_)
 
 # ╔═╡ 05d090dd-9834-4794-bd06-43ae8837ef8b
-complex_likelihood = log(mean(randsample(complex_model, 1000)))
+# complex_likelihood = logpdf(complex_model, k_)
 
 # ╔═╡ 114f9812-b8c6-4f7b-aec3-ecb7aa1cf27e
-bayes_factor = simple_likelihood / complex_likelihood
+# bayes_factor = simple_likelihood / complex_likelihood
 
 # ╔═╡ 5ac859b4-74f9-4234-883e-2cb400b41160
 md"""
@@ -338,8 +338,12 @@ Of course when we, as scientists, try to test our cognitive models of people, we
 # ╠═dfa039a8-befb-4106-adb8-4f89bdb03519
 # ╠═8734a4d7-6349-47e4-a4bb-fca2685e0796
 # ╠═63c901a7-3efb-414a-85b0-71bbbb1de894
-# ╠═1fb52907-8e31-423f-bdb9-05b01b18c1d8
 # ╠═998a3439-2be5-4e2e-a7ad-ed11b8d17f62
+# ╠═fa5f280b-eb1b-483b-b7b9-05ef931b80a5
+# ╠═08cfd264-9969-4436-9af8-a1e5c342dc9e
+# ╠═d9e93d06-0fab-4c44-89ba-f7ea17ddc908
+# ╠═181a9dbf-550d-439e-a9f2-f67aae3fb992
+# ╟─383f3eee-9fef-47ce-91b6-b4adbdea819b
 # ╠═01748bea-e5d6-4a2c-8597-7e65f3064eff
 # ╠═349c946e-2f52-49f7-bd8a-46a8ff074dbd
 # ╠═afeffccd-1473-470a-bbeb-5208b9dc7e95
@@ -353,7 +357,6 @@ Of course when we, as scientists, try to test our cognitive models of people, we
 # ╠═24e1cd10-da09-4a5c-9e1f-55b34f1dcb2a
 # ╠═aae249b9-0ca1-4434-901b-d3961232ccc0
 # ╟─eb0aa5b7-4735-4c7e-af23-8df237b1e7b9
-# ╠═e131adf1-a1cd-458d-a937-a088393bc658
 # ╟─ad26adcb-7974-4871-8efe-004b996dfae1
 # ╠═c240f715-68b8-4f77-a805-4ba024c9bd7a
 # ╠═827c4019-205e-449c-b8db-34d6963748db
