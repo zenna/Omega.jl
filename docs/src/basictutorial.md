@@ -6,16 +6,17 @@ This tutorial is available in [notebook version](https://github.com/zenna/OmegaM
 First load Omega:
 
 ```julia
-using Omega
+using Omega, Distributions
 ```
+
 If you tossed a coin and observed the sequqnce `HHHHH`, you would be a little suspicious, `HHHHHHHH` would make you very suspicious.
 Elementary probability theory tells us that for a fair coin, `HHHHHHHH` is just a likely outcome as `HHTTHHTH`.  What gives?
- We will use Omega to model this behaviour, and see how that belief about a coin changes after observing a number of tosses.
+We will use Omega to model this behaviour, and see how that belief about a coin changes after observing a number of tosses.
 
 Model the coin as a bernoulli distribution.  The weight of a bernoulli determines the probability it comes up true (which represents heads). Use a [beta distribution](https://en.wikipedia.org/wiki/Beta_distribution) to represent our prior belief weight of the coin.
 
 ```julia
-weight = β(2.0, 2.0)
+weight = @~ Beta(2.0, 2.0)
 ```
 
 A beta distribution is appropriate here because it is bounded between 0 and 1. 

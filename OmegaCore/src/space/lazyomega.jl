@@ -38,11 +38,17 @@ Basis.idtype(::Dict{T, V}) where {T, V} = T
 Basis.idtype(ω::LazyΩ{TAGS, Dict{T, V}}) where {TAGS, T, V} = T
 ids(ω::LazyΩ) = keys(ω.data)
 
+## Subspace
 Basis.proj(ω::LazyΩ{TAGS, T, S}, ss) where {TAGS, T, S} = 
   LazyΩ{TAGS, T, S}(ω.data, ω.tags, append(ω.subspace, ss))
 
   # Basis.appendproj(ω::LazyΩ{TAGS, T, S}, ss::S) where {TAGS, T, S} = 
 #   LazyΩ{TAGS, T, S}(ω.data, ω.tags, append(ss, ω.subspace))
+
+Basis.updatesubspace(ω::LazyΩ{TAGS, T, S}, ss) where {TAGS, T, S} = 
+  LazyΩ{TAGS, T, S}(ω.data, ω.tags, ss)
+
+split(ω::LazyΩ) = ((sₗ, sᵣ) = split(subspace(ω)); (updatesubspace(ω, sₗ), updatesubspace(ω, sᵣ)))
 
 ## Tags
 replacetags(ω::LazyΩ, tags) = LazyΩ(ω.data, tags, ω.subspace)
@@ -57,10 +63,8 @@ Base.setindex!(ω::LazyΩ, value, id) =
 
 function Var.recurse(exo::Var.ExoRandVar, ω::LazyΩ)
   # Mix subspace with index
-  newid = append(ω.subspace, exo.id)
+  newid = append([3], exo.id)
   newexo = Var.Member(newid, exo.class)
-  # @assert false
-  # exo = exo
   result = get(ω.data, newexo, 0)
   if result === 0
     ω.data[newexo] = rand(rng(ω), newexo.class)
