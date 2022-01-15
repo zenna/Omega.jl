@@ -26,7 +26,7 @@ SimpleΩ(data) = SimpleΩ(data, Tags())
 replacetags(ω::SimpleΩ, tags) = SimpleΩ(ω.data, tags)
 # (T::Type{<:Distribution})(π::SimpleΩ, args...) = ω.data[scope(ω)]
 
-function Var.recurse(exo::Var.ExoRandVar, ω::SimpleΩ)
+function Var.recurse(exo::Var.PrimRandVar, ω::SimpleΩ)
   newid = append(ω.subspace, exo.id)
   newexo = Var.Member(newid, exo.class)
   ω.data[newexo]::eltype(newexo.class)

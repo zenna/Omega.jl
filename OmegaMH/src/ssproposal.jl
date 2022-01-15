@@ -1,5 +1,5 @@
 import OmegaCore.Proposal
-using OmegaCore: ExoRandVar, Member, like, propose, StdNormal, StdUniform, UniformInt
+using OmegaCore: PrimRandVar, Member, like, propose, StdNormal, StdUniform, UniformInt
 
 using OmegaCore.Util: update
 

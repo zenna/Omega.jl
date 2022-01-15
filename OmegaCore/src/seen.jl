@@ -7,7 +7,7 @@ export tagseen
 
 tagseen(ω, seen = Set()) = tag(ω, (seen = seen,))
 
-function Var.posthook(::trait(Seen), ret, f::ExoRandVar, ω)
+function Var.posthook(::trait(Seen), ret, f::PrimRandVar, ω)
   println("does this handle i.i.d right?")
   push!(ω.tags.seen, f)
 end
