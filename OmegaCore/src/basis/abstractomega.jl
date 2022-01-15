@@ -30,14 +30,6 @@ hastag(ω::AbstractΩ, tag) = hastag(ω.tags, tag)
 
 traits(ω::AbstractΩ) = traits(ω.tags) # FIXME: Do this at the type level
 
-# function tags end
-"split(ω) = (ωₗ, ωᵣ) splits ω into two ωs such that"
-function split end
-@post split(ω) = (ωₗ, ωᵣ = __ret__[1]; isindependent(ωₗ, ωᵣ))
-
-splitl(ω) = split(ω)[1]
-splitr(ω) = split(ω)[2]
-
 # FIXME MOve this somewhere (shouldnt really be in AbstractΩ)
 
 function replacetags end
