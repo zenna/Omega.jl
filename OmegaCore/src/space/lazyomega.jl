@@ -19,7 +19,7 @@ Base.getindex(ω::LazyΩ, id) = ω.data[id]
 # Move to specific omega types
 Base.merge!(ω::LazyΩ, ω_) = error("Unimplemented")
 Basis.like(ω::LazyΩ{Tags, T}, kv::Pair) where {Tags, T} = 
-  LazyΩ{Tags, T}(T(kv), ω.tags, ω.subspace)
+  LazyΩ{Tags, T}(T(kv), ω.tags)
 
 ## Constructors
 const EmptyTags = Tags{(),Tuple{}}
@@ -36,10 +36,10 @@ Basis.idtype(ω::LazyΩ{TAGS, Dict{T, V}}) where {TAGS, T, V} = T
 ids(ω::LazyΩ) = keys(ω.data)
 
 ## Tags
-replacetags(ω::LazyΩ, tags) = LazyΩ(ω.data, tags, ω.subspace)
+replacetags(ω::LazyΩ, tags) = LazyΩ(ω.data, tags)
 traits(::Type{LazyΩ{TAGS, T}}) where {TAGS, T} = traits(TAGS)
 
-Tagging.mergetag(ω::LazyΩ, tag) = LazyΩ(ω.data, merge(ω.tags, tag), ω.subspace)
+Tagging.mergetag(ω::LazyΩ, tag) = LazyΩ(ω.data, merge(ω.tags, tag))
 
 Tagging.tags(ω::LazyΩ) = ω.tags
 
@@ -49,10 +49,10 @@ Base.setindex!(ω::LazyΩ, value, id) =
 function Var.recurse(primrv::Var.PrimRandVar, ω::LazyΩ)
   result = get(ω.data, primrv, 0)
   if result === 0
-    ω.data[newexo] = rand(rng(ω), newexo.class)
+    ω.data[primrv] = rand(rng(ω), primrv.class)
   else
     result
-  end::eltype(newexo.class)
+  end::eltype(primrv.class)
 end
 
 ## Updating interface

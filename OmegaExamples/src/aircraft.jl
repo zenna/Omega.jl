@@ -10,14 +10,9 @@ begin
     # activate the shared project environment|
     Pkg.activate(Base.current_project())
     using Omega, Distributions, UnicodePlots
+	Pkg.add("FreqTables")
 	using FreqTables
 end
-
-# ╔═╡ f3425176-7770-11eb-2f05-73bfcf67cc5a
-using Revise
-
-# ╔═╡ 00a63758-7783-11eb-1b13-e7ad1ff457cd
-using PlutoUI
 
 # ╔═╡ 0042d812-7771-11eb-0aff-dd1d6767a96a
 md""" # Open World Model
@@ -27,9 +22,6 @@ BLOG was perhaps the first probabilistic language to support open-world models. 
 
 *An  unknown  number  of  aircraft  exist  in  some volume of airspace.  An aircraft’s state (position and veloc-ity) at each time step depends on its state at the previous timestep. We observe the area with radar: aircraft may appear as identical blips on a radar screen. Each blip gives the approximate position of the aircraft that generated it. However, some blips may be false detections, and some aircraft may not be detected. What aircraft exist, and what are their trajectories? Are there any aircraft that are not observed?*
 """
-
-# ╔═╡ 6903f06e-7789-11eb-2715-51b9c5b5f4af
-import Plots
 
 # ╔═╡ 05e99288-7787-11eb-2d06-f96f8b7f16e0
 md"## The generative model"
@@ -53,25 +45,11 @@ num_aircraft = @~ Poisson(5)
 xlb, xub, ylb, yub = 0, 1, 0, 1
 
 # ╔═╡ aac835ae-7771-11eb-2792-838c80957a3d
-function init_state(ω)
-  x = @~ Uniform(xlb, xub)
-  y = @~ Uniform(ylb, yub)
-  vx = @~ Normal(0, 1)
-  vy = @~ Normal(0, 1)
-  Aircraft((x(ω), y(ω)), (vx(ω), vy(ω)))
-end
-
-# ╔═╡ 9b7cf46a-7776-11eb-1b9c-bb7794afd9dd
-# FIXME: It's kinda cumbersome to create random vectors and arrays with distributions since for the most part when people use it they just do rand
-
-# ╔═╡ ce00d2c4-7776-11eb-1f25-f5eef5704c38
-# There's a choice, I could do as I've done here with init_state and makide IId copies of it, or I could make a plate with no parents and mix in the ids
-
-function init_state_plate(id, ω)
-  x = (id, 1) ~ Uniform(xlb, xub)
-  y = (id, 2) ~ Uniform(ylb, yub)
-  vx = (id, 3) ~ Normal(0, 1)
-  vy = (id, 4) ~ Normal(0, 1)
+function init_state(i, ω)
+  x = @~ i Uniform(xlb, xub)
+  y = @~ i Uniform(ylb, yub)
+  vx = @~ i Normal(0, 1)
+  vy = @~ i Normal(0, 1)
   Aircraft((x(ω), y(ω)), (vx(ω), vy(ω)))
 end
 
@@ -159,9 +137,6 @@ length(traj_sample[1])
 # ╔═╡ Cell order:
 # ╠═84739f36-65fb-4a36-a342-ae0985a759a7
 # ╟─0042d812-7771-11eb-0aff-dd1d6767a96a
-# ╠═f3425176-7770-11eb-2f05-73bfcf67cc5a
-# ╠═00a63758-7783-11eb-1b13-e7ad1ff457cd
-# ╠═6903f06e-7789-11eb-2715-51b9c5b5f4af
 # ╟─05e99288-7787-11eb-2d06-f96f8b7f16e0
 # ╟─3ee1698e-9b28-4693-80ca-2ebcb51e7d7f
 # ╠═2d7e1730-7771-11eb-1d47-c9e05121d38b
@@ -169,8 +144,6 @@ length(traj_sample[1])
 # ╠═66794654-7771-11eb-3044-ad6cf0b566f0
 # ╠═a4756686-7773-11eb-01bc-b1231fd5418a
 # ╠═aac835ae-7771-11eb-2792-838c80957a3d
-# ╠═9b7cf46a-7776-11eb-1b9c-bb7794afd9dd
-# ╠═ce00d2c4-7776-11eb-1f25-f5eef5704c38
 # ╠═eefa9a2c-778b-11eb-37d1-c39cc9cc53f7
 # ╠═1ff3e3a2-7775-11eb-2c0c-7d255b3404ef
 # ╠═2d60c906-b5cb-4e44-951c-e52f32568b73
