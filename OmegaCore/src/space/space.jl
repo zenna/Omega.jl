@@ -10,7 +10,6 @@ using Spec
 # include("abstractomega.jl")     # Abstract sample/Paramter Spaces
 # include("pdf.jl")               # Pdf
 # include("scope.jl")
-include("subspace.jl")
 include("simpleomega.jl")       # Sample Space / Distributions
 include("lazyomega.jl")         # Sample Space / Distributions
 # include("linearomega.jl")       # Sample Space / Distributions

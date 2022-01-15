@@ -1,7 +1,7 @@
 import ..Tagging: hastag, traithastag, tag, mergetag
 import ..Util: mergef, rmkey
 import ..Traits: traits
-export AbstractΩ, defΩ, defω, defsubspace, resolve, idtype, replacetags, like
+export AbstractΩ, defΩ, defω, resolve, idtype, replacetags, like
 import Random
 
 # # Sample Space
