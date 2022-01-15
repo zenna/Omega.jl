@@ -5,13 +5,10 @@ import ..Basis: replacetags
 import ..Var
 
 "Lazily constructs randp, values as they are needed"
-struct LazyΩ{TAGS <: Tags, T, S} <: AbstractΩ
+struct LazyΩ{TAGS <: Tags, T} <: AbstractΩ
   data::T
   tags::TAGS
-  subspace::S
 end
-
-Basis.subspace(ω::LazyΩ) = ω.subspace
 
 # AbstractDict interface 
 Base.keys(ω::LazyΩ) = Base.keys(ω.data)
@@ -21,12 +18,12 @@ Base.getindex(ω::LazyΩ, id) = ω.data[id]
 
 # Move to specific omega types
 Base.merge!(ω::LazyΩ, ω_) = error("Unimplemented")
-Basis.like(ω::LazyΩ{Tags, T, S}, kv::Pair) where {Tags, T, S} = 
-  LazyΩ{Tags, T, S}(T(kv), ω.tags, ω.subspace)
+Basis.like(ω::LazyΩ{Tags, T}, kv::Pair) where {Tags, T} = 
+  LazyΩ{Tags, T}(T(kv), ω.tags, ω.subspace)
 
 ## Constructors
 const EmptyTags = Tags{(),Tuple{}}
-LazyΩ{EmptyTags, T, S}() where {T, S} = LazyΩ(T(), Tags(), base(S))
+LazyΩ{EmptyTags, T}() where {T} = LazyΩ(T(), Tags())
 LazyΩ{EmptyTags, T}(data) where T = LazyΩ(T(data), Tags())
 
 "Construct `LazyΩ` from `rng` -- `ω.data` will be generated from `rng`"
@@ -38,21 +35,21 @@ Basis.idtype(::Dict{T, V}) where {T, V} = T
 Basis.idtype(ω::LazyΩ{TAGS, Dict{T, V}}) where {TAGS, T, V} = T
 ids(ω::LazyΩ) = keys(ω.data)
 
-## Subspace
-Basis.proj(ω::LazyΩ{TAGS, T, S}, ss) where {TAGS, T, S} = 
-  LazyΩ{TAGS, T, S}(ω.data, ω.tags, append(ω.subspace, ss))
+# ## Subspace
+# Basis.proj(ω::LazyΩ{TAGS, T}, ss) where {TAGS, T} = 
+#   LazyΩ{TAGS, T}(ω.data, ω.tags, append(ω.subspace, ss))
 
-  # Basis.appendproj(ω::LazyΩ{TAGS, T, S}, ss::S) where {TAGS, T, S} = 
-#   LazyΩ{TAGS, T, S}(ω.data, ω.tags, append(ss, ω.subspace))
+#   # Basis.appendproj(ω::LazyΩ{TAGS, T}, ss::S) where {TAGS, T} = 
+# #   LazyΩ{TAGS, T}(ω.data, ω.tags, append(ss, ω.subspace))
 
-Basis.updatesubspace(ω::LazyΩ{TAGS, T, S}, ss) where {TAGS, T, S} = 
-  LazyΩ{TAGS, T, S}(ω.data, ω.tags, ss)
+# Basis.updatesubspace(ω::LazyΩ{TAGS, T}, ss) where {TAGS, T} = 
+#   LazyΩ{TAGS, T}(ω.data, ω.tags, ss)
 
-split(ω::LazyΩ) = ((sₗ, sᵣ) = split(subspace(ω)); (updatesubspace(ω, sₗ), updatesubspace(ω, sᵣ)))
+# split(ω::LazyΩ) = ((sₗ, sᵣ) = split(subspace(ω)); (updatesubspace(ω, sₗ), updatesubspace(ω, sᵣ)))
 
 ## Tags
 replacetags(ω::LazyΩ, tags) = LazyΩ(ω.data, tags, ω.subspace)
-traits(::Type{LazyΩ{TAGS, T, S}}) where {TAGS, T, S} = traits(TAGS)
+traits(::Type{LazyΩ{TAGS, T}}) where {TAGS, T} = traits(TAGS)
 
 Tagging.mergetag(ω::LazyΩ, tag) = LazyΩ(ω.data, merge(ω.tags, tag), ω.subspace)
 
@@ -61,11 +58,8 @@ Tagging.tags(ω::LazyΩ) = ω.tags
 Base.setindex!(ω::LazyΩ, value, id) = 
   ω.data[id] = value
 
-function Var.recurse(exo::Var.ExoRandVar, ω::LazyΩ)
-  # Mix subspace with index
-  newid = append([3], exo.id)
-  newexo = Var.Member(newid, exo.class)
-  result = get(ω.data, newexo, 0)
+function Var.recurse(primrv::Var.PrimRandVar, ω::LazyΩ)
+  result = get(ω.data, primrv, 0)
   if result === 0
     ω.data[newexo] = rand(rng(ω), newexo.class)
   else
@@ -73,7 +67,7 @@ function Var.recurse(exo::Var.ExoRandVar, ω::LazyΩ)
   end::eltype(newexo.class)
 end
 
-# function (exo::Var.ExoRandVar)(ω::LazyΩ)
+# function (exo::Var.PrimRandVar)(ω::LazyΩ)
 #   # idwhat = 2
 #   # @show exo.id
 #   # @show ω.subspace

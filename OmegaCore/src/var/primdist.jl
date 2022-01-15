@@ -6,31 +6,30 @@ export invert,
        StdNormal,
        StdUniform,
        UniformInt,
-       PrimDist,
-       ExoRandVar
+       PrimClass,
+       PrimRandVar
 
-"Primitive Distribution"
-abstract type PrimDist end
+"Primitive random variable class"
+abstract type PrimClass end
 
-"An exogenous random variable"
-const ExoRandVar{F <: PrimDist, ID} = Member{F, ID}
+"An primitive random variable"
+const PrimRandVar{F <: PrimClass, ID} = Member{F, ID}
 
-struct StdNormal{T<:Real} <: PrimDist end
+(primclass::PrimClass)(id, ω) = Member(id, primclass)(ω)
+
+struct StdNormal{T} <: PrimClass end
 Base.eltype(::Type{StdNormal{T}}) where T = T
-(stdn::StdNormal{T})(id, ω) where T = Member(id, stdn)(ω)
 Base.rand(rng::AbstractRNG, ::StdNormal{T}) where {T} = randn(rng, T)
 
 "StdUniform Uniformly Distributed over [0,1]"
-struct StdUniform{T} <: PrimDist end
+struct StdUniform{T} <: PrimClass end
 Base.eltype(::Type{StdUniform{T}}) where T = T
 Base.rand(rng::AbstractRNG, ::StdUniform{T}) where T = rand(rng, T)
-(stdu::StdUniform{T})(id, ω) where T = Member(id, stdu)(ω)
 
 "Uniformly Distributed ove Integers"
-struct UniformInt{T<:Integer} <: PrimDist end
+struct UniformInt{T} <: PrimClass end
 Base.eltype(::Type{UniformInt{T}}) where T = T
 Base.rand(rng::AbstractRNG, ::UniformInt{T}) where T = rand(rng, T)
-(unifint::UniformInt{T})(id, ω) where T = Member(id, unifint)(ω)
 
 """`primdist(d::Distribution)``
 Primitive (parameterless) distribution that `d` is defined in terms of"""
