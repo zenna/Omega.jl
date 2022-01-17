@@ -9,16 +9,12 @@ begin
     import Pkg
     # activate the shared project environment
     Pkg.activate(Base.current_project())
-    using Omega, Distributions, UnicodePlots, FreqTables
-	viz(var::Vector{T} where T<:Union{String, Char}) = 	
-		barplot(Dict(freqtable(var)))
-	viz(var::Vector{<:Real}) = histogram(var, symbols = ["■"])
-	viz(var::Vector{Bool}) = viz(string.(var))
+    using Omega, Distributions, UnicodePlots, OmegaExamples
 end
 
 # ╔═╡ 79ff99ed-07cc-4de5-adf1-312e89bb4445
 md"""
-As we noted in an earlier chapter, there is an interesting parallel between `randsample`, which separates model specification from inference methods. For most of this book we are interested in the _computational_ level of describing what people know about the world and what inferences that knowledge licenses. That is, we treat the variables as the scientific hypothesis, and the options (including ‘alg’) argument as an engineering detail needed to derive predictions. We can make a great deal of progress with this abstraction.
+As we noted in an earlier chapter, there is an interesting parallel between `randsample`, which separates model specification from inference methods. For most of this book we are interested in the _computational_ level of describing what people know about the world and what inferences that knowledge licenses. That is, we treat the variables as the scientific hypothesis, and the optional (including `alg`) arguments as an engineering detail needed to derive predictions. We can make a great deal of progress with this abstraction.
 
 Is it reasonable to interpret the inference algorithms that we borrow from statistics as psychological hypotheses at the algorithmic level? Which _algorithm_ does the brain use for inference? Could it be MCMC? Enumeration?
 
@@ -26,7 +22,7 @@ If we take the algorithms for inference as psychological hypotheses, then the ap
 
 ### How is uncertainty represented?
 
-A signature of probabilistic (“Bayesian”) cognitive models is the central role of uncertainty. Generative models, our main notion of knowledge, capture uncertain causal processes. After making observations or assumptions, sampling from conditionals captures uncertain answers. At the computational level we work with this uncertainty by manipulating variables in Omega, without needing to explore (much) how they are created or represented. Yet cognitively there is a key algorithmic question: how is uncertainty represented in the human mind?
+A signature of probabilistic (“Bayesian”) cognitive models is the central role of uncertainty. Generative models, our main notion of knowledge, capture uncertain causal processes. After making observations or assumptions, conditional random variables capture uncertain answers. At the computational level we work with this uncertainty by manipulating variables in Omega, without needing to explore (much) how they are created or represented. Yet cognitively there is a key algorithmic question: how is uncertainty represented in the human mind?
 
 We have at least three very different possible answers to this question:
 
@@ -43,22 +39,22 @@ Yet it is difficult to see how these explicit representations can scale up to re
 Another possible representation of uncertainty is via the parameters of a family of distributions. For instance, the mean and covariance of a Gaussian is a flexible and popular (in statistics) way to approximate a complex distirbution. It is thus possible that all uncertainty is represented in the human mind as parameters of some family. A version of this idea can be seen in the free energy hypothesis. (See [The free-energy principle: a unified brain theory?](https://www.nature.com/articles/nrn2787), Friston (2010).)
 
 ### The sampling hypothesis
-Finally, it is possible that there is no explicit representation of uncertainty in the human mind. Instead uncertainty is implicitly represented in the tendencies of a dynamical system. This is the sampling hypothesis: that the human mind has the ability to generate samples from conditional distributions when needed. Thus the mind implicitly represents an entire distribution, but can only work explicitly with a few samples from it.
+Finally, it is possible that there is no explicit representation of uncertainty in the human mind. Instead, uncertainty is implicitly represented in the tendencies of a dynamical system. This is the sampling hypothesis: that the human mind has the ability to generate samples from conditional distributions when needed. Thus the mind implicitly represents an entire distribution, but can only work explicitly with a few samples from it.
 
-We have seen a number of methods for creating dynamical systems that can sample from any desired distribution (rejection sampling, various Markov chain Monte Carlo methods, etc). This type of representation is thus possible in principle. What behavioral or neural signatures would we expect if it were correct? And _which_ of the many sampling methods might be neurally plausible?
+We have seen a number of methods for creating dynamical systems that can sample from any desired distribution (rejection sampling, various Markov chain Monte Carlo methods, etc). This type of representation is thus possible in principle. What behavioural or neural signatures would we expect if it were correct? And _which_ of the many sampling methods might be neurally plausible?
 
-As a first analysis we can assume that the human mind is always capable of drawing perfect samples from the conditional distributions of interest (e.g. via rejection sampling) but doing so is costly in terms of time or energy. If we assume that only a few samples are going to be used by any individual in answering any question, a profound behavioral prediction arises: individuals’ choice probability will match the posterior probability distribution. Note that this is a somewhat radical departure from a “fully Bayesian” agent. If we assume a choice is to be made, with 100$ reward for the correct answer and no reward for incorrect answers, a rational (that is utility-maximizing) agent that explicitly represents the answer distribution should _always_ choose the most likely answer. Across a population of such agents we would see no variation in answers (assuming a priori identical beliefs). In contrast, an agent that has only a single sample from their answer distribution will choose this answer; across a population of such agents we would see answers distributed according to the answer distribution!
+As a first analysis, we can assume that the human mind is always capable of drawing perfect samples from the conditional distributions of interest (e.g. via rejection sampling) but doing so is costly in terms of time or energy. If we assume that only a few samples are going to be used by any individual in answering any question, a profound behavioural prediction arises: individuals’ choice probability will match the posterior probability distribution. Note that this is a somewhat radical departure from a “fully Bayesian” agent. If we assume a choice is to be made, with 100$ reward for the correct answer and no reward for incorrect answers, a rational (that is utility-maximizing) agent that explicitly represents the answer distribution should _always_ choose the most likely answer. Across a population of such agents we would see no variation in answers (assuming a priori identical beliefs). In contrast, an agent that has only a single sample from their answer distribution will choose this answer; across a population of such agents we would see answers distributed according to the answer distribution!
 
-Let’s see this in practice in a simple example, here each person sees a coin of unknown probability flipped five times, coming up heads four of them. Each person is asked to bet on the next outcome:
+Let’s see this in practice in a simple example, where each person sees a coin of unknown probability flipped five times, coming up heads four of them. Each person is asked to bet on the next outcome:
 """
 
 # ╔═╡ 24535e9c-ad99-4366-8514-71ac69ec25fe
-weight(i, ω) = (i ~ StdUniform{Float64}())(ω)
+weight = StdUniform{Float64}()
 
 # ╔═╡ b050357f-596c-40d5-9bb2-83b87a95b268
 function agent_belief(i, ω)
 	w = (i ~ weight)(ω)
-	a =  ((@uid, i...)~ Bernoulli(w)) |ᶜ ((ω -> (i ~ Binomial(4, w))(ω)) ==ₚ 4)
+	a =  ((@uid, i...)~ Bernoulli(w)) |ᶜ ((ω -> (i~ Binomial(5, w))(ω)) ==ₚ 4)
 	a(ω)
 end
 
