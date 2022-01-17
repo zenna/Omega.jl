@@ -9,18 +9,14 @@ begin
     import Pkg
     # activate the shared project environment
     Pkg.activate(Base.current_project())
-    using Omega, Distributions, UnicodePlots, FreqTables
-	viz(var::Vector{T} where T<:Union{String, Char}) = 	
-		barplot(Dict(freqtable(var)))
-	viz(var::Vector{<:Real}) = histogram(var, symbols = ["■"])
-	viz(var::Vector{Bool}) = viz(string.(var))
+    using Omega, Distributions, UnicodePlots, OmegaExamples
 end
 
 # ╔═╡ 990b5790-639f-11ec-1c82-8156cb2d73c6
 md"""
 The line between “reasoning” and “learning” is unclear in cognition. Just as reasoning can be seen as a form of conditional inference, so can learning: discovering persistent facts about the world (for example, causal processes or causal properties of objects). By saying that we are learning “persistent” facts we are indicating that there is something to infer which we expect to be relevant to many observations over time. Thus, we will formulate learning as inference in a model that (1) has a fixed latent value of interest, the hypothesis, and (2) has a sequence of observations, the data points.
 
-When thinking about learning as inference, there are several key questions. First, what can be inferred about the hypothesis given a certain subset of the observed data? For example, in most cases, you cannot learn much about the weight of an object based on its color. However, if there is a correlation between weight and color – as is the case in many children’s toys – observing color does allow you to learn about weight.
+When thinking about learning as inference, there are several key questions. First, what can be inferred about the hypothesis given a certain subset of the observed data? For example, in most cases, you cannot learn much about the weight of an object based on its colour. However, if there is a correlation between weight and colour – as is the case in many children’s toys – observing colour does allow you to learn about weight.
 
 Second, what is the relationship between the amount of input (how much data we’ve observed) and the knowledge gained? In psychology, this relationship is often characterized with a learning curve, representing a belief as a function of amount of data. In general, getting more data allows us to update our beliefs. But some data, in some models, has a much bigger effect. In addition, while knowledge often changes gradually as data is accumulated, it sometimes jumps in non-linear ways; these are usually the most psychologically interesting predictions.
 
@@ -39,7 +35,7 @@ Most people would find this a highly suspicious coincidence and begin to suspect
 
 Regardless of your prior beliefs, it is almost impossible to resist the inference that the coin is a trick coin.
 
-This _learning curve_ reflects a highly systematic and rational process of conditional inference. For simplicity let’s consider only two hypotheses, two possible definitions of coin, representing a fair coin and a trick coin that produces heads 95% of the time. A priori, how likely is any coin offered up by a friend to be a trick coin? Of course there is no objective or universal answer to that question, but for the sake of illustration let’s assume that the _prior probability_ of seeing a trick coin is 1 in a 1000, versus 999 in 1000 for a fair coin.
+This _learning curve_ reflects a highly systematic and rational process of conditional inference. For simplicity let’s consider only two hypotheses, two possible definitions of coin, representing a fair coin and a trick coin that produces heads $95\%$ of the time. A priori, how likely is any coin offered up by a friend to be a trick coin? Of course there is no objective or universal answer to that question, but for the sake of illustration let’s assume that the _prior probability_ of seeing a trick coin is 1 in a 1000, versus 999 in 1000 for a fair coin.
 """
 
 # ╔═╡ b51dd157-506b-42dd-8c3c-12f3eade747b
@@ -56,7 +52,7 @@ coin(i, ω, f) = ((@uid, i) ~ Bernoulli(f(ω) ? 0.5 : 0.95))(ω)
 
 # ╔═╡ 9818825b-a4a7-4824-a45b-1dd06e42f05d
 md"""
-Try varying the number of flips and the number of heads observed. You should be able to reproduce the intuitive learning curve described above. Observing $5$ heads in a row is not enough to suggest a trick coin, although it does raise the hint of this possibility: its chances are now a few percent, approximately $30$ times the baseline chance of $1$ in a $1000$. After observing 10 heads in a row, the odds of trick coin and fair coin are now roughly comparable, although fair coin is still a little more likely. After seeing 15 or more heads in a row without any tails, the odds are now strongly in favor of the trick coin.
+Try varying the number of flips and the number of heads observed. You should be able to reproduce the intuitive learning curve described above. Observing $5$ heads in a row is not enough to suggest a trick coin, although it does raise the hint of this possibility: its chances are now a few percent, approximately $30$ times the baseline chance of $1$ in a $1000$. After observing $10$ heads in a row, the odds of trick coin and fair coin are now roughly comparable, although fair coin is still a little more likely. After seeing 15 or more heads in a row without any tails, the odds are now strongly in favour of the trick coin.
 
 When exploring learning as a conditional inference, we are particularly interested in the dynamics of how inferred hypotheses change as a function of amount of data (often thought of as time the learner spends acquiring data). We can map out the trajectory of learning by plotting a summary of the posterior distribution as a function of the amount of observed data. Here we plot the expectation that the coin is fair in the above example:
 """
@@ -65,7 +61,8 @@ When exploring learning as a conditional inference, we are particularly interest
 true_weight = 0.9
 
 # ╔═╡ d1a89a1e-c85b-466e-b0a1-79da2e3372bd
-observed_data_sizes = [1, 3, 6, 10, 20, 50, 100]
+# observed_data_sizes = [1, 3, 6, 10, 20, 50, 100]
+observed_data_sizes = [1, 3, 6]
 
 # ╔═╡ c12f5d78-100c-4547-ab51-4d327be4cbdb
 md"""
@@ -117,9 +114,6 @@ viz(randsample(ω -> test_independence(gen_sequence, false, ω), 1000))
 md"""
 It is easy to build other i.i.d.s in Omega. For instance, here is an extremely simple model for the words in a sentence:
 """
-
-# ╔═╡ f452c5e3-7701-4156-aff3-41c6a9486139
-pget(x) = i -> x[i]
 
 # ╔═╡ a8d70517-3db6-4433-8f0d-663cb59d32ac
 words = ["chef", "omelet", "soup", "eat", "work", "bake", "stop"]
@@ -200,7 +194,7 @@ gen_sequence_indep_samples = randsample(ω -> mapf(ω, gen_sequence_indep), 1000
 # ╔═╡ 0cbc9f62-e8e6-4bfc-8d3b-ee2b1150cd45
 viz(map(x -> x[1], gen_sequence_indep_samples))
 
-# ╔═╡ 5f546a53-4755-4e7a-945f-8b0353863830
+# ╔═╡ 5529da6b-b514-4d82-8e7c-47dea9abb62c
 viz(map(x -> x[2], gen_sequence_indep_samples))
 
 # ╔═╡ 1953b97d-3ee6-4605-b52e-07a1bef76dd3
@@ -219,18 +213,6 @@ md"## Example: Polya's Urn"
 md"""
 A classic example is Polya’s urn: Imagine an urn that contains some number of white and black balls. On each step we draw a random ball from the urn, note its color, and return it to the urn along with _another_ ball of that color. Here is this model in Omega:
 """
-
-# ╔═╡ 8423c090-aa21-4740-b2e6-70cbd5efba7e
-begin
-	struct UniformDraw{T}
-		elem::T
-	end
-	(u::UniformDraw)(i, ω) = 
-		u.elem[(i ~ DiscreteUniform(1, length(u.elem)))(ω)]
-end
-
-# ╔═╡ 1217dbdb-d863-4dc2-8916-0c77f426fa00
-randsample(@~ UniformDraw(['a', 'b', 'c']))
 
 # ╔═╡ 9fce8665-ff2b-4e12-ab80-67178f9e0ad6
 function urn_seq(urn, num_samples, ω)
@@ -307,13 +289,13 @@ fair_posterior(obs) = fair(fair_prior) |ᶜ (obs_fn(obs) ==ₚ obs)
 viz(randsample(fair_posterior(observed_data), 1000))
 
 # ╔═╡ 5ed94f8f-a98e-4769-9018-ab8cdf8f75d0
-estimates(n) = 
-	fair_posterior(randsample((@~ Bernoulli(true_weight)), n))
+estimates(n, ω) = 
+	fair_posterior(manynth((Bernoulli(true_weight)), 1:n)(ω))(ω)
 
 # ╔═╡ d6b8e4c1-2c8e-497f-953e-462bb36e864d
 begin
 	p_estimates = 
-		map(n -> randsample(estimates(n), 10), observed_data_sizes)
+		map(n -> randsample(ω -> estimates(n, ω), 1000), observed_data_sizes)
 	p_estimates = mean.(p_estimates)
 end
 
@@ -349,6 +331,156 @@ md"""
 This model posits that when considering randomness people are more concerned with distinguishing a “truly random” generative process from a trick process. How do these inferences depend on the amount of data? Explore the learning trajectories of this model.
 """
 
+# ╔═╡ 6e78affd-3eb1-465e-87cd-853836c9fbec
+md"""
+## Learning a Continuous Parameter
+The previous examples represent perhaps simple cases of learning. Typical learning problems in human cognition or AI are more complex in many ways. For one, learners are almost always confronted with more than two hypotheses about the causal structure that might underlie their observations. Indeed, hypothesis spaces for learning are often infinite. Countably infinite hypothesis spaces are encountered in models of learning for domains traditionally considered to depend on “discrete” or “symbolic” knowledge; hypothesis spaces of grammars in language acquisition are a canonical example. Hypothesis spaces for learning in domains traditionally considered more “continuous”, such as perception or motor control, are typically uncountable and parametrized by one or more continuous dimensions. In causal learning, both discrete and continuous hypothesis spaces typically arise. (In statistics, making conditional inferences over continuous hypothesis spaces given data is often called _parameter estimation_.)
+
+We can explore a basic case of learning with continuous hypothesis spaces by slightly enriching our coin flipping example. Suppose instead of simply flipping a coin to determine which of two coin weights to use, we can choose any coin weight between $0$ and $1$. The following program computes conditional inferences about the weight of a coin drawn from a prior distribution described by the `Uniform` dsitribution, conditioned on a set of observed flips.
+"""
+
+# ╔═╡ b77a193e-1af9-4152-bd54-818628ebd8a7
+obs_data = [1, 1, 1, 1, 1]
+
+# ╔═╡ e01d2fc4-5ef9-4c3a-8c4a-e07157567864
+coin_weight = @~StdUniform{Float64}()
+
+# ╔═╡ 41803850-1725-4eee-8217-a3b3ea42a02f
+coin_ = Bernoulli(coin_weight)
+
+# ╔═╡ c4d1222e-8795-42b5-abf2-e53c48dda63d
+evidence(obs) = manynth(coin_, 1:length(obs)) ==ₚ obs
+
+# ╔═╡ cfe6baf2-f1a5-4d6f-9283-a82e4eb99311
+weight_posterior(obs_data) = coin_weight |ᶜ evidence(obs_data)
+
+# ╔═╡ f5b0452e-d60a-4503-9eb3-30d5c01bbb63
+viz(randsample(weight_posterior(obs_data), 1000))
+
+# ╔═╡ 7945b811-0cf7-459c-9793-032501c70381
+md"""
+Experiment with different data sets, varying both the number of flips and the relative proportion of heads and tails. How does the shape of the conditional distribution change? The location of its peak reflects a reasonable “best guess” about the underlying coin weight. It will be roughly equal to the proportion of heads observed, reflecting the fact that our prior knowledge is basically uninformative; a priori, any value of `coin_weight` is equally likely. The spread of the conditional distribution reflects a notion of confidence in our beliefs about the coin weight. The distribution becomes more sharply peaked as we observe more data, because each flip, as an independent sample of the process we are learning about, provides additional evidence of the process’s unknown parameters.
+
+We can again look at the learning trajectory in this example:
+"""
+
+# ╔═╡ 08156d04-1a4b-40fb-9760-c4bcc3c55854
+estimates_(n) = weight_posterior(ones(Int64, n))
+
+# ╔═╡ 3d632404-dd97-420c-917a-6a4715a66df5
+obs_data_sizes = [0,1,2,4,8,16,25,30,50,70,100]
+
+# ╔═╡ c5d2b42f-5a23-42e5-963f-17560264ca03
+e = map(n -> mean(randsample(estimates_(n), 1000)), obs_data_sizes)
+
+# ╔═╡ e635efbe-2b93-4e8a-ab68-011e2d5deee4
+scatterplot(obs_data_sizes, e, marker = :xcross)
+
+# ╔═╡ 84eec6f7-09d2-4d75-94c0-3ef62c3699f8
+md"""
+It is easy to see that this model doesn’t really capture our intuitions about coins, or at least not in everyday scenarios. Imagine that you have just received a quarter in change from a store – or even better, taken it from a nicely wrapped-up roll of quarters that you have just picked up from a bank. Your prior expectation at this point is that the coin is almost surely fair. If you flip it $10$ times and get $7$ heads out of $10$, you’ll think nothing of it; that could easily happen with a fair coin and there is no reason to suspect the weight of this particular coin is anything other than $0.5$. But running the above query with uniform prior beliefs on the coin weight, you’ll guess the weight, in this case, is around $0.7$. Our hypothesis generating function needs to be able to draw `coin_weight` not from a uniform distribution, but from some other function that can encode various expectations about how likely the coin is to be fair, skewed towards heads or tails, and so on.
+
+One option is the Beta distribution. The Beta distribution takes parameters `α` and `β`, which describe the prior toward `true` and `false`. (When `α` and `β` are integers they can be thought of as _prior_ observations.)
+"""
+
+# ╔═╡ bdd820b6-3e28-4d6f-92e6-e3988978fdf5
+pseudo_counts = (α = 10, β = 10)
+
+# ╔═╡ 1e5bf21c-a159-484d-a8eb-2fe9eb62832d
+coin_weight_ = @~ Beta(pseudo_counts...)
+
+# ╔═╡ e05060dc-bc8c-4ed3-9115-269a5d84732d
+coin_beta = Bernoulli(coin_weight_)
+
+# ╔═╡ bcc6e93e-fc96-4881-a72e-c214a1390964
+evidence_beta(obs) = manynth(coin_beta, 1:length(obs)) ==ₚ obs
+
+# ╔═╡ f71f5a45-89be-42c1-af9f-fcba45d793d0
+weight_posterior_beta(obs) = coin_weight_ |ᶜ evidence_beta(obs)
+
+# ╔═╡ 923e31a8-0c7d-42d1-bb08-ffaf148188bb
+estimates_beta(n) = weight_posterior_beta(ones(Int64, n))
+
+# ╔═╡ 0ab43263-3266-4a0c-ade4-4a633144d726
+e_ = map(n -> mean(randsample(estimates_beta(n), 100)), observed_data_sizes)
+
+# ╔═╡ 29e5a87a-45c3-4c7b-b841-4bf3d470eff9
+scatterplot(observed_data_sizes, e_, marker = :xcross)
+
+# ╔═╡ a504cf83-fab6-483f-a25d-c67eff261919
+md"""
+We are getting closer, in that learning is far more conservative. In fact, it is too conservative: after getting heads $100$ times in a row, most humans will conclude the coin can only come up heads. The model, in contrast, still expects the coin to come up tails around $10\%$ of the time.
+
+We can of course decrease our priors `α` and `β` to get faster learning, but then we will just go back to our earlier problem. We would like instead to encode in our prior the idea that fair coins (probability $0.5$) are much more likely than even moderately unfair coins.
+
+## A More Structured Hypothesis Space
+The following model explicitly builds in the prior belief that fair coins are likely, and that all unfair coins are equally likely as each other:
+"""
+
+# ╔═╡ 5a6230f1-ea4a-45ac-8866-67875568fa07
+is_fair_ = @~ Bernoulli(0.999)
+
+# ╔═╡ a15c7d8e-f9d9-4615-8f97-bae3a0baa8a0
+real_weight = ifelseₚ(is_fair_, 0.5, @~ StdUniform{Float64}())
+
+# ╔═╡ 5cb0299a-27a2-4f65-b5db-4cceb60bc684
+coin_human_like = Bernoulli(real_weight)
+
+# ╔═╡ 947f20c4-92a9-43a9-855c-fd1c1aa841b6
+evidence_human_like(obs) = manynth(coin_human_like, 1:length(obs)) ==ₚ obs
+
+# ╔═╡ 2b00720e-c9cf-4ae0-8344-febf9e93dd1d
+weight_posterior_human_like(obs) = real_weight |ᶜ evidence_human_like(obs)
+
+# ╔═╡ b35e02ab-6d69-4f37-8da2-7b7ed7ffcf90
+estimates_human_like(n) = weight_posterior_human_like(ones(Int64, n))
+
+# ╔═╡ ba627b32-2572-4b0b-bed9-6aebf86b4f50
+d_sizes = [0,1,2,4,6,8,10,12,15,20,25,30,40,50]
+
+# ╔═╡ e969d56c-3f54-441b-896a-21dd2736c45c
+exp = map(n -> mean(randsample(estimates_human_like(n), 100)), d_sizes)
+
+# ╔═╡ f476b8b5-589f-491b-b3fe-9657a1143d5a
+scatterplot(d_sizes, exp, marker = :xcross)
+
+# ╔═╡ 3116379d-b55f-4d4d-a2ba-1aeb01926169
+md"""
+This model stubbornly believes the coin is fair until around $10$ successive heads have been observed. After that, it rapidly concludes that the coin can only come up heads. The shape of this learning trajectory is much closer to what we would expect for humans. This model is a simple example of a _hierarchical prior_ which we explore in detail in a later chapter.
+
+## Example: Estimating Causal Power
+Modeling beliefs about coins makes for clear examples, but it’s obviously not a very important cognitive problem. However, many important cognitive problems have a remarkably similar structure.
+
+For instance, a common problem for cognition is _causal learning_: from observed evidence about the co-occurrence of events, attempt to infer the causal structure relating them. An especially simple case that has been studied by psychologists is _elemental causal induction_: causal learning when there are only two events, a potential cause C and a potential effect E. Cheng and colleagues have suggested assuming that C and background effects can both cause E, with a noisy-or interaction. Causal learning then becomes an example of parameter learning, where the parameter is the “causal power” of C to cause E:
+"""
+
+# ╔═╡ 1f7a6006-a3d8-4e26-ac68-51389234202e
+cp = @~ StdUniform{Float64}() # Causal power of C to cause E
+
+# ╔═╡ 9f9802b1-f04d-433a-8422-ab2aad484266
+b = @~ StdUniform{Float64}() # Background probability of E
+
+# ╔═╡ 229fe518-9818-410d-8051-b48242570cd6
+randsample(pw(.&, manynth(Bernoulli(cp), 1:2), [false, false]))
+
+# ╔═╡ c1a176b6-ab7d-47ac-ab33-4525f5f366a8
+function obs_function(data)
+	cp_ = manynth(Bernoulli(cp), 1:length(data.C))
+	b_ = manynth(Bernoulli(b), 1:length(data.C))
+	pw(.|, pw(.&, cp_, data.C), b_) ==ₚ data.E
+end
+
+# ╔═╡ ae93dd8d-f4ec-4465-b007-d3ad47804284
+data = (C = [true, true, false, true], E = [true, true, false, true])
+
+# ╔═╡ 45f8dfc1-16b2-428e-8ced-bc69e85fd549
+viz(randsample(cp |ᶜ obs_function(data), 1000))
+
+# ╔═╡ a499e130-77f1-47f9-9016-988917bf5b27
+md"""
+Experiment with this model: when does it conclude that a causal relation is likely (high `cp`)? Does this match your intuitions? What role does the background rate `b` play? What happens if you change the functional relationship in `obs_function`?
+"""
+
 # ╔═╡ Cell order:
 # ╠═427267ba-99f3-458b-8b92-beda4f3cf89c
 # ╟─990b5790-639f-11ec-1c82-8156cb2d73c6
@@ -376,7 +508,6 @@ This model posits that when considering randomness people are more concerned wit
 # ╠═4e8da528-ed4c-4a12-9152-184d28ccdc7f
 # ╠═09ec7536-e3a2-45de-9659-f52cd9d3cd67
 # ╟─f1f81ac8-8fd0-4a9d-8f4f-f4a33f1d9c58
-# ╠═f452c5e3-7701-4156-aff3-41c6a9486139
 # ╠═a8d70517-3db6-4433-8f0d-663cb59d32ac
 # ╠═a53e4406-a086-4557-a8af-037fc750fa09
 # ╠═1ed88f98-b9e0-42ef-bb53-2e74cf91c89d
@@ -400,14 +531,12 @@ This model posits that when considering randomness people are more concerned wit
 # ╠═75522b7b-73dd-4b04-8984-ec51dc488a02
 # ╠═08c099b2-9038-4e4b-862b-11ed536c09d0
 # ╠═0cbc9f62-e8e6-4bfc-8d3b-ee2b1150cd45
-# ╠═5f546a53-4755-4e7a-945f-8b0353863830
+# ╠═5529da6b-b514-4d82-8e7c-47dea9abb62c
 # ╟─1953b97d-3ee6-4605-b52e-07a1bef76dd3
 # ╠═da34c7d8-0693-4b7b-bbff-36453eb76fa8
 # ╠═1e2ce1c5-dda8-4dd7-b571-b7a0ca910c9c
 # ╟─a5d4ec57-b620-4394-89ba-08bf3fcb1b8c
 # ╟─69b7c347-517d-4eae-ad90-4562f03d8f37
-# ╠═8423c090-aa21-4740-b2e6-70cbd5efba7e
-# ╠═1217dbdb-d863-4dc2-8916-0c77f426fa00
 # ╠═9fce8665-ff2b-4e12-ab80-67178f9e0ad6
 # ╠═513d9d3b-128c-47cb-84c4-35eb1dd1c804
 # ╟─e91bc5c2-36d8-466f-8cbb-33acfcc8a32d
@@ -426,3 +555,42 @@ This model posits that when considering randomness people are more concerned wit
 # ╠═8c225f53-de6c-449b-b670-bbca22c81c5f
 # ╠═e6acd2e7-5113-433c-92bc-fe1eb9a06cc6
 # ╟─22acd3fe-9db2-442d-92c0-fd848377b3ff
+# ╟─6e78affd-3eb1-465e-87cd-853836c9fbec
+# ╠═b77a193e-1af9-4152-bd54-818628ebd8a7
+# ╠═e01d2fc4-5ef9-4c3a-8c4a-e07157567864
+# ╠═41803850-1725-4eee-8217-a3b3ea42a02f
+# ╠═c4d1222e-8795-42b5-abf2-e53c48dda63d
+# ╠═cfe6baf2-f1a5-4d6f-9283-a82e4eb99311
+# ╠═f5b0452e-d60a-4503-9eb3-30d5c01bbb63
+# ╟─7945b811-0cf7-459c-9793-032501c70381
+# ╠═08156d04-1a4b-40fb-9760-c4bcc3c55854
+# ╠═3d632404-dd97-420c-917a-6a4715a66df5
+# ╠═c5d2b42f-5a23-42e5-963f-17560264ca03
+# ╠═e635efbe-2b93-4e8a-ab68-011e2d5deee4
+# ╟─84eec6f7-09d2-4d75-94c0-3ef62c3699f8
+# ╠═bdd820b6-3e28-4d6f-92e6-e3988978fdf5
+# ╠═1e5bf21c-a159-484d-a8eb-2fe9eb62832d
+# ╠═e05060dc-bc8c-4ed3-9115-269a5d84732d
+# ╠═bcc6e93e-fc96-4881-a72e-c214a1390964
+# ╠═f71f5a45-89be-42c1-af9f-fcba45d793d0
+# ╠═923e31a8-0c7d-42d1-bb08-ffaf148188bb
+# ╠═0ab43263-3266-4a0c-ade4-4a633144d726
+# ╠═29e5a87a-45c3-4c7b-b841-4bf3d470eff9
+# ╟─a504cf83-fab6-483f-a25d-c67eff261919
+# ╠═5a6230f1-ea4a-45ac-8866-67875568fa07
+# ╠═a15c7d8e-f9d9-4615-8f97-bae3a0baa8a0
+# ╠═5cb0299a-27a2-4f65-b5db-4cceb60bc684
+# ╠═947f20c4-92a9-43a9-855c-fd1c1aa841b6
+# ╠═2b00720e-c9cf-4ae0-8344-febf9e93dd1d
+# ╠═b35e02ab-6d69-4f37-8da2-7b7ed7ffcf90
+# ╠═ba627b32-2572-4b0b-bed9-6aebf86b4f50
+# ╠═e969d56c-3f54-441b-896a-21dd2736c45c
+# ╠═f476b8b5-589f-491b-b3fe-9657a1143d5a
+# ╟─3116379d-b55f-4d4d-a2ba-1aeb01926169
+# ╠═1f7a6006-a3d8-4e26-ac68-51389234202e
+# ╠═9f9802b1-f04d-433a-8422-ab2aad484266
+# ╠═229fe518-9818-410d-8051-b48242570cd6
+# ╠═c1a176b6-ab7d-47ac-ab33-4525f5f366a8
+# ╠═ae93dd8d-f4ec-4465-b007-d3ad47804284
+# ╠═45f8dfc1-16b2-428e-8ced-bc69e85fd549
+# ╟─a499e130-77f1-47f9-9016-988917bf5b27
