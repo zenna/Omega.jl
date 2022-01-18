@@ -10,6 +10,7 @@ begin
     # activate the shared project environment|
     Pkg.activate(Base.current_project())
     using Omega, Distributions, UnicodePlots
+	using Plots
 	Pkg.add("FreqTables")
 	using FreqTables
 end
@@ -58,13 +59,9 @@ end
 
 # ╔═╡ 1ff3e3a2-7775-11eb-2c0c-7d255b3404ef
 aircraft(ω) = manynth(init_state, num_aircraft(ω))(ω)
-#|> (1:num_aircraft(ω) <|ⁿ init_state)
 
 # ╔═╡ 2d60c906-b5cb-4e44-951c-e52f32568b73
 randsample(aircraft)
-
-# ╔═╡ f752da61-6d82-4b75-93e9-50a4001b5aa6
-#aircraft = manynth(init_state, num_aircraft)
 
 # ╔═╡ af7af430-7774-11eb-3133-bfe35d03939d
 state_transition(s; dt = 0.1) = 
@@ -85,7 +82,7 @@ end
 T = 20
 
 # ╔═╡ ebed910c-7774-11eb-3bac-f7d7b7fbc2f1
-simall(ω) = simulate.(aircraft(ω), T)
+simall(ω) = simulate(aircraft(ω), T)
 
 # ╔═╡ 0b55508a-7783-11eb-2678-5f480c20c23f
 traj_sample = randsample(simall)
@@ -98,26 +95,23 @@ ytraj(ta) = [t.position[2] for t in ta]
 
 # ╔═╡ 32bfdb5e-7783-11eb-35d7-53e6e75cb44e
 begin
-	plt = Plots.plot(xtraj(traj_sample[1]), ytraj(traj_sample[1]))
+	plt = Plots.plot(xtraj(traj_sample), ytraj(traj_sample))
 	if length(traj_sample) > 1
 		for i = 2:length(traj_sample)
 			@show i
-			Plots.plot!(plt, xtraj(traj_sample[i]), ytraj(traj_sample[i]))
+			Plots.plot!(plt, xtraj(traj_sample), ytraj(traj_sample))
 		end
 	end
 	plt
 end
 
 # ╔═╡ a6b85cf0-778a-11eb-0d3b-395d8678a185
-md"""### Observation Nodel
+md"""### Observation Model
 Every $r$ seconds we'll send out a radar pulse and sometime later (at a time dependent on the distance from the source to the airraft) we'll recieve a pulse back.  There are a few caveats:
 
 - false positive: some other object causes a pulse
 - false negatives: sometimes a radar pulse willl scattar off an aircraft
 """
-
-# ╔═╡ 21083d18-778b-11eb-054a-0f924834c705
-
 
 # ╔═╡ cdc5380a-7789-11eb-237f-57098bc805d4
 function sim_radar(a_series)
@@ -147,7 +141,6 @@ length(traj_sample[1])
 # ╠═eefa9a2c-778b-11eb-37d1-c39cc9cc53f7
 # ╠═1ff3e3a2-7775-11eb-2c0c-7d255b3404ef
 # ╠═2d60c906-b5cb-4e44-951c-e52f32568b73
-# ╠═f752da61-6d82-4b75-93e9-50a4001b5aa6
 # ╠═af7af430-7774-11eb-3133-bfe35d03939d
 # ╠═6de7d402-7774-11eb-109d-5f8fb82851c7
 # ╠═b415b1c8-7784-11eb-1a8b-0b437ab2432d
@@ -157,7 +150,6 @@ length(traj_sample[1])
 # ╠═832d5de4-7788-11eb-3833-ad03ab2f9bf9
 # ╠═32bfdb5e-7783-11eb-35d7-53e6e75cb44e
 # ╟─a6b85cf0-778a-11eb-0d3b-395d8678a185
-# ╠═21083d18-778b-11eb-054a-0f924834c705
 # ╠═cdc5380a-7789-11eb-237f-57098bc805d4
 # ╟─ec3c6662-7786-11eb-35e3-87845ca04b0a
 # ╟─5ddb4910-778b-11eb-1954-93b4bf68e7df

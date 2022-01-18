@@ -1,5 +1,6 @@
 module LogEnergies
 
+using Spec
 using ..Traits, ..RNG, ..Var, ..Tagging, ..Space
 using ..Util: Box
 using ..Basis: AbstractΩ
@@ -27,6 +28,23 @@ function logenergyexo(ω)
     logpdf_ + logenergy(dist, val)
   end
 end
+
+
+
+"""
+`logenergy(rng::AbstractRNG, x, ω)`
+
+# Returns
+- joint log probability of
+"""
+function logenergy(x, ω::AbstractΩ)
+  ω_ = tagseen(taglogenergy(ω))
+  ret = x(ω_)
+  ω_.tags.logenergy.val
+  # ctxapply(x, ω)
+end
+
+# logenergy(::LogThenComplete, x, ω) = logenergy(complete(x, ω))
 
 ## Complex Case
 
@@ -56,5 +74,23 @@ function Var.posthook(::trait(LogEnergy, Seen), ret, f::PrimRandVar, ω)
 end
 
 const ℓ = logenergy
+
+## Complete
+function complete(x, ω)
+  ω_ = tagcomplete(ω)
+  ret = x(ω_)
+  ω_.tags.complete.val
+end
+@post complete(x, ω) = (ω_ = __ret__; isvalid(x, ω_) & (ω_ ⊆ ω))
+
+# function Var.posthook(::trait(Complete), ret, f::PrimRandVar, ω)
+#   if f ∉ ω.tags.seen
+#     # @show "SEEN"
+#     ω.tags.logenergy.val += logenergy(f, ret)
+#     push!(ω.tags.logenergy.seen, id)
+#   end
+#   nothing
+# end
+
 
 end

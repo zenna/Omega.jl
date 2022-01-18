@@ -10,6 +10,12 @@ macro ~(ex)
   esc(:(~(@uid, ($ex))))
 end
 
+macro ~(args...)
+  ids = args[1:end-1]
+  ex = args[end]
+  esc(:(~((@uid, $(ids...)), ($ex))))
+end
+
 "autotomatically generated id"
 macro uid()
   rand(Int)

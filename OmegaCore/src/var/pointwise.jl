@@ -68,6 +68,7 @@ traitlift(::Type{<:DataType}) = DontLift()
 traitlift(::Type{<:LiftBox}) = Lift()
 traitlift(::Type{<:PwVar}) = Lift()
 traitlift(::Type{<:DontLiftBox}) = DontLift()
+traitlift(::Type{<:Ref}) = DontLift()
 
 @inline liftapply(f::T, ω) where T = liftapply(traitlift(T), f, ω)
 @inline liftapply(::DontLift, f, ω) = f
