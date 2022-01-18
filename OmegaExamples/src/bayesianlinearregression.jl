@@ -1,32 +1,25 @@
 ### A Pluto.jl notebook ###
-# v0.14.8
+# v0.17.5
 
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 7be85a71-3636-4919-99fb-9b688f085fb8
-using Revise
-
-# ╔═╡ 9ef4a008-76ce-11eb-3550-0f72ff35976d
-using Omega
-
-# ╔═╡ ef39a4d2-76ce-11eb-16a2-a775469288f9
-using Random: MersenneTwister
-
-# ╔═╡ a44b4d1c-76cf-11eb-2cae-69ac6a56ca5a
-using Distributions
-
-# ╔═╡ 6209b05f-b48f-45b5-9ee0-5b3447e26e06
-using SoftPredicates
+# ╔═╡ 22a37ff4-3ae0-4338-86a2-3310b7773c1d
+begin
+    import Pkg
+    # activate the shared project environment|
+    Pkg.activate(Base.current_project())
+    using Omega
+	using Distributions
+	using UnicodePlots
+	using Random: MersenneTwister
+end
 
 # ╔═╡ 6b2fe98e-76cf-11eb-39f8-9ff52d23e688
 md"# Bayesian Linear Regression"
 
 # ╔═╡ a2fb35f7-8c48-4e70-aff8-d8ee431aa872
 md"Bayesian linear regression is a method to infer the parameters of linear model between two variables.  The \"Bayesian\" part of Bayesian linear regression means means that it treats the problem of finding these parameters as one of Bayesian inference."
-
-# ╔═╡ b5f202a0-76ce-11eb-23e8-c5036fc43538
-import UnicodePlots
 
 # ╔═╡ b583b52a-76ce-11eb-088b-dbeb7791729f
 md"""## Data
@@ -63,46 +56,52 @@ UnicodePlots.scatterplot(xs, ys)
 md"## Probabilistic Model"
 
 # ╔═╡ 79cd6e26-76cf-11eb-1930-399093becba8
-M = 1 ~ Normal(0, 1);
+M = @~ Normal(0, 1);
 
 # ╔═╡ a9765e1c-76cf-11eb-3495-79aa95e21afd
-C = 2 ~ Normal(0, 1);
+C = @~ Normal(0, 1);
+
+# ╔═╡ 1b63d633-5bdc-42c4-b1e2-0ebde3992feb
+
+
+# ╔═╡ e2d21c8d-8ea4-4e59-a250-4707eb2eb12e
+
 
 # ╔═╡ b2cc4db2-76cf-11eb-390d-f151ff4b939d
-Y_class(i, ω) = linear_model(xs[i], M(ω), C(ω)) + ((i, 1) ~ Normal(0, 0.1))(ω);
+Y_class(i, ω) = linear_model(xs[i], M(ω), C(ω)) + (@~ i Normal(0, 0.1))(ω);
+
+# ╔═╡ 5aabec38-e7f3-40b1-9f36-8b4465e73a3e
+M .* xs .+ C
+
+# ╔═╡ 83947d0e-f0d5-4bfb-a7b2-f0bea521801e
+MvNormal <: Distributions.UnivariateDistribution
+
+# ╔═╡ 099f42ed-0626-4f3c-9cbc-253e3ad25303
+Q = @~ MvNormal(rand(3), 0.1)
+
+# ╔═╡ 9c65f804-97ca-4ea0-8d2d-eeb8ac319ec7
+randsample(Q)
+
+# ╔═╡ 29cce320-84b8-404e-b499-0484a33ecb5c
+
+
+# ╔═╡ d452a59f-9e2d-42cb-9b59-bb8bf2b9a633
+Y_class_2 = M .* xs
 
 # ╔═╡ 800049e2-f44b-4839-a2ae-7fb0beeb5c0e
-Y⃗ = Mv(1:N, Y_class)  # FIXME: This is not correct notation
-
-# ╔═╡ cf9ad9cc-776c-11eb-3d4e-4f32b65eb6b2
-plate(i, ω, m_, c_) = linear_model(xs[i], m_, c_) + ((i, 1) ~ Normal(0, 0.1))(ω);
+Y⃗ = Mv(1:N, Y_class)
 
 # ╔═╡ fa8b5cc2-7728-11eb-24b3-5db1bd7d0255
 UnicodePlots.scatterplot(xs, randsample(Y⃗))
 
+# ╔═╡ b3c0e452-fff8-419e-945c-27e2d21c9fe3
+ evidence = Y⃗ ==ₚ ys
+
 # ╔═╡ c32b2f96-76d0-11eb-3f9c-e33cc3a1a7e7
 nsamples = 1000
 
-# ╔═╡ b3c0e452-fff8-419e-945c-27e2d21c9fe3
- Evidence = Y⃗ ==ₚ ys
-
-# ╔═╡ 3efb0dfe-079b-4fa2-8069-065d66b5f1b1
-Evidenceₛ = pw(==ₛ, Y⃗, ys)
-
-# ╔═╡ e8f55ded-038b-4b3a-a883-86139c40452c
-randsample(Evidenceₛ)
-
-# ╔═╡ f88f7939-c976-4ede-ae61-bc743cea984c
-Y⃗_posterior = Y⃗ |ᶜ Evidenceₛ
-
-# ╔═╡ 90e199ed-56b8-451d-81ec-885b6db97cc3
-ω = defω()
-
-# ╔═╡ a2c4cce9-cd16-4d79-b878-8ba36f1d3d00
-(Omega.OmegaCore.condvar(Y⃗_posterior, SoftPredicates.DualSoftBool{Float64}))(ω)
-
 # ╔═╡ aa781fbe-76d0-11eb-387a-3dc1cbf700f8
-samples = randsample(@joint(M, C) |ᶜ Evidenceₛ, nsamples; alg = MH) 
+samples = randsample(@joint(M, C) |ᶜ evidence, nsamples; alg = MH) 
 
 # ╔═╡ 433743d4-3014-4e41-bebd-3e5fd0d36bb8
 typeof(samples)
@@ -116,12 +115,7 @@ UnicodePlots.scatterplot(xs, samples)
 # ╔═╡ Cell order:
 # ╟─6b2fe98e-76cf-11eb-39f8-9ff52d23e688
 # ╟─a2fb35f7-8c48-4e70-aff8-d8ee431aa872
-# ╠═7be85a71-3636-4919-99fb-9b688f085fb8
-# ╠═9ef4a008-76ce-11eb-3550-0f72ff35976d
-# ╠═ef39a4d2-76ce-11eb-16a2-a775469288f9
-# ╠═b5f202a0-76ce-11eb-23e8-c5036fc43538
-# ╠═a44b4d1c-76cf-11eb-2cae-69ac6a56ca5a
-# ╠═6209b05f-b48f-45b5-9ee0-5b3447e26e06
+# ╠═22a37ff4-3ae0-4338-86a2-3310b7773c1d
 # ╟─b583b52a-76ce-11eb-088b-dbeb7791729f
 # ╠═ee2f8174-76ce-11eb-2c74-298d6072afee
 # ╠═d10a9c5a-76ce-11eb-0ece-bd1b6e946fe0
@@ -135,17 +129,19 @@ UnicodePlots.scatterplot(xs, samples)
 # ╟─61f89028-76cf-11eb-1813-9179e3467f47
 # ╠═79cd6e26-76cf-11eb-1930-399093becba8
 # ╠═a9765e1c-76cf-11eb-3495-79aa95e21afd
+# ╠═1b63d633-5bdc-42c4-b1e2-0ebde3992feb
+# ╠═e2d21c8d-8ea4-4e59-a250-4707eb2eb12e
 # ╠═b2cc4db2-76cf-11eb-390d-f151ff4b939d
+# ╠═5aabec38-e7f3-40b1-9f36-8b4465e73a3e
+# ╠═83947d0e-f0d5-4bfb-a7b2-f0bea521801e
+# ╠═099f42ed-0626-4f3c-9cbc-253e3ad25303
+# ╠═9c65f804-97ca-4ea0-8d2d-eeb8ac319ec7
+# ╠═29cce320-84b8-404e-b499-0484a33ecb5c
+# ╠═d452a59f-9e2d-42cb-9b59-bb8bf2b9a633
 # ╠═800049e2-f44b-4839-a2ae-7fb0beeb5c0e
-# ╠═cf9ad9cc-776c-11eb-3d4e-4f32b65eb6b2
 # ╠═fa8b5cc2-7728-11eb-24b3-5db1bd7d0255
-# ╠═c32b2f96-76d0-11eb-3f9c-e33cc3a1a7e7
 # ╠═b3c0e452-fff8-419e-945c-27e2d21c9fe3
-# ╠═3efb0dfe-079b-4fa2-8069-065d66b5f1b1
-# ╠═e8f55ded-038b-4b3a-a883-86139c40452c
-# ╠═f88f7939-c976-4ede-ae61-bc743cea984c
-# ╠═90e199ed-56b8-451d-81ec-885b6db97cc3
-# ╠═a2c4cce9-cd16-4d79-b878-8ba36f1d3d00
+# ╠═c32b2f96-76d0-11eb-3f9c-e33cc3a1a7e7
 # ╠═aa781fbe-76d0-11eb-387a-3dc1cbf700f8
 # ╠═433743d4-3014-4e41-bebd-3e5fd0d36bb8
 # ╠═f7efb0d0-76d1-11eb-3440-47df94aeb74e

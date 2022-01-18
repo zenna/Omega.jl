@@ -1,6 +1,6 @@
 module OmegaDistributions
 
-using Distributions: Normal, Bernoulli, Distribution, Uniform, quantile
+using Distributions: Normal, Bernoulli, UnivariateDistribution, Distribution, Uniform, quantile
 import Distributions, OmegaCore
 using OmegaCore.Var: liftapply, Member, StdUniform, StdNormal
 
@@ -13,14 +13,14 @@ using OmegaCore.Var: liftapply, Member, StdUniform, StdNormal
 @inline (d::Bernoulli)(id, ω) = 
   Member(id, StdUniform{Float64}())(ω) < d.p
 
-@inline (d::Distribution)(id, ω) =
+@inline (d::UnivariateDistribution)(id, ω) =
   quantile(d, Member(id, StdUniform{Float64}())(ω))
 
-primdist(d::Distribution) = StdUniform()
+primdist(d::UnivariateDistribution) = StdUniform()
 primdist(d::Normal) = StdNormal()
 
 invert(o::Normal, val) = (val / o.σ) - o.μ
-invert(d::Distribution, val) = cdf(d, val)
+invert(d::UnivariateDistribution, val) = cdf(d, val)
 
 # FIXME / justify this
 # Distributions.Normal(μ, σ) = pw(Normal, μ, σ)
