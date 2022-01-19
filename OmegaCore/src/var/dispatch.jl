@@ -21,10 +21,15 @@ export prepostapply, Vari, prehook, posthook
 @inline function prepostapply(traits::Trait, f, ω::AbstractΩ)
   # FIXME: CAUSATION CAN prehook/recurse change traits?
   prehook(traits, f, ω)
-  ret = recurse(f, ω) # invoke(f, Tupe{AbstractΩ}, ω)
+  ret = recurse(traits, f, ω) # invoke(f, Tupe{AbstractΩ}, ω)
+  # maybe i should do recurse(traits, f, ω)
+  # And default recurse(traits, f, ω) = recurse(f, ω)
   posthook(traits, ret, f, ω)
   ret
 end
+
+# Default
+@inline recurse(traits, f, ω) = recurse(f, ω)
 
 # by default, pre and posthooks do nothing
 @inline prehook(traits, f, ω) = nothing
