@@ -2,7 +2,7 @@ module Syntax
 
 using ..OmegaCore.Util: mapf
 using ..OmegaCore.Var: pw, liftapply
-import ..OmegaCore: Vari
+import ..OmegaCore: AbstractVariable
 export @joint, @~, @uid, ..
 
 "Reduces to `@uid ~ expr`"
@@ -60,9 +60,9 @@ export ==ₚ, >=ₚ, <=ₚ, >ₚ, <ₚ, !ₚ, &ₚ, |ₚ, ifelseₚ, +ₚ, -ₚ,
 
 ## Broadcasting
 struct PointwiseStyle <: Broadcast.BroadcastStyle end
-Base.BroadcastStyle(::Type{<:Vari}) = PointwiseStyle()
+Base.BroadcastStyle(::Type{<:AbstractVariable}) = PointwiseStyle()
 
-Base.broadcastable(x::Vari) = x
+Base.broadcastable(x::AbstractVariable) = x
 Base.broadcasted(::PointwiseStyle, f, args...)  = pw(f, args...)
 Base.BroadcastStyle(::PointwiseStyle, ::Base.Broadcast.DefaultArrayStyle{0}) = PointwiseStyle()
 

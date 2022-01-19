@@ -1,6 +1,7 @@
 module Condition
 
 using ..Space, ..Tagging, ..Traits
+using ..Var: AbstractVariable
 export |ᶜ, cnd, conditions, cond!, condf, Conditional, ConditionException, tagignorecondition
 export ==ₚ
 
@@ -8,7 +9,7 @@ export ==ₚ
 # Conditioning a variable restricts the output to be consistent with some proposition.
 
 "`x` given `y` is true"
-struct Conditional{X, Y}
+struct Conditional{X, Y} <: AbstractVariable
   x::X
   y::Y
 end
@@ -31,9 +32,6 @@ struct ConditionException <: Exception end
 
 "Conditions on `xy`"
 conditions(xy::Conditional) = xy.y
-
-# Implement x(\omega) when x is conditioned
-# Imolement logpdf when `x` is conditioned
 
 """
 `cond!(ω::Ω, bool)`

@@ -29,7 +29,7 @@ sample(pw(l(f), 3))
 ```
 """
 
-struct PwVar{ARGS, D}
+struct PwVar{ARGS, D} <: AbstractVariable
   f::D
   args::ARGS
   PwVar(f::F, args::A) where {F, A} = new{A, F}(f, args)
