@@ -74,29 +74,30 @@ randsample(@~ KNormal(1, 2))
 Y_class(i, ω) = linear_model(xs[i], M(ω), C(ω)) + (ϵ ∘ i ~ Normal(0, 0.1))(ω);
 
 # ╔═╡ 2c33a07c-a0fd-4ea7-964e-92b7ef5d2e14
-
+special(::ϵ, ω, ::StdNormal{Float64}) = 
 
 # ╔═╡ 98f01b54-969a-49a8-b602-404903dce8f8
 # I know what value of y class is, let me give you some values for others, i.e. ω
 propose(Y_class, y_class_, ω) = 3
 
 # ╔═╡ 8df7dd80-2615-495c-ae22-aed0dcbf9d6c
-
+knowwhat(::StdNormal, i, ω) = Normal(i, ω)
 
 # ╔═╡ f2f827a1-e150-44ee-ac9a-eb7069259b9f
-
+knowwhat(x, ω) = x(ω)
 
 # ╔═╡ 42660a2b-fa97-4916-bbca-ffcdb6137436
-
-
-# ╔═╡ 28ab4de5-108d-49a9-8757-a600bfdb3c3e
-
-
-# ╔═╡ 1504d6b7-673b-4a43-a297-1ec59d26a0b7
-
+# Specify value of Normal
+knowhat(::Normal, i, ω) = Y_class(i, ω) - M(ω) - C(ω)
 
 # ╔═╡ 800049e2-f44b-4839-a2ae-7fb0beeb5c0e
 Y⃗ = Mv(1:N, Y_class)
+
+# ╔═╡ 28ab4de5-108d-49a9-8757-a600bfdb3c3e
+knowwhat(::Y_class, i, ω) = Y⃗(ω)[i-something]
+
+# ╔═╡ 1504d6b7-673b-4a43-a297-1ec59d26a0b7
+knowwhat(::typeof(Y⃗), ω) = ys
 
 # ╔═╡ fa8b5cc2-7728-11eb-24b3-5db1bd7d0255
 UnicodePlots.scatterplot(xs, randsample(Y⃗))
@@ -105,22 +106,26 @@ UnicodePlots.scatterplot(xs, randsample(Y⃗))
 (ω = defω(); Y⃗(ω); ω)
 
 # ╔═╡ b3c0e452-fff8-419e-945c-27e2d21c9fe3
- evidence = Y⃗ ==ₚ ys
+evidence = Y⃗ ==ₚ ys
 
 # ╔═╡ c32b2f96-76d0-11eb-3f9c-e33cc3a1a7e7
-nsamples = 3
+nsamples = 1000
 
 # ╔═╡ 3d5b3ac2-bf70-4710-9c97-1cbef7be4c11
 joint_posterior = @joint(M, C) |ᶜ evidence
 
 # ╔═╡ 12620408-947f-4c86-8e93-24e6c4942b27
-
+function special(j::typeof(joint_posterior), ω)
+	special(j.condition, ω, true)
+end
 
 # ╔═╡ a1b97764-218e-4b80-9de6-ccb9a667f19c
-
+function special(::typeof(evidence), ω, output)
+	special(Y⃗, ω, ys)
+end
 
 # ╔═╡ 0c66112f-8559-47ca-8fba-6414752904ef
-
+function special(::typeof(Y⃗, ω), output) = special(Mv, )
 
 # ╔═╡ aa781fbe-76d0-11eb-387a-3dc1cbf700f8
 samples = randsample(joint_posterior |ᶜ evidence, nsamples; alg = MH) 
