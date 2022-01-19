@@ -56,8 +56,8 @@ include("trackerror.jl")
 include("proposal/proposal.jl")            # Log density
 @reexport using .Proposal
 
-# include("solution.jl")               # Satisfy
-# @reexport using .Solution
+include("solve.jl")               # Satisfy
+@reexport using .Solver
 
 include("seen.jl")
 @reexport using .SeenVars

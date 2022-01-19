@@ -11,7 +11,8 @@ export Err,
        Propose,
        RandMutate,
        IgnoreCondition,
-       Seen
+       Seen,
+       Solve
 
 # # Primitive Traits
 struct Err end
@@ -25,6 +26,8 @@ struct Propose end
 struct RandMutate end
 struct IgnoreCondition end
 struct Seen end
+struct Solve end
+
 
 function symtotrait(x::Symbol)
   if x == :err
@@ -49,6 +52,8 @@ function symtotrait(x::Symbol)
     RandMutate
   elseif x == :seen
     Seen
+  elseif x == :solve
+    Solve
   else
     error("Unknown trait: $x")
   end

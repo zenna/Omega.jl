@@ -90,6 +90,9 @@ knowwhat(x, ω) = x(ω)
 # Specify value of Normal
 knowhat(::Normal, i, ω) = Y_class(i, ω) - M(ω) - C(ω)
 
+# ╔═╡ 03c2a53f-db04-4c8a-90f6-2c212b748ecb
+
+
 # ╔═╡ 800049e2-f44b-4839-a2ae-7fb0beeb5c0e
 Y⃗ = Mv(1:N, Y_class)
 
@@ -98,6 +101,9 @@ knowwhat(::Y_class, i, ω) = Y⃗(ω)[i-something]
 
 # ╔═╡ 1504d6b7-673b-4a43-a297-1ec59d26a0b7
 knowwhat(::typeof(Y⃗), ω) = ys
+
+# ╔═╡ 24f570b7-8090-4e50-a018-5478df52a2e1
+
 
 # ╔═╡ fa8b5cc2-7728-11eb-24b3-5db1bd7d0255
 UnicodePlots.scatterplot(xs, randsample(Y⃗))
@@ -165,9 +171,11 @@ UnicodePlots.scatterplot(xs, samples)
 # ╠═8df7dd80-2615-495c-ae22-aed0dcbf9d6c
 # ╠═f2f827a1-e150-44ee-ac9a-eb7069259b9f
 # ╠═42660a2b-fa97-4916-bbca-ffcdb6137436
+# ╠═03c2a53f-db04-4c8a-90f6-2c212b748ecb
 # ╠═28ab4de5-108d-49a9-8757-a600bfdb3c3e
 # ╠═1504d6b7-673b-4a43-a297-1ec59d26a0b7
 # ╠═800049e2-f44b-4839-a2ae-7fb0beeb5c0e
+# ╠═24f570b7-8090-4e50-a018-5478df52a2e1
 # ╠═fa8b5cc2-7728-11eb-24b3-5db1bd7d0255
 # ╠═cf09331c-c5cd-49f0-8ad5-eced9cb56d37
 # ╠═b3c0e452-fff8-419e-945c-27e2d21c9fe3
