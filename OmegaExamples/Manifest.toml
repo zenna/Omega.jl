@@ -562,6 +562,7 @@ version = "0.9.8"
 [[ImageMorphology]]
 deps = ["ImageCore", "LinearAlgebra", "Requires", "TiledIteration"]
 <<<<<<< HEAD
+<<<<<<< HEAD
 git-tree-sha1 = "7668b123ecfd39a6ae3fc31c532b588999bdc166"
 uuid = "787d08f9-d448-5407-9aad-5290dd7ab264"
 version = "0.3.1"
@@ -570,6 +571,22 @@ git-tree-sha1 = "5581e18a74a5838bd919294a7138c2663d065238"
 uuid = "787d08f9-d448-5407-9aad-5290dd7ab264"
 version = "0.3.0"
 >>>>>>> 4f16c6d (ch 11)
+=======
+git-tree-sha1 = "5581e18a74a5838bd919294a7138c2663d065238"
+uuid = "787d08f9-d448-5407-9aad-5290dd7ab264"
+version = "0.3.0"
+=======
+<<<<<<< HEAD
+git-tree-sha1 = "7668b123ecfd39a6ae3fc31c532b588999bdc166"
+uuid = "787d08f9-d448-5407-9aad-5290dd7ab264"
+version = "0.3.1"
+=======
+git-tree-sha1 = "5581e18a74a5838bd919294a7138c2663d065238"
+uuid = "787d08f9-d448-5407-9aad-5290dd7ab264"
+version = "0.3.0"
+>>>>>>> 4f16c6d (ch 11)
+>>>>>>> 12786ce (ch 11)
+>>>>>>> efad674 (ch 11)
 
 [[ImageQualityIndexes]]
 deps = ["ImageContrastAdjustment", "ImageCore", "ImageDistances", "ImageFiltering", "OffsetArrays", "Statistics"]
@@ -591,9 +608,15 @@ version = "0.3.3"
 
 [[ImageTransformations]]
 deps = ["AxisAlgorithms", "ColorVectorSpace", "CoordinateTransformations", "ImageBase", "ImageCore", "Interpolations", "OffsetArrays", "Rotations", "StaticArrays"]
+<<<<<<< HEAD
 git-tree-sha1 = "42fe8de1fe1f80dab37a39d391b6301f7aeaa7b8"
 uuid = "02fcd773-0e25-5acc-982a-7f6622650795"
 version = "0.9.4"
+=======
+git-tree-sha1 = "b4b161abc8252d68b13c5cc4a5f2ba711b61fec5"
+uuid = "02fcd773-0e25-5acc-982a-7f6622650795"
+version = "0.9.3"
+>>>>>>> 4f16c6d (ch 11)
 
 [[Images]]
 deps = ["Base64", "FileIO", "Graphics", "ImageAxes", "ImageBase", "ImageContrastAdjustment", "ImageCore", "ImageDistances", "ImageFiltering", "ImageIO", "ImageMagick", "ImageMetadata", "ImageMorphology", "ImageQualityIndexes", "ImageSegmentation", "ImageShow", "ImageTransformations", "IndirectArrays", "IntegralArrays", "Random", "Reexport", "SparseArrays", "StaticArrays", "Statistics", "StatsBase", "TiledIteration"]
@@ -691,9 +714,15 @@ version = "1.0.0"
 
 [[JLD2]]
 deps = ["DataStructures", "FileIO", "MacroTools", "Mmap", "Pkg", "Printf", "Reexport", "TranscodingStreams", "UUIDs"]
+<<<<<<< HEAD
 git-tree-sha1 = "39f22411266cdd1621092c762a3f0648dbdc8433"
 uuid = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 version = "0.4.18"
+=======
+git-tree-sha1 = "09ef0c32a26f80b465d808a1ba1e85775a282c97"
+uuid = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
+version = "0.4.17"
+>>>>>>> 4f16c6d (ch 11)
 
 [[JLLWrappers]]
 deps = ["Preferences"]
@@ -1263,9 +1292,15 @@ version = "0.3.0+0"
 
 [[Rotations]]
 deps = ["LinearAlgebra", "Quaternions", "Random", "StaticArrays", "Statistics"]
+<<<<<<< HEAD
 git-tree-sha1 = "405148000e80f70b31e7732ea93288aecb1793fa"
 uuid = "6038ab10-8711-5258-84ad-4b1120ba62dc"
 version = "1.2.0"
+=======
+git-tree-sha1 = "2fa87d198bc5356c649b92109ed3ce46ee1eb89d"
+uuid = "6038ab10-8711-5258-84ad-4b1120ba62dc"
+version = "1.1.1"
+>>>>>>> 4f16c6d (ch 11)
 
 [[SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
