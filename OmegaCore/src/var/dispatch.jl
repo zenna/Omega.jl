@@ -10,9 +10,9 @@ export prepostapply, Vari, prehook, posthook
 # FIXME: Add Conditional to Vari
 
 "Interceptable Variable"
-const Vari = Union{Variable, Mv, Member, PwVar}
+# const Vari = Union{Variable, Mv, Member, PwVar}
 
-@inline (f::Vari)(ω::Ω) where {Ω <: AbstractΩ} = dispatch(traits(Ω), f, ω)
+@inline (f::AbstractVariable)(ω::Ω) where {Ω <: AbstractΩ} = dispatch(traits(Ω), f, ω)
 @inline dispatch(traits::Trait, f, ω) = prepostapply(traits, f, ω)
 
 # (f::Vari)(ω::Ω) where {Ω <: AbstractΩ} = f(traits(Ω), ω)

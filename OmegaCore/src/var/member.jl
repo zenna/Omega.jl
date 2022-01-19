@@ -3,7 +3,7 @@ using ..Tagging, ..IDS, ..Traits
 export Member, nth
 
 "The `id`th member of the family `f`"
-struct Member{F, ID}
+struct Member{F, ID} <: AbstractVariable
   id::ID
   class::F
 end
