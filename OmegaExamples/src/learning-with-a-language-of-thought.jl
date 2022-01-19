@@ -9,21 +9,8 @@ begin
     import Pkg
     # activate the shared project environment
     Pkg.activate(Base.current_project())
-    using Omega, Distributions, UnicodePlots, FreqTables
-end
-
-# ╔═╡ f7c37755-c928-4c52-8091-27bce4bf6dd6
-begin
-	# Utility functions
-	viz(var::Vector{T} where T<:Union{String, Char}) = 	
-		barplot(Dict(freqtable(var)))
-	viz(var::Vector{<:Real}) = histogram(var, symbols = ["■"])
-	viz(var::Vector{Bool}) = viz(string.(var))
-	struct UniformDraw{T}
-		elem::T
-	end
-	(u::UniformDraw)(i, ω) = 
-		u.elem[(i ~ DiscreteUniform(1, length(u.elem)))(ω)]
+    using Omega, Distributions, UnicodePlots, OmegaExamples
+	using Images, Plots
 end
 
 # ╔═╡ 7c6b8acd-40e2-4eb8-aefc-34fe23f6d46b
@@ -66,110 +53,83 @@ viz(randsample(random_arithmetic_expression, 100))
 
 # ╔═╡ 11c2c5b9-aee6-4a70-904b-798970398bed
 md"""
-If we now interpret our strings as hypotheses, we have compactly defined an infinite hypothesis space and its prior.
+If we now interpret our strings as _hypotheses_, we have compactly defined an infinite hypothesis space and its prior.
 """
 
 # ╔═╡ 3c8efb48-d333-4461-ad82-e680ca86163e
 md"""
 ## Inferring an Arithmetic Function
-Consider the following program, which induces an arithmetic function from examples. The basic generative process is similar to the above, but we include the identity function (‘x’), making the resulting expression a function of ‘x’. At every step we create a runnable function form and also the previous nice string form.
+Consider the following program, which induces an arithmetic function from examples. The basic form is the same as the above example but to evaluate the expression we use `eval(Meta.parse(x))` where `x` is the expression in string form.
 """
-
-# ╔═╡ bad6c734-031d-46a4-b66e-fa6fb2abcf9e
-plus = (fn = (a, b) -> a + b, expr = '+')
-
-# ╔═╡ 7f17a2de-34fd-45d9-b7f4-3022d9cab2ab
-multipy = (fn = (a, b) -> a * b, expr = '*')
-
-# ╔═╡ 27d05d40-c7d6-4074-ae1c-92745d85eeea
-divide = (fn = (a, b) -> round(Int64, a/b), expr = '/')
-
-# ╔═╡ 7b161fee-3460-4c55-8bbb-6201b51f67f0
-minus = (fn = (a, b) -> a - b, expr = '-')
-
-# ╔═╡ f83e81d1-105f-45b4-8418-b4070918b706
-power = (fn = (a, b) -> a ^ b, expr = '^')
-
-# ╔═╡ 1e34bc7b-571b-4e9b-878b-16c8090f96f1
-binary_ops = [plus, multipy, divide, minus, power]
-
-# ╔═╡ 9ab44db1-eab7-4f48-9cce-125cd200693f
-identity = (fn = x -> x, expr = 'x')
-
-# ╔═╡ 165019d5-d1f3-4984-9ae5-d0f485d14e98
-function random_constant_function(i, ω)
-	c = (i ~ UniformDraw(0:9))(ω)
-	return (fn = x -> c, expr = string(c))
-end
-
-# ╔═╡ 8fc92e8d-7e2c-4c34-990f-15f12bd9fd8c
-function random_combination_function(f, g, ω, i)
-	op = (i ~ UniformDraw(binary_ops))(ω)
-	opfn = op.fn
-	ffn = f.fn
-	gfn = g.fn
-	return (fn = x -> opfn(ffn(x), gfn(x)), expr = string(f.expr, op.expr, g.expr))
-end
-
-# ╔═╡ 815bbb35-3f87-403e-9db9-099439adaf09
-function random_arithmetic_expr_fn(ω, i = 0)
-	if (i ~ Bernoulli())(ω)
-		e1 = random_arithmetic_expr_fn(ω, (i..., 1))
-		e2 = random_arithmetic_expr_fn(ω, (i..., 2))
-		return random_combination_function(e1, e2, ω, i)
-	else
-		return ((@uid, i...) ~ Bernoulli())(ω) ? identity : (i ~ random_constant_function)(ω)
-	end
-end
-
-# ╔═╡ 64fee368-801f-4024-8d18-e3db22f99fb6
-randsample(random_arithmetic_expr_fn)
 
 # ╔═╡ 90294f8f-83ac-4101-84fa-0984467a5cef
 function_eval =
-	(ω -> random_arithmetic_expr_fn(ω)) |ᶜ ((ω -> random_arithmetic_expr_fn(ω).fn(1)) ==ₚ 3)
+	random_arithmetic_expression |ᶜ (eval ∘ Meta.parse ∘ random_arithmetic_expression ==ₚ 3)
 
 # ╔═╡ eff3ce23-e1db-40b9-8aae-8b9520299b36
-randsample(function_eval)
+randsample(function_eval, 100, alg = MH)
 
 # ╔═╡ 9a22ab15-d0fd-4636-99c8-c3cd3f8a03cf
 md"""
-This model can learn any function consisting of the integers 0 to 9 and the operations add, subtract, multiply, divide, and power. The condition in this case asks for an arithmetic expression on variable `x` such that it evaluates to $3$ when `x` is $1$. There are many extensionally equivalent ways to satisfy the condition, for instance, the expressions `3`, `1 + 2`, and `x + 2`, but because the more complex expressions require more choices to generate, they are chosen less often.
+This model can learn any function consisting of the integers $0$ to $9$ and the operations add, subtract, multiply, divide, and power. The condition, in this case, asks for an arithmetic expression such that it evaluates to $3$. There are many extensionally equivalent ways to satisfy the condition, for instance, the expressions `3`, `1 + 2`, but because the more complex expressions require more choices to generate, they are chosen less often.
 
-Notice that the model puts the most probability on a function that always returns `3` ($f(x)=3$). This is the simplest hypothesis consistent with the data.
-
-This model learns from an infinite hypothesis space—all expressions made from ‘x’, ‘+’, ‘-‘, and constant integers—but specifies both the hypothesis space and its prior using the simple generative process `random_arithmetic_expr_fn`.
+Notice that the model puts the most probability on a function that always returns `3`. This is the simplest hypothesis consistent with the data.
 
 ## Example: Rational Rules
 How can we account for the productivity of human concepts (the fact that every child learns a remarkable number of different, complex concepts)? The “classical” theory of concepts formation accounted for this productivity by hypothesizing that concepts are represented compositionally, by logical combination of the features of objects (see for example Bruner, Goodnow, and Austin, 1951). That is, concepts could be thought of as rules for classifying objects (in or out of the concept) and concept learning was a process of deducing the correct rule.
 
-While this theory was appealing for many reasons, it failed to account for a variety of categorization experiments.
+While this theory was appealing for many reasons, it failed to account for a variety of categorization experiments. Here are the training examples, and one transfer example, from the classic experiment of Medin and Schaffer (1978). The bar graph above the stimuli shows the portion of human participants who said that bug was a “fep” in the test phase (the data comes from a replication by Nosofsky, Gluck, Palmeri, McKinley (1994); the bug stimuli are courtesy of Pat Shafto):
+"""
 
-Some effects (like gradient of generalization, typicality, prototype enhancement) were difficult to capture with classical rule-based models of category learning, which led to deterministic behavior. As a result of such difficulties, psychological models of category learning turned to more uncertain, prototype and exemplar based theories of concept representation. These models were able to predict behavioral data very well, but lacked compositional conceptual structure.
+# ╔═╡ 3dbd9ef4-f995-4aa3-b939-5baf36225f05
+plot(load("images/fep.png"))
 
-Is it possible to get graded effects from rule-based concepts? Perhaps these effects are driven by uncertainty in learning rather than uncertainty in the representations themselves? To explore these questions Goodman, Tenenbaum, Feldman, and Griffiths (2008) introduced the Rational Rules model, which learns deterministic rules by probabilistic inference. This model has an infinite hypothesis space of rules (represented in propositional logic), which are generated compositionally. Here is a slightly simplified version of the model:
+# ╔═╡ 17bba76a-c480-4186-b42d-9eb4b26c7a53
+md"""
+Notice three effects: there is a gradient of generalization (rather than all-or-nothing classification), some of the Feps are better (or more typical) than others (this is called “typicality”), and the transfer item is a ‘‘better’’ Fep than any of the Fep exemplars (this is called “prototype enhancement”). Effects like these were difficult to capture with classical rule-based models of category learning, which led to deterministic behavior. As a result of such difficulties, psychological models of category learning turned to more uncertain, prototype and exemplar based theories of concept representation. These models were able to predict behavioral data very well, but lacked compositional conceptual structure.
+
+Is it possible to get graded effects from rule-based concepts? Perhaps these effects are driven by uncertainty in _learning_ rather than uncertainty in the representations themselves? To explore these questions Goodman, Tenenbaum, Feldman, and Griffiths (2008) introduced the Rational Rules model, which learns deterministic rules by probabilistic inference. This model has an infinite hypothesis space of rules (represented in propositional logic), which are generated compositionally. Here is a slightly simplified version of the model, applied to the above experiment:
 """
 
 # ╔═╡ 614e4cd8-e24d-4df0-aaa2-1c204fb8667d
 num_features = 4
 
 # ╔═╡ 68198da3-48d6-479b-9e36-519d1539bcf5
-make_obj(l) = zip(["trait1", "trait2", "trait3", "trait4", "fep"], l)
+make_obj(l) = NamedTuple(Dict(zip([:trait1, :trait2, :trait3, :trait4, :fep], l)))
 
 # ╔═╡ 7083a884-34e1-44cf-b0f3-688ba767294f
-feps(l) = map(make_obj(l), [[0,0,0,1, 1], [0,1,0,1, 1], [0,1,0,0, 1], [0,0,1,0, 1], [1,0,0,0, 1]])
+feps = map(make_obj, 
+	[   [0, 0, 0, 1, 1], 
+		[0, 1, 0, 1, 1], 
+		[0, 1, 0, 0, 1], 
+		[0, 0, 1, 0, 1], 
+		[1, 0, 0, 0, 1] 
+	])
 
 # ╔═╡ ea8c704d-4da4-4087-89e1-55d2279f99d6
-non_feps(l) = map(make_obj(l), [[0,0,1,1, 0], [1,0,0,1, 0], [1,1,1,0, 0], [1,1,1,1, 0]])
+non_feps = map(make_obj, 
+	[   [0, 0, 1, 1, 0], 
+		[1, 0, 0, 1, 0], 
+		[1, 1, 1, 0, 0], 
+		[1, 1, 1, 1, 0]
+	])
 
 # ╔═╡ f98eb772-a876-401b-af95-aca72bb5878f
-others(l) = map(make_obj(l), [[0,1,1,0], [0,1,1,1], [0,0,0,0], [1,1,0,1], [1,0,1,0], [1,1,0,0], [1,0,1,1]])
+others = map(make_obj, 
+	[   [0, 1, 1, 0], 
+		[0, 1, 1, 1], 
+		[0, 0, 0, 0], 
+		[1, 1, 0, 1], 
+		[1, 0, 1, 0], 
+		[1, 1, 0, 0], 
+		[1, 0, 1, 1]
+	])
 
 # ╔═╡ de6690d6-1b96-4a7f-ae1d-e215dc8bcdec
-data(l) = vcat(feps(l), non_febs(l))
+data = vcat(feps, non_feps)
 
 # ╔═╡ b8f4e7da-7974-4fe7-82a4-35b43f82bd48
-all_objects(l) = vcat(others(l), feps(l), non_feps(l))
+all_objects = vcat(others, feps, non_feps)
 
 # ╔═╡ febda52b-f986-46a8-9e1a-7532e79d0a9f
 begin
@@ -189,25 +149,67 @@ noise_param = exp(-1.5)
 # ╔═╡ 3561f219-0b68-4458-a21b-57fcacffb85e
 # a generative process for disjunctive normal form propositional equations:
 function sample_pred(i, ω)
-	trait = (i ~ uniformDraw(["trait1", "trait2", "trait3", "trait4"]))(ω)
+	trait = (i ~ UniformDraw([:trait1, :trait2, :trait3, :trait4]))(ω)
     value = (i ~ Bernoulli())(ω)
   return x -> (x[trait] == value)
 end
 
-# ╔═╡ bd5eadc7-ea22-4867-92c3-ad72b09a9422
-var sampleConj = function() {
-  if(flip(tau)) {
-    var c = sampleConj()
-    var p = samplePred()
-    return function(x) {return c(x) && p(x)}
-  } else {
-    return samplePred()
-  }
-}
+# ╔═╡ a216de95-eff3-4c03-abb0-00696d75b800
+function sample_conj(ω, τ, i = 0)
+	if (i ~ Bernoulli(τ))(ω)
+		c = sample_conj(ω, τ, i + 1)
+		p = sample_pred((@uid, i), ω)
+		return x -> (c(x) & p(x))
+	else
+		return sample_pred(i, ω)
+	end
+end
+
+# ╔═╡ 89347c29-db8a-4b5a-96e9-39530173d863
+x = (trait1 = true, trait2 = true, trait3 = true, trait4 = true, fep = 1)
+
+# ╔═╡ 04549696-5c3e-4439-83d6-ead8a5d438b5
+function get_formula(ω, τ, i = 0)
+	if (i ~ Bernoulli(τ))(ω)
+		c = sample_conj(ω, τ, i + 1)
+		f = get_formula(ω, i + 1)
+		return x -> (c(x) | f(x))
+	else
+		return sample_conj(ω, τ, @uid)
+	end
+end
+
+# ╔═╡ 48ee1509-35ac-4e8b-ae99-f8b7250ef886
+obs_fn(x, ω) = 
+	(@~ Bernoulli(ifelseₚ(get_formula(ω, τ)(x), 1 - noise_param, noise_param)))(ω)
+
+# ╔═╡ e30556ea-9c09-4f6b-b726-1c88af5e63c1
+evidence(ω) = all(map(x -> (obs_fn(x, ω) == (x.fep == 1)), data))
+
+# ╔═╡ 1d61bf77-41c9-4079-9dfa-e734a836d4c5
+rule_posterior =  get_formula |ᶜ evidence
+
+# ╔═╡ c29f86eb-2775-46d0-abed-6bf5c25b3d2a
+# scatterplot(randsample(ω -> map(rule_posterior(ω), all_objects), 1000), human_data, marker = :xcross)
+
+# ╔═╡ a66c5002-f6a5-4ece-ab0c-f53c7951ac76
+md"""
+In addition to achieving a good overall correlation with the data, this model captures the three qualitative effects described above: graded generalization, typicality, and prototype enhancement. Make sure you see how to read each of these effects from the above plot! Goodman, et al, have used to this model to capture a variety of other classic categorization effects ([Goodman et al., 2008](https://scholar.google.com/scholar?q=%22A%20rational%20analysis%20of%20rule-based%20concept%20learning%22)), as well. Thus probabilistic induction of (deterministic) rules can capture many of the graded effects previously taken as evidence against rule-based models.
+
+### Grammar-based induction
+What is the general principle in the two above examples? We can think of it as the following recipe: we build hypotheses by stochastically choosing between primitives and combination operations, this specifies an infinite “language of thought”; each expression in this language in turn specifies the likelihood of observations. Formally, the stochastic combination process specifies a probabilistic grammar; which yields terms compositionally interpreted into a likelihood over data. A small grammar can generate an infinite array of potential hypotheses; because grammars are themselves generative processes, a prior is provided for free from this formulation.
+
+This style of compositional concept induction model, can be naturally extended to complex hypothesis spaces, each defined by a grammar. For instance to model theory acquisition, learning natural numbers concepts, and many others. See:
+
+* Compositionality in rational analysis: Grammar-based induction for concept learning. N. D. Goodman, J. B. Tenenbaum, T. L. Griffiths, and J. Feldman (2008). In M. Oaksford and N. Chater (Eds.). The probabilistic mind: Prospects for Bayesian cognitive science.
+
+* A Bayesian Model of the Acquisition of Compositional Semantics. S. T. Piantadosi, N. D. Goodman, B. A. Ellis, and J. B. Tenenbaum (2008). Proceedings of the Thirtieth Annual Conference of the Cognitive Science Society.
+
+* Piantadosi, S. T., & Jacobs, R. A. (2016). Four Problems Solved by the Probabilistic Language of Thought. Current Directions in Psychological Science, 25(1).
+"""
 
 # ╔═╡ Cell order:
 # ╠═f573a320-6700-11ec-06d3-9553fe4dd603
-# ╠═f7c37755-c928-4c52-8091-27bce4bf6dd6
 # ╟─7c6b8acd-40e2-4eb8-aefc-34fe23f6d46b
 # ╠═51327bd3-0c04-48b1-b7db-b6bb5a7ac6b9
 # ╠═63caf0d9-6e91-40e2-8529-af7c2610b67f
@@ -217,20 +219,11 @@ var sampleConj = function() {
 # ╠═df6bacaf-ef1b-46c6-b99b-d9ee06debf4d
 # ╟─11c2c5b9-aee6-4a70-904b-798970398bed
 # ╟─3c8efb48-d333-4461-ad82-e680ca86163e
-# ╠═bad6c734-031d-46a4-b66e-fa6fb2abcf9e
-# ╠═7f17a2de-34fd-45d9-b7f4-3022d9cab2ab
-# ╠═27d05d40-c7d6-4074-ae1c-92745d85eeea
-# ╠═7b161fee-3460-4c55-8bbb-6201b51f67f0
-# ╠═f83e81d1-105f-45b4-8418-b4070918b706
-# ╠═1e34bc7b-571b-4e9b-878b-16c8090f96f1
-# ╠═9ab44db1-eab7-4f48-9cce-125cd200693f
-# ╠═165019d5-d1f3-4984-9ae5-d0f485d14e98
-# ╠═8fc92e8d-7e2c-4c34-990f-15f12bd9fd8c
-# ╠═815bbb35-3f87-403e-9db9-099439adaf09
-# ╠═64fee368-801f-4024-8d18-e3db22f99fb6
 # ╠═90294f8f-83ac-4101-84fa-0984467a5cef
 # ╠═eff3ce23-e1db-40b9-8aae-8b9520299b36
 # ╟─9a22ab15-d0fd-4636-99c8-c3cd3f8a03cf
+# ╟─3dbd9ef4-f995-4aa3-b939-5baf36225f05
+# ╟─17bba76a-c480-4186-b42d-9eb4b26c7a53
 # ╠═614e4cd8-e24d-4df0-aaa2-1c204fb8667d
 # ╠═68198da3-48d6-479b-9e36-519d1539bcf5
 # ╠═7083a884-34e1-44cf-b0f3-688ba767294f
@@ -242,4 +235,11 @@ var sampleConj = function() {
 # ╠═a8ad83d0-253c-487e-91a5-1439b9ce146b
 # ╠═a7886471-3b38-4979-83d8-f322d50cd227
 # ╠═3561f219-0b68-4458-a21b-57fcacffb85e
-# ╠═bd5eadc7-ea22-4867-92c3-ad72b09a9422
+# ╠═a216de95-eff3-4c03-abb0-00696d75b800
+# ╠═89347c29-db8a-4b5a-96e9-39530173d863
+# ╠═04549696-5c3e-4439-83d6-ead8a5d438b5
+# ╠═48ee1509-35ac-4e8b-ae99-f8b7250ef886
+# ╠═e30556ea-9c09-4f6b-b726-1c88af5e63c1
+# ╠═1d61bf77-41c9-4079-9dfa-e734a836d4c5
+# ╠═c29f86eb-2775-46d0-abed-6bf5c25b3d2a
+# ╟─a66c5002-f6a5-4ece-ab0c-f53c7951ac76
