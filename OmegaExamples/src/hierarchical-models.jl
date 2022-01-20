@@ -111,17 +111,17 @@ Let us introduce another level of abstraction: a global prototype that provides 
 """
 
 # ╔═╡ 2567de6c-0944-4f25-9969-957703301c43
-ϕ = @~ OmegaExamples.Dirichlet(5, 1)
+ϕ(colours) = @~ OmegaExamples.Dirichlet(length(colours), 1)
 
 # ╔═╡ 3a36eec2-171a-4b67-9d30-97ca92301a02
-prototype(ω) = ϕ(ω) .* 5
+prototype(ϕ, ω) = ϕ(ω) .* 5
 
 # ╔═╡ 3013d04b-ea8d-4d5b-83db-da73ec82a98f
-colour_probs_global(i, ω) = (i~ OmegaExamples.Dirichlet(prototype(ω)))(ω)
+colour_probs_global(i, ω) = (i~ OmegaExamples.Dirichlet(prototype(ϕ(colours), ω)))(ω)
 
 # ╔═╡ 81c13a93-8c37-481f-8187-7c5cd01471eb
 make_bag_global(i, ω, colours, n = @uid) = 
-	(pget(colours) ∘ (n~ Categorical(colour_probs_global(length(colours), ω, i))))(ω)
+	(pget(colours) ∘ (n~ Categorical(colour_probs_global(i, ω))))(ω)
 
 # ╔═╡ 2ba74743-2584-4cdd-a21f-c724d527e588
 rand_make_bag_gl(i, ω, colours, k) = map(n -> make_bag_global(i, ω, colours, n), 1:k)
@@ -160,6 +160,16 @@ Now let’s investigate the relative learning speeds at different levels of abst
 """
 
 # ╔═╡ a61e7923-7afa-4f76-8b2c-c677d65e49e1
+c = ["red", "blue"]
+
+# ╔═╡ 86fdcceb-7a40-4d74-98b3-5937b67bb8f1
+bag_probs(i, ω) = (i~ OmegaExamples.Dirichlet(prototype(ϕ(c), ω)))(ω)
+
+# ╔═╡ bd0553fc-80fd-4124-824d-73b9160eb799
+make_bag_(i, ω, colours, n = @uid) = 
+	(pget(colours) ∘ (n~ Categorical(bag_probs(i, ω))))(ω)
+
+# ╔═╡ 2be4cab9-9386-4f02-8ee3-99a249ddfdb3
 
 
 # ╔═╡ Cell order:
@@ -194,3 +204,6 @@ Now let’s investigate the relative learning speeds at different levels of abst
 # ╠═418939ad-7f4b-4930-a845-ffa6d6d4e21d
 # ╟─848e250a-707f-4d18-bb45-96de52f853de
 # ╠═a61e7923-7afa-4f76-8b2c-c677d65e49e1
+# ╠═86fdcceb-7a40-4d74-98b3-5937b67bb8f1
+# ╠═bd0553fc-80fd-4124-824d-73b9160eb799
+# ╠═2be4cab9-9386-4f02-8ee3-99a249ddfdb3
