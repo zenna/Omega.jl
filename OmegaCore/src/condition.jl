@@ -2,6 +2,7 @@ module Condition
 
 using ..Space, ..Tagging, ..Traits
 using ..Var: AbstractVariable
+import ..Var
 export |ᶜ, cnd, conditions, cond!, condf, Conditional, ConditionException, tagignorecondition
 export ==ₚ
 
@@ -28,7 +29,7 @@ struct ConditionException <: Exception end
 @inline tagignorecondition(ω) = tag(ω, (ignorecondition = NoTagValue,))
 
 # If error are violated then throw error
-@inline (c::Conditional)(ω) = condf(ω, c.x, c.y)
+@inline Var.recurse(c::Conditional, ω) = condf(ω, c.x, c.y)
 
 "Conditions on `xy`"
 conditions(xy::Conditional) = xy.y
