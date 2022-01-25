@@ -5,14 +5,18 @@ version = "0.2.0"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+FreqTables = "da1fdf0e-e0ff-5433-a45f-9bb5ff651cb1"
 InferenceBase = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
 OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
 OmegaDistributions = "4ee16af8-c862-4b7a-9514-3b66b113c005"
 OmegaMH = "89eb2d39-e1f3-436d-870a-9a4679d6d79e"
 OmegaSoftPredicates = "ffc32627-273f-428b-9998-33a39d288549"
+Pluto = "c3e4b0f8-55cb-11ea-2926-15256bba5781"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 ReplicaExchange = "5ad4e244-73e6-47c5-b007-45e12ac3dae1"
 SoftPredicates = "5345b20a-9614-40c4-b281-8f4998fc0f3b"
+UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 
 [compat]
 OmegaCore = "0.1"

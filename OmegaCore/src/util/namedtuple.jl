@@ -19,7 +19,7 @@ rmkey(tag, Val{:c})
   :(NamedTuple{$ks}(($(vs...),)))
 end
 
-@pre rmkey(nt, key) = key in keys(nt) "Key `key` not in `nt`"
+#@pre rmkey(nt, key) = key in keys(nt) "Key `key` not in `nt`"
 @post rmkey(nt, key) = keys(__ret__) == setdiff(keys(nt), key) "Keys of returned nt same as nt minus key"
 @post rmkey(nt, key) = all([__ret__[k] == nt[k] for k in __ret__]) "Values of returned nt same as nt minus key"
 

@@ -1,8 +1,14 @@
 ### A Pluto.jl notebook ###
-# v0.14.7
+# v0.17.6
 
 using Markdown
 using InteractiveUtils
+
+# ╔═╡ f27baa20-3be9-400c-8e98-e6d9d534754c
+using Pkg
+
+# ╔═╡ 7007b9e6-bce3-4a89-9c9f-6e2d480f658f
+Pkg.activate(Base.current_project())
 
 # ╔═╡ 14c4144e-abc0-4802-8b26-f8f6f6a0ddc0
 using Omega
@@ -402,6 +408,8 @@ meandist(ω) = samplemean(ridxθ(ω))
 randsample(meandist, 100)
 
 # ╔═╡ Cell order:
+# ╠═f27baa20-3be9-400c-8e98-e6d9d534754c
+# ╠═7007b9e6-bce3-4a89-9c9f-6e2d480f658f
 # ╠═14c4144e-abc0-4802-8b26-f8f6f6a0ddc0
 # ╠═bc0da6fe-5b09-4d49-9bd8-e0530fac0186
 # ╟─ad003e86-23b7-4c8e-a6eb-009b1ec73d25
