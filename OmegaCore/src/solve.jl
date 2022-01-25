@@ -13,7 +13,7 @@ function isconditioned end
 
 function solve end
 
-function Var.
+# function Var.
 
 function Var.prehook(::trait(Solve), f, ω)
   # Assume h has no specialization
