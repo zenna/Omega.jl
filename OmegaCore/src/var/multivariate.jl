@@ -43,7 +43,7 @@ export Mv, manynth, dimsnth
 # Base.rand(rng::AbstractRNG, mv::Mv{<:PrimDist}) = 
 #   rand(rng, mv.dist, mv.shape)
 
-struct Mv{IDXS, FS}
+struct Mv{IDXS, FS} <:  AbstractVariable
   idxs::IDXS
   f::FS
 end

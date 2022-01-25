@@ -30,15 +30,6 @@ hastag(ω::AbstractΩ, tag) = hastag(ω.tags, tag)
 
 traits(ω::AbstractΩ) = traits(ω.tags) # FIXME: Do this at the type level
 
-# function tags end
-
-# # Defaults
-"Default sample space"
-function defΩ end
-
-"Default sample space object"
-function defω end
-
 # FIXME MOve this somewhere (shouldnt really be in AbstractΩ)
 
 function replacetags end
@@ -56,6 +47,10 @@ function subspace end
 
 "`proj(ω, ss)` Project `ω` onto subspace `ss`"
 function proj end
+# Explain what project means
+
+"`update(ω, ss)` Change subspace of  `ω` onto to `ss`"
+function updatesubspace end
 
 ## Updating Interface
 export update
@@ -64,3 +59,12 @@ export update
 
 # "Equivalent to setindex!, returns mutated ω"
 # function update!(ω, k, v) end
+# # Defaults
+"Default sample space"
+function defΩ end
+
+"Default sample space object"
+function defω end
+
+"Default sample space object"
+function defsubspace end

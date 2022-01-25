@@ -7,7 +7,7 @@ struct LinearΩ{TAGS, T, S, K}  <: AbstractΩ
   subspace::S
 end
 
-function Var.recurse(exo::Var.ExoRandVar, ω::LinearΩ)
+function Var.recurse(exo::Var.PrimRandVar, ω::LinearΩ)
   newid = append(ω.subspace, exo.id)
   newexo = Var.Member(newid, exo.class)
   index = ω.keymap[newexo]

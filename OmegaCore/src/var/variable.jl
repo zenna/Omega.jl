@@ -1,5 +1,6 @@
-export Variable
+export Variable, AbstractVariable
 
+abstract type AbstractVariable end
 # # Variable
 # A Variable is a parametric or random variable, which is just any function of
 # ω::AbstractΩ.  We have this data structure because we need to intercept inner
@@ -7,7 +8,7 @@ export Variable
 # normal function
 
 "A variable is just a function of ω."
-struct Variable{F}
+struct Variable{F} <: AbstractVariable
   f::F
 end
 recurse(f::Variable, ω) = f.f(ω)
