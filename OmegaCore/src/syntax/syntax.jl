@@ -3,7 +3,7 @@ module Syntax
 using ..OmegaCore.Util: mapf
 using ..OmegaCore.Var: pw, liftapply
 import ..OmegaCore: AbstractVariable
-export @joint, @~, @uid, ..
+export @joint, @~, @uid
 
 "Reduces to `@uid ~ expr`"
 macro ~(ex)
@@ -54,9 +54,6 @@ export ==ₚ, >=ₚ, <=ₚ, >ₚ, <ₚ, !ₚ, &ₚ, |ₚ, ifelseₚ, +ₚ, -ₚ,
 @inline x &ₚ y = pw(&, x, y)
 @inline !ₚ(x) = pw(!, x)
 @inline ifelseₚ(a, b, c) = pw(ifelse, a, b, c)
-
-"Pointwise application"
-@inline ..(f::Function, args) = pw(f, args...)
 
 ## Broadcasting
 struct PointwiseStyle <: Broadcast.BroadcastStyle end

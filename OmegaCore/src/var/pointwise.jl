@@ -61,32 +61,34 @@ struct DontLift end
 # Trait functions
 traitlift(::Type{T}) where T  = DontLift()
 traitlift(::Type{<:Function}) = Lift()
-traitlift(::Type{<:Variable}) = Lift()
-traitlift(::Type{<:Member}) = Lift()
-traitlift(::Type{<:Mv}) = Lift()
+traitlift(::Type{<:AbstractVariable}) = Lift()
 traitlift(::Type{<:DataType}) = DontLift()
 traitlift(::Type{<:LiftBox}) = Lift()
-traitlift(::Type{<:PwVar}) = Lift()
 traitlift(::Type{<:DontLiftBox}) = DontLift()
 traitlift(::Type{<:Ref}) = DontLift()
 
 @inline liftapply(f::T, ω) where T = liftapply(traitlift(T), f, ω)
 @inline liftapply(::DontLift, f, ω) = f
+@inline liftapply(::DontLift, f::Ref, ω) = f[]
 @inline liftapply(::DontLift, f::ABox, ω) = f.val
 @inline liftapply(::Lift, f, ω) = f(ω)
 @inline liftapply(::Lift, f::ABox, ω) = (f.val)(ω)
 @inline liftapply(::Lift, f::ABox, ω::ABox) = (f.val)(ω.val)
 @inline liftapply(::Lift, f, ω::ABox) = f(ω.val)
 
+"Handle output"
+@inline lift_output(op::O, ω) where {O} = lift_output(traitlift(O), op, ω)
+@inline lift_output(::DontLift, op, ω) = op
+@inline lift_output(::Lift, op, ω) = op(ω)
 
 recurse(p::PwVar{Tuple{T1}}, ω) where {T1} =
-  p.f(liftapply(p.args[1], ω))
+  lift_output(p.f(liftapply(p.args[1], ω)), ω)
 
 recurse(p::PwVar{Tuple{T1, T2}}, ω) where {T1, T2} =
-  p.f(liftapply(p.args[1], ω), liftapply(p.args[2], ω))
+  lift_output(p.f(liftapply(p.args[1], ω), liftapply(p.args[2], ω)), ω)
 
 recurse(p::PwVar{<:Tuple}, ω) =
-  p.f(map(arg -> liftapply(arg, ω), p.args)...)
+  lift_output(p.f(map(arg -> liftapply(arg, ω), p.args)...), ω)
 
 # # Notation
 

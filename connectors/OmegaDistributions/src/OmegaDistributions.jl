@@ -43,4 +43,19 @@ Distributions.Bernoulli(p) =
 #        DiscreteUniformₚ,
 #        Poissonₚ,
 #        NegativeBinomialₚ
+
+# Additional distributions 
+
+export UniformDraw, p
+p = 3
+"Element drawn uniformly from elements of set"
+struct UniformDraw{T}
+  elem::T
+end
+(u::UniformDraw)(i, ω) =
+  u.elem[(i ~ Distributions.DiscreteUniform(1, length(u.elem)))(ω)]
+
+
+
+
 end

@@ -15,6 +15,19 @@ ys = obs_model.(xs);
 M = @~ Normal(0, 1);
 C = @~ Normal(0, 1);
 
+
+## Simpler model
+x = 0.3
+ϵ = ϵ ~ Normal(0, 1)
+y = M .* x .+ C .+ ϵ
+y_ = 21.0
+m |ᶜ y .== y_
+
+transformed(::Normal, ::Type{ϵ}, ω) = M(ω) * x + C(ω)
+transformed(::Normal, ::Type{ϵ}, ω) = M(ω) * x + C(ω)
+
+##
+
 struct ϵ end
 
 Y_class(i, ω) = linear_model(xs[i], M(ω), C(ω)) + (ϵ ∘ i ~ Normal(0, 0.1))(ω);
@@ -30,9 +43,23 @@ solve(::Normal, i::EID, ω) = Y_class(i, ω) - M(ω) - C(ω) # -
 solve(::typeof(Y⃗), ω) = ys # -
 solve(::typeof(evidence), ω) = true # 
 
+## Transform into conditioend model
+transform(::StdNormal, i, ω) = (ϵ ∘ i ~ Normal(0, 0.1))(ω) / 0.1 # -
+solve(::Normal, i::EID, ω) = Y_class(i, ω) - M(ω) - C(ω) # 
+
 ## Problem is that we're doing all this work, really we just needed to evaluate StdNormal
 # 
 
 isconditioned(::StdNormal) = true
 isconditioned(x) = false
 isconditioned(::Normal) = true
+
+# Propagation model
+# In this model, we define propagation functions which define which values of varaiables in the model conditioend on evidence
+function propagate(::typeof(evidence), x)
+  if x
+    Y⃗ => ys
+  else
+    nothing
+  end
+end
