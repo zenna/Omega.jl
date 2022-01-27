@@ -48,6 +48,8 @@ end
 "`l(x)` constructs object that indicates that `x` should be applied pointwise.  See `pw`"
 l(x) = LiftBox(x)
 
+
+# FIXME: Is this really necessary with Ref Remove?
 struct DontLiftBox{T} <: ABox
   val::T
 end
@@ -76,6 +78,8 @@ traitlift(::Type{<:Ref}) = DontLift()
 @inline liftapply(::Lift, f::ABox, ω::ABox) = (f.val)(ω.val)
 @inline liftapply(::Lift, f, ω::ABox) = f(ω.val)
 
+@inline liftapply(::Lift, f_IsClass, i, ω) = f(i, ω.val)
+
 "Handle output"
 @inline lift_output(op::O, ω) where {O} = lift_output(traitlift(O), op, ω)
 @inline lift_output(::DontLift, op, ω) = op
@@ -89,6 +93,10 @@ recurse(p::PwVar{Tuple{T1, T2}}, ω) where {T1, T2} =
 
 recurse(p::PwVar{<:Tuple}, ω) =
   lift_output(p.f(map(arg -> liftapply(arg, ω), p.args)...), ω)
+
+# Class lifting
+recurse(p::PwVar{Tuple{T1}}, i, ω) where {T1} =
+  lift_output(p.f(liftapply(p.args[1], i, ω)), i, ω)
 
 # # Notation
 

@@ -3,6 +3,9 @@ using Distributions
 import Omega: solve, isconditioned
 using Random: MersenneTwister
 
+struct ϵType end
+const ϵ = ϵType()
+
 rng = MersenneTwister(0);
 N = 3;
 xs = rand(rng, N)
@@ -15,51 +18,58 @@ ys = obs_model.(xs);
 M = @~ Normal(0, 1);
 C = @~ Normal(0, 1);
 
-
 ## Simpler model
 x = 0.3
-ϵ = ϵ ~ Normal(0, 1)
-y = M .* x .+ C .+ ϵ
+ϵ_ = ϵ ~ Normal(0, 1)
+y = M .* x .+ C .+ ϵ_
 y_ = 21.0
-m |ᶜ y .== y_
 
-transformed(::Normal, ::Type{ϵ}, ω) = M(ω) * x + C(ω)
-transformed(::Normal, ::Type{ϵ}, ω) = M(ω) * x + C(ω)
+y_ = m * x + c + randn()
 
-##
 
-struct ϵ end
+e3 = (y .== y_)
+ypost = M |ᶜ e3
 
-Y_class(i, ω) = linear_model(xs[i], M(ω), C(ω)) + (ϵ ∘ i ~ Normal(0, 0.1))(ω);
+# y_ = mx + c + ϵ
 
-EID = ComposedFunction{Type{ϵ}, Int64}
-Y⃗ = Mv(1:N, Y_class)
-evidence = Y⃗ ==ₚ ys
-joint_posterior = @joint(M, C) |ᶜ evidence
+solve(::typeof(ϵ_), ω) = @show y_ - M(ω) * x - C(ω) 
+solve(::Member{StdNormal{Float64},ϵType}, ω) = @assert false
 
-solve(::StdNormal, i, ω) = (ϵ ∘ i ~ Normal(0, 0.1))(ω) / 0.1 # -
-solve(::typeof(Y_class), i, ω) = Y⃗(ω)[i] # -
-solve(::Normal, i::EID, ω) = Y_class(i, ω) - M(ω) - C(ω) # -
-solve(::typeof(Y⃗), ω) = ys # -
-solve(::typeof(evidence), ω) = true # 
+test() = complete(ypost)
+# ##
 
-## Transform into conditioend model
-transform(::StdNormal, i, ω) = (ϵ ∘ i ~ Normal(0, 0.1))(ω) / 0.1 # -
-solve(::Normal, i::EID, ω) = Y_class(i, ω) - M(ω) - C(ω) # 
 
-## Problem is that we're doing all this work, really we just needed to evaluate StdNormal
-# 
 
-isconditioned(::StdNormal) = true
-isconditioned(x) = false
-isconditioned(::Normal) = true
+# Y_class(i, ω) = linear_model(xs[i], M(ω), C(ω)) + (ϵ ∘ i ~ Normal(0, 0.1))(ω);
 
-# Propagation model
-# In this model, we define propagation functions which define which values of varaiables in the model conditioend on evidence
-function propagate(::typeof(evidence), x)
-  if x
-    Y⃗ => ys
-  else
-    nothing
-  end
-end
+# EID = ComposedFunction{Type{ϵ}, Int64}
+# Y⃗ = Mv(1:N, Y_class)
+# evidence = Y⃗ ==ₚ ys
+# joint_posterior = @joint(M, C) |ᶜ evidence
+
+# solve(::StdNormal, i, ω) = (ϵ ∘ i ~ Normal(0, 0.1))(ω) / 0.1 # -
+# solve(::typeof(Y_class), i, ω) = Y⃗(ω)[i] # -
+# solve(::Normal, i::EID, ω) = Y_class(i, ω) - M(ω) - C(ω) # -
+# solve(::typeof(Y⃗), ω) = ys # -
+# solve(::typeof(evidence), ω) = true # 
+
+# ## Transform into conditioend model
+# transform(::StdNormal, i, ω) = (ϵ ∘ i ~ Normal(0, 0.1))(ω) / 0.1 # -
+# solve(::Normal, i::EID, ω) = Y_class(i, ω) - M(ω) - C(ω) # 
+
+# ## Problem is that we're doing all this work, really we just needed to evaluate StdNormal
+# # 
+
+# isconditioned(::StdNormal) = true
+# isconditioned(x) = false
+# isconditioned(::Normal) = true
+
+# # Propagation model
+# # In this model, we define propagation functions which define which values of varaiables in the model conditioend on evidence
+# function propagate(::typeof(evidence), x)
+#   if x
+#     Y⃗ => ys
+#   else
+#     nothing
+#   end
+# end

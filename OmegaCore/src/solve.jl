@@ -15,13 +15,13 @@ function solve end
 
 # function Var.
 
-function Var.prehook(::trait(Solve), f, ω)
-  # Assume h has no specialization
-  solve(f, ω)
-    # then just continue as normal
-  # either the recurse itself
-  solve(f, ω)
-end
+# function Var.prehook(::trait(Solve), f, ω)
+#   # Assume h has no specialization
+#   solve(f, ω)
+#     # then just continue as normal
+#   # either the recurse itself
+#   solve(f, ω)
+# end
 
 # Doesn't have specialization we'll get here
 hasspecial(f, ω) = solve(f, ω)  ## don't want to do a prehook
@@ -35,7 +35,7 @@ function Var.recurse(::trait(Solve), f, ω)
 end
 
 # Default case, no specialization:
-solve(f, ω) = f(ω)
+solve(f, ω) = Var.recurse(f, ω)
 
 # # Defaualt case
 # solve(f, id, ω) = f(ω)
