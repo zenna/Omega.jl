@@ -542,17 +542,16 @@ uuid = "6218d12a-5da1-5696-b52f-db25d2ecc6d1"
 version = "1.2.1"
 
 [[ImageMagick_jll]]
-<<<<<<< HEAD
 deps = ["Artifacts", "Ghostscript_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pkg", "Zlib_jll", "libpng_jll"]
 git-tree-sha1 = "f025b79883f361fa1bd80ad132773161d231fd9f"
 uuid = "c73af94c-d91f-53ed-93a7-00f77d67a9d7"
 version = "6.9.12+2"
 =======
-deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pkg", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "d43c324d044dc8256e1470a561ee7a0cf5e122c9"
+deps = ["Artifacts", "Ghostscript_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pkg", "Zlib_jll", "libpng_jll"]
+git-tree-sha1 = "f025b79883f361fa1bd80ad132773161d231fd9f"
 uuid = "c73af94c-d91f-53ed-93a7-00f77d67a9d7"
-version = "6.9.12+1"
->>>>>>> 4f16c6d (ch 11)
+version = "6.9.12+2"
+>>>>>>> 067d045 (update)
 
 [[ImageMetadata]]
 deps = ["AxisArrays", "ImageAxes", "ImageBase", "ImageCore"]
