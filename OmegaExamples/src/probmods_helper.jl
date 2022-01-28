@@ -1,7 +1,7 @@
 # Helper functions for probmods
-using UnicodePlots, Distributions, Omega, FreqTables
+using UnicodePlots, Distributions, Omega, FreqTables, PDMats
 
-export viz, UniformDraw, pget, Dirichlet, viz_marginals
+export viz, UniformDraw, pget, Dirichlet, viz_marginals, DiagNormal
 
 "To visualize the generated samples of a random variable"
 viz(var::Vector{T} where {T<:Union{String,Char}}) =
@@ -35,6 +35,18 @@ function (d::Dirichlet)(i, ω)
     gammas = [((i..., j) ~ Gamma(αj))(ω) for (j, αj) in enumerate(d.α)]
     Σ = sum(gammas)
     [gamma / Σ for gamma in gammas]
+end
+
+struct DiagNormal{U, V}
+    μ::U
+    Σ::V
+end
+
+function (mv::DiagNormal)(i, ω)
+    x = map(k -> ((i..., k)~ StdNormal{Float64}())(ω), 1:length(mv.μ))
+    unwhiten!(PDiagMat(mv.Σ), x)
+    x .+= mv.μ
+    return x
 end
 
 # Other utility functions
