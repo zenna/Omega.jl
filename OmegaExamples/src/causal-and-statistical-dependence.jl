@@ -9,7 +9,6 @@ begin
 	import Pkg
     # activate the shared project environment
     Pkg.activate(Base.current_project())
-<<<<<<< HEAD
     using Omega, Distributions, UnicodePlots, OmegaExamples
 end
 
@@ -25,33 +24,10 @@ Probabilistic programs encode knowledge about the world in the form of causal mo
 * Causal structure is _local_ in the sense that many events that are related are not related directly: They are connected only through causal chains of several steps, a series of intermediate and more local dependencies. 
 
 * And the basic dependencies are directed: when we say that $A$ causes $B$, it means something different than saying that $B$ causes $A$. The _causal influence_ flows only one way along a causal relation—we expect that manipulating the cause will change the effect, but not vice versa — but _information_ can flow both ways—learning about either event will give us information about the other.
-=======
-    using Omega, Distributions, UnicodePlots
-end
-
-# ╔═╡ ff1115c2-6e2a-49af-93dd-610a1346fb5f
-md"## Causal Dependence"
-
-# ╔═╡ 7380e30d-6b9a-438c-8fc2-2521861db9be
-md"""
-<<<<<<< HEAD
-Probabilistic programs encode knowledge about the world in the form of causal models, and it is useful to understand how their function relates to their structure by thinking about some of the intuitive properties of causal relations. Causal relations are local, modular, and directed. They are _modular_ in the sense that any two arbitrary events in the world are most likely causally unrelated, or independent. If they are related, or dependent, the relation is only very weak and liable to be ignored in our mental models. Causal structure is _local_ in the sense that many events that are related are not related directly: They are connected only through causal chains of several steps, a series of intermediate and more local dependencies. And the basic dependencies are directed: when we say that A causes B, it means something different than saying that B causes A. The _causal influence_ flows only one way along a causal relation—we expect that manipulating the cause will change the effect, but not vice versa — but _information_ can flow both ways—learning about either event will give us information about the other.
->>>>>>> ad8ae4b (add ch 4)
-=======
-Probabilistic programs encode knowledge about the world in the form of causal models, and it is useful to understand how their function relates to their structure by thinking about some of the intuitive properties of causal relations. Causal relations are local, modular, and directed. 
-
-* They are _modular_ in the sense that any two arbitrary events in the world are most likely causally unrelated, or independent. If they are related, or dependent, the relation is only very weak and liable to be ignored in our mental models. 
-
-* Causal structure is _local_ in the sense that many events that are related are not related directly: They are connected only through causal chains of several steps, a series of intermediate and more local dependencies. 
-
-* And the basic dependencies are directed: when we say that $A$ causes $B$, it means something different than saying that $B$ causes $A$. The _causal influence_ flows only one way along a causal relation—we expect that manipulating the cause will change the effect, but not vice versa — but _information_ can flow both ways—learning about either event will give us information about the other.
->>>>>>> f39a3f2 (complete until ch 5)
 """
 
 # ╔═╡ 26730848-ca65-4075-9a03-fc1790e4f51f
 md"""
-<<<<<<< HEAD
-<<<<<<< HEAD
 Let’s examine this notion of “causal dependence” a little more carefully. What does it mean to believe that $A$ depends causally on $B$? Viewing cognition through the lens of probabilistic programs, the most basic notions of causal dependence are in terms of the structure of the program and the flow of evaluation (or “control”) in its execution. We say that expression $A$ causally depends on expression $B$ if it is necessary to evaluate $B$ in order to evaluate $A$. (More precisely, expression $A$ depends on expression $B$ if it is ever necessary to evaluate $B$ in order to evaluate $A$.) For instance, in this program `A` depends on `B` but not on `C` (the final expression depends on both `A` and `C`):
 """
 
@@ -62,34 +38,6 @@ let
 	A = ifelseₚ(B, (@~ Bernoulli(0.1)), (@~ Bernoulli(0.4)))
 	randsample(A |ₚ C)
 end
-=======
-Let’s examine this notion of “causal dependence” a little more carefully. What does it mean to believe that A depends causally on B? Viewing cognition through the lens of probabilistic programs, the most basic notions of causal dependence are in terms of the structure of the program and the flow of evaluation (or “control”) in its execution. We say that expression A causally depends on expression B if it is necessary to evaluate B in order to evaluate A. (More precisely, expression A depends on expression B if it is ever necessary to evaluate B in order to evaluate A.) For instance, in this program `A` depends on `B` but not on `C` (the final expression depends on both `A` and `C`):
-"""
-
-# ╔═╡ 90e1ff24-2747-45ec-b785-9b929ddf231a
-C = @~ Bernoulli()
-
-# ╔═╡ 31ced654-0528-4d93-a978-b0e57c280932
-B = @~ Bernoulli()
-
-# ╔═╡ ac4638ba-fd87-49f5-a470-f38249b8acbc
-A(ω) = B(ω) ? (@~ Bernoulli(0.1))(ω) : (@~ Bernoulli(0.4))(ω)
-
-# ╔═╡ 4915b4a9-3f1b-475c-aaa4-7f0745c938d6
-randsample(A |ₚ C)
->>>>>>> ad8ae4b (add ch 4)
-=======
-Let’s examine this notion of “causal dependence” a little more carefully. What does it mean to believe that $A$ depends causally on $B$? Viewing cognition through the lens of probabilistic programs, the most basic notions of causal dependence are in terms of the structure of the program and the flow of evaluation (or “control”) in its execution. We say that expression $A$ causally depends on expression $B$ if it is necessary to evaluate $B$ in order to evaluate $A$. (More precisely, expression $A$ depends on expression $B$ if it is ever necessary to evaluate $B$ in order to evaluate $A$.) For instance, in this program `A` depends on `B` but not on `C` (the final expression depends on both `A` and `C`):
-"""
-
-# ╔═╡ 90e1ff24-2747-45ec-b785-9b929ddf231a
-let
-	C = @~ Bernoulli()
-	B = @~ Bernoulli()
-	A(ω) = B(ω) ? (@~ Bernoulli(0.1))(ω) : (@~ Bernoulli(0.4))(ω)
-	randsample(A |ₚ C)
-end
->>>>>>> f39a3f2 (complete until ch 5)
 
 # ╔═╡ 5b86b373-c48a-4f04-b84b-66434da0507a
 md"""
@@ -108,15 +56,11 @@ lung_disease = (smokes &ₚ (@~ Bernoulli(0.1))) |ₚ (@~ Bernoulli(0.001))
 cold = @~ Bernoulli(0.02)
 
 # ╔═╡ e7933f47-1cef-44ad-bbbf-271a07451127
-<<<<<<< HEAD
 cough = pw(|, 
 	(cold &ₚ @~ Bernoulli()), 
 	(lung_disease &ₚ @~ Bernoulli()), 
 	@~ Bernoulli(0.001)
 )
-=======
-cough = pw(|, (cold &ₚ @~ Bernoulli()), (lung_disease &ₚ @~ Bernoulli()), @~ Bernoulli(0.001))
->>>>>>> ad8ae4b (add ch 4)
 
 # ╔═╡ c4564628-3072-4780-9bea-e25926a1abc2
 fever = (cold &ₚ @~ Bernoulli()) |ₚ @~ Bernoulli(0.01)
@@ -128,8 +72,6 @@ chest_pain = (lung_disease &ₚ @~ Bernoulli(0.2)) |ₚ @~ Bernoulli(0.01)
 shortness_of_breath = (lung_disease &ₚ @~ Bernoulli(0.2)) |ₚ @~ Bernoulli(0.01)
 
 # ╔═╡ 833d71f7-ec50-45b1-bab1-8bf9fb2867bd
-<<<<<<< HEAD
-<<<<<<< HEAD
 cold_cond = cold |ᶜ cough
 
 # ╔═╡ 27680eca-bd6a-427f-9537-08e33c96c873
@@ -140,32 +82,11 @@ lung_disease_cond = lung_disease |ᶜ cough
 
 # ╔═╡ a4c2bfec-e14e-4bfb-a6f4-560671f417b6
 viz(randsample(lung_disease_cond, 100))
-=======
-cold_ = cold |ᶜ cough
-=======
-cold_cond = cold |ᶜ cough
->>>>>>> f39a3f2 (complete until ch 5)
-
-# ╔═╡ 27680eca-bd6a-427f-9537-08e33c96c873
-histogram(randsample(cold_cond, 100), bins = 1)
-
-# ╔═╡ facacf68-ba53-4aa4-8c1a-5cb34c7effcb
-lung_disease_cond = lung_disease |ᶜ cough
-
-# ╔═╡ a4c2bfec-e14e-4bfb-a6f4-560671f417b6
-<<<<<<< HEAD
-histogram(randsample(lung_disease_, 100), bins = 1)
->>>>>>> ad8ae4b (add ch 4)
-=======
-histogram(randsample(lung_disease_cond, 100), bins = 1)
->>>>>>> f39a3f2 (complete until ch 5)
 
 # ╔═╡ e5251e1d-7823-4e99-acd2-98fccdcf68ed
 md"""
 Here, `cough` depends causally on both `lung_disease` and `cold`, while `fever` depends causally on `cold` but not `lung_disease`. We can see that `cough` depends causally on `smokes` but only indirectly: although `cough` does not call `smokes` directly, in order to evaluate whether a patient coughs, we first have to evaluate the expression `lung_disease` that must itself evaluate `smokes`.
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 We haven’t made the notion of “direct” causal dependence precise: do we want to say that `cough` depends directly on `cold`, or only directly on the expression `(cold &ₚ @~ Bernoulli()) |ₚ ...`? This can be resolved in several ways that all result in similar intuitions. For instance, we could first re-write the program into a form where each intermediate expression is named (called A-normal form) and then say direct dependence is when one expression immediately includes the name of another.
 
 There are several special situations that are worth mentioning. In some cases, whether expression $A$ requires expression $B$ will depend on the value of some third expression $C$. For example, here is a particular way of writing a noisy-AND relationship:
@@ -191,40 +112,6 @@ md"## Detecting Dependence Through Intervention"
 # ╔═╡ 0ac222fe-5749-4122-b8c3-66f7ef237c60
 md"""
 The causal dependence structure is not always immediately clear from examining a program, particularly where there are complex functions calls. Another way to detect (or according to some philosophers, such as Jim Woodward, to _define_) causal dependence is more operational, in terms of “difference making”: If we manipulate $A$, does $B$ tend to change? By _manipulate_ here we don’t mean an assumption in the sense of conditioning. Instead we mean actually edit, or _intervene on_, the program in order to make an expression have a particular value independent of its (former) causes. If setting $A$ to different values in this way changes the distribution of values of $B$, then $B$ causally depends on $A$.
-=======
-We haven’t made the notion of “direct” causal dependence precise: do we want to say that `cough` depends directly on `cold`, or only directly on the expression `(cold && flip(0.5)) || ...`? This can be resolved in several ways that all result in similar intuitions. For instance, we could first re-write the program into a form where each intermediate expression is named (called A-normal form) and then say direct dependence is when one expression immediately includes the name of another.
-=======
-We haven’t made the notion of “direct” causal dependence precise: do we want to say that `cough` depends directly on `cold`, or only directly on the expression `(cold &ₚ @~ Bernoulli()) |ₚ ...`? This can be resolved in several ways that all result in similar intuitions. For instance, we could first re-write the program into a form where each intermediate expression is named (called A-normal form) and then say direct dependence is when one expression immediately includes the name of another.
->>>>>>> f39a3f2 (complete until ch 5)
-
-There are several special situations that are worth mentioning. In some cases, whether expression $A$ requires expression $B$ will depend on the value of some third expression $C$. For example, here is a particular way of writing a noisy - AND relationship:
-"""
-
-# ╔═╡ 8d748761-173f-4675-bc69-6218c1541817
-let
-	C = @~ Bernoulli()
-	B = @~ Bernoulli()
-	A(ω) = (C(ω) ? (B(ω) ? (@~ Bernoulli(0.85))(ω) : false) : false)
-	randsample(A)
-end
-
-# ╔═╡ 71001937-1be6-4e68-936e-57f164b84e54
-md"`A` always requires `C`, but only evaluates `B` if `C` returns true. Under the above definition of causal dependence `A` depends on `B` (as well as `C`). However, one could imagine a more fine-grained notion of causal dependence that would be useful here: we could say that `A` depends causally on `B` only in certain contexts (just those where `C` happens to return true and thus `A` calls `B`)."
-
-# ╔═╡ 84190fe8-fb92-4cbb-9870-a0f5e8eb7873
-md"Another nuance is that an expression that occurs inside a function body may get evaluated several times in a program execution. In such cases it is useful to speak of causal dependence between specific evaluations of two expressions. (However, note that if a specific evaluation of `A` depends on a specific evaluation of `B`, then any other specific evaluation of `A` will depend on some specific evaluation of `B`)"
-
-# ╔═╡ 3bf0f745-1d50-4321-9d30-31c81cb0ba3c
-md"### Detecting Dependence Through Intervention"
-
-# ╔═╡ 0ac222fe-5749-4122-b8c3-66f7ef237c60
-md"""
-<<<<<<< HEAD
-The causal dependence structure is not always immediately clear from examining a program, particularly where there are complex functions calls. Another way to detect (or according to some philosophers, such as Jim Woodward, to _define_) causal dependence is more operational, in terms of “difference making”: If we manipulate A, does B tend to change? By _manipulate_ here we don’t mean an assumption in the sense of conditioning. Instead we mean actually edit, or _intervene on_, the program in order to make an expression have a particular value independent of its (former) causes. If setting A to different values in this way changes the distribution of values of B, then B causally depends on A.
->>>>>>> ad8ae4b (add ch 4)
-=======
-The causal dependence structure is not always immediately clear from examining a program, particularly where there are complex functions calls. Another way to detect (or according to some philosophers, such as Jim Woodward, to _define_) causal dependence is more operational, in terms of “difference making”: If we manipulate $A$, does $B$ tend to change? By _manipulate_ here we don’t mean an assumption in the sense of conditioning. Instead we mean actually edit, or _intervene on_, the program in order to make an expression have a particular value independent of its (former) causes. If setting $A$ to different values in this way changes the distribution of values of $B$, then $B$ causally depends on $A$.
->>>>>>> f39a3f2 (complete until ch 5)
 """
 
 # ╔═╡ 20c806d6-fbfd-41fb-8b76-c7cb4b856ca0
@@ -234,26 +121,14 @@ This method is known in the causal Bayesian network literature as the “do oper
 
 # ╔═╡ 878a4b36-a509-478a-812a-ac2a814de89b
 md"""
-<<<<<<< HEAD
-<<<<<<< HEAD
 For example, in the above example of medical diagnosis, we now give our hypothetical patient a cold — say, by exposing him to a strong cocktail of cold viruses. We should not model this as an observation (e.g. by conditioning on having a cold), because we have taken direct action to change the normal causal structure. Instead, we implement intervention by directly editing the random variables:
-=======
-For example, in the above example of `smokes`, `cold`, ..., we now give our hypothetical patient a cold — for example, by exposing him to a strong cocktail of cold viruses. We should not model this as an observation (e.g. by conditioning on having a cold), because we have taken direct action to change the normal causal structure. Instead we implement intervention by directly editing the random variables:
->>>>>>> ad8ae4b (add ch 4)
-=======
-For example, in the above example of medical diagnosis, we now give our hypothetical patient a cold — for example, by exposing him to a strong cocktail of cold viruses. We should not model this as an observation (e.g. by conditioning on having a cold), because we have taken direct action to change the normal causal structure. Instead we implement intervention by directly editing the random variables:
->>>>>>> f39a3f2 (complete until ch 5)
 """
 
 # ╔═╡ e1ce6bfa-f414-4d6c-8dac-a22c60823e01
 cough_intervened = cough |ᵈ (cold => true)
 
 # ╔═╡ 34b54b3e-6581-450d-8685-ce50b85ae836
-<<<<<<< HEAD
 viz(randsample(cough_intervened, 100))
-=======
-histogram(randsample(cough_intervened, 100), bins = 1)
->>>>>>> ad8ae4b (add ch 4)
 
 # ╔═╡ a7e319f7-934c-4eae-86bf-65006b501ff9
 md"""
@@ -269,8 +144,6 @@ md"### Statistical Dependence"
 
 # ╔═╡ 9742a40a-8a85-4320-8e4c-91c81562bf65
 md"""
-<<<<<<< HEAD
-<<<<<<< HEAD
 One often hears the warning, “correlation does not imply causation”. By “correlation” we mean a different kind of dependence between events or functions—statistical dependence. We say that $A$ and $B$ are statistically dependent, if learning information about $A$ tells us something about $B$, and vice versa. Statistical dependence is a symmetric relation between events referring to how information flows between them when we observe or reason about them. (If conditioning on $A$ changes $B$, then conditioning on $B$ also changes $A$) The fact that we need to be warned against confusing statistical and causal dependence suggests they are related, and indeed, they are. In general, if $A$ causes $B$, then $A$ and $B$ will be statistically dependent. (One might even say the two notions are “causally related”, in the sense that causal dependencies give rise to statistical dependencies.)
 
 Diagnosing statistical dependence by conditioning is similar to diagnosing causal dependence through intervention. We condition on various values of the possible statistical dependent, here $A$, and see whether it changes the distribution on the target, here $B$:
@@ -294,38 +167,6 @@ viz(randsample((B |ᶜ (C ==ₚ false)), 1000))
 # ╔═╡ 94846995-9616-4ea9-b0de-de065960fd57
 md"""
 Because the two distributions on $B$ (when we have different information about $C$) are different, we can conclude that $B$ statistically depends on $B$. Do the same procedure for testing if $C$ statistically depends on $B$. How is this similar (and different) from the causal dependence between these two? As an exercise, make a version of the above medical example to test the statistical dependence between cough and cold. Verify that statistical dependence holds symmetrically for events that are connected by an indirect causal chain, such as smokes and coughs.
-=======
-One often hears the warning, “correlation does not imply causation”. By “correlation” we mean a different kind of dependence between events or functions—statistical dependence. We say that A and B are statistically dependent, if learning information about A tells us something about B, and vice versa. Statistical dependence is a symmetric relation between events referring to how information flows between them when we observe or reason about them. (If conditioning on A changes B, then conditioning on B also changes A. Why?) The fact that we need to be warned against confusing statistical and causal dependence suggests they are related, and indeed, they are. In general, if A causes B, then A and B will be statistically dependent. (One might even say the two notions are “causally related”, in the sense that causal dependencies give rise to statistical dependencies.)
-=======
-One often hears the warning, “correlation does not imply causation”. By “correlation” we mean a different kind of dependence between events or functions—statistical dependence. We say that $A$ and $B$ are statistically dependent, if learning information about $A$ tells us something about $B$, and vice versa. Statistical dependence is a symmetric relation between events referring to how information flows between them when we observe or reason about them. (If conditioning on $A$ changes $B$, then conditioning on $B$ also changes $A$) The fact that we need to be warned against confusing statistical and causal dependence suggests they are related, and indeed, they are. In general, if $A$ causes $B$, then $A$ and $B$ will be statistically dependent. (One might even say the two notions are “causally related”, in the sense that causal dependencies give rise to statistical dependencies.)
->>>>>>> f39a3f2 (complete until ch 5)
-
-Diagnosing statistical dependence by conditioning is similar to diagnosing causal dependence through intervention. We condition on various values of the possible statistical dependent, here $A$, and see whether it changes the distribution on the target, here $B$:
-"""
-
-# ╔═╡ 3f9caefe-3d3d-4856-94d8-5d9633e5f02c
-A = @~ Bernoulli()
-
-# ╔═╡ 83d8805d-29ce-4a5e-86e7-20ff8169e75a
-C = @~ Bernoulli()
-
-# ╔═╡ fd9cd041-792d-4489-bf69-4f6680e9efb9
-B(ω) = C(ω) ? (@~ Bernoulli(0.1))(ω) : (@~ Bernoulli(0.4))(ω)
-
-# ╔═╡ 4cd4bcd9-21ac-455b-a086-0b4502b10617
-histogram(randsample((B |ᶜ (C ==ₚ true)), 1000), bins = 1)
-
-# ╔═╡ 6418a755-32b8-491d-85d1-67683f4a05f8
-histogram(randsample((B |ᶜ (C ==ₚ false)), 1000), bins = 1)
-
-# ╔═╡ 94846995-9616-4ea9-b0de-de065960fd57
-md"""
-<<<<<<< HEAD
-Because the two distributions on E (when we have different information about F) are different, we can conclude that E statistically depends on F. Do the same procedure for testing if F statistically depends on E. How is this similar (and different) from the causal dependence between these two? As an exercise, make a version of the above medical example to test the statistical dependence between cough and cold. Verify that statistical dependence holds symmetrically for events that are connected by an indirect causal chain, such as smokes and coughs.
->>>>>>> ad8ae4b (add ch 4)
-=======
-Because the two distributions on $B$ (when we have different information about $C$) are different, we can conclude that $B$ statistically depends on $B$. Do the same procedure for testing if $C$ statistically depends on $B$. How is this similar (and different) from the causal dependence between these two? As an exercise, make a version of the above medical example to test the statistical dependence between cough and cold. Verify that statistical dependence holds symmetrically for events that are connected by an indirect causal chain, such as smokes and coughs.
->>>>>>> f39a3f2 (complete until ch 5)
 
 Correlation is not just a symmetrized version of causality. Two events may be statistically dependent even if there is no causal chain running between them, as long as they have a common cause (direct or indirect). Here is an example of statistical dependence generated by a common cause:
 """
@@ -334,7 +175,6 @@ Correlation is not just a symmetrized version of causality. Two events may be st
 X  = @~ Bernoulli()
 
 # ╔═╡ d41077b8-eaf6-474d-8113-a35c82b06a8d
-<<<<<<< HEAD
 Y = ifelseₚ(X, (@~ Bernoulli()), (@~ Bernoulli(0.9)))
 
 # ╔═╡ 1df8c40c-c894-4fa2-b80f-91a5f5f3bfd1
@@ -351,24 +191,6 @@ md"""
 Situations like this are extremely common. In the medical example above, `cough` and `fever` are not causally dependent but they are statistically dependent because they both depend on `cold`; likewise for `chest_pain` and `shortness_of_breath` which both depend on `lung_disease`. Here we can read off these facts from the program definitions, but more generally all of these relations can be diagnosed by reasoning using `|ᶜ`.
 
 Successful learning and reasoning with causal models typically depend on exploiting the close coupling between causation and correlation. Causal relations are typically unobservable, while correlations are observable from data. Noticing patterns of correlation is thus often the beginning of causal learning, or discovering what causes what. On the other hand, with a causal model already in place, reasoning about the statistical dependencies implied by the model allows us to predict many aspects of the world not directly observed from those aspects we do observe.
-=======
-Y(ω) = X(ω) ? (@~ Bernoulli())(ω) : (@~ Bernoulli(0.9))(ω)
-
-# ╔═╡ 1df8c40c-c894-4fa2-b80f-91a5f5f3bfd1
-Z(ω) = X(ω) ? (@~ Bernoulli(0.1))(ω) : (@~ Bernoulli(0.4))(ω)
-
-# ╔═╡ 24f23296-cb77-481a-a8ac-05ec3ed65bcf
-histogram(randsample((Z |ᶜ (Y ==ₚ true)), 100), bins = 1)
-
-# ╔═╡ c285f6c4-ae2d-4d2b-900e-7bf31482fdba
-histogram(randsample((Z |ᶜ (Y ==ₚ false)), 100), bins = 1)
-
-# ╔═╡ 2fa92448-bc3b-49df-bebf-32e443487d7c
-md"""
-Situations like this are extremely common. In the medical example above, `cough` and `fever` are not causally dependent but they are statistically dependent, because they both depend on `cold`; likewise for `chest_pain` and `shortness_of_breath` which both depend on `lung_disease`. Here we can read off these facts from the program definitions, but more generally all of these relations can be diagnosed by reasoning using `intervene`.
-
-Successful learning and reasoning with causal models typically depends on exploiting the close coupling between causation and correlation. Causal relations are typically unobservable, while correlations are observable from data. Noticing patterns of correlation is thus often the beginning of causal learning, or discovering what causes what. On the other hand, with a causal model already in place, reasoning about the statistical dependencies implied by the model allows us to predict many aspects of the world not directly observed from those aspects we do observe.
->>>>>>> ad8ae4b (add ch 4)
 """
 
 # ╔═╡ 61390b9e-ef3b-4c80-849b-b9494ec66841
@@ -381,19 +203,9 @@ _Graphical models_ are an extremely important idea in modern machine learning: a
 
 # ╔═╡ 97cf5a87-fc8d-4cf8-8a87-48eace44c04a
 md"""
-<<<<<<< HEAD
-<<<<<<< HEAD
 Simple generative models will have a corresponding graphical model that captures all of the dependencies (and independencies) of the model, without capturing the precise form of these functions. The CPTs provide a less compact representation of the conditional probabilities compared to Omega programs, which express the _structural causal model_ (SCM) of the models).
 
 More complicated generative models, which can be expressed as probabilistic programs, often don’t have a graphical model (or rather they have many approximations, none of which captures all independencies). Recursive models generally give rise to ambiguous (or loopy) Bayes nets.
-=======
-Simple generative models will have a corresponding graphical model that captures all of the dependencies (and independencies) of the model, without capturing the precise form of these functions.
->>>>>>> ad8ae4b (add ch 4)
-=======
-Simple generative models will have a corresponding graphical model that captures all of the dependencies (and independencies) of the model, without capturing the precise form of these functions. The CPTs provide a less compact representation of the conditional probabilities compared to Omega programs.
-
-More complicated generative models, which can be expressed as probabilistic programs, often don’t have such a graphical model (or rather they have many approximations, none of which captures all independencies). Recursive models generally give rise to such ambiguous (or loopy) Bayes nets.
->>>>>>> f39a3f2 (complete until ch 5)
 """
 
 # ╔═╡ Cell order:
@@ -402,15 +214,6 @@ More complicated generative models, which can be expressed as probabilistic prog
 # ╟─7380e30d-6b9a-438c-8fc2-2521861db9be
 # ╟─26730848-ca65-4075-9a03-fc1790e4f51f
 # ╠═90e1ff24-2747-45ec-b785-9b929ddf231a
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-# ╠═31ced654-0528-4d93-a978-b0e57c280932
-# ╠═ac4638ba-fd87-49f5-a470-f38249b8acbc
-# ╠═4915b4a9-3f1b-475c-aaa4-7f0745c938d6
->>>>>>> ad8ae4b (add ch 4)
-=======
->>>>>>> f39a3f2 (complete until ch 5)
 # ╟─5b86b373-c48a-4f04-b84b-66434da0507a
 # ╠═0f7afd5c-38de-4b29-82e1-897eb2965928
 # ╠═a5f62e00-f02f-4545-be25-eddcce5f7e52
@@ -425,15 +228,6 @@ More complicated generative models, which can be expressed as probabilistic prog
 # ╠═a4c2bfec-e14e-4bfb-a6f4-560671f417b6
 # ╟─e5251e1d-7823-4e99-acd2-98fccdcf68ed
 # ╠═8d748761-173f-4675-bc69-6218c1541817
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-# ╠═b513209e-18bb-4e2b-9105-4b33f31d387b
-# ╠═e9ba6b11-c7ec-461d-8b4a-1deae33c107e
-# ╠═9587fe9a-db90-4bd3-9e0d-99416a4f8b01
->>>>>>> ad8ae4b (add ch 4)
-=======
->>>>>>> f39a3f2 (complete until ch 5)
 # ╟─71001937-1be6-4e68-936e-57f164b84e54
 # ╟─84190fe8-fb92-4cbb-9870-a0f5e8eb7873
 # ╟─3bf0f745-1d50-4321-9d30-31c81cb0ba3c
