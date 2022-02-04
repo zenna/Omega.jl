@@ -2,6 +2,8 @@ export Variable, AbstractVariable, isvariable, traitvartype
 
 abstract type AbstractVariable end
 
+abstract type AbstractClass end
+
 # Traits
 struct TraitIsVariable end
 struct TraitIsClass end

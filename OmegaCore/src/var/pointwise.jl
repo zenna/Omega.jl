@@ -1,6 +1,6 @@
 # module Pointwise
 
-export pw, l, dl, ₚ, PwVar, liftapply
+export pw, l, ₚ, PwVar, liftapply
  
 """
 Pointwise application.
@@ -114,25 +114,6 @@ recurse(p::PwVar{Tuple{T1, T2}}, ω) where {T1, T2} =
 recurse(p::PwVar{<:Tuple}, ω) =
   lift_output(p.f(map(arg -> liftapply(arg, ω), p.args)...), ω)
 
-
-
-## Pointwise p/dot Syntax
-
-export ==ₚ, >=ₚ, <=ₚ, >ₚ, <ₚ, !ₚ, &ₚ, |ₚ, ifelseₚ, +ₚ, -ₚ, *ₚ, /ₚ
-@inline x ==ₚ y = pw(==, x, y)
-@inline x >=ₚ y = pw(>=, x, y)
-@inline x >ₚ y = pw(>, x, y)
-@inline x <ₚ y = pw(<, x, y)
-@inline x <=ₚ y = pw(<=, x, y)
-@inline x +ₚ y = pw(+, x, y)
-@inline x -ₚ y = pw(-, x, y)
-@inline x *ₚ y = pw(*, x, y)
-@inline x /ₚ y = pw(/, x, y)
-
-@inline x |ₚ y = pw(|, x, y)
-@inline x &ₚ y = pw(&, x, y)
-@inline !ₚ(x) = pw(!, x)
-@inline ifelseₚ(a, b, c) = pw(ifelse, a, b, c)
 
 ## Broadcasting
 struct PointwiseStyle <: Broadcast.BroadcastStyle end
