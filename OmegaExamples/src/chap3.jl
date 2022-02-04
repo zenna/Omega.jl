@@ -165,26 +165,20 @@ end
 # ╔═╡ 170f9e54-43c5-4365-bdad-1a67751a59f9
 randsample(ω->maxEUAgent(ω))
 
-# ╔═╡ 9594eca1-6a8f-4cef-bdd6-066ff1912ebb
-a_1 = a|ᶜ(a *ₚ b *ₚ c)
+# ╔═╡ 6b636814-9317-4535-ad2b-91d706eaee5a
+r = ω->(@~Bernoulli(pw(+,1,pw(/,pw(logerr,pw(==ₛ,pw(+,a,b,c),2)), 4000))(ω)))(ω)
 
-# ╔═╡ 56d185c5-80af-4f8d-8b1b-caf089a32735
-histogram(randsample(a_1,1000))
+# ╔═╡ c2bdd457-1e32-4df0-ac4d-eb4a8589065b
+a_3 = a |ᶜ ω->r(ω)
+
+# ╔═╡ 2143b3c5-d904-4671-911d-0cdaed00c648
+histogram(randsample(a_3,1000))
+
+# ╔═╡ 6d3b6072-d408-4229-8e82-bc4d641aa445
+ω = defω()
 
 # ╔═╡ 8cfb178a-7be2-4852-afa1-0485cfb8f08b
 md"*Exercise*: Adjust the transition probabilities such that the agent chooses the Italian Restaurant."
-
-# ╔═╡ 6be5b68a-71ca-4527-8bb1-a9ea76d3d7ef
-function factorₚ(op, x, y, z...)
-	return pw(^,2.718,pw(op, x, y, z...))
-end
-
-# ╔═╡ e10389c0-4947-4988-b446-f8c3eb29f2e5
-a
-
-
-# ╔═╡ 10027387-d3d2-448b-8209-b065b00030af
-ω = defω()
 
 # ╔═╡ b628689f-03e5-4867-82ee-23b6ef5dffbf
 begin
@@ -238,6 +232,30 @@ end
 # ╔═╡ b8b16f86-524d-4186-9e8c-f84b88a11f7e
 histogram(randsample(inference_agent("initialState"),1000))
 
+# ╔═╡ 0c7e381a-b9a5-4e4b-9678-c5ad27497cbb
+n = @~UniformDraw([0,1,2])
+
+# ╔═╡ 0fd65faa-0780-442f-81a5-823b33a68802
+pw(^,n,2)
+
+# ╔═╡ 6933e394-ce61-4a0b-9722-650524c6b395
+r2 = @~Bernoulli(ω->(pw(+,1,pw(/,pw(logerr,pw(==ₛ,pw(^,ω->n(ω),2),4)),20000)))(ω))
+
+# ╔═╡ 40e170d0-cb29-4f8b-8805-4ef8ef043aae
+randsample(r2)
+
+# ╔═╡ 82e20a50-2671-4809-b6b0-046e03762dba
+randsample(ω->r2(ω))
+
+# ╔═╡ 69cc5a5b-7e04-4100-8c9d-ce1214ae8de0
+randsample(ω->(pw(+,1,pw(/,pw(logerr,pw(==ₛ,pw(^,ω->n(ω),2),4)),20000)))(ω))
+
+# ╔═╡ 42d0a19f-cb97-4f23-a767-f2b889420171
+n_c = n |ᶜ ω->r2(ω)
+
+# ╔═╡ a6d027b0-d5a0-472f-a4a8-7b9b6e192155
+histogram(randsample(ω->n_c(ω),1000))
+
 # ╔═╡ Cell order:
 # ╟─69f5f64e-7ae3-11ec-2649-111a12da3b87
 # ╟─b6705156-3d39-44d4-80dd-4794b1f0b0e6
@@ -274,10 +292,17 @@ histogram(randsample(inference_agent("initialState"),1000))
 # ╠═b402f49f-5f3f-45fb-8382-18ef33c86368
 # ╠═bbc44566-2cc9-4f11-b65d-38133e563c05
 # ╠═170f9e54-43c5-4365-bdad-1a67751a59f9
-# ╠═9594eca1-6a8f-4cef-bdd6-066ff1912ebb
-# ╠═56d185c5-80af-4f8d-8b1b-caf089a32735
+# ╠═6b636814-9317-4535-ad2b-91d706eaee5a
+# ╠═c2bdd457-1e32-4df0-ac4d-eb4a8589065b
+# ╠═2143b3c5-d904-4671-911d-0cdaed00c648
+# ╠═0c7e381a-b9a5-4e4b-9678-c5ad27497cbb
+# ╠═0fd65faa-0780-442f-81a5-823b33a68802
+# ╠═6933e394-ce61-4a0b-9722-650524c6b395
+# ╠═69cc5a5b-7e04-4100-8c9d-ce1214ae8de0
+# ╠═40e170d0-cb29-4f8b-8805-4ef8ef043aae
+# ╠═42d0a19f-cb97-4f23-a767-f2b889420171
+# ╠═82e20a50-2671-4809-b6b0-046e03762dba
+# ╠═a6d027b0-d5a0-472f-a4a8-7b9b6e192155
+# ╠═6d3b6072-d408-4229-8e82-bc4d641aa445
 # ╟─8cfb178a-7be2-4852-afa1-0485cfb8f08b
-# ╠═6be5b68a-71ca-4527-8bb1-a9ea76d3d7ef
-# ╠═e10389c0-4947-4988-b446-f8c3eb29f2e5
-# ╠═10027387-d3d2-448b-8209-b065b00030af
 # ╟─b628689f-03e5-4867-82ee-23b6ef5dffbf
