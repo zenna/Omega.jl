@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.6
+# v0.17.5
 
 using Markdown
 using InteractiveUtils
@@ -132,13 +132,12 @@ To represent this in Omega, we extend maxagent using the expectation function, w
 
 
 # ╔═╡ b98d669a-9de9-42f2-a470-c52fb51c4538
-function transitions_soft(ω, action)
-	
+function transitions_soft(ω, action)	
 	nextStates = ["bad", "good", "spectacular"]
 	nextProbs = (action == "italian") ? [0.2, 0.6, 0.2] : [0.05, 0.9, 0.05]
-	z = @~Categorical(nextProbs)
-	
-	return nextStates[z(ω)]
+	z = 21314 ~ Categorical(nextProbs)
+	z_ = z(ω)
+	return nextStates[z_]
 end
 	
 
@@ -154,6 +153,15 @@ end
 
 # ╔═╡ b402f49f-5f3f-45fb-8382-18ef33c86368
 alpha = 1
+
+# ╔═╡ 9ad5553f-34a4-4a3d-909d-41570d58f64a
+utility_(ω) = utility_soft(transitions_soft(ω, "initialState"))
+
+# ╔═╡ b58f9ef6-c63e-4fca-8f53-674ed4941025
+𝔼(x; nsamples = 1_000_00) = sum(randsample(x, nsamples)) / nsamples
+
+# ╔═╡ 4b25e0a4-acc5-4a0e-906e-2ffe6e8be1f9
+𝔼(utility_)
 
 # ╔═╡ bbc44566-2cc9-4f11-b65d-38133e563c05
 function maxEUAgent(ω)
@@ -232,6 +240,18 @@ end
 # ╔═╡ b8b16f86-524d-4186-9e8c-f84b88a11f7e
 histogram(randsample(inference_agent("initialState"),1000))
 
+# ╔═╡ 5f4ef303-4306-426e-8fa9-200d39844b73
+action = @~ UniformDraw(actions)
+
+# ╔═╡ 154fa1e9-8421-4508-953b-c43a54e796d4
+utility_rid = rid(utility_, action)
+
+# ╔═╡ f0541561-cd90-4aba-bddf-7d18cb2a923d
+conditional_𝔼 = pw(𝔼, utility_rid)
+
+# ╔═╡ 0256063d-7134-4274-aafd-9e8a0dec94da
+randsample(utility_rid)
+
 # ╔═╡ 0c7e381a-b9a5-4e4b-9678-c5ad27497cbb
 n = @~UniformDraw([0,1,2])
 
@@ -290,6 +310,13 @@ histogram(randsample(ω->n_c(ω),1000))
 # ╠═b98d669a-9de9-42f2-a470-c52fb51c4538
 # ╠═35572f02-c5db-4c87-b1b8-c1efcfaacec0
 # ╠═b402f49f-5f3f-45fb-8382-18ef33c86368
+# ╠═5f4ef303-4306-426e-8fa9-200d39844b73
+# ╠═9ad5553f-34a4-4a3d-909d-41570d58f64a
+# ╠═154fa1e9-8421-4508-953b-c43a54e796d4
+# ╠═f0541561-cd90-4aba-bddf-7d18cb2a923d
+# ╠═0256063d-7134-4274-aafd-9e8a0dec94da
+# ╠═4b25e0a4-acc5-4a0e-906e-2ffe6e8be1f9
+# ╠═b58f9ef6-c63e-4fca-8f53-674ed4941025
 # ╠═bbc44566-2cc9-4f11-b65d-38133e563c05
 # ╠═170f9e54-43c5-4365-bdad-1a67751a59f9
 # ╠═6b636814-9317-4535-ad2b-91d706eaee5a
