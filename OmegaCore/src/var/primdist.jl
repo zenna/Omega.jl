@@ -11,6 +11,9 @@ export invert,
 
 "Primitive random variable class"
 abstract type PrimClass end
+Var.isclass(class::PrimClass) = true
+Var.traitvartype(class::PrimClass) = Var.TraitIsClass()
+Var.traitvartype(class::Type{<:PrimClass}) = Var.TraitIsClass()
 
 "An primitive random variable"
 const PrimRandVar{F <: PrimClass, ID} = Member{F, ID}

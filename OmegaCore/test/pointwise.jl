@@ -18,3 +18,19 @@ end
   @test isinferred(randsample, x)
 end
 
+@testset "Pointwise class" begin
+  xs = Normal(0, 1)
+  x = @~ xs
+  ys = xs .+ x
+  y1 = 1 ~ ys
+  y2 = 2 ~ ys
+  randsample((y1, y2))
+end
+
+function f()
+  y = @~ Normal(0, 1)
+  z = y .+ y
+  randsample(z)
+  ω = defω()
+  z(ω)
+end

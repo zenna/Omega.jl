@@ -5,6 +5,7 @@ abstract type AbstractVariable end
 # Traits
 struct TraitIsVariable end
 struct TraitIsClass end
+struct TraitUnknownVariableType end
 struct TraitIsNotVariable end
 
 "Is `v` a variable?"
@@ -24,18 +25,32 @@ end
   end
 end
 
-@generated function traitvartype(ok::Function)
-  if isvariable(ok.instance)
+function traitvartype(f::Type{<:Function})
+  if isvariable(f.instance)
     # 31
     TraitIsVariable()
-  elseif isclass(ok.instancae)
+  elseif isclass(f.instance)
     TraitIsClass()
   else
     TraitIsNotVariable()
   end
 end
 
+@generated function traitvartype(f::Function)
+  traitvartype(f)
+end
+
+@generated function traitvartype(f::Type{<:Function})
+  func = t.parameters[1]
+  traitvartype(func)
+end
+
+
+# By default we don't know the variable type
+traitvartype(T) = TraitUnknownVariableType()
+
 traitvartype(::AbstractVariable) = TraitIsVariable()
+traitvartype(::Type{<:AbstractVariable}) = TraitIsVariable()
 
 # # Variable
 # A Variable is a parametric or random variable, which is just any function of

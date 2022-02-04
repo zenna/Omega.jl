@@ -3,6 +3,10 @@ module OmegaDistributions
 using Distributions: Normal, Bernoulli, UnivariateDistribution, Distribution, Uniform, quantile
 import Distributions, OmegaCore
 using OmegaCore.Var: liftapply, Member, StdUniform, StdNormal
+import OmegaCore.Var
+
+OmegaCore.Var.traitvartype(class::Type{<:Distribution}) = Var.TraitIsClass()
+
 
 @inline (d::Normal{T})(id, ω) where T =
   Member(id, StdNormal{T}())(ω) * d.σ + d.μ
