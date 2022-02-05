@@ -1,6 +1,7 @@
 # module Pointwise
 
-export pw, l, ₚ, PwVar, liftapply
+export pw, l, ₚ, PwVar, liftapply, PointwiseStyle
+import AndTraits
  
 """
 Pointwise application.
@@ -51,26 +52,38 @@ struct PwClass{ARGS, D} <: AbstractClass
   PwClass(f::Type{T}, args::A) where {T, A} = new{A, Type{T}}(f, args)
 end
 
-# Class lifting
 (p::PwClass{Tuple{T1}})(i, ω) where {T1} =
   lift_output(p.f(liftapply(p.args[1], i, ω)), i, ω)
 
+(p::PwClass{Tuple{T1, T2}})(i, ω) where {T1, T2} =
+  lift_output(p.f(liftapply(p.args[1], i, ω), liftapply(p.args[2], i, ω)), i, ω)
+
 struct PwVar{ARGS, D} <: AbstractVariable
-  f::D
+    f::D
   args::ARGS
   PwVar(f::F, args::A) where {F, A} = new{A, F}(f, args)
   PwVar(f::Type{T}, args::A) where {T, A} = new{A, Type{T}}(f, args)
 end
 
 pw(f) = (args...) -> PwVar(f, args)
-pw(f, arg, args...) = PwVar(f, (arg, args...)) ## Perhaps do the logic here and have the appropriate result
+# pw(f, arg, args...) = PwVar(f, (arg, args...)) ## Perhaps do the logic here and have the appropriate result
 
-pw(f::F, arg1::A1) where {F, A1} = handle(f, traitvartype(F), arg1, traitvartype(A1))
-pw(f::F, arg1::A1, arg2::A2) where {F, A1, A2} = handle(f, traitvartype(F), arg1, traitvartype(A1), arg2, traitvartype(A2))
+pw(f::F, arg1::A1) where {F, A1} =
+  handleit(f, arg1, AndTraits.conjointraits(traitvartype(F), traitvartype(A1)))
+pw(f::F, arg1::A1, arg2::A2) where {F, A1, A2} =
+  handleit(f, arg1, arg2, AndTraits.conjointraits(traitvartype(F), traitvartype(A1), traitvartype(A2)))
 
-# Logic, if any of args is a variable its a variable,  If any are class its a class
-handle(f, ::TraitIsVariable, arg1, ::TraitIsVariable, arg2, ::TraitIsVariable) = PwVar(f, (arg1, arg2))
-handle(f, arg1, ::TraitIsClass, arg2, ::TraitIsVariable) = PwClass(f, (arg1, arg2))
+handleit(f, arg1, ::AndTraits.traitmatch(TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1,))
+handleit(f, arg1, ::AndTraits.traitmatch(TraitIsClass)) = PwClass(f, (arg1,))
+handleit(f, arg1, ::AndTraits.traitmatch(TraitIsVariable)) = PwVar(f, (arg1,))
+handleit(f, arg1, ::AndTraits.traitmatch(TraitUnknownVariableType, TraitIsClass)) = PwClass(f, (arg1,))
+handleit(f, arg1, ::AndTraits.traitmatch(TraitUnknownVariableType, TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1,))
+
+handleit(f, arg1, arg2, ::AndTraits.traitmatch(TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1, arg2))
+handleit(f, arg1, arg2, ::AndTraits.traitmatch(TraitIsClass)) = PwClass(f, (arg1, arg2))
+handleit(f, arg1, arg2, ::AndTraits.traitmatch(TraitIsVariable)) = PwVar(f, (arg1, arg2))
+handleit(f, arg1, arg2, ::AndTraits.traitmatch(TraitUnknownVariableType, TraitIsClass)) = PwClass(f, (arg1, arg2))
+handleit(f, arg1, arg2,  ::AndTraits.traitmatch(TraitUnknownVariableType, TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1, arg2))
 
 Base.show(io::IO, p::Union{PwVar, PwClass}) = print(io, p.f, "ₚ", p.args)
 
@@ -92,21 +105,23 @@ l(x) = LiftBox(x)
 
 @inline liftapply(f::LiftBox, i, ω) = liftapply(unbox(f), i, ω)
 
-@inline liftapply(::TraitIsVariable, f, ω) = f(ω)
-@inline liftapply(::TraitIsClass, f, i, ω) = f(i, ω)
-@inline liftapply(::TraitUnknownVariableType, f, i, ω) = f
+@inline liftapply(::AndTraits.traitmatch(TraitIsVariable), f, ω) = f(ω)
+@inline liftapply(::AndTraits.traitmatch(TraitIsVariable), f, i, ω) = f(ω)
+@inline liftapply(::AndTraits.traitmatch(TraitIsClass), f, i, ω) = f(i, ω)
+@inline liftapply(::AndTraits.traitmatch(TraitUnknownVariableType), f, i, ω) = f
 
-
-# Class rules
-# rv ⊕ class = (ω. i) -> rv(ω) ⊕ class(i, ω)
-
-"Handle output"
+# Handle output function might return random variable
 @inline lift_output(op::O, ω) where {O} = lift_output(traitvartype(O), op, ω)
-@inline lift_output(::TraitUnknownVariableType, op, ω) = op
-@inline lift_output(::TraitIsVariable, op, ω) = op(ω)
+@inline lift_output(::AndTraits.traitmatch(TraitUnknownVariableType), op, ω) = op
+@inline lift_output(::AndTraits.traitmatch(TraitIsVariable), op, ω) = op(ω)
+
+# Class output 
+@inline lift_output(op::O, i, ω) where {O} = lift_output(traitvartype(O), op, i, ω)
+@inline lift_output(::AndTraits.traitmatch(TraitUnknownVariableType), op, i, ω) = op
+@inline lift_output(::AndTraits.traitmatch(TraitIsVariable), op, i, ω) = op(ω)
 
 recurse(p::PwVar{Tuple{T1}}, ω) where {T1} =
-  lift_output(p.f(liftapply(p.args[1], ω)), ω)
+  lift_output(p.f(liftapply(p.args[1], ω)), ω)  # FIXME: Handle case when f is as rv{function}
 
 recurse(p::PwVar{Tuple{T1, T2}}, ω) where {T1, T2} =
   lift_output(p.f(liftapply(p.args[1], ω), liftapply(p.args[2], ω)), ω)
@@ -117,7 +132,12 @@ recurse(p::PwVar{<:Tuple}, ω) =
 
 ## Broadcasting
 struct PointwiseStyle <: Broadcast.BroadcastStyle end
-Base.BroadcastStyle(::Type{<:AbstractVariable}) = PointwiseStyle()
-Base.broadcastable(x::AbstractVariable) = x
+Base.BroadcastStyle(::Type{<:Union{AbstractVariable, AbstractClass}}) = PointwiseStyle()
+Base.broadcastable(x::Union{AbstractVariable, AbstractClass}) = x
+
 Base.broadcasted(::PointwiseStyle, f, args...)  = pw(f, args...)
 Base.BroadcastStyle(::PointwiseStyle, ::Base.Broadcast.DefaultArrayStyle{0}) = PointwiseStyle()
+
+# Handle `f` is random variable over functions
+Base.broadcast(f::Union{AbstractVariable, AbstractClass}, args...) = pw(f, args...)
+Base.broadcast(f::Union{AbstractVariable, AbstractClass}, args::Vararg{Number}) = pw(f, args...)

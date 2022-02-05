@@ -1,5 +1,10 @@
 # This file is machine-generated - editing it directly is not advised
 
+[[AndTraits]]
+path = "/home/zenna/repos/AndTraits.jl/"
+uuid = "fb24a613-cb95-4ee3-a029-2b7ba7763d4b"
+version = "0.1.0"
+
 [[ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
 
@@ -179,7 +184,7 @@ uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 
 [[OmegaCore]]
-deps = ["Future", "Random", "Reexport", "Spec"]
+deps = ["AndTraits", "Future", "Random", "Reexport", "Spec"]
 path = "OmegaCore"
 uuid = "84d23798-d00f-4e9b-a82e-be69778c030a"
 version = "0.1.0"

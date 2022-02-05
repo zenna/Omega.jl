@@ -1,3 +1,4 @@
+import AndTraits
 export Variable, AbstractVariable, isvariable, traitvartype
 
 abstract type AbstractVariable end
@@ -5,54 +6,53 @@ abstract type AbstractVariable end
 abstract type AbstractClass end
 
 # Traits
-struct TraitIsVariable end
-struct TraitIsClass end
-struct TraitUnknownVariableType end
-struct TraitIsNotVariable end
+const TraitIsVariable = AndTraits.Trait{:TraitIsVariable}
+const TraitIsClass = AndTraits.Trait{:TraitIsClass}
+const TraitUnknownVariableType = AndTraits.Trait{:TraitUnknownVariableType}
 
 "Is `v` a variable?"
-@generated function isvariable(v::Function)
-  mthds = methods(v.instance)
+function isvariable(v::Function)
+  mthds = methods(v)
   any(mthds.ms) do m
     # Core.println(m.sig)
     !(m.sig isa UnionAll) && length(m.sig.types) == 2 && (m.sig.types[2] == AbstractΩ)
   end
 end
 
-@generated function isclass(v::Function)
-  mthds = methods(v.instance)
+function isclass(v::Function)
+  mthds = methods(v)
   any(mthds.ms) do m
     # Core.println(m.sig)
     !(m.sig isa UnionAll) && length(m.sig.types) == 3 && (m.sig.types[3] == AbstractΩ)
   end
 end
 
-function traitvartype(f::Type{<:Function})
-  if isvariable(f.instance)
-    # 31
-    TraitIsVariable()
-  elseif isclass(f.instance)
-    TraitIsClass()
+function traitvartype_(f::Function)
+  # Core.println(f)
+  if isvariable(f)
+    TraitIsVariable
+  elseif isclass(f)
+    TraitIsClass
   else
-    TraitIsNotVariable()
+    TraitUnknownVariableType
   end
 end
 
-@generated function traitvartype(f::Function)
-  traitvartype(f)
-end
+# @generated function traitvartype(f::Function)
+#   traitvartype(f)
+# end
 
 @generated function traitvartype(f::Type{<:Function})
-  func = t.parameters[1]
-  traitvartype(func)
+  functype = f.parameters[1]
+  traitvartype_(functype.instance)
 end
 
 
 # By default we don't know the variable type
-traitvartype(T) = TraitUnknownVariableType()
+traitvartype(T) = TraitUnknownVariableType
 
-traitvartype(::AbstractVariable) = TraitIsVariable()
-traitvartype(::Type{<:AbstractVariable}) = TraitIsVariable()
+traitvartype(::AbstractVariable) = TraitIsVariable
+traitvartype(::Type{<:AbstractVariable}) = TraitIsVariable
 
 # # Variable
 # A Variable is a parametric or random variable, which is just any function of
@@ -67,3 +67,11 @@ end
 recurse(f::Variable, ω) = f.f(ω)
 
 Base.show(io::IO, f::Variable) = Base.print(io, "ᵛ", f.f)
+
+struct Class{C} <: AbstractClass
+  c::C
+end
+Var.traitvartype(::Class) = TraitIsClass
+Var.traitvartype(::Type{<:Class}) = TraitIsClass
+
+@inline (c::Class)(i, ω) = c.c(i, ω)

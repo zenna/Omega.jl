@@ -5,7 +5,7 @@ import Distributions, OmegaCore
 using OmegaCore.Var: liftapply, Member, StdUniform, StdNormal
 import OmegaCore.Var
 
-OmegaCore.Var.traitvartype(class::Type{<:Distribution}) = Var.TraitIsClass()
+OmegaCore.Var.traitvartype(class::Type{<:Distribution}) = Var.TraitIsClass
 
 @inline (d::Normal{T})(id, ω) where T =
   Member(id, StdNormal{T}())(ω) * d.σ + d.μ
@@ -21,6 +21,12 @@ OmegaCore.Var.traitvartype(class::Type{<:Distribution}) = Var.TraitIsClass()
 
 invert(o::Normal, val) = (val / o.σ) - o.μ
 invert(d::UnivariateDistribution, val) = cdf(d, val)
+
+# Pointwise
+
+function Base.broadcast(::Type{T}, arg1::Var.AbstractVariable, arg2) where {T <:Distribution}
+  pw(T, arg1, arg2)
+end
 
 # Additional distributions 
 
