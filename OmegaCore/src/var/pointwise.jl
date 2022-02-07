@@ -65,25 +65,29 @@ struct PwVar{ARGS, D} <: AbstractVariable
   PwVar(f::Type{T}, args::A) where {T, A} = new{A, Type{T}}(f, args)
 end
 
-pw(f) = (args...) -> PwVar(f, args)
-# pw(f, arg, args...) = PwVar(f, (arg, args...)) ## Perhaps do the logic here and have the appropriate result
-
+# FIXME: What about more than two arguments
 pw(f::F, arg1::A1) where {F, A1} =
-  handleit(f, arg1, AndTraits.conjointraits(traitvartype(F), traitvartype(A1)))
+  inferpwtype(f, arg1, AndTraits.conjointraits(traitvartype(F), traitvartype(A1)))
 pw(f::F, arg1::A1, arg2::A2) where {F, A1, A2} =
-  handleit(f, arg1, arg2, AndTraits.conjointraits(traitvartype(F), traitvartype(A1), traitvartype(A2)))
+  inferpwtype(f, arg1, arg2, AndTraits.conjointraits(traitvartype(F), traitvartype(A1), traitvartype(A2)))
 
-handleit(f, arg1, ::AndTraits.traitmatch(TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1,))
-handleit(f, arg1, ::AndTraits.traitmatch(TraitIsClass)) = PwClass(f, (arg1,))
-handleit(f, arg1, ::AndTraits.traitmatch(TraitIsVariable)) = PwVar(f, (arg1,))
-handleit(f, arg1, ::AndTraits.traitmatch(TraitUnknownVariableType, TraitIsClass)) = PwClass(f, (arg1,))
-handleit(f, arg1, ::AndTraits.traitmatch(TraitUnknownVariableType, TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1,))
+conjointraits
 
-handleit(f, arg1, arg2, ::AndTraits.traitmatch(TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1, arg2))
-handleit(f, arg1, arg2, ::AndTraits.traitmatch(TraitIsClass)) = PwClass(f, (arg1, arg2))
-handleit(f, arg1, arg2, ::AndTraits.traitmatch(TraitIsVariable)) = PwVar(f, (arg1, arg2))
-handleit(f, arg1, arg2, ::AndTraits.traitmatch(TraitUnknownVariableType, TraitIsClass)) = PwClass(f, (arg1, arg2))
-handleit(f, arg1, arg2,  ::AndTraits.traitmatch(TraitUnknownVariableType, TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1, arg2))
+# FIXME: Feel like this wil likely break type inference
+pw(f, args...) = 
+  inferpwtype(f, args..., AndTraits.conjointraits(map(typeof, args)...))
+
+inferpwtype(f, args...) = 
+
+inferpwtype(f, arg1, ::AndTraits.traitmatch(TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1,))
+inferpwtype(f, arg1, ::AndTraits.traitmatch(TraitIsClass)) = PwClass(f, (arg1,))
+inferpwtype(f, arg1, ::AndTraits.traitmatch(TraitIsVariable)) = PwVar(f, (arg1,))
+inferpwtype(f, arg1, ::AndTraits.traitmatch(TraitUnknownVariableType, TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1,))
+
+inferpwtype(f, arg1, arg2, ::AndTraits.traitmatch(TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1, arg2))
+inferpwtype(f, arg1, arg2, ::AndTraits.traitmatch(TraitIsClass)) = PwClass(f, (arg1, arg2))
+inferpwtype(f, arg1, arg2, ::AndTraits.traitmatch(TraitIsVariable)) = PwVar(f, (arg1, arg2))
+inferpwtype(f, arg1, arg2,  ::AndTraits.traitmatch(TraitUnknownVariableType, TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1, arg2))
 
 Base.show(io::IO, p::Union{PwVar, PwClass}) = print(io, p.f, "ₚ", p.args)
 
@@ -97,18 +101,22 @@ l(x) = LiftBox(x)
 @inline unbox(x::LiftBox) = x.val
 @inline unbox(x) = x
 
-@inline liftapply(f::T, ω) where T = liftapply(traitvartype(T), f, ω)
-@inline liftapply(f::T, i, ω) where T = liftapply(traitvartype(T), f, i, ω)
+@inline liftapply(f::T, ω) where T = liftapplyt(traitvartype(T), f, ω)
+@inline liftapply(f::T, i, ω) where T = liftapplyt(traitvartype(T), f, i, ω)
 
 @inline liftapply(f::Ref, ω) = f[]
 @inline liftapply(f::Ref, i, ω) = f[]
 
 @inline liftapply(f::LiftBox, i, ω) = liftapply(unbox(f), i, ω)
 
-@inline liftapply(::AndTraits.traitmatch(TraitIsVariable), f, ω) = f(ω)
-@inline liftapply(::AndTraits.traitmatch(TraitIsVariable), f, i, ω) = f(ω)
-@inline liftapply(::AndTraits.traitmatch(TraitIsClass), f, i, ω) = f(i, ω)
-@inline liftapply(::AndTraits.traitmatch(TraitUnknownVariableType), f, i, ω) = f
+# Random Variable
+@inline liftapplyt(::AndTraits.traitmatch(TraitIsVariable), f, ω) = f(ω)
+@inline liftapplyt(::AndTraits.traitmatch(TraitUnknownVariableType), f, ω) = f
+
+# Class
+@inline liftapplyt(::AndTraits.traitmatch(TraitIsVariable), f, i, ω) = f(ω)
+@inline liftapplyt(::AndTraits.traitmatch(TraitIsClass), f, i, ω) = f(i, ω)
+@inline liftapplyt(::AndTraits.traitmatch(TraitUnknownVariableType), f, i, ω) = f
 
 # Handle output function might return random variable
 @inline lift_output(op::O, ω) where {O} = lift_output(traitvartype(O), op, ω)
@@ -124,7 +132,7 @@ recurse(p::PwVar{Tuple{T1}}, ω) where {T1} =
   lift_output(p.f(liftapply(p.args[1], ω)), ω)  # FIXME: Handle case when f is as rv{function}
 
 recurse(p::PwVar{Tuple{T1, T2}}, ω) where {T1, T2} =
-  lift_output(p.f(liftapply(p.args[1], ω), liftapply(p.args[2], ω)), ω)
+  lift_output(p.f(@show(liftapply(p.args[1], ω)), @show(liftapply(p.args[2], ω))), ω)
 
 recurse(p::PwVar{<:Tuple}, ω) =
   lift_output(p.f(map(arg -> liftapply(arg, ω), p.args)...), ω)
