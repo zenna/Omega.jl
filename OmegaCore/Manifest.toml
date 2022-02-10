@@ -1,7 +1,7 @@
 # This file is machine-generated - editing it directly is not advised
 
 [[AndTraits]]
-git-tree-sha1 = "f9c4e34c4bb2efc52b1c2d7e9b69aaed10f1b183"
+git-tree-sha1 = "8bf4f6b819935ccf8519c480c4e1daa1a82e8ffc"
 repo-rev = "main"
 repo-url = "https://github.com/zenna/AndTraits.jl.git"
 uuid = "fb24a613-cb95-4ee3-a029-2b7ba7763d4b"

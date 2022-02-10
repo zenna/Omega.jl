@@ -71,13 +71,12 @@ pw(f::F, arg1::A1) where {F, A1} =
 pw(f::F, arg1::A1, arg2::A2) where {F, A1, A2} =
   inferpwtype(f, arg1, arg2, AndTraits.conjointraits(traitvartype(F), traitvartype(A1), traitvartype(A2)))
 
-conjointraits
 
 # FIXME: Feel like this wil likely break type inference
 pw(f, args...) = 
   inferpwtype(f, args..., AndTraits.conjointraits(map(typeof, args)...))
 
-inferpwtype(f, args...) = 
+# inferpwtype(AndTraits.traitmatch(TraitIsVariable, TraitIsClass)) = PwClass(f, args)
 
 inferpwtype(f, arg1, ::AndTraits.traitmatch(TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1,))
 inferpwtype(f, arg1, ::AndTraits.traitmatch(TraitIsClass)) = PwClass(f, (arg1,))
