@@ -71,7 +71,6 @@ pw(f::F, arg1::A1) where {F, A1} =
 pw(f::F, arg1::A1, arg2::A2) where {F, A1, A2} =
   inferpwtype(f, arg1, arg2, AndTraits.conjointraits(traitvartype(F), traitvartype(A1), traitvartype(A2)))
 
-
 # FIXME: Feel like this wil likely break type inference
 pw(f, args...) = 
   inferpwtype(f, args..., AndTraits.conjointraits(map(typeof, args)...))

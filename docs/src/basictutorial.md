@@ -24,7 +24,7 @@ A beta distribution is appropriate here because it is bounded between 0 and 1.
 Draw a 10000 samples from `weight` using `rand`:
 
 ```julia
-beta_samples = rand(weight, 10000)
+beta_samples = randsample(weight, 10000)
 ```
 
 Let's see what this distribution looks like using UnicodePlots.  If you don't have it installed already install with:
@@ -66,7 +66,7 @@ Since a coin can be heads or tales, the appropriate distribution is the [bernoul
 
 ```julia
 nflips = 4
-coinflips_ = [bernoulli(weight, Bool) for i = 1:nflips]
+coinflips_ = [Bernoulli.(weight, Bool) for i = 1:nflips]
 ```
 
 Take note that `weight` is the random variable defined previously.

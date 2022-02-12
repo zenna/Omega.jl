@@ -17,5 +17,4 @@ include("primdist.jl")          # Primitive Distributions
 include("pointwise.jl")         # Point wise variable application
 include("dispatch.jl")          # Contextual application
 
-
 end
