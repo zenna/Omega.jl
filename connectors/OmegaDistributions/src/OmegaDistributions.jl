@@ -29,6 +29,10 @@ Distributions.Normal(μ, σ) =
 
 Distributions.Bernoulli(p) =
   (id, ω) -> Bernoulli(liftapply(p, ω))(id, ω)
+
+@inline (d::Type{<:Distribution})(args...) =
+  (id, ω) -> (d(map(a -> liftapply(a, ω), args)...))(id, ω)
+
 #FIXme generalize this
 # Normalₚ(args...) = pw(Distributions.Normal, args...)
 # Uniformₚ(args...) = pw(Distributions.Uniform, args...)
