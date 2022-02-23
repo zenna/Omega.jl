@@ -390,7 +390,7 @@ The program above gives us draws from some novel category for which we’ve seen
 """
 
 # ╔═╡ fa0bc385-4821-4401-8d41-df4da9dfe3df
-plot(load("images/shape_bias_results_model.png"))
+plot(load("probmods/images/shape_bias_results_model.png"))
 
 # ╔═╡ 189001d6-77bf-44b6-8aa2-6886dbba6bb0
 md"""
@@ -413,7 +413,7 @@ Results for two questions of the experiment are shown below. The results accord 
 """
 
 # ╔═╡ 11062112-de76-4998-a39c-69248847df03
-plot(load("images/nisbett_model_humans.png"))
+plot(load("probmods/images/nisbett_model_humans.png"))
 
 # ╔═╡ a17a2537-a187-424b-83d8-c85c52fc4552
 md"""
@@ -424,7 +424,7 @@ Humans are able to categorize objects (in a space with a huge number of dimensio
 """
 
 # ╔═╡ b1dcb5aa-2de5-45c1-9f51-627eea7b8d0f
-plot(load("images/russ_model_graphical.png"))
+plot(load("probmods/images/russ_model_graphical.png"))
 
 # ╔═╡ 5af74b7c-8c65-456f-a403-c6bdfb94bb36
 md"""
@@ -434,7 +434,7 @@ The model in the Salakhutdinov et al (2010) paper is not actually given the assi
 """
 
 # ╔═╡ d6776c59-6ce6-4719-8e77-ed61ffdcd50f
-plot(load("images/russ_results_categories.png"))
+plot(load("probmods/images/russ_results_categories.png"))
 
 # ╔═╡ 5aaf81ef-1f68-4568-ad9e-7eb16b452a88
 md"""

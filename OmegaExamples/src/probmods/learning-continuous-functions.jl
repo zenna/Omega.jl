@@ -10,7 +10,6 @@ begin
     # activate the shared project environment
     Pkg.activate(Base.current_project())
     using Omega, Distributions, UnicodePlots, OmegaExamples
-	using Images, Plots
 end
 
 # ╔═╡ 5180d0a3-f875-48aa-9a3a-84366b82528c
