@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.1
+# v0.18.1
 
 using Markdown
 using InteractiveUtils
@@ -390,7 +390,7 @@ The program above gives us draws from some novel category for which we’ve seen
 """
 
 # ╔═╡ fa0bc385-4821-4401-8d41-df4da9dfe3df
-plot(load("probmods/images/shape_bias_results_model.png"))
+plot(load("images/shape_bias_results_model.png"))
 
 # ╔═╡ 189001d6-77bf-44b6-8aa2-6886dbba6bb0
 md"""
@@ -413,7 +413,7 @@ Results for two questions of the experiment are shown below. The results accord 
 """
 
 # ╔═╡ 11062112-de76-4998-a39c-69248847df03
-plot(load("probmods/images/nisbett_model_humans.png"))
+plot(load("images/nisbett_model_humans.png"))
 
 # ╔═╡ a17a2537-a187-424b-83d8-c85c52fc4552
 md"""
@@ -424,7 +424,7 @@ Humans are able to categorize objects (in a space with a huge number of dimensio
 """
 
 # ╔═╡ b1dcb5aa-2de5-45c1-9f51-627eea7b8d0f
-plot(load("probmods/images/russ_model_graphical.png"))
+plot(load("images/russ_model_graphical.png"))
 
 # ╔═╡ 5af74b7c-8c65-456f-a403-c6bdfb94bb36
 md"""
@@ -434,7 +434,7 @@ The model in the Salakhutdinov et al (2010) paper is not actually given the assi
 """
 
 # ╔═╡ d6776c59-6ce6-4719-8e77-ed61ffdcd50f
-plot(load("probmods/images/russ_results_categories.png"))
+plot(load("images/russ_results_categories.png"))
 
 # ╔═╡ 5aaf81ef-1f68-4568-ad9e-7eb16b452a88
 md"""
@@ -458,7 +458,7 @@ The fact that languages show consistency in head directionality could be of grea
 categories = ["D", "N", "T", "V", "A", "Adv"]
 
 # ╔═╡ 811ef71f-5ec6-4108-aef4-41da89e0e232
-head_to_Comp(head) = head == "D" ? "N" :
+head_to_comp(head) = head == "D" ? "N" :
           head == "T" ? "V" :
           head == "N" ? "A" :
           head == "V" ? "Adv" :
@@ -469,13 +469,13 @@ head_to_Comp(head) = head == "D" ? "N" :
 # ╔═╡ 357d0cf9-4ddb-4d4d-821f-b98f33edabd6
 function make_phrase_dist(i, ω, head_to_phrase)
 	head = (i~ UniformDraw(categories))(ω)
-	if isnothing(head_to_Comp(head))
+	if isnothing(head_to_comp(head))
 		return [head]
 	else
 		if (i~ Bernoulli(head_to_phrase[head]))(ω)
-			return [head_to_Comp(head), head]
+			return [head_to_comp(head), head]
 		else 
-			[head, head_to_Comp(head)]
+			[head, head_to_comp(head)]
 		end
 	end
 end
@@ -495,15 +495,20 @@ end
 # ╔═╡ 55efc98e-bf91-44c2-9d8a-0c68c69dcd36
 # uses factor in the code below (compares vector of strings with their `score`)-
 
+# ╔═╡ af7bf1d6-1edd-4db5-9c27-7f17a05943ee
+lang(ω) = (@~ Bernoulli(head_to_phrase(ω)["N"]))(ω) ? "N second" : "N first"
+
+# ╔═╡ daa4ab66-5277-49c2-8860-73b5dbe06892
+cond(ω) = make_phrase_dist(@uid, ω, head_to_phrase(ω)) == data_lang
+
 # ╔═╡ 4cb25578-7be1-4c8a-8929-7118ca49f4b5
-function posterior_lang(ω)
-	c = make_phrase_dist(@uid, ω, head_to_phrase(ω))
-	cond!(ω, c ==ₛ data_lang) # can't compare 2 string this way
-	return (@~ Bernoulli(head_to_phrase(ω)["N"]))(ω) ? "N second" : "N first"
-end
+posterior_lang = lang |ᶜ cond
 
 # ╔═╡ 7f28bc59-991d-419e-9dd0-61309348946b
-randsample(posterior_lang, 1, alg = MH)
+samples_lang = randsample(posterior_lang, 100)
+
+# ╔═╡ 43f94302-1b29-4b89-ae4a-fd2b0675d575
+viz(samples_lang)
 
 # ╔═╡ 2b022f40-5619-4025-bca3-dcf8d17f5c99
 md"""
@@ -610,6 +615,9 @@ Hierarchical model structures give rise to a number of important learning phenom
 # ╠═37d0ec23-82e3-4c3b-82df-e5b54c84d64f
 # ╠═152cc108-f4e6-49e3-9c49-4d575fce4d30
 # ╠═55efc98e-bf91-44c2-9d8a-0c68c69dcd36
+# ╠═af7bf1d6-1edd-4db5-9c27-7f17a05943ee
+# ╠═daa4ab66-5277-49c2-8860-73b5dbe06892
 # ╠═4cb25578-7be1-4c8a-8929-7118ca49f4b5
 # ╠═7f28bc59-991d-419e-9dd0-61309348946b
+# ╠═43f94302-1b29-4b89-ae4a-fd2b0675d575
 # ╟─2b022f40-5619-4025-bca3-dcf8d17f5c99

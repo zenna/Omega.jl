@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.1
+# v0.18.1
 
 using Markdown
 using InteractiveUtils
@@ -192,7 +192,7 @@ scatterplot(stimuli, randsample(perceived_value, length(stimuli), alg = MH))
 md"Notice that the perceived distances between input sounds are skewed relative to the actual acoustic distances – that is they are attracted towards the category centers."
 
 # ╔═╡ b102b7ce-7883-41fa-b527-2f1a45b2af48
-plot(load("probmods/images/Pme.png"))
+plot(load("images/Pme.png"))
 
 # ╔═╡ 2e54ad82-4e4d-4667-901e-d3f4ce010b10
 md"""

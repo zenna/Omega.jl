@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.1
+# v0.18.1
 
 using Markdown
 using InteractiveUtils
@@ -284,13 +284,16 @@ obs_data_ = [
 p_ = ret |ᶜ obs_fn(obs_data_)
 
 # ╔═╡ 1c0e7ddd-8afa-4c7a-8940-b2359335c175
-randsample(p_, alg = MH, 1000)
+randsample(p_, 1000, alg = MH)
 
 # ╔═╡ 61579949-3093-4360-a3a0-7359cfd8e111
 md"Try the above code using a different data set generated from the same function:"
 
+# ╔═╡ bc28d14a-732a-4476-ad9b-96a00f2d2c63
+size = -4:4
+
 # ╔═╡ 991131ba-e2df-48dc-9f55-f4cc397b78b3
-data_ = randsample(ω -> map(x -> (x, (@~ Normal(f(ω)(x), 2))(ω)), -4:4))
+data_ = randsample(ω -> map(x -> (x, (@~ Normal(f(ω)(x), 2))(ω)), size))
 
 # ╔═╡ afd262c9-53ac-45ea-8d57-2519000ae567
 md"You can also try making the data set smaller, or generate data from a different order polynomial. How much data does it take tend to believe the polynomial is third order?"
@@ -355,5 +358,6 @@ md"You can also try making the data set smaller, or generate data from a differe
 # ╠═f55bb58e-08a3-48f5-8e85-8a3d13c5833e
 # ╠═1c0e7ddd-8afa-4c7a-8940-b2359335c175
 # ╟─61579949-3093-4360-a3a0-7359cfd8e111
+# ╠═bc28d14a-732a-4476-ad9b-96a00f2d2c63
 # ╠═991131ba-e2df-48dc-9f55-f4cc397b78b3
 # ╟─afd262c9-53ac-45ea-8d57-2519000ae567

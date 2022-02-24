@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.1
+# v0.18.1
 
 using Markdown
 using InteractiveUtils
@@ -82,7 +82,7 @@ While this theory was appealing for many reasons, it failed to account for a var
 """
 
 # ╔═╡ 3dbd9ef4-f995-4aa3-b939-5baf36225f05
-plot(load("probmods/images/fep.png"))
+plot(load("images/fep.png"))
 
 # ╔═╡ 17bba76a-c480-4186-b42d-9eb4b26c7a53
 md"""

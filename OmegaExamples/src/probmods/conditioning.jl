@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.1
+# v0.18.1
 
 using Markdown
 using InteractiveUtils
@@ -97,7 +97,8 @@ C_ = @~ Bernoulli()
 D = A_ +ₚ B_ +ₚ C_
 
 # ╔═╡ b15a1f8e-2427-42a1-a3be-ee2b8d49adf4
-take_sample(ω) = (D(ω) >= 2) ? A_(ω) : take_sample(split(ω))
+# take_sample(ω) = (D(ω) >= 2) ? A_(ω) : take_sample(split(ω))
+take_sample(ω) = (D(ω) >= 2) ? A_(ω) : take_sample(defω())
 
 # ╔═╡ e0c9c0d1-cd53-4a0f-858b-ee60b70e2a54
 viz(randsample(take_sample, 1000))

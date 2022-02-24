@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.5
+# v0.18.1
 
 using Markdown
 using InteractiveUtils
@@ -361,7 +361,7 @@ viz_marginals(kg_)
 kg_one_press_cookie_prob = map(b -> b.one_press_cookie_prob, kg_samples)
 
 # ╔═╡ 28533c5e-f2dc-46b3-9119-19bcb1b0f4ff
-histogram(kg_one_press_cookie_prob)
+viz(kg_one_press_cookie_prob)
 
 # ╔═╡ ca810a1d-7346-414a-9cec-2fea3e82e2e5
 md"""
@@ -471,7 +471,7 @@ begin
 end
 
 # ╔═╡ a662c3a1-70d6-4305-84d3-a34c77bd5fb8
-histogram(randsample(learner("green", 3), 1000), bins = 1)
+viz(string.(randsample(learner("green", 3), 1000)))
 
 # ╔═╡ 1190f5c8-371e-41e8-be6c-4d3aea30805b
 md"""
@@ -535,7 +535,7 @@ begin
 end
 
 # ╔═╡ 43ff6d9e-0725-406e-b87f-eb37209967d4
-histogram(randsample(listener("some", 1), 1000), bins = 3) # graph isn't same - in WebPpl, they expect some, but not all
+viz(string.(randsample(listener("some", 1), 1000))) # graph isn't same - in WebPpl, they expect some, but not all
 
 # ╔═╡ Cell order:
 # ╠═ad4f98b4-4d34-40e6-a546-1013badd310a
