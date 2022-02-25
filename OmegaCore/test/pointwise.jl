@@ -23,6 +23,7 @@ end
 @testset "Pointwise func" begin
   issin = @~ Bernoulli(0.5)
   f = ifelse.(issin, sin, sqrt)
+  
   μ = @~ Normal(0, 1)
   ϵs = ~ Normal(0, 1)
   ys = μ .+ ϵs
