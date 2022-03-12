@@ -7,7 +7,7 @@ import OmegaCore
 import ..Var
 using ..Tagging: Solve, tag
 using ..Traits: trait
-using ..Condition: Conditional
+using ..Conditioning: Conditional
 
 function isconditioned end
 

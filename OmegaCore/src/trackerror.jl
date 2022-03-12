@@ -1,7 +1,7 @@
 module TrackError
 
-using ..Util, ..Tagging, ..Condition, ..Traits
-import ..Condition
+using ..Util, ..Tagging, ..Conditioning, ..Traits
+import ..Conditioning
 export applytrackerr, condvar, condvarapply, tagerror, initerror
 
 
@@ -48,12 +48,12 @@ conjoinerror!(err::Box, b) = err.val &= b
 # Track error for this ω
 dotrack(ω) = !haskey(ω.tags, :donttrack) && haskey(ω.tags, :err)
 
-function Condition.condf(::trait(Err), ω, x, y)
+function Conditioning.condf(::trait(Err), ω, x, y)
   dotrack(ω) && conjoinerror!(ω.tags.err, y(ω))
   x(ω)
 end
 
-function Condition.cond!(::trait(Err), ω, bool)
+function Conditioning.cond!(::trait(Err), ω, bool)
   dotrack(ω) && conjoinerror!(ω.tags.err, bool)
   bool
 end

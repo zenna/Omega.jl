@@ -38,8 +38,8 @@ include("rand.jl")            # Higher order inference
 
 # include("cassette.jl")
 
-include("condition.jl")         # Conditioning variables
-@reexport using .Condition
+include("conditioning.jl")         # Conditioning variables
+@reexport using .Conditioning
 
 include("Higher/higher.jl")            # Higher order inference
 @reexport using .Higher
