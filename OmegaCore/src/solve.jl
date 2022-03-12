@@ -35,7 +35,7 @@ function Var.recurse(::trait(Solve), f, ω)
 end
 
 # Default case, no specialization:
-solve(f, ω) = Var.recurse(f, ω)
+# solve(f, ω) = Var.recurse(f, ω)
 
 # # Defaualt case
 # solve(f, id, ω) = f(ω)
