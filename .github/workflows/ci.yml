@@ -57,9 +57,8 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Pkg
-            Pkg.add(url = pwd(), subdir = "OmegaCore")
-            Pkg.develop(PackageSpec(path=pwd()))
-            Pkg.instantiate()'
+            Pkg.update()
+            Pkg.add(url = pwd(), subdir = "OmegaCore")'
       - run: |
           julia --project=docs -e '
             using Documenter: doctest
