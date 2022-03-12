@@ -38,56 +38,78 @@ g(ϵ) = (i, ω::Ω) -> i ~ Normal(ω, 0, 1) + ϵ
 u = 1 ~ StdNormal{Float64}()
 g.(u) := (i, ω::Ω) -> g(u(ω))(i, ω) # This is what I'd want, and the result should be a class, but i cant tell that based on
 # Types of u or types of g (well, in principle I could for type of g but not in Julia)
-
-
 ```
 """
 # 1. f(::AbstractVariableOrClass, ω) = ...
 # 2. Different types, so we decide when we construct them
-
-struct PwClass{ARGS, D} <: AbstractClass
+struct Pw{ARGS, D} <: AbstractVariableOrClass
   f::D
   args::ARGS
-  PwClass(f::F, args::A) where {F, A} = new{A, F}(f, args)
-  PwClass(f::Type{T}, args::A) where {T, A} = new{A, Type{T}}(f, args)
+  Pw(f::F, args::A) where {F, A} = new{A, F}(f, args)
+  Pw(f::Type{T}, args::A) where {T, A} = new{A, Type{T}}(f, args)
 end
 
-(p::PwClass{Tuple{T1}})(i, ω) where {T1} =
-  lift_output(p.f(liftapply(p.args[1], i, ω)), i, ω)
+Var.traitvartype(::AbstractVariableOrClass) = TraitIsVariableOrClass
+Var.traitvartype(::Type{<:AbstractVariableOrClass}) = TraitIsVariableOrClass
 
-(p::PwClass{Tuple{T1, T2}})(i, ω) where {T1, T2} =
-  lift_output(p.f(liftapply(p.args[1], i, ω), liftapply(p.args[2], i, ω)), i, ω)
+@inline pw(f, args...) = Pw(f, args)
 
-struct PwVar{ARGS, D} <: AbstractVariable
-    f::D
-  args::ARGS
-  PwVar(f::F, args::A) where {F, A} = new{A, F}(f, args)
-  PwVar(f::Type{T}, args::A) where {T, A} = new{A, Type{T}}(f, args)
+@inline function (pwv::Pw)(i, ω::AbstractΩ)
+  f_ = liftapply(pwv.f, i, ω)
+  args_ = map(a -> liftapply(a, i, ω), pwv.args)
+  ret = f_(args_...)
+  liftapply(ret, i, ω)
 end
 
-# FIXME: What about more than two arguments
-pw(f::F, arg1::A1) where {F, A1} =
-  inferpwtype(f, arg1, AndTraits.conjointraits(traitvartype(F), traitvartype(A1)))
-pw(f::F, arg1::A1, arg2::A2) where {F, A1, A2} =
-  inferpwtype(f, arg1, arg2, AndTraits.conjointraits(traitvartype(F), traitvartype(A1), traitvartype(A2)))
+@inline function Var.recurse(pwv::Pw, ω::AbstractΩ)
+  f_ = liftapply(pwv.f, ω)
+  args_ = map(a -> liftapply(a, ω), pwv.args)
+  ret = f_(args_...)
+  liftapply(ret, ω)
+end
+# struct PwClass{ARGS, D} <: AbstractClass
+#   f::D
+#   args::ARGS
+#   PwClass(f::F, args::A) where {F, A} = new{A, F}(f, args)
+#   PwClass(f::Type{T}, args::A) where {T, A} = new{A, Type{T}}(f, args)
+# end
 
-# FIXME: Feel like this wil likely break type inference
-pw(f, args...) = 
-  inferpwtype(f, args..., AndTraits.conjointraits(map(typeof, args)...))
+# (p::PwClass{Tuple{T1}})(i, ω) where {T1} =
+#   lift_output(p.f(liftapply(p.args[1], i, ω)), i, ω)
 
-# inferpwtype(AndTraits.traitmatch(TraitIsVariable, TraitIsClass)) = PwClass(f, args)
+# (p::PwClass{Tuple{T1, T2}})(i, ω) where {T1, T2} =
+#   lift_output(p.f(liftapply(p.args[1], i, ω), liftapply(p.args[2], i, ω)), i, ω)
 
-inferpwtype(f, arg1, ::AndTraits.traitmatch(TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1,))
-inferpwtype(f, arg1, ::AndTraits.traitmatch(TraitIsClass)) = PwClass(f, (arg1,))
-inferpwtype(f, arg1, ::AndTraits.traitmatch(TraitIsVariable)) = PwVar(f, (arg1,))
-inferpwtype(f, arg1, ::AndTraits.traitmatch(TraitUnknownVariableType, TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1,))
+# struct PwVar{ARGS, D} <: AbstractVariable
+#     f::D
+#   args::ARGS
+#   PwVar(f::F, args::A) where {F, A} = new{A, F}(f, args)
+#   PwVar(f::Type{T}, args::A) where {T, A} = new{A, Type{T}}(f, args)
+# end
 
-inferpwtype(f, arg1, arg2, ::AndTraits.traitmatch(TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1, arg2))
-inferpwtype(f, arg1, arg2, ::AndTraits.traitmatch(TraitIsClass)) = PwClass(f, (arg1, arg2))
-inferpwtype(f, arg1, arg2, ::AndTraits.traitmatch(TraitIsVariable)) = PwVar(f, (arg1, arg2))
-inferpwtype(f, arg1, arg2,  ::AndTraits.traitmatch(TraitUnknownVariableType, TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1, arg2))
+# # FIXME: What about more than two arguments
+# pw(f::F, arg1::A1) where {F, A1} =
+#   inferpwtype(f, arg1, AndTraits.conjointraits(traitvartype(F), traitvartype(A1)))
+# pw(f::F, arg1::A1, arg2::A2) where {F, A1, A2} =
+#   inferpwtype(f, arg1, arg2, AndTraits.conjointraits(traitvartype(F), traitvartype(A1), traitvartype(A2)))
 
-Base.show(io::IO, p::Union{PwVar, PwClass}) = print(io, p.f, "ₚ", p.args)
+# # FIXME: Feel like this wil likely break type inference
+# pw(f, args...) = 
+#   inferpwtype(f, args..., AndTraits.conjointraits(map(typeof, args)...))
+
+# # inferpwtype(AndTraits.traitmatch(TraitIsVariable, TraitIsClass)) = PwClass(f, args)
+
+# inferpwtype(f, arg1, ::AndTraits.traitmatch(TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1,))
+# inferpwtype(f, arg1, ::AndTraits.traitmatch(TraitIsClass)) = PwClass(f, (arg1,))
+# inferpwtype(f, arg1, ::AndTraits.traitmatch(TraitIsVariable)) = PwVar(f, (arg1,))
+# inferpwtype(f, arg1, ::AndTraits.traitmatch(TraitUnknownVariableType, TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1,))
+
+# inferpwtype(f, arg1, arg2, ::AndTraits.traitmatch(TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1, arg2))
+# inferpwtype(f, arg1, arg2, ::AndTraits.traitmatch(TraitIsClass)) = PwClass(f, (arg1, arg2))
+# inferpwtype(f, arg1, arg2, ::AndTraits.traitmatch(TraitIsVariable)) = PwVar(f, (arg1, arg2))
+# inferpwtype(f, arg1, arg2,  ::AndTraits.traitmatch(TraitUnknownVariableType, TraitIsVariable, TraitIsClass)) = PwClass(f, (arg1, arg2))
+
+Base.show(io::IO, p::Pw) = print(io, p.f, "ₚ", p.args)
 
 # Lifting
 struct LiftBox{T}# <: ABox
@@ -110,40 +132,23 @@ l(x) = LiftBox(x)
 # Random Variable
 @inline liftapplyt(::AndTraits.traitmatch(TraitIsVariable), f, ω) = f(ω)
 @inline liftapplyt(::AndTraits.traitmatch(TraitUnknownVariableType), f, ω) = f
+@inline liftapplyt(::AndTraits.traitmatch(TraitIsVariableOrClass), f, ω) = f(ω)
 
 # Class
 @inline liftapplyt(::AndTraits.traitmatch(TraitIsVariable), f, i, ω) = f(ω)
 @inline liftapplyt(::AndTraits.traitmatch(TraitIsClass), f, i, ω) = f(i, ω)
 @inline liftapplyt(::AndTraits.traitmatch(TraitUnknownVariableType), f, i, ω) = f
-
-# Handle output function might return random variable
-@inline lift_output(op::O, ω) where {O} = lift_output(traitvartype(O), op, ω)
-@inline lift_output(::AndTraits.traitmatch(TraitUnknownVariableType), op, ω) = op
-@inline lift_output(::AndTraits.traitmatch(TraitIsVariable), op, ω) = op(ω)
-
-# Class output 
-@inline lift_output(op::O, i, ω) where {O} = lift_output(traitvartype(O), op, i, ω)
-@inline lift_output(::AndTraits.traitmatch(TraitUnknownVariableType), op, i, ω) = op
-@inline lift_output(::AndTraits.traitmatch(TraitIsVariable), op, i, ω) = op(ω)
-
-recurse(p::PwVar{Tuple{T1}}, ω) where {T1} =
-  lift_output(p.f(liftapply(p.args[1], ω)), ω)  # FIXME: Handle case when f is as rv{function}
-
-recurse(p::PwVar{Tuple{T1, T2}}, ω) where {T1, T2} =
-  lift_output(p.f(@show(liftapply(p.args[1], ω)), @show(liftapply(p.args[2], ω))), ω)
-
-recurse(p::PwVar{<:Tuple}, ω) =
-  lift_output(p.f(map(arg -> liftapply(arg, ω), p.args)...), ω)
+@inline liftapplyt(::AndTraits.traitmatch(TraitIsVariableOrClass), f, i, ω) = f(i, ω)
 
 
 ## Broadcasting
 struct PointwiseStyle <: Broadcast.BroadcastStyle end
-Base.BroadcastStyle(::Type{<:Union{AbstractVariable, AbstractClass}}) = PointwiseStyle()
-Base.broadcastable(x::Union{AbstractVariable, AbstractClass}) = x
+Base.BroadcastStyle(::Type{<:AbstractVariableOrClass}) = PointwiseStyle()
+Base.broadcastable(x::AbstractVariableOrClass) = x
 
 Base.broadcasted(::PointwiseStyle, f, args...)  = pw(f, args...)
 Base.BroadcastStyle(::PointwiseStyle, ::Base.Broadcast.DefaultArrayStyle{0}) = PointwiseStyle()
 
 # Handle `f` is random variable over functions
-Base.broadcast(f::Union{AbstractVariable, AbstractClass}, args...) = pw(f, args...)
-Base.broadcast(f::Union{AbstractVariable, AbstractClass}, args::Vararg{Number}) = pw(f, args...)
+Base.broadcast(f::AbstractVariableOrClass, args...) = pw(f, args...)
+Base.broadcast(f::AbstractVariableOrClass, args::Vararg{Number}) = pw(f, args...)

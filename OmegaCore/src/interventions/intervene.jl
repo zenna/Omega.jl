@@ -1,5 +1,6 @@
 # # Causal interventions
 using ..Var, ..Basis
+import AndTraits
 export |ᵈ, intervene, Intervention, ValueIntervention, autointervention
 using ..Var: traitvartype, TraitIsVariable, AbstractVariable
 
@@ -10,13 +11,13 @@ end
 
 abstract type SlightlyLessAbstractIntervention{X, V} <: AbstractIntervention end
 
-"The imperative that `x(ω)` should be replaced with `v(ω)` "
+"The imperative that `x(ω)`` should be replaced to value `v`"
 struct ValueIntervention{X, V} <: SlightlyLessAbstractIntervention{X, V}
   x::X
   v::V
 end
 
-"The imperative that `x(ω)`` should be replaced to value `v`"
+"The imperative that `x(ω)` should be replaced with `v(ω)` "
 struct Intervention{X, V} <: SlightlyLessAbstractIntervention{X, V}
   x::X
   v::V
@@ -24,7 +25,8 @@ end
 
 # In `x => v`, if we believe `v` is variable then build `Interventon`, otherwise `ValueIntervention`
 autointervention(_, x) = ValueIntervention(x.first, x.second)
-autointervention(::TraitIsVariable, x) = Intervention(x.first, x.second)
+autointervention(::AndTraits.traitmatch(TraitIsVariableOrClass), x) = Intervention(x.first, x.second)
+autointervention(::AndTraits.traitmatch(TraitIsVariable), x) = Intervention(x.first, x.second)
 autointervention(x::Pair{X, Y}) where {X, Y} = autointervention(traitvartype(Y), x)
 
 "Multiple variables intervened"

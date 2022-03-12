@@ -5,21 +5,11 @@ using OmegaDistributions
 using OmegaTest
 using OmegaCore.Interventions
 
-
-function test_changed_rettype_merge()
-    xx = 1 ~ Categorical([0.5, 0.5])
-    y(ω) = xx(ω) + 1 # int 
-    yi = intervene(y, xx => (ω -> 200.0)) # float
-    @test randsample(yi) == 201
-    ω = defω()
-    @test Base.return_types(yi, Base.typesof(ω))[1] == Union{Int64,Float64}
-end
-
 function test_merge_1()
     xx = 1 ~ Normal(0, 1)
     y(ω) = xx(ω) + 10
-    yi = intervene(y, xx => (ω -> 200.0))
-    yi2 = intervene(yi, xx => (ω -> 300.0))
+    yi = intervene(y, xx => (ω::Ω -> 200.0))
+    yi2 = intervene(yi, xx => (ω::Ω -> 300.0))
     @test randsample(yi2) == 210
   # yi2(ω)
     @test isinferred(randsample, yi2)
@@ -30,7 +20,7 @@ function test_merge_2()
     y(ω) = xx(ω) + 10
     xr = 2 ~ Normal(30, 1)
     yi = intervene(y, xx => xr) 
-    yi2 = intervene(yi, xr => (ω -> 300.0))
+    yi2 = intervene(yi, xr => (ω::Ω -> 300.0))
     @test randsample(yi2) == 310
     @test isinferred(randsample, yi2)
 end
@@ -38,8 +28,8 @@ end
 function test_merge_3()
     xx = 1 ~ Normal(0, 1)
     y(ω) = xx(ω) + 10
-    yi = intervene(y, (xx => (ω -> 200.0), xx => (ω -> 300.0)))
-    yi3 = intervene(yi, xx => (ω -> 400.0))
+    yi = intervene(y, (xx => (ω::Ω -> 200.0), xx => (ω::Ω -> 300.0)))
+    yi3 = intervene(yi, xx => (ω::Ω -> 400.0))
     @test randsample(yi3) == 210
     @test isinferred(randsample, yi3)
 end
@@ -48,9 +38,9 @@ function test_merge_4()
     xx = 1 ~ Normal(0, 1)
     y(ω) = xx(ω) + 10
     xr = 2 ~ Normal(30, 1)
-    xrr(ω) = xr(ω) * xr(ω)
+    xrr = xr .* xr
     yi = intervene(y, xx => xrr) 
-    yi2 = intervene(yi, xr => (ω -> 30.0))
+    yi2 = intervene(yi, xr => (ω::Ω -> 30.0))
     @test randsample(yi2) == 910.0
     @test isinferred(randsample, yi2)
 end
@@ -58,12 +48,12 @@ end
 function test_merge_more_than_5_interventions()
     xx = 1 ~ Normal(0, 1)
     y(ω) = xx(ω) + 10
-    yi = intervene(y, xx => (ω -> 200.0))
-    yi2 = intervene(yi, xx => (ω -> 300.0))
-    yi3 = intervene(yi2, xx => (ω -> 400.0))
-    yi4 = intervene(yi3, xx => (ω -> 500.0))
-    yi5 = intervene(yi4, xx => (ω -> 600.0))
-    yi6 = intervene(yi5, xx => (ω -> 700.0))
+    yi = intervene(y, xx => (ω::Ω -> 200.0))
+    yi2 = intervene(yi, xx => (ω::Ω -> 300.0))
+    yi3 = intervene(yi2, xx => (ω::Ω -> 400.0))
+    yi4 = intervene(yi3, xx => (ω::Ω -> 500.0))
+    yi5 = intervene(yi4, xx => (ω::Ω -> 600.0))
+    yi6 = intervene(yi5, xx => (ω::Ω -> 700.0))
     @test randsample(yi6) == 210
   # isinferred fails
 end
@@ -72,8 +62,8 @@ end
 function minimal_examplea()
     xx = 1 ~ Normal(0, 1)
     y(ω) = xx(ω) + 10
-    yi = intervene(y, xx => (ω -> 200.0)) 
-    yi2 = intervene(yi, xx => (ω -> 300.0))
+    yi = intervene(y, xx => (ω::Ω -> 200.0)) 
+    yi2 = intervene(yi, xx => (ω::Ω -> 300.0))
     @test randsample(yi2) == 210
 end
 
@@ -82,7 +72,7 @@ function minimal_exampleb()
     y(ω) = xx(ω) + 10
     xr = 2 ~ Normal(30, 1)
     yi = intervene(y, xx => xr) 
-    yi2 = intervene(yi, xr => (ω -> 300.0))
+    yi2 = intervene(yi, xr => (ω::Ω -> 300.0))
     @test randsample(yi2) == 310
 end
 
@@ -99,7 +89,7 @@ function test_model()
     x_ = 0.1
     y_ = 0.3
 
-    # model -- tuple-valued random variable ω -> (x(ω), y(ω)), becase we want joint pdf
+    # model -- tuple-valued random variable ω::Ω -> (x(ω), y(ω)), becase we want joint pdf
     m(ω) = (x(ω), y(ω))
     (x, y, m)
 end
@@ -112,20 +102,17 @@ end
 
 function test_intervention()
     x, y, m = test_model()
-    yⁱ = y |ᵈ (x => (ω -> 100.0))
+    yⁱ = y |ᵈ (x => (ω::Ω -> 100.0))
     @test 100.0 <= randsample(yⁱ) <= 101.0
     @test isinferred(randsample, yⁱ)
 end
 
 function test_intervene_diff_parents()
     x = 1 ~ Normal(0, 1)
-    function y(ω)
-        x_ = x(ω)
-        (2 ~ Normal(x_, 1))(ω)
-    end
+    y = 2 ~ Normal.(x, 1)
     x2 = 3 ~ Normal(0, 1)
-    yi = y |ᵈ (x => ω -> 100.0)
-    yi2 = y |ᵈ (x2 => ω -> 100.0)
+    yi = y |ᵈ (x => ω::Ω -> 100.0)
+    yi2 = y |ᵈ (x2 => ω::Ω -> 100.0)
     yi_, yi2_ = randsample((yi, yi2))
     @test yi_ != yi2_
 end
@@ -133,9 +120,8 @@ end
 function test_two_interventions()
     x = 1 ~ Normal(0, 1)
     y = 2 ~ Uniform(10.0, 20.0)
-    z(ω) = Normal(x(ω), y(ω))((3,), ω)
-    (x, y, z)
-    zi = z |ᵈ (x => (ω -> 100.0), y => (ω -> 0.1))
+    z = 3 ~ Normal.(x, y)
+    zi = z |ᵈ (x => (ω::Ω -> 100.0), y => (ω::Ω -> 0.1))
     @test 99 <= randsample(zi) <= 101
     @test isinferred(randsample, zi)
 end
@@ -144,9 +130,8 @@ function test_three_interventions()
     x = 1 ~ Normal(0, 1)
     y = 2 ~ Uniform(10.0, 20.0)
     c = 3 ~ Uniform(2.0, 3.0)
-    z(ω) = Normal(x(ω) * c(ω), y(ω))((3,), ω)
-    (x, y, z)
-    zi = z |ᵈ (x => (ω -> 100.0), y => (ω -> 0.1), c => (w -> 1.0))
+    z = 4 ~ Normal.(x .* c, y)
+    zi = z |ᵈ (x => (ω::Ω -> 100.0), y => (ω::Ω -> 0.1), c => (ω::Ω -> 1.0))
     @test 99 <= randsample(zi) <= 101
 end
 
@@ -181,27 +166,15 @@ function test_self_intervene()
     q = 0.3
     E = ~ 1 ~ Bernoulli(p)     # Execution order
     C = ~ 2 ~ Uniform(0, 1)    # Calmness
-    N = C <ₚ q                  # Nerves
-    A = E |ₚ N                 # A shoots
+    N = C .< q                  # Nerves
+    A = E .| N                 # A shoots
     B = E                      # B shoots on order
-    D = A |ₚ B                 # Prisoner Dies
+    D = A .| B                 # Prisoner Dies
     cf = (D |ᵈ (A => 0)) |ᶜ D
-  # randsample(cf)
-  
-  # na1 = D |ᵈ (B => (C <ₚ q))
-  # @test isinferred(randsample, na1)
-  # na2 = D |ᵈ (C => C *ₚ 1.2)
-  # @test isinferred(randsample, na2)
-  # s = 0.4
-  # na3 = D |ᵈ (A => ω -> ifelse((3 ~ Bernoulli(s))(ω), false, A(ω)))
-  # @test isinferred(randsample, na3)
     r = 0.8
-    na4 = D |ᵈ (A => false, B => ifelseₚ(3 ~ Bernoulli(r), false, B))
-  # ω = def\
-  # @test isinferred(randsample, na4)
+    na4 = D |ᵈ (A => false, B => ifelse.(3 ~ Bernoulli(r), false, B))
     ω = defω()
     na4(ω)
-  # randsample(na4)
 end
 
 function test_many_intervene_tuple()
@@ -221,7 +194,7 @@ end
     test_merge_2()
     test_merge_3()
     test_merge_4()
-    test_changed_rettype_merge()
+    # test_changed_rettype_merge()
     test_merge_more_than_5_interventions()
     test_self_intervene()
     minimal_examplea()

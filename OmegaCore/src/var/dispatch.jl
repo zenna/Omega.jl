@@ -7,7 +7,7 @@ export prepostapply, Vari, prehook, posthook
 # such as do causal interventions, track loglikelihood information, etc
 # Our implementation models Cassette.jl
 
-@inline (f::AbstractVariable)(ω::Ω) where {Ω <: AbstractΩ} = dispatch(traits(Ω), f, ω)
+@inline (f::AbstractVariableOrClass)(ω::Ω) where {Ω <: AbstractΩ} = dispatch(traits(Ω), f, ω)
 @inline dispatch(traits::Trait, f, ω) = prepostapply(traits, f, ω)
 
 @inline function prepostapply(traits::Trait, f, ω::AbstractΩ)

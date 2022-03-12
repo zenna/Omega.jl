@@ -1,13 +1,16 @@
 import AndTraits
-export Variable, AbstractVariable, isvariable, traitvartype
+export Variable, AbstractVariable, isvariable, traitvartype, AbstractClass, AbstractVariableOrClass, TraitIsVariableOrClass
 
-abstract type AbstractVariable end
+abstract type AbstractVariableOrClass end
 
-abstract type AbstractClass end
+abstract type AbstractVariable <: AbstractVariableOrClass end
+
+abstract type AbstractClass <: AbstractVariableOrClass end
 
 # Traits
 const TraitIsVariable = AndTraits.Trait{:TraitIsVariable}
 const TraitIsClass = AndTraits.Trait{:TraitIsClass}
+const TraitIsVariableOrClass = AndTraits.Trait{:TraitIsVariableOrClass}
 const TraitUnknownVariableType = AndTraits.Trait{:TraitUnknownVariableType}
 
 "Is `v` a variable?"
