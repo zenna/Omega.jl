@@ -4,7 +4,7 @@ using Reexport
 using Spec
 
 include("util/util.jl")         # General utilities
-using .Util
+@reexport using .Util
 
 include("traits.jl")
 @reexport using .Traits
@@ -33,13 +33,16 @@ include("space/space.jl")       # Probability / Paramter Spaces
 include("interventions/interventions.jl")         # Causal interventions
 @reexport using .Interventions
 
+include("rand.jl")            # Higher order inference
+@reexport using .Rand
+
+# include("cassette.jl")
+
+include("conditioning.jl")         # Conditioning variables
+@reexport using .Conditioning
+
 include("Higher/higher.jl")            # Higher order inference
 @reexport using .Higher
-
-include("cassette.jl")
-
-include("condition.jl")         # Conditioning variables
-@reexport using .Condition
 
 include("queries.jl")           # Query Templtes
 @reexport using .Queries
@@ -48,13 +51,19 @@ include("sample.jl")            # Sample
 @reexport using .Sample
 
 include("trackerror.jl")
-using .TrackError
+@reexport using .TrackError
 
 include("proposal/proposal.jl")            # Log density
 @reexport using .Proposal
 
-include("solution.jl")               # Satisfy
-@reexport using .Solution
+include("solve.jl")               # Satisfy
+@reexport using .Solver
+
+include("seen.jl")
+@reexport using .SeenVars
+
+include("logenergy.jl")
+@reexport using .LogEnergies
 
 # Basic Inference methods
 # include("fail.jl")              # Fails when conditions are not satisfied
@@ -66,8 +75,10 @@ include("rejection.jl")         # Rejection sampling Inference
 # include("pointwise.jl")
 # @reexport using .Pointwise
 
+include("mem.jl")
+@reexport using .Memoize
+
 include("syntax/syntax.jl")
 @reexport using .Syntax
-
 
 end

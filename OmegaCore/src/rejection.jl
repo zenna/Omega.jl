@@ -2,7 +2,7 @@ module OmegaRejectionSample
 import Base.Threads
 
 import ..OmegaCore
-using ..Util, ..Sample, ..Condition, ..TrackError, ..RNG
+using ..Util, ..Sample, ..Conditioning, ..TrackError, ..RNG
 const OC = OmegaCore
 # import ..OmegaCore: randsample
 
@@ -14,10 +14,10 @@ const RejectionSample = RejectionSampleAlg()
 
 OmegaCore.defrandalg(args...) = RejectionSample
 
-function condomegasample1(rng,
-                     ΩT::Type{OT},
-                     y,
-                     alg::RejectionSampleAlg) where OT
+function omegarandsample1(rng,
+                          ΩT::Type{OT},
+                          y,
+                          alg::RejectionSampleAlg) where OT
   @label restart
   ω = ΩT()
   ω_ = tagrng(ω, rng)
@@ -25,8 +25,9 @@ function condomegasample1(rng,
   ω
 end
 
+
 "`n` samples from ω::ΩT such that `y(ω)` is true"
-function OC.condomegasample(rng,
+function OC.omegarandsample(rng,
                        ΩT::Type{OT},
                        y,
                        n,
@@ -38,11 +39,11 @@ function OC.condomegasample(rng,
   # rngs = OC.duplicaterng(rng, Threads.nthreads())
   # Threads.@threads for i = 1:n
   #   rng = rngs[Threads.threadid()]
-  #   @inbounds ωsamples[i] = condomegasample1(rng, ΩT, y, n, alg)
+  #   @inbounds ωsamples[i] = omegarandsample1(rng, ΩT, y, n, alg)
   # end
   for i = 1:n
     # rng = rngs[Threads.threadid()]
-    @inbounds ωsamples[i] = condomegasample1(rng, ΩT, y, alg)
+    @inbounds ωsamples[i] = omegarandsample1(rng, ΩT, y, alg)
   end
 
   ωsamples
@@ -55,8 +56,8 @@ function OC.randsample(rng,
                        alg::RejectionSampleAlg) where {OT}
   # introduce conditions
   # y = OC.mem(OC.indomain(x))
-  y = condvar(x)
-  ωsamples = OC.condomegasample(rng, ΩT, y, n, alg)
+  y = condvar(x, Bool)
+  ωsamples = OC.omegarandsample(rng, ΩT, y, n, alg)
   # map(OC.mem(x), ωsamples)
   map(x, ωsamples)
 end

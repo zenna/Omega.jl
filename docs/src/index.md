@@ -5,19 +5,16 @@ It was developed by [Zenna Tavares](http://zenna.org) with help from Javier Burr
 
 ## Quick Start
 
-Omega is built in Julia >1.6.  You can easily install it from a Julia REPL with:
+Omega is built in Julia.  You can easily install it from a Julia repl with:
 
 ```julia
-(v1.6) pkg> add Omega#master
+] add Omega
 ```
 
-Check Omega is working and gives reasonable results with: 
+To use Omega, start with:
 
 ```julia
 julia> using Omega
-
-julia> rand(normal(0.0, 1.0))
-0.7625637212030862
 ```
 
 With that, see the [Tutorial](basictutorial.md) for a run through of the main features of Omega. 
@@ -31,11 +28,38 @@ Please add probabilistic models and model families to https://github.com/zenna/O
 
 - Inference procedures
 
-
 ## Citation
-
 If you use Omega, please cite Omega papers:
 
+
+
+If you use the causal inference features (`replace`), please cite:
+
+[A Language for Counterfactual Generative Models](http://www.zenna.org/publications/causal.pdf)
+
+```
+@inproceedings{tavares2021language,
+  title={A language for counterfactual generative models},
+  author={Tavares, Zenna and Koppel, James and Zhang, Xin and Das, Ria and Solar-Lezama, Armando},
+  booktitle={International Conference on Machine Learning},
+  pages={10173--10182},
+  year={2021},
+  organization={PMLR}
+}
+```
+[Predicate exchange: Inference with declarative knowledge](http://www.zenna.org/publications/icmlsoft.pdf)
+
+```
+@inproceedings{tavares2019predicate,
+  title={Predicate exchange: Inference with declarative knowledge},
+  author={Tavares, Zenna and Burroni, Javier and Minasyan, Edgar and Solar-Lezama, Armando and Ranganath, Rajesh},
+  booktitle={International Conference on Machine Learning},
+  pages={6186--6195},
+  year={2019},
+  organization={PMLR}
+}
+
+```
 [The Random Conditional Distribution for Uncertain Distributional Properties](http://www.zenna.org/publications/rcd.pdf)
 
 ```
@@ -47,32 +71,10 @@ If you use Omega, please cite Omega papers:
 }
 ```
 
-[Soft Constraints for Inference with Declarative Knowedlge](http://www.zenna.org/publications/icmlsoft.pdf)
-
-```
-@article{tavares2019soft,
-  title={Soft Constraints for Inference with Declarative Knowledge},
-  author={Tavares, Zenna and Burroni, Javier and Minaysan, Edgar and Lezama, Armando Solar and Ranganath, Rajesh},
-  journal={arXiv preprint arXiv:1901.05437},
-  year={2019}
-}
-```
-
-If you use the causal inference features (`replace`), please cite:
-
-[A Language for Counterfactual Generative Models](http://www.zenna.org/publications/causal.pdf)
-
-```
-@article{tavares2019counterfactual,
-  title={Soft Constraints for Inference with Declarative Knowledge},
-  author={Tavares, Zenna and Zhang, Xin and Koppel, James and Lezama, Armando Solar},
-  year={2019}
-}
-```
 
 ## Acknowledgements
 
-Omega leans heavily on the hard work of many packages and the Julia community as a whole, but in particular `Distributions.jl`, `Flux.jl`, and `Cassette.jl`.
+Omega leans heavily on the hard work of many packages and the Julia community as a whole.
 
 ## Index
 

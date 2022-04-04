@@ -47,7 +47,7 @@ cond(::RandVar, ::RandVar)
 
 ## Conditioning the Prior
 
-In Bayesian inference the term posterior distribution is often used instead of of the term conditional distribution.  Mathematically they are the same object, but posterior alludes to the fact that it is the distribution after (a posteriori) observing data. The distribution before observing data is often referred to as the prior.
+In Bayesian inference the term posterior distribution is often used instead of the conditional distribution.  Mathematically they are the same object, but posterior alludes to the fact that it is the distribution after (a posteriori) observing data. The distribution before observing data is often referred to as the prior.
 
 However, conditioning is a more general concept than observing data, and we can meaningfully "condition the prior".
 
@@ -84,7 +84,7 @@ When you compose conditoned random variables together, their conditions propagat
 ispos(x) = x > 0.0
 weight = cond(normal(72, 1.0), ispos)
 height = cond(normal(1.78, 1.0), ispos)
-bmi = weight / height
+bmi = weight ./ height
 ```
 
 `bmi` is a function of both `weight` and `height`, both of which have their own conditions (namely, they are positive).

@@ -1,6 +1,5 @@
-using Distributions: Distribution
 using ..Basis, ..Traits
-export ctxapply, Vari
+export prepostapply, Vari, prehook, posthook
 
 # # Dispatch
 # In the contextual execution of a 15able, every intermediate variable application
@@ -8,22 +7,19 @@ export ctxapply, Vari
 # such as do causal interventions, track loglikelihood information, etc
 # Our implementation models Cassette.jl
 
-# FIXME: Add Conditional to Vari
+@inline (f::AbstractVariableOrClass)(ω::Ω) where {Ω <: AbstractΩ} = dispatch(traits(Ω), f, ω)
+@inline dispatch(traits::Trait, f, ω) = prepostapply(traits, f, ω)
 
-"Interceptable Variable"
-const Vari = Union{Variable, Distribution, Mv, Member, PwVar}
-
-
-(f::Vari)(ω::Ω) where {Ω <: AbstractΩ} = f(traits(Ω), ω)
-(f::Vari)(traits::Trait, ω::Ω) where {Ω <: AbstractΩ} = ctxapply(traits, f, ω)
-
-@inline function ctxapply(traits::Trait, f, ω::AbstractΩ)
+@inline function prepostapply(traits::Trait, f, ω::AbstractΩ)
   # FIXME: CAUSATION CAN prehook/recurse change traits?
   prehook(traits, f, ω)
-  ret = recurse(f, ω)
+  ret = recurse(traits, f, ω)
   posthook(traits, ret, f, ω)
   ret
 end
+
+# Default
+@inline recurse(traits, f, ω) = recurse(f, ω)
 
 # by default, pre and posthooks do nothing
 @inline prehook(traits, f, ω) = nothing
@@ -32,9 +28,9 @@ end
 # # ## Families
 
 # (f::Vari)(id, ω::Ω) where {Ω <: AbstractΩ} = f(traits(Ω), id, ω)
-# (f::Vari)(traits::Trait, id, ω::Ω) where {Ω <: AbstractΩ} = ctxapply(traits, f, id, ω)
+# (f::Vari)(traits::Trait, id, ω::Ω) where {Ω <: AbstractΩ} = prepostapply(traits, f, id, ω)
 
-# @inline function ctxapply(traits::Trait, f, id, ω::AbstractΩ)
+# @inline function prepostapply(traits::Trait, f, id, ω::AbstractΩ)
 #   # FIXME: CAUSATION CAN prehook/recurse change traits?
 #   prehook(traits, f, id, ω)
 #   ret = recurse(f, id, ω)

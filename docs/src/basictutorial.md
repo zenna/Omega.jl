@@ -5,16 +5,17 @@ In this tutorial we will run through the basics of creating a model and conditio
 First load Omega:
 
 ```julia
-using Omega
+using Omega, Distributions
 ```
+
 If you tossed a coin and observed the sequqnce `HHHHH`, you would be a little suspicious, `HHHHHHHH` would make you very suspicious.
 Elementary probability theory tells us that for a fair coin, `HHHHHHHH` is just a likely outcome as `HHTTHHTH`.  What gives?
- We will use Omega to model this behaviour, and see how that belief about a coin changes after observing a number of tosses.
+We will use Omega to model this behaviour, and see how that belief about a coin changes after observing a number of tosses.
 
 Model the coin as a bernoulli distribution.  The weight of a bernoulli determines the probability it comes up true (which represents heads). Use a [beta distribution](https://en.wikipedia.org/wiki/Beta_distribution) to represent our prior belief weight of the coin.
 
 ```julia
-weight = β(2.0, 2.0)
+weight = @~ Beta(2.0, 2.0)
 ```
 
 A beta distribution is appropriate here because it is bounded between 0 and 1. 
@@ -22,7 +23,7 @@ A beta distribution is appropriate here because it is bounded between 0 and 1.
 Draw a 10000 samples from `weight` using `rand`:
 
 ```julia
-beta_samples = rand(weight, 10000)
+beta_samples = randsample(weight, 10000)
 ```
 
 Let's see what this distribution looks like using UnicodePlots.  If you don't have it installed already install with:
@@ -64,7 +65,7 @@ Since a coin can be heads or tales, the appropriate distribution is the [bernoul
 
 ```julia
 nflips = 4
-coinflips_ = [bernoulli(weight, Bool) for i = 1:nflips]
+coinflips_ = [Bernoulli.(weight, Bool) for i = 1:nflips]
 ```
 
 Take note that `weight` is the random variable defined previously.

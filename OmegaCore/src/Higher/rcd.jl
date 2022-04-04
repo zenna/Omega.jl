@@ -1,6 +1,8 @@
+using ..Var: pw
+using ..Conditioning: cnd
 export rcd, ∥ₛ, ∥
 """
-    `rcd(x, θ)`
+`rcd(x, θ)`
 
 Random Conditional Distribution of `x` given `Θ`.
 
@@ -16,8 +18,7 @@ The random conditional distribution (rcd) of a random variable ``X: Ω → τ_1`
 ```
 """
 
-
-rcd(x, θ, eq = ==ₚ) =  ω -> cond(x, eq(θ, θ(ω)))
+rcd(x, θ, eq = (x, y) -> pw(==, x, y)) =  ω -> cnd(x, eq(θ, θ(ω)))
 # rcd(x, θs::Tuple, eq = ==ₚ) = rcd(x, randtuple(θs), eq)
 
 "`rcd`, x ∥ θ"

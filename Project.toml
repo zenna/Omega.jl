@@ -1,31 +1,24 @@
 name = "Omega"
 uuid = "1af16e33-887a-59b3-8344-18f1671b3ade"
 authors = ["Zenna Tavares <zennatavares@gmail.com>"]
-version = "0.1.1"
+version = "0.2.0"
 
 [deps]
-Callbacks = "db1e321a-d383-57b4-a664-0144fd54e973"
-Cassette = "7057c7e9-c182-5462-911a-8362d720325c"
-DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
+AndTraits = "fb24a613-cb95-4ee3-a029-2b7ba7763d4b"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
-DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
-Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
-ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
-Lens = "496038af-b016-571c-b31e-8262695ac102"
-LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-LogDensityProblems = "6fdf6af0-433a-55f7-b3ed-c6c6e0b8df7c"
-NLopt = "76087f3c-5699-56af-9a33-bf431cd00edd"
-ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
-Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+InferenceBase = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
+OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
+OmegaDistributions = "4ee16af8-c862-4b7a-9514-3b66b113c005"
+OmegaMH = "89eb2d39-e1f3-436d-870a-9a4679d6d79e"
+OmegaSoftPredicates = "ffc32627-273f-428b-9998-33a39d288549"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
-Spec = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
-Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
-TransformVariables = "84d833dd-6860-57f9-a1a7-6da5db126cff"
-UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
+ReplicaExchange = "5ad4e244-73e6-47c5-b007-45e12ac3dae1"
+SoftPredicates = "5345b20a-9614-40c4-b281-8f4998fc0f3b"
 
 [compat]
-julia = "1"
+OmegaCore = "0.1"
+Reexport = "0.2, 1"
+julia = "1.5"
 
 [extras]
 InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"

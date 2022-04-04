@@ -1,6 +1,9 @@
 "Meta data to attach to ω::Ω"
 const Tags = NamedTuple
 
+"Trait has no value -- its existence is enough"
+struct NoTagValue end
+
 function mergetag end 
 
 # "tag value `val` with tag `tag` and merge tags"
@@ -15,6 +18,9 @@ struct NotHasTag{T} end
 
 "`tag(x, tags)` tag value `x` with tags `tags`"
 function tag end
+
+"`tags(x)` tags of `x`"
+function tags end
 
 """
 Trait function -- `traithastag(t, Val{:sometag})` returns `HasTag{:sometag}`

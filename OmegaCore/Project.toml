@@ -4,17 +4,21 @@ authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.1.0"
 
 [deps]
-Cassette = "7057c7e9-c182-5462-911a-8362d720325c"
-Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+AndTraits = "fb24a613-cb95-4ee3-a029-2b7ba7763d4b"
 Future = "9fa8497b-333b-5362-9e8d-4d0656e87820"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 Spec = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
 
+[compat]
+Reexport = "0.2, 1"
+Spec = "0.3"
+
 [extras]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
-OmegaTest = "1de29bd8-166e-46b2-8642-f181c225c031"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "Distributions", "OmegaTest"]
+test = ["Test", "Distributions", "Pkg", "LinearAlgebra"]

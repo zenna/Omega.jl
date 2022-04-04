@@ -1,0 +1,2 @@
+module OmegaExamples
+end

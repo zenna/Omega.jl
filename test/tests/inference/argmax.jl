@@ -3,7 +3,7 @@ using Test
 
 function testargmax()
   ## Model
-  x = normal(0.0, 1.0)
+  x = 1 ~ Uniform(0.0, 1.0)
   y = normal(0.0, 10.0)
   xisy = x ==ₛ y 
   # loss = ω -> Omega.logerr(xisy(ω))   # Extract logerror

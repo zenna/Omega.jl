@@ -10,7 +10,7 @@ export propose, logproposalpdf, logproposalratio, propose_and_logratio
 Generate proposal for random variables within `f`, returns ω::Ω
 
 # Input
-- `f`   Random variable.  Proposal will generate values for depenends of `f`
+- `f`   Random variable.  Proposal will generate values for dependents of `f`
 - `ω::Ω` Initial mapping, to condition variables add to here
 - `qω::Ω` Randomness for proposal
 # Returns

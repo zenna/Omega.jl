@@ -1,0 +1,8 @@
+name = "Experiments"
+uuid = "3440c290-c0d2-4ae2-b9bd-9e7ac9322433"
+authors = ["Zenna Tavares <zennatavares@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+Cassette = "7057c7e9-c182-5462-911a-8362d720325c"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"

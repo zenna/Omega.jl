@@ -1,6 +1,6 @@
 module Tagging
 
-export tag, mergetag, hastag, HasTag, NotHasTag, traithastag, Tags
+export tag, mergetag, hastag, HasTag, NotHasTag, traithastag, Tags, NoTagValue
 
 # # Tags
 # Many functionalities of Omega are achieved through contextual-execution

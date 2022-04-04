@@ -11,12 +11,17 @@ rmkey(tag, Val{:c})
 """
 @generated function rmkey(nt::NamedTuple{K, V}, key::Type{Val{T}}) where {K, V, T}
   T isa Symbol || throw(ArgumentError("Usage: `rmkey(x, Val{:X})`"))
-  args = [:($k = nt.$k) for k in K if k != T]
+  # args = [:($k = nt.$k) for k in K if k != T]
+  ks = tuple((k for k in K if k != T)...)
+  vs = [:(nt.$k) for k in K if k != T]
   # FIXME: This can be made more efficient, using TAGS  
-  Expr(:tuple, args...)
+  # Expr(:tuple, args...)
+  :(NamedTuple{$ks}(($(vs...),)))
 end
-@post keys(@ret) == setdiff(keys(nt), key)
-@post all([res[k] == nt[k] for k in setdiff(keys(nt), key)])
+
+@pre rmkey(nt, key) = key in keys(nt) "Key `key` not in `nt`"
+@post rmkey(nt, key) = keys(__ret__) == setdiff(keys(nt), key) "Keys of returned nt same as nt minus key"
+@post rmkey(nt, key) = all([__ret__[k] == nt[k] for k in __ret__]) "Values of returned nt same as nt minus key"
 
 """
 Update a named tuple
@@ -36,12 +41,12 @@ update((x = 3, y = 2, z = 1), Val{:x}, 7)
       push!(args, :($k = nt.$k))
     end
   end
+  # FIXME, return named tuple
   Expr(:tuple, args...)
 end
-@post keys(res) == keys(nt)
-@post all([res[k] == nt[k] for k in setdiff(keys(nt), key)])
-@post res[key] == val
-
+@post update(nt, key) = keys(__ret__) == keys(nt) "Keys of returned nt same as nt"
+@post update(nt, key) = all([__ret__[k] == nt[k] for k in setdiff(keys(nt), key)])
+@post update(nt, key) = __ret__[key] == val "Value of key updated in result"
 
 """
 Merge `nt1` with `nt2`.
@@ -62,7 +67,7 @@ mergef(f, nt1, nt2)
   end
 end
 
-@post keys(res) == keys(nt1) ∪ keys(nt2)
-@post all((res[k] == nt1[k] for k in keys if k in nt1 && k ∉ nt2))
-@post all((res[k] == nt2[k] for k in keys if k in nt2 && k ∉ nt1))
-@post all((res[k] == f(nt1[k], nt2[k]) for k in keys if k in nt1 && k ∉ nt2))
+@post mergef(f, nt1, nt2) = keys(__ret__) == keys(nt1) ∪ keys(nt2)
+@post mergef(f, nt1, nt2) = all((__ret__[k] == nt1[k] for k in keys if k in nt1 && k ∉ nt2))
+@post mergef(f, nt1, nt2) = all((__ret__[k] == nt2[k] for k in keys if k in nt2 && k ∉ nt1))
+@post mergef(f, nt1, nt2) = all((__ret__[k] == f(nt1[k], nt2[k]) for k in keys if k in nt1 && k ∉ nt2))
