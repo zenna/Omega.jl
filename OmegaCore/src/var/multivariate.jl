@@ -50,5 +50,6 @@ end
 
 Var.recurse(mv::Mv, ω) =  map(i -> mv.f(i, ω), mv.idxs)
 
+# FIXME: Maybe the ids should come first, not sure
 @inline manynth(f, ids) = Mv(ids, f)
 @inline dimsnth(f, shape::Dims) = Mv(CartesianIndices(shape), f)

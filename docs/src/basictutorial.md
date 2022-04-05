@@ -1,7 +1,6 @@
 # Basic Tutorial
 
 In this tutorial we will run through the basics of creating a model and conditioning it.
-This tutorial is available in [notebook version](https://github.com/zenna/OmegaModels.jl/blob/master/models/small/coin.ipynb).
 
 First load Omega:
 
@@ -24,7 +23,7 @@ A beta distribution is appropriate here because it is bounded between 0 and 1.
 Draw a 10000 samples from `weight` using `rand`:
 
 ```julia
-beta_samples = rand(weight, 10000)
+beta_samples = randsample(weight, 10000)
 ```
 
 Let's see what this distribution looks like using UnicodePlots.  If you don't have it installed already install with:
@@ -66,7 +65,7 @@ Since a coin can be heads or tales, the appropriate distribution is the [bernoul
 
 ```julia
 nflips = 4
-coinflips_ = [bernoulli(weight, Bool) for i = 1:nflips]
+coinflips_ = [Bernoulli.(weight, Bool) for i = 1:nflips]
 ```
 
 Take note that `weight` is the random variable defined previously.
@@ -111,10 +110,10 @@ condition = coinflips ==ᵣ observations
 We can use `rand` to sample from the model conditioned on `condition` being true:
 
 ```julia
-weight_samples = rand(weight, condition, 10; alg = RejectionSample)
+weight_samples = rand(weight, condition, 1000; alg = RejectionSample)
 ```
 
-`weight_samples` is a set of `10` samples from the conditional (sometimes called posterior) distribution of `weight` condition on the fact that coinflips == observations.
+`weight_samples` is a set of `1000` samples from the conditional (sometimes called posterior) distribution of `weight` condition on the fact that coinflips == observations.
 
 In this case, `rand` takes
 - A random variable we want to sample from

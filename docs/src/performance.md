@@ -15,7 +15,7 @@ julia> ~ ω -> bernoulli(ω, 0.5, Bool) ?  poisson(ω, 0.3) : uniform(ω, 0.0, 1
 
 ### Use `const`
 
-It's common in Omega models to have globally defined random variables be paraents of other variables.
+It's common in Omega models to have globally defined random variables be parents of other variables.
 If `const` is not used, this can lead to type instability.
 For example:
 

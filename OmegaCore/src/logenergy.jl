@@ -51,18 +51,18 @@ end
 @inline taglogenergy(ω, logenergy_ = 0.0) = 
   tagseen(tag(ω, (logenergy = Box(logenergy_),)))
 
-"""
-`logenergy(rng::AbstractRNG, x, ω)`
+# """
+# `logenergy(rng::AbstractRNG, x, ω)`
 
-# Returns
-- joint log probability of
-"""
-function logenergy(x, ω::AbstractΩ)
-  ω_ = tagseen(taglogenergy(ω))
-  ret = x(ω_)
-  ω_.tags.logenergy.val
-  # ctxapply(x, ω)
-end
+# # Returns
+# - joint log probability of
+# """
+# function logenergy(x, ω::AbstractΩ)
+#   ω_ = tagseen(taglogenergy(ω))
+#   ret = x(ω_)
+#   ω_.tags.logenergy.val
+#   # ctxapply(x, ω)
+# end
 
 function Var.posthook(::trait(LogEnergy, Seen), ret, f::PrimRandVar, ω)
   if f ∉ ω.tags.seen

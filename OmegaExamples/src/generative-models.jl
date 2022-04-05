@@ -1,16 +1,17 @@
 ### A Pluto.jl notebook ###
-# v0.17.5
+# v0.18.0
 
 using Markdown
 using InteractiveUtils
 
+# ╔═╡ aae74849-5f69-418c-825c-4c9e7dfc0d25
+import Pkg
+
+# ╔═╡ 507627b2-9742-47d9-99c1-f9696c8a7459
+Pkg.activate(Base.current_project())
+
 # ╔═╡ ec0d1440-51ea-11ec-0aef-1f9c2da69ffd
-begin
-    import Pkg
-    # activate the shared project environment
-    Pkg.activate(Base.current_project())
-    using Omega, Distributions, UnicodePlots, OmegaExamples
-end
+using Omega, Distributions, UnicodePlots, OmegaExamples
 
 # ╔═╡ ce896412-97f8-4102-9ed5-bc74dfdb26d4
 md"### Models, simulation, and degrees of belief"
@@ -38,9 +39,6 @@ A basic object in Omega is a random variable.  Conceptually, a random variable r
 
 # ╔═╡ 354e3b5a-4d1e-43ee-b1bb-e8620fba49e7
 a = @~ StdNormal{Float64}()
-
-# ╔═╡ 35a567c0-13aa-4a8a-bd75-68fef7b15739
-
 
 # ╔═╡ 9dca3d31-8ace-4c64-996c-d9d9e87e6ee4
 md"### Sampling "
@@ -88,10 +86,13 @@ A class in Omega is actually just function of the form `f(id, ω)`. You can spec
 μ = 1 ~ StdNormal{Float64}()
 
 # ╔═╡ 5fcf6c97-6f81-4be2-b27a-25b2abcabca1
-x(id, ω) = (id ~ StdNormal{Float64}) (μ(ω), 1))(ω)
+x(id, ω) = (id ~ StdNormal{Float64}())(ω) + μ(ω)
 
 # ╔═╡ 1b4d9047-abb0-4fb7-ab72-0a4f790b1515
 x_ = 3 ~ x
+
+# ╔═╡ 65b2d716-2881-46d2-a155-2792c1dbb175
+randsample(x_)
 
 # ╔═╡ 0fe48b01-e908-4e6c-8c4c-b68cf8c172dc
 md"`x_` is a random variable of the class `x`"
@@ -154,7 +155,7 @@ viz(randsample(b_sum, 1000))
 md"Complex functions can also have other arguments. Here is a random variable that will only sometimes double its input:"
 
 # ╔═╡ 0974a6a9-859f-44a9-a17a-5ef90c789ce5
-noisy_double(x) = ifelseₚ((@~ Bernoulli()), 2*x, x)
+noisy_double(x) = ifelse.((@~ Bernoulli()), 2*x, x)
 
 # ╔═╡ 317cf40e-bafd-43f3-b855-9bfcf53c0f3a
 md"`pw` is the pointwise operation - which is defined on the function `ifelse` here."
@@ -172,7 +173,7 @@ md"## Example: Flipping Coins"
 md"The following program defines a fair coin, and flips it $20$ times:"
 
 # ╔═╡ 3c5e0f1d-0379-4c92-817d-4e6ef2d7ed8e
-fair_coin = ifelseₚ((@~ Bernoulli()), 'h', 't')
+fair_coin = ifelse.((@~ Bernoulli()), 'h', 't')
 
 # ╔═╡ b7d24774-2f2b-4da8-9257-6fe3a424a869
 viz(randsample(fair_coin, 20))
@@ -181,7 +182,7 @@ viz(randsample(fair_coin, 20))
 md"This program defines a “trick” coin that comes up heads most of the time ($95\%$), and flips it $20$ times:"
 
 # ╔═╡ 5657d115-ebad-4731-b8e2-5d66da76f600
-trick_coin = ifelseₚ((@~ Bernoulli(0.95)), 'h', 't')
+trick_coin = ifelse.((@~ Bernoulli(0.95)), 'h', 't')
 
 # ╔═╡ 83f9117e-2c5b-47e8-a78f-3bd679ad95dc
 viz(randsample(trick_coin, 20))
@@ -190,7 +191,7 @@ viz(randsample(trick_coin, 20))
 md"The higher-order function `make_coin` takes in a weight and outputs a function describing a coin with that weight. Then we can use `make_coin` to make the coins above, or others."
 
 # ╔═╡ 65119d8b-a0d9-403f-9d42-ec6ef0ab3072
-make_coin(weight) = ifelseₚ((@~ Bernoulli(weight)), 'h', 't')
+make_coin(weight) = ifelse.((@~ Bernoulli(weight)), 'h', 't')
 
 # ╔═╡ 7fb8ded9-629a-4084-ba5b-779dbe251841
 begin
@@ -212,7 +213,7 @@ viz(randsample(bent_coin, 20))
 md"We can also define a higher-order function that takes a “coin” and “bends it”:"
 
 # ╔═╡ 56304079-fc6c-474b-b257-9db330475786
-bend(coin) = ifelseₚ((coin ==ₚ 'h'), make_coin(0.7), make_coin(0.1))
+bend(coin) = ifelse.((coin .== 'h'), make_coin(0.7), make_coin(0.1))
 
 # ╔═╡ 4c343506-221d-4e8f-9398-725643bd74fc
 bent_coin1 = bend(fair_coin)
@@ -245,7 +246,7 @@ md"Generative knowledge is often causal knowledge that describes how events or s
 let
 	lung_cancer = @~ Bernoulli(0.01)
 	cold = @~ Bernoulli(0.2)
-	cough = cold |ₚ lung_cancer
+	cough = cold .| lung_cancer
 	randsample(cough)
 end
 
@@ -264,33 +265,35 @@ end
 
 # ╔═╡ 24a06c1c-29ac-45b3-b8fa-774ca2e4619e
 cough = pw(|, 
-	cold &ₚ @~ Bernoulli(), 
-	lung_cancer &ₚ @~ Bernoulli(0.3), 
-	TB &ₚ @~ Bernoulli(0.7), 
-	other &ₚ @~ Bernoulli(0.1)
+	(cold .& @~ Bernoulli()), 
+	(lung_cancer .& @~ Bernoulli(0.3)), 
+	(TB .& @~ Bernoulli(0.7)), 
+	(other .& @~ Bernoulli(0.1))
 )
 
-# ╔═╡ f5600317-7a50-4f16-9716-c4e3e24515bb
-noisy(x, p) = x &. Bernoullli(p)
-fever = pw(|, 
-	(cold &ₚ @~ Bernoulli(0.3)), 
-	(stomach_flu &ₚ @~ Bernoulli()), 
-	(TB &ₚ @~ Bernoulli(0.1)), 
-	(other &ₚ @~ Bernoulli(0.01))
+# ╔═╡ 217200c5-c569-4629-8747-d3bbb793987d
+noisy(x, p) = x .& Bernoullli(p)
+
+# ╔═╡ 5b2e9f9d-3d14-4bfe-b615-41bc2d8decb4
+fever = pw(|,
+	(cold .& @~ Bernoulli(0.3)), 
+	(stomach_flu .& @~ Bernoulli()), 
+	(TB .& @~ Bernoulli(0.1)), 
+	(other .& @~ Bernoulli(0.01))
 )
 
 # ╔═╡ f005e508-db7f-4d3d-997e-3bdbe0c4bb7e
-chest_pain = pw(|, 
-	(lung_cancer &ₚ @~ Bernoulli()), 
-	(TB &ₚ @~ Bernoulli()), 
-	(other &ₚ @~ Bernoulli(0.01))
+chest_pain = (.|)( 
+	(lung_cancer .& @~ Bernoulli()), 
+	(TB .& @~ Bernoulli()), 
+	(other .& @~ Bernoulli(0.01))
 )
 
 # ╔═╡ 3dfc6973-f996-4020-b461-016b46f87659
-shortness_of_breath = pw(|, 
-	(lung_cancer &ₚ @~ Bernoulli()), 
-	(TB &ₚ @~ Bernoulli(0.2)), 
-	(other &ₚ @~ Bernoulli(0.01))
+shortness_of_breath = (.|)( 
+	(lung_cancer .& @~ Bernoulli()), 
+	(TB .& @~ Bernoulli(0.2)), 
+	(other .& @~ Bernoulli(0.01))
 )
 
 # ╔═╡ 47807da5-e1b6-49aa-849b-39d5cce05471
@@ -354,7 +357,7 @@ We must be careful when applying this rule, since the probability of a choice ca
 A = @~ Bernoulli()
 
 # ╔═╡ 1c260eff-636c-429d-992f-b7854f4398e1
-B = @~ Bernoulli(ifelseₚ(A, 0.3, 0.7))
+B = @~ Bernoulli.(ifelse.(A, 0.3, 0.7))
 
 # ╔═╡ d57d23a3-7626-4b23-b1df-994951f5a12b
 rs = randsample((A, B), 1000)
@@ -373,7 +376,7 @@ md"#### Sum Rule"
 md"Now let’s consider an example where we can’t determine from the overall return value the sequence of random choices that were made:"
 
 # ╔═╡ d744dba4-580b-4795-95c6-e4197c4217d6
-s = (@~ Bernoulli()) |ₚ (@~ Bernoulli())
+s = (@~ Bernoulli()) .| (@~ Bernoulli())
 
 # ╔═╡ ebdc9cec-32db-4770-9fc8-8400280a48cb
 randsample(s)
@@ -475,6 +478,8 @@ end
 md"There are a countably infinite number of such flips, each independent of all the others. The outcome of each, once determined, will always have the same value."
 
 # ╔═╡ Cell order:
+# ╠═aae74849-5f69-418c-825c-4c9e7dfc0d25
+# ╠═507627b2-9742-47d9-99c1-f9696c8a7459
 # ╠═ec0d1440-51ea-11ec-0aef-1f9c2da69ffd
 # ╟─ce896412-97f8-4102-9ed5-bc74dfdb26d4
 # ╟─cd268cc7-e246-4254-94eb-4809e96b224b
@@ -483,14 +488,13 @@ md"There are a countably infinite number of such flips, each independent of all 
 # ╟─cb28a5c4-a721-4a53-a179-adedf4f71237
 # ╟─0ce18f90-f2ef-490a-a7c4-40a6ccfa214a
 # ╠═354e3b5a-4d1e-43ee-b1bb-e8620fba49e7
-# ╠═35a567c0-13aa-4a8a-bd75-68fef7b15739
 # ╟─9dca3d31-8ace-4c64-996c-d9d9e87e6ee4
 # ╟─cc0c0d70-5197-4b2f-b32d-6ac52b8daf27
 # ╠═d607d2e0-84a5-4dfd-a281-f5c64cfe1e2d
 # ╟─0360ccef-ccf4-4284-80a9-ee5ed40becc4
 # ╟─7d3c8448-090d-46b4-a6b6-ba20ff617be8
 # ╠═4bd6d241-aad3-466c-b19e-c52e36eab862
-# ╠═9998d466-eb74-476f-a768-d378bbe83f1b
+# ╟─9998d466-eb74-476f-a768-d378bbe83f1b
 # ╠═a0d64a28-e4f9-4003-b69d-7b27bd757c24
 # ╠═0b9f8239-d81b-4e52-a97c-bcd6a286d096
 # ╠═84acb184-1c92-4761-a44e-bd1503f8255d
@@ -499,6 +503,7 @@ md"There are a countably infinite number of such flips, each independent of all 
 # ╠═8ac4cad4-eb4c-4e33-815c-e365668b3810
 # ╠═5fcf6c97-6f81-4be2-b27a-25b2abcabca1
 # ╠═1b4d9047-abb0-4fb7-ab72-0a4f790b1515
+# ╠═65b2d716-2881-46d2-a155-2792c1dbb175
 # ╟─0fe48b01-e908-4e6c-8c4c-b68cf8c172dc
 # ╠═0a2c3c83-8a67-4666-80c0-f580233dc019
 # ╟─f2a20f84-b2e6-4e6c-ab51-6e7ea045954e
@@ -549,7 +554,8 @@ md"There are a countably infinite number of such flips, each independent of all 
 # ╟─4c21551f-75c3-4e9d-ac9f-aed939481c2e
 # ╠═17701d52-161b-447d-892f-3ca89d461ebd
 # ╠═24a06c1c-29ac-45b3-b8fa-774ca2e4619e
-# ╠═f5600317-7a50-4f16-9716-c4e3e24515bb
+# ╠═217200c5-c569-4629-8747-d3bbb793987d
+# ╠═5b2e9f9d-3d14-4bfe-b615-41bc2d8decb4
 # ╠═f005e508-db7f-4d3d-997e-3bdbe0c4bb7e
 # ╠═3dfc6973-f996-4020-b461-016b46f87659
 # ╠═47807da5-e1b6-49aa-849b-39d5cce05471

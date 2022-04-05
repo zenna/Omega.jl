@@ -1,7 +1,7 @@
 import ..Tagging: hastag, traithastag, tag, mergetag
 import ..Util: mergef, rmkey
 import ..Traits: traits
-export AbstractΩ, defΩ, defω, resolve, idtype, replacetags, like
+export AbstractΩ, defΩ, defω, resolve, idtype, replacetags, like, Ω
 import Random
 
 # # Sample Space
@@ -11,6 +11,9 @@ import Random
 
 "Abstract Sample Space"
 abstract type AbstractΩ <: Random.AbstractRNG end
+
+# Maybe this should be Union{AbstractΩ, AbstractRNG}
+const Ω = AbstractΩ
 
 # # Tags
 "`tag(ω::AbstractΩ, tags)` tag `ω` with `tags`."

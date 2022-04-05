@@ -27,6 +27,8 @@ Each element `f_i` is Conditionally independent of all other `f_j` given parents
 "`id ~ f` is an alias for `nth(f, i)`"
 @inline Base.:~(id, f) = nth(f, id)
 
+@inline Base.:~(f) = Var.Class(f)
+
 ## Display
 Base.show(io::IO, x::Member) = print(io, x.id,"@",x.class)
 

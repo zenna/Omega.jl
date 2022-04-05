@@ -1,4 +1,4 @@
-export powrelax, kf1, kse, kseα, γe, rquad
+export kpow, kf1, kse, kseα, γe, rquad
 
 """`logpowk(logx, α)` `p(x)^(1/α)` 
 

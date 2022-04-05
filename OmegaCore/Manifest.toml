@@ -1,5 +1,12 @@
 # This file is machine-generated - editing it directly is not advised
 
+[[AndTraits]]
+git-tree-sha1 = "27dcc4fc1189d57ba0f8e880b8e7c3848f73f057"
+repo-rev = "main"
+repo-url = "https://github.com/zenna/AndTraits.jl.git"
+uuid = "fb24a613-cb95-4ee3-a029-2b7ba7763d4b"
+version = "0.1.0"
+
 [[ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
 
@@ -10,9 +17,9 @@ uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 
 [[Cassette]]
-git-tree-sha1 = "6ce3cd755d4130d43bab24ea5181e77b89b51839"
+git-tree-sha1 = "063b2e77c5537a548c5bf2f44161f1d3e1ab3227"
 uuid = "7057c7e9-c182-5462-911a-8362d720325c"
-version = "0.3.9"
+version = "0.3.10"
 
 [[Dates]]
 deps = ["Printf"]
@@ -95,7 +102,7 @@ deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 
 [[Random]]
-deps = ["Serialization"]
+deps = ["SHA", "Serialization"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [[Reexport]]

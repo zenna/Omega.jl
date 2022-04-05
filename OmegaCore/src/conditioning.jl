@@ -1,4 +1,4 @@
-module Condition
+module Conditioning
 
 using ..Space, ..Tagging, ..Traits
 using ..Var: AbstractVariable

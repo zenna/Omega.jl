@@ -15,15 +15,15 @@ To sample from a conditional distribution: pass two random variables to `rand`, 
 
 ```julia
 weight = β(2.0, 2.0)
-x = bernoulli()
-rand(weight, x == 0)
+x = bernoulli(weight)
+rand(weight, x ==ᵣ 0; alg=RejectionSample)
 ```
 
 It is fine to condition random variables on equalities or inequalities:
 
 ```julia
 x1 = normal(0.0, 1.0)
-rand(x1, x1 > 0.0)
+rand(x1, x1 > 0.0; alg=RejectionSample)
 ```
 
 It's also fine to condition on functions of multiple variables
@@ -31,7 +31,7 @@ It's also fine to condition on functions of multiple variables
 ```julia
 x1 = normal(0.0, 1.0)
 x2 = normal(0.0, 10)
-rand((x1, x2), x1 > x2)
+rand((x1, x2), x1 > x2; alg=RejectionSample)
 ```
 
 Note: to sample from more than one random variable, just pass a tuple of `RandVar`s to `rand`.
@@ -47,7 +47,7 @@ cond(::RandVar, ::RandVar)
 
 ## Conditioning the Prior
 
-In Bayesian inference the term posterior distribution is often used instead of of the term conditional distribution.  Mathematically they are the same object, but posterior alludes to the fact that it is the distribution after (a posteriori) observing data. The distribution before observing data is often referred to as the prior.
+In Bayesian inference the term posterior distribution is often used instead of the conditional distribution.  Mathematically they are the same object, but posterior alludes to the fact that it is the distribution after (a posteriori) observing data. The distribution before observing data is often referred to as the prior.
 
 However, conditioning is a more general concept than observing data, and we can meaningfully "condition the prior".
 
@@ -84,7 +84,7 @@ When you compose conditoned random variables together, their conditions propagat
 ispos(x) = x > 0.0
 weight = cond(normal(72, 1.0), ispos)
 height = cond(normal(1.78, 1.0), ispos)
-bmi = weight / height
+bmi = weight ./ height
 ```
 
 `bmi` is a function of both `weight` and `height`, both of which have their own conditions (namely, they are positive).

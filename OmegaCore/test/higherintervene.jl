@@ -5,7 +5,7 @@ a ⟹ b = !a || b
 function test_hi()
   μ = 1 ~ Normal(0, 1)
   σ = 2 ~ Uniform(1, 3)
-  y = 3 ~ Normal(μ, σ)
+  y = 3 ~ Normal.(μ, σ)
   changeμ = 4 ~ Bernoulli(0.5)
   choice(ω) = ifelse((changeμ)(ω), μ, σ)
   int_dist(ω) = ValueIntervention(choice(ω), 5.0)
@@ -28,7 +28,7 @@ function test_hi_self()
   y = Variable(ω -> (μ(ω), σ(ω)))
   choice(ω) = ifelse((4 ~ Bernoulli(0.5))(ω), μ, σ)
   int_dist(ω) = let x_ = choice(ω)
-    Intervention(x_, 0.0 -ₚ x_)
+    Intervention(x_, 0.0 .- x_)
   end
 
   joint = @joint(y, μ, σ, choice)
@@ -55,7 +55,7 @@ function test_cd()
   end
 
   is_model_1 = 3 ~ Bernoulli(0.5)
-  model = ifelseₚ(is_model_1, m1(), m2())
+  model = pw(ifelse, is_model_1, m1(), m2())
   mx(ω) = model(ω).x
   mxω(ω) = mx(ω)(ω)
   my(ω) = model(ω).y

@@ -1,7 +1,8 @@
 # # Causal interventions
 using ..Var, ..Basis
+import AndTraits
 export |ᵈ, intervene, Intervention, ValueIntervention, autointervention
-using ..Var: Lift, DontLift, traitlift
+using ..Var: traitvartype, TraitIsVariable, AbstractVariable
 
 abstract type AbstractIntervention end
 
@@ -10,24 +11,23 @@ end
 
 abstract type SlightlyLessAbstractIntervention{X, V} <: AbstractIntervention end
 
-"The imperative that `x(ω)` should be replaced with `v(ω)` "
+"The imperative that `x(ω)`` should be replaced to value `v`"
 struct ValueIntervention{X, V} <: SlightlyLessAbstractIntervention{X, V}
   x::X
   v::V
 end
 
-"The imperative that `x(ω)`` should be replaced to value `v`"
+"The imperative that `x(ω)` should be replaced with `v(ω)` "
 struct Intervention{X, V} <: SlightlyLessAbstractIntervention{X, V}
   x::X
   v::V
 end
 
-# Intervention(x::Pair{X, <:Number}) where X = Intervention(x.first, ω -> x.second)
-
 # In `x => v`, if we believe `v` is variable then build `Interventon`, otherwise `ValueIntervention`
-autointervention(::DontLift, x) = ValueIntervention(x.first, x.second)
-autointervention(::Lift, x) = Intervention(x.first, x.second)
-autointervention(x::Pair{X, Y}) where {X, Y} = autointervention(traitlift(Y), x)
+autointervention(_, x) = ValueIntervention(x.first, x.second)
+autointervention(::AndTraits.traitmatch(TraitIsVariableOrClass), x) = Intervention(x.first, x.second)
+autointervention(::AndTraits.traitmatch(TraitIsVariable), x) = Intervention(x.first, x.second)
+autointervention(x::Pair{X, Y}) where {X, Y} = autointervention(traitvartype(Y), x)
 
 "Multiple variables intervened"
 struct MultiIntervention{XS} <: AbstractIntervention
@@ -41,12 +41,10 @@ mergeinterventions(i1::MultiIntervention, i2::AbstractIntervention) = MultiInter
 mergeinterventions(i1::MultiIntervention, i2::MultiIntervention) = MultiIntervention((i1.is..., i2.is...))
 
 "Intervened Variable: `x` had intervention `i` been the case"
-struct Intervened{X, I}
+struct Intervened{X, I} <: AbstractVariable
   x::X
   i::I
 end
-
-Var.traitlift(::Type{<:Intervened}) = Var.Lift()
 
 "intervened"
 intervene(x, intervention::AbstractIntervention) = Intervened(x, intervention)
