@@ -1,2 +1,4 @@
 [deps]
+AndTraits = "fb24a613-cb95-4ee3-a029-2b7ba7763d4b"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
