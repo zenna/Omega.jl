@@ -57,7 +57,7 @@ traitvartype(T) = TraitUnknownVariableType
 traitvartype(::AbstractVariable) = TraitIsVariable
 traitvartype(::Type{<:AbstractVariable}) = TraitIsVariable
 
-abstract type AbstractVariable end
+# abstract type AbstractVariable end
 # # Variable
 # A Variable is a parametric or random variable, which is just any function of
 # ω::AbstractΩ.  We have this data structure because we need to intercept inner

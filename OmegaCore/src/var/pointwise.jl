@@ -118,57 +118,6 @@ end
 "`l(x)` constructs object that indicates that `x` should be applied pointwise.  See `pw`"
 l(x) = LiftBox(x)
 
-<<<<<<< HEAD
-struct DontLiftBox{T} <: ABox
-  val::T
-end
-"`dl(x)` constructs object that indicates that `x` should be not applied pointwise.  See `pw`"
-dl(x) = DontLiftBox(x)
-
-# Traits
-struct Lift end
-struct DontLift end
-
-# Trait functions
-traitlift(::Type{T}) where T  = DontLift()
-traitlift(::Type{<:Function}) = Lift()
-traitlift(::Type{<:Variable}) = Lift()
-traitlift(::Type{<:Member}) = Lift()
-traitlift(::Type{<:Mv}) = Lift()
-traitlift(::Type{<:DataType}) = DontLift()
-traitlift(::Type{<:LiftBox}) = Lift()
-traitlift(::Type{<:PwVar}) = Lift()
-traitlift(::Type{<:DontLiftBox}) = DontLift()
-traitlift(::Type{<:Ref}) = DontLift()
-
-@inline liftapply(f::T, ω) where T = liftapply(traitlift(T), f, ω)
-@inline liftapply(::DontLift, f, ω) = f
-@inline liftapply(::DontLift, f::ABox, ω) = f.val
-@inline liftapply(::Lift, f, ω) = f(ω)
-@inline liftapply(::Lift, f::ABox, ω) = (f.val)(ω)
-@inline liftapply(::Lift, f::ABox, ω::ABox) = (f.val)(ω.val)
-@inline liftapply(::Lift, f, ω::ABox) = f(ω.val)
-
-
-recurse(p::PwVar{Tuple{T1}}, ω) where {T1} =
-  p.f(liftapply(p.args[1], ω))
-
-recurse(p::PwVar{Tuple{T1, T2}}, ω) where {T1, T2} =
-  p.f(liftapply(p.args[1], ω), liftapply(p.args[2], ω))
-
-recurse(p::PwVar{<:Tuple}, ω) =
-  p.f(map(arg -> liftapply(arg, ω), p.args)...)
-
-# # Notation
-
-# # Collections
-# @inline randcollection(xs) = ω -> 32(x -> liftapply(x, ω), xs)
-# struct LiftConst end
-# const ₚ = LiftConst()
-# Base.:*(xs, ::LiftConst) = randcollection(xs)
-
-# end
-=======
 @inline unbox(x::LiftBox) = x.val
 @inline unbox(x) = x
 
@@ -203,4 +152,3 @@ Base.BroadcastStyle(::PointwiseStyle, ::Base.Broadcast.DefaultArrayStyle{0}) = P
 # Handle `f` is random variable over functions
 Base.broadcast(f::AbstractVariableOrClass, args...) = pw(f, args...)
 Base.broadcast(f::AbstractVariableOrClass, args::Vararg{Number}) = pw(f, args...)
->>>>>>> master

@@ -19,39 +19,6 @@ OmegaCore.Var.traitvartype(class::Type{<:Distribution}) = Var.TraitIsClass
 @inline (d::UnivariateDistribution)(id, ω) =
   quantile(d, Member(id, StdUniform{Float64}())(ω))
 
-<<<<<<< HEAD
-primdist(d::UnivariateDistribution) = StdUniform()
-primdist(d::Normal) = StdNormal()
-
-invert(o::Normal, val) = (val / o.σ) - o.μ
-invert(d::UnivariateDistribution, val) = cdf(d, val)
-
-# FIXME / justify this
-# Distributions.Normal(μ, σ) = pw(Normal, μ, σ)
-Distributions.Normal(μ, σ) =
-  (id, ω) -> Normal(liftapply(μ, ω), liftapply(σ, ω))(id, ω)
-
-Distributions.Bernoulli(p) =
-  (id, ω) -> Bernoulli(liftapply(p, ω))(id, ω)
-
-@inline (d::Type{<:Distribution})(args...) =
-  (id, ω) -> (d(map(a -> liftapply(a, ω), args)...))(id, ω)
-
-#FIXme generalize this
-# Normalₚ(args...) = pw(Distributions.Normal, args...)
-# Uniformₚ(args...) = pw(Distributions.Uniform, args...)
-# Gammaₚ(args...) = pw(Distributions.Gamma, args...)
-# DiscreteUniformₚ(args...) = pw(Distributions.DiscreteUniform, args...)
-# Poissonₚ(args...) = pw(Distributions.Poisson, args...)
-# NegativeBinomialₚ(args...) = pw(Distributions.NegativeBinomial, args...)
-
-# export Normalₚ,
-#        Uniformₚ,
-#        Gammaₚ,
-#        DiscreteUniformₚ,
-#        Poissonₚ,
-#        NegativeBinomialₚ
-=======
 invert(o::Normal, val) = (val / o.σ) - o.μ
 invert(d::UnivariateDistribution, val) = cdf(d, val)
 
@@ -76,5 +43,4 @@ end
 
 
 
->>>>>>> master
 end
