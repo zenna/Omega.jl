@@ -1,7 +1,7 @@
 # Templates of causal queries
 module Queries
 
-using ..Condition: cnd, |ᶜ, ConditionException, condf
+using ..Conditioning: cnd, |ᶜ, ConditionException, condf
 using ..Interventions: intervene, Intervention, AbstractIntervention, |ᵈ
 
 export cf, fc, cndint

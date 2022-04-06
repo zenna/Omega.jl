@@ -1,5 +1,5 @@
 using ..Var: pw
-using ..Condition: cnd
+using ..Conditioning: cnd
 export rcd, ∥ₛ, ∥
 """
 `rcd(x, θ)`

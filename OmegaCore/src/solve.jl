@@ -7,17 +7,15 @@ import OmegaCore
 import ..Var
 using ..Tagging: Solve, tag
 using ..Traits: trait
-using ..Condition: Conditional
+using ..Conditioning: Conditional
 
 function isconditioned end
 
 function solve end
 
+# function Var.
+
 # function Var.prehook(::trait(Solve), f, ω)
-#   if isconditioned(f)
-#     3
-#   end
-#   nothing
 #   # Assume h has no specialization
 #   solve(f, ω)
 #     # then just continue as normal
@@ -25,18 +23,19 @@ function solve end
 #   solve(f, ω)
 # end
 
-# # Doesn't have specialization we'll get here
-# hasspecial(f, ω) = solve(f, ω)  ## don't want to do a prehook
+# Doesn't have specialization we'll get here
+hasspecial(f, ω) = solve(f, ω)  ## don't want to do a prehook
 
-# # doesn't have specialization
-# solve(f, ω) = nothing
+# doesn't have specialization
+solve(f, ω) = nothing
+
 
 function Var.recurse(::trait(Solve), f, ω)
   solve(f, ω)
 end
 
 # Default case, no specialization:
-solve(f, ω) = f(ω)
+# solve(f, ω) = Var.recurse(f, ω)
 
 # # Defaualt case
 # solve(f, id, ω) = f(ω)

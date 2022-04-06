@@ -13,8 +13,10 @@ using ..Tagging, ..Traits, ..Var, ..Space, ..Basis
   tagintervene(traits(ω), ω, intervention)
   # tag(ω, (intervene = (intervention = intervention, intctx = ictx(ω),),), mergetags)
 
-@inline (x::Intervened)(ω) = x.x(tagintervene(ω, x.i))
-@inline (x::Intervened{X, <: HigherIntervention})(ω) where X =
+@inline Var.recurse(x::Intervened, ω) = x.x(tagintervene(ω, x.i))
+# @inline (x::Intervened)(ω) = x.x(tagintervene(ω, x.i))
+
+@inline Var.recurse(x::Intervened{X, <: HigherIntervention}, ω) where X =
   x.x(tagintervene(ω, x.i(ω)))
 
 replaceintervene(ω, intctx) = mergetag(ω, (intervene = intctx,))

@@ -52,6 +52,11 @@ uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 [[Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
 
+[[MLStyle]]
+git-tree-sha1 = "594e189325f66e23a8818e5beb11c43bb0141bcd"
+uuid = "d8e11817-5142-5d16-987a-aa16d5891078"
+version = "0.4.10"
+
 [[Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
@@ -72,6 +77,17 @@ path = "../OmegaCore"
 uuid = "84d23798-d00f-4e9b-a82e-be69778c030a"
 version = "0.1.0"
 
+[[OrderedCollections]]
+git-tree-sha1 = "85f8e6578bf1f9ee0d11e7bb1b1456435479d47c"
+uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
+version = "1.4.1"
+
+[[Parameters]]
+deps = ["OrderedCollections", "UnPack"]
+git-tree-sha1 = "34c0e9ad262e5f7fc75b10a9952ca7692cfc5fbe"
+uuid = "d96e819e-fc66-5662-9728-84c9c7592b0a"
+version = "0.12.3"
+
 [[Pkg]]
 deps = ["Artifacts", "Dates", "Downloads", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
@@ -85,7 +101,7 @@ deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 
 [[Random]]
-deps = ["Serialization"]
+deps = ["SHA", "Serialization"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [[Reexport]]
@@ -103,10 +119,10 @@ uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
 
 [[Spec]]
-deps = ["Cassette", "Pkg", "Random", "Test"]
-git-tree-sha1 = "01317d4b40fe250c4cd07323584070c3d2d82811"
+deps = ["Cassette", "MLStyle", "Parameters", "Pkg", "Random", "Test"]
+git-tree-sha1 = "8747d1a0032266bc7e9b795f85062dfa680311cf"
 uuid = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
-version = "0.2.0"
+version = "0.3.0"
 
 [[TOML]]
 deps = ["Dates"]
@@ -123,6 +139,11 @@ uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 [[UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
+
+[[UnPack]]
+git-tree-sha1 = "387c1f73762231e86e0c9c5443ce3b4a0a9a0c2b"
+uuid = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
+version = "1.0.2"
 
 [[Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"

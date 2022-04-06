@@ -7,23 +7,28 @@ export prepostapply, Vari, prehook, posthook
 # such as do causal interventions, track loglikelihood information, etc
 # Our implementation models Cassette.jl
 
+<<<<<<< HEAD
 # FIXME: Add Conditional to Vari
 
 "Interceptable Variable"
 # const Vari = Union{Variable, Mv, Member, PwVar}
 
 @inline (f::AbstractVariable)(ω::Ω) where {Ω <: AbstractΩ} = dispatch(traits(Ω), f, ω)
+=======
+@inline (f::AbstractVariableOrClass)(ω::Ω) where {Ω <: AbstractΩ} = dispatch(traits(Ω), f, ω)
+>>>>>>> master
 @inline dispatch(traits::Trait, f, ω) = prepostapply(traits, f, ω)
-
-# (f::Vari)(ω::Ω) where {Ω <: AbstractΩ} = f(traits(Ω), ω)
-# (f::Vari)(traits::Trait, ω::Ω) where {Ω <: AbstractΩ} = prepostapply(traits, f, ω)
 
 @inline function prepostapply(traits::Trait, f, ω::AbstractΩ)
   # FIXME: CAUSATION CAN prehook/recurse change traits?
   prehook(traits, f, ω)
+<<<<<<< HEAD
   ret = recurse(traits, f, ω) # invoke(f, Tupe{AbstractΩ}, ω)
   # maybe i should do recurse(traits, f, ω)
   # And default recurse(traits, f, ω) = recurse(f, ω)
+=======
+  ret = recurse(traits, f, ω)
+>>>>>>> master
   posthook(traits, ret, f, ω)
   ret
 end

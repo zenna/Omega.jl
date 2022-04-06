@@ -2,7 +2,7 @@ module OmegaRejectionSample
 import Base.Threads
 
 import ..OmegaCore
-using ..Util, ..Sample, ..Condition, ..TrackError, ..RNG
+using ..Util, ..Sample, ..Conditioning, ..TrackError, ..RNG
 const OC = OmegaCore
 # import ..OmegaCore: randsample
 

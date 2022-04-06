@@ -4,6 +4,7 @@ authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.2.0"
 
 [deps]
+AndTraits = "fb24a613-cb95-4ee3-a029-2b7ba7763d4b"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 InferenceBase = "5213bc24-6d0f-4e1b-8b55-aef4cfc4ccc3"
 OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"

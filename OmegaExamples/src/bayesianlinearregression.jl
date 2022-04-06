@@ -1,5 +1,9 @@
 ### A Pluto.jl notebook ###
+<<<<<<< HEAD:OmegaExamples/src/bayesianlinearregression.jl
 # v0.17.5
+=======
+# v0.18.0
+>>>>>>> master:examples/bayesianlinearregression.jl
 
 using Markdown
 using InteractiveUtils

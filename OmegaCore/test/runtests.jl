@@ -17,6 +17,7 @@ Pkg.develop(path = joinpath(pwd(), "..", "..", "connectors", "OmegaDistributions
   # include("solution.jl")
   include("tagging.jl")
   include("typeinfer.jl")
+  include("pointwise.jl")
   # include("var.jl")
   include("mem.jl")
 end

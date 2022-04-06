@@ -39,7 +39,7 @@ jobs:
       - uses: julia-actions/julia-runtest@v1
         with:
           project: OmegaCore
-      - run: julia --project -e 'using Pkg; Pkg.add(url = pwd(), subdir = "OmegaCore")'
+      - run: julia --project -e 'using Pkg; Pkg.update(); Pkg.add(url = pwd(), subdir = "OmegaCore")'
         shell: bash
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
@@ -53,12 +53,12 @@ jobs:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
         with:
-          version: '1.5'
+          version: '1.6'
       - run: |
           julia --project=docs -e '
             using Pkg
-            Pkg.develop(PackageSpec(path=pwd()))
-            Pkg.instantiate()'
+            Pkg.update()
+            Pkg.add(url = pwd(), subdir = "OmegaCore")'
       - run: |
           julia --project=docs -e '
             using Documenter: doctest
