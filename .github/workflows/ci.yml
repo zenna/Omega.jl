@@ -59,7 +59,8 @@ jobs:
             using Pkg
             Pkg.update()
             Pkg.add(url="https://github.com/zenna/AndTraits.jl", rev="main")
-            Pkg.add(url = pwd(), subdir = "OmegaCore")'
+            Pkg.add(url = pwd(), subdir = "OmegaCore")
+            Pkg.add(url = pwd())'
       - run: |
           julia --project=docs -e '
             using Documenter: doctest
