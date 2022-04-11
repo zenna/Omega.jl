@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.0
+# v0.18.4
 
 using Markdown
 using InteractiveUtils
@@ -9,7 +9,7 @@ begin
     import Pkg
     # activate the shared project environment
     Pkg.activate(Base.current_project())
-    using Omega, Distributions, UnicodePlots, OmegaExamples
+	using Omega, Distributions, OmegaExamples, UnicodePlots
 end
 
 # ╔═╡ ce896412-97f8-4102-9ed5-bc74dfdb26d4
@@ -146,7 +146,7 @@ md"As you can see, the result is an approximately uniform distribution over true
 This way we can construct more complex expressions that describe more complicated random variables. For instance, here we describe a process that samples a number adding up several independent Bernoulli distributions:"
 
 # ╔═╡ 3f04b226-a38a-4804-8691-59332bfc8728
-b_sum = (@~ Bernoulli()) +ₚ (@~ Bernoulli()) +ₚ (@~ Bernoulli())
+b_sum = (@~ Bernoulli()) .+ (@~ Bernoulli()) .+ (@~ Bernoulli())
 
 # ╔═╡ 9bc6817f-4874-43f9-a5be-e71d5b18f7b9
 md"`+ₚ` here is pointwise sum - the subscript p denotes the pointwise operation defined on a function"
@@ -164,10 +164,15 @@ viz(randsample(b_sum, 1000))
 md"Complex functions can also have other arguments. Here is a random variable that will only sometimes double its input:"
 
 # ╔═╡ 0974a6a9-859f-44a9-a17a-5ef90c789ce5
-noisy_double(x) = ifelseₚ((@~ Bernoulli()), 2*x, x)
+noisy_double(x) = ifelse.((@~ Bernoulli()), 2*x, x)
 
 # ╔═╡ 317cf40e-bafd-43f3-b855-9bfcf53c0f3a
-md"`pw` is the pointwise operation - which is defined on the function `ifelse` here."
+md"""
+To perform pointwise operation, which is defined on the function `ifelse` here, we use `.` operator. This can also be done in the following way - 
+```
+pw(ifelse, (@~ Bernoulli()), 2*x, x)
+```
+"""
 
 # ╔═╡ 11c2d2b5-0c14-4b23-9282-083ac6f07f6f
 randsample(noisy_double(3))
@@ -182,7 +187,7 @@ md"## Example: Flipping Coins"
 md"The following program defines a fair coin, and flips it $20$ times:"
 
 # ╔═╡ 3c5e0f1d-0379-4c92-817d-4e6ef2d7ed8e
-fair_coin = ifelseₚ((@~ Bernoulli()), 'h', 't')
+fair_coin = ifelse.((@~ Bernoulli()), 'h', 't')
 
 # ╔═╡ b7d24774-2f2b-4da8-9257-6fe3a424a869
 viz(randsample(fair_coin, 20))
@@ -191,7 +196,7 @@ viz(randsample(fair_coin, 20))
 md"This program defines a “trick” coin that comes up heads most of the time ($95\%$), and flips it $20$ times:"
 
 # ╔═╡ 5657d115-ebad-4731-b8e2-5d66da76f600
-trick_coin = ifelseₚ((@~ Bernoulli(0.95)), 'h', 't')
+trick_coin = ifelse.((@~ Bernoulli(0.95)), 'h', 't')
 
 # ╔═╡ 83f9117e-2c5b-47e8-a78f-3bd679ad95dc
 viz(randsample(trick_coin, 20))
@@ -200,7 +205,7 @@ viz(randsample(trick_coin, 20))
 md"The higher-order function `make_coin` takes in a weight and outputs a function describing a coin with that weight. Then we can use `make_coin` to make the coins above, or others."
 
 # ╔═╡ 65119d8b-a0d9-403f-9d42-ec6ef0ab3072
-make_coin(weight) = ifelseₚ((@~ Bernoulli(weight)), 'h', 't')
+make_coin(weight) = ifelse.((@~ Bernoulli(weight)), 'h', 't')
 
 # ╔═╡ 7fb8ded9-629a-4084-ba5b-779dbe251841
 begin
@@ -222,7 +227,7 @@ viz(randsample(bent_coin, 20))
 md"We can also define a higher-order function that takes a “coin” and “bends it”:"
 
 # ╔═╡ 56304079-fc6c-474b-b257-9db330475786
-bend(coin) = ifelseₚ((coin ==ₚ 'h'), make_coin(0.7), make_coin(0.1))
+bend(coin) = ifelse.((coin .== 'h'), make_coin(0.7), make_coin(0.1))
 
 # ╔═╡ 4c343506-221d-4e8f-9398-725643bd74fc
 bent_coin1 = bend(fair_coin)
@@ -255,7 +260,7 @@ md"Generative knowledge is often causal knowledge that describes how events or s
 let
 	lung_cancer = @~ Bernoulli(0.01)
 	cold = @~ Bernoulli(0.2)
-	cough = cold |ₚ lung_cancer
+	cough = cold .| lung_cancer
 	randsample(cough)
 end
 
@@ -274,32 +279,32 @@ end
 
 # ╔═╡ 24a06c1c-29ac-45b3-b8fa-774ca2e4619e
 cough = pw(|, 
-	(cold &ₚ @~ Bernoulli()), 
-	(lung_cancer &ₚ @~ Bernoulli(0.3)), 
-	(TB &ₚ @~ Bernoulli(0.7)), 
-	(other &ₚ @~ Bernoulli(0.1))
+	(cold .& (@~ Bernoulli())), 
+	(lung_cancer .& (@~ Bernoulli(0.3))), 
+	(TB .& (@~ Bernoulli(0.7))), 
+	(other .& (@~ Bernoulli(0.1)))
 )
 
 # ╔═╡ f5600317-7a50-4f16-9716-c4e3e24515bb
 fever = pw(|, 
-	(cold &ₚ @~ Bernoulli(0.3)), 
-	(stomach_flu &ₚ @~ Bernoulli()), 
-	(TB &ₚ @~ Bernoulli(0.1)), 
-	(other &ₚ @~ Bernoulli(0.01))
+	(cold .& (@~ Bernoulli(0.3))), 
+	(stomach_flu .& (@~ Bernoulli())), 
+	(TB .& (@~ Bernoulli(0.1))), 
+	(other .& (@~ Bernoulli(0.01)))
 )
 
 # ╔═╡ f005e508-db7f-4d3d-997e-3bdbe0c4bb7e
 chest_pain = pw(|, 
-	(lung_cancer &ₚ @~ Bernoulli()), 
-	(TB &ₚ @~ Bernoulli()), 
-	(other &ₚ @~ Bernoulli(0.01))
+	(lung_cancer .& (@~ Bernoulli())), 
+	(TB .& (@~ Bernoulli())), 
+	(other .& (@~ Bernoulli(0.01)))
 )
 
 # ╔═╡ 3dfc6973-f996-4020-b461-016b46f87659
 shortness_of_breath = pw(|, 
-	(lung_cancer &ₚ @~ Bernoulli()), 
-	(TB &ₚ @~ Bernoulli(0.2)), 
-	(other &ₚ @~ Bernoulli(0.01))
+	(lung_cancer .& (@~ Bernoulli())), 
+	(TB .& (@~ Bernoulli(0.2))), 
+	(other .& (@~ Bernoulli(0.01)))
 )
 
 # ╔═╡ 47807da5-e1b6-49aa-849b-39d5cce05471
@@ -363,7 +368,7 @@ We must be careful when applying this rule, since the probability of a choice ca
 A = @~ Bernoulli()
 
 # ╔═╡ 1c260eff-636c-429d-992f-b7854f4398e1
-B = @~ Bernoulli(ifelseₚ(A, 0.3, 0.7))
+B = @~ Bernoulli(ifelse.(A, 0.3, 0.7))
 
 # ╔═╡ d57d23a3-7626-4b23-b1df-994951f5a12b
 rs = randsample((A, B), 1000)
@@ -382,7 +387,7 @@ md"#### Sum Rule"
 md"Now let’s consider an example where we can’t determine from the overall return value the sequence of random choices that were made:"
 
 # ╔═╡ d744dba4-580b-4795-95c6-e4197c4217d6
-s = (@~ Bernoulli()) |ₚ (@~ Bernoulli())
+s = (@~ Bernoulli()) .| (@~ Bernoulli())
 
 # ╔═╡ ebdc9cec-32db-4770-9fc8-8400280a48cb
 randsample(s)

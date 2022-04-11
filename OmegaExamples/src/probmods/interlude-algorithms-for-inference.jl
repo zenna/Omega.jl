@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.1
+# v0.18.4
 
 using Markdown
 using InteractiveUtils
@@ -28,8 +28,8 @@ baserate = 0.1
 		A = @~ Bernoulli(baserate)
 		B = @~ Bernoulli(baserate)
 		C = @~ Bernoulli(baserate)
-		randsample(A |ᶜ (A +ₚ B +ₚ C >=ₚ 2), 100)
-end
+		randsample(A |ᶜ (A .+ B .+ C .>= 2), 100)
+	end
 
 # ╔═╡ ae42cfc9-57cd-4b1f-b909-5e7aa948eb42
 md"Even for this simple program, lowering the baserate by just one order of magnitude, to $0.01$, will make rejection sampling impractical."
@@ -44,8 +44,8 @@ There are many other algorithms and techniques for probabilistic inference, revi
 		A = @~ Bernoulli(baserate)
 		B = @~ Bernoulli(baserate)
 		C = @~ Bernoulli(baserate)
-		randsample(A |ᶜ (A +ₚ B +ₚ C >=ₚ 2), 100, alg = MH)
-end
+		randsample(A |ᶜ (A .+ B .+ C .>= 2), 100, alg = MH)
+	end
 
 # ╔═╡ 1f49b556-cb7e-4a36-b0aa-0009d22d0255
 md"""
@@ -181,10 +181,10 @@ As we can see, this Markov chain has as its stationary distribution a geometric 
 geometric(ω, p, i = 0) = (i ~ Bernoulli(p))(ω) ? 1 : (1 + geometric(ω, p, i + 1))
 
 # ╔═╡ 417e23ed-56d5-41f8-a3f1-b81ef0b7a63a
-mygeom = ω -> geometric(ω, p)
+mygeom = Variable(ω -> geometric(ω, p))
 
 # ╔═╡ 4ea00086-cf2c-4f9f-b5c9-bcfd66baf955
-post = mygeom |ᶜ (mygeom >ₚ 2)
+post = mygeom |ᶜ (mygeom .> 2)
 
 # ╔═╡ 109015e9-891a-4f29-97c5-d0296e0c491b
 let

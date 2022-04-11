@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.1
+# v0.18.4
 
 using Markdown
 using InteractiveUtils
@@ -52,7 +52,7 @@ p = @~ Uniform(0, 1) # true population proportion who support candidate A
 
 # ╔═╡ ffddd0ab-0745-400a-8191-bdd2a4ecdfef
 # recreate model structure, without conditioning
-prior_predictive(ω) = (@~ Binomial(n, p(ω)))(ω) 
+prior_predictive = @~ Binomial(n, p) 
 
 # ╔═╡ 3ac23e10-3340-45f2-93ff-1387d9d5c824
 viz(randsample(prior_predictive, 1000))
@@ -60,7 +60,7 @@ viz(randsample(prior_predictive, 1000))
 # ╔═╡ db1b173c-f2d4-4fd1-bd26-d526f3f8c33b
 # Observed k people support "A" 
 # Assuming each person's response is independent of each other
-posterior_predictive = p |ᶜ ((ω -> (@~ Binomial(n, p(ω)))(ω)) ==ₚ k)
+posterior_predictive = p |ᶜ (Variable(ω -> (@~ Binomial(n, p(ω)))(ω)) .== k)
 
 # ╔═╡ bcd64b7e-e9bd-4f94-a609-0b3e573cdfc3
 posterior_predictive_samples = randsample(posterior_predictive, 1000)
@@ -119,7 +119,7 @@ md"To test the function -"
 x = @~ Normal(0, 1)
 
 # ╔═╡ b2861324-d7f0-426b-9cb5-2df784597777
-samples = randsample(x |ᶜ (x >ₚ 0), 1000)
+samples = randsample(x |ᶜ (x .> 0), 1000)
 
 # ╔═╡ bd180618-0e37-45f9-bdd1-18c2746c532e
 find_HDI(0.95, samples, -10, 10, 0.1)
@@ -157,11 +157,14 @@ bin(ω, n, age, a, b, i) = (i ~ Binomial(n, logistic(a(ω) * age + b(ω))))(ω)
 
 # ╔═╡ 998a3439-2be5-4e2e-a7ad-ed11b8d17f62
 evidence = pw(&, 
-	((ω -> bin(ω, data[1].n, data[1].age, a, b, (@uid, 1))) ==ₚ data[1].k),
-	((ω -> bin(ω, data[2].n, data[2].age, a, b, (@uid, 2))) ==ₚ data[2].k),
-	((ω -> bin(ω, data[3].n, data[3].age, a, b, (@uid, 3))) ==ₚ data[3].k),
-	((ω -> bin(ω, data[4].n, data[4].age, a, b, (@uid, 4))) ==ₚ data[4].k)
+	(Variable(ω -> bin(ω, data[1].n, data[1].age, a, b, (@uid, 1))) .== data[1].k),
+	(Variable(ω -> bin(ω, data[2].n, data[2].age, a, b, (@uid, 2))) .== data[2].k),
+	(Variable(ω -> bin(ω, data[3].n, data[3].age, a, b, (@uid, 3))) .== data[3].k),
+	(Variable(ω -> bin(ω, data[4].n, data[4].age, a, b, (@uid, 4))) .== data[4].k)
 ) # map gives the same variables for `bin`
+
+# ╔═╡ b98f226b-df22-44a2-b917-e22dbcad46b3
+viz(randsample(evidence, 1000)) # it wasn't this way before changing to `.`
 
 # ╔═╡ fa5f280b-eb1b-483b-b7b9-05ef931b80a5
 a_posterior = a |ᶜ evidence
@@ -235,7 +238,7 @@ x_(ω) = (@~ Bernoulli())(ω) ? "simple" : "complex"
 p_(ω) = (x_(ω) == "simple") ? 0.5 : (@~ StdUniform{Float64}())(ω)
 
 # ╔═╡ 24e1cd10-da09-4a5c-9e1f-55b34f1dcb2a
-posterior_ = x_ |ᶜ ((ω ->  (@~ Binomial(n_, p_(ω)))(ω))==ₚ k_)
+posterior_ = x_ |ᶜ (Variable(ω ->  (@~ Binomial(n_, p_(ω)))(ω)) .== k_)
 
 # ╔═╡ aae249b9-0ca1-4434-901b-d3961232ccc0
 viz(randsample(posterior_, 1000))
@@ -284,7 +287,7 @@ complex_model_prior = @~ StdUniform{Float64}()
 # ╔═╡ 525eed2b-0473-4a7b-a0eb-df1231e47296
 function complex_model_posterior(n, k)
 	p = (@~ StdUniform{Float64}())
-	p |ᶜ ((ω -> (@~ Binomial(n, p(ω)))(ω)) ==ₚ k)
+	p |ᶜ (Variable(ω -> (@~ Binomial(n, p(ω)))(ω)) .== k)
 end
 
 # ╔═╡ 637878f7-8e41-47c1-b816-683e0ce88e29
@@ -339,6 +342,7 @@ Of course when we, as scientists, try to test our cognitive models of people, we
 # ╠═8734a4d7-6349-47e4-a4bb-fca2685e0796
 # ╠═63c901a7-3efb-414a-85b0-71bbbb1de894
 # ╠═998a3439-2be5-4e2e-a7ad-ed11b8d17f62
+# ╠═b98f226b-df22-44a2-b917-e22dbcad46b3
 # ╠═fa5f280b-eb1b-483b-b7b9-05ef931b80a5
 # ╠═08cfd264-9969-4436-9af8-a1e5c342dc9e
 # ╠═d9e93d06-0fab-4c44-89ba-f7ea17ddc908

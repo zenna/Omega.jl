@@ -7,6 +7,8 @@ import OmegaCore.Var
 
 OmegaCore.Var.traitvartype(class::Type{<:Distribution}) = Var.TraitIsClass
 
+(d::Type{<:Distribution})(args...) = (id, ω) -> Member(id, (d(map(a -> liftapply(a, ω), args)...)))(ω)
+
 @inline (d::Normal{T})(id, ω) where T =
   Member(id, StdNormal{T}())(ω) * d.σ + d.μ
 

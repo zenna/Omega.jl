@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.1
+# v0.18.4
 
 using Markdown
 using InteractiveUtils
@@ -46,13 +46,13 @@ end
 C = @~ Bernoulli()
 
 # ╔═╡ 64335ca1-48a9-435d-93f5-c71adfa71677
-B = ifelseₚ(C, (@~ Bernoulli(0.5)), (@~ Bernoulli(0.9)))
+B = ifelse.(C, (@~ Bernoulli(0.5)), (@~ Bernoulli(0.9)))
 
 # ╔═╡ 7d51eedb-d042-446f-a2f7-da7c4b3e58c2
-A = ifelseₚ(C, (@~ Bernoulli(0.1)), (@~ Bernoulli(0.4)))
+A = ifelse.(C, (@~ Bernoulli(0.1)), (@~ Bernoulli(0.4)))
 
 # ╔═╡ e6481a46-550d-443d-b4f7-9ad961a1e957
-B_cond_A(A_val) = B |ᶜ (C &ₚ (A ==ₚ A_val))
+B_cond_A(A_val) = B |ᶜ (C .& (A .== A_val))
 
 # ╔═╡ 5e308604-38b3-4411-8adc-096a55e2963a
 md"Histogram of `B` conditioned on when `A` is `true` :"
@@ -96,10 +96,10 @@ D = @~ Bernoulli()
 E = @~ Bernoulli()
 
 # ╔═╡ 48ebe872-8c2f-477f-b09a-2c91725f590a
-F = ifelseₚ((D |ₚ E), (@~ Bernoulli(0.9)), (@~ Bernoulli(0.2)))
+F = ifelse.((D .| E), (@~ Bernoulli(0.9)), (@~ Bernoulli(0.2)))
 
 # ╔═╡ 39496d8b-5b75-459a-b004-a6a7e3f06213
-E_cond_D(D_val) = E |ᶜ (F &ₚ (D ==ₚ D_val))
+E_cond_D(D_val) = E |ᶜ (F .& (D .== D_val))
 
 # ╔═╡ 8b641417-3699-48fd-b946-94285d0359c7
 md"Histogram of `E` conditioned on `D` when `D` is `true` :"
@@ -135,7 +135,7 @@ int_2 = @~ DiscreteUniform(0, 9)
 ints = @joint int_1 int_2
 
 # ╔═╡ 82bb2560-4003-4651-9859-ecfa664e7a22
-sum_cond = ints |ᶜ (int_1 +ₚ int_2 ==ₚ 9)
+sum_cond = ints |ᶜ (int_1 .+ int_2 .== 9)
 
 # ╔═╡ 72fb2dc6-b89f-4bec-a00f-a09cdc19bfa3
 val = randsample(sum_cond, 1000)
@@ -149,7 +149,7 @@ This gives perfect anti-correlation in conditional inferences for `int_1` and `i
 """
 
 # ╔═╡ 3e717d2c-ba8e-4331-87d6-e2232bedb5eb
-eq_cond = ints |ᶜ (int_1 ==ₚ int_2)
+eq_cond = ints |ᶜ (int_1 .== int_2)
 
 # ╔═╡ 14de8534-62d2-4051-b590-403f80ab4c77
 val_eq = randsample(eq_cond, 1000)
@@ -192,25 +192,25 @@ md"#### Example: Medical Diagnosis"
 smokes = @~ Bernoulli(0.2)
 
 # ╔═╡ 384aa2e3-c9be-4014-bac0-91adeb50a92d
-lung_disease = (smokes &ₚ @~ Bernoulli(0.1)) |ₚ @~ Bernoulli(0.001)
+lung_disease = (smokes .& @~ Bernoulli(0.1)) .| @~ Bernoulli(0.001)
 
 # ╔═╡ b442387a-f1c3-4437-a7c3-4b4115625d83
 cold = @~ Bernoulli(0.02)
 
 # ╔═╡ a5b4825b-7df0-44ca-b5c0-29da7c9b7e94
 cough = pw(|, 
-	(cold &ₚ @~ Bernoulli()), 
-	(lung_disease &ₚ @~ Bernoulli()), 
+	(cold .& @~ Bernoulli()), 
+	(lung_disease .& @~ Bernoulli()), 
 	@~ Bernoulli(0.001)) 
 
 # ╔═╡ 58d05c77-4593-4ef3-bc81-4213bbb63def
-fever = (cold &ₚ @~ Bernoulli(0.3)) |ₚ @~ Bernoulli(0.01)
+fever = (cold .& @~ Bernoulli(0.3)) .| @~ Bernoulli(0.01)
 
 # ╔═╡ 32954a31-6e3f-4689-8c9f-942553315845
-chest_pain = (lung_disease &ₚ @~ Bernoulli(0.2)) |ₚ @~ Bernoulli(0.01)
+chest_pain = (lung_disease .& @~ Bernoulli(0.2)) .| @~ Bernoulli(0.01)
 
 # ╔═╡ 55beb01c-7598-4c54-8264-559dac01a197
-shortness_of_breath = (lung_disease &ₚ @~ Bernoulli(0.2)) |ₚ @~ Bernoulli(0.01)
+shortness_of_breath = (lung_disease .& @~ Bernoulli(0.2)) .| @~ Bernoulli(0.01)
 
 # ╔═╡ 885ea696-dda5-40cb-879e-47e293d0fde6
 smokes_cond_c_cp_sob = smokes |ᶜ pw(&, cough, chest_pain, shortness_of_breath)
@@ -264,7 +264,7 @@ Now suppose we also learn that the patient does _not_ have a cold.
 """
 
 # ╔═╡ 9112f40c-09b6-4e29-8d21-8b183026b8d6
-cond_cough_not_cold = ld_and_cold |ᶜ (cough &ₚ !ₚ(cold))
+cond_cough_not_cold = ld_and_cold |ᶜ (cough .& .!(cold))
 
 # ╔═╡ 2f383a73-2e95-4d0a-adf0-ed80bbb8ec63
 cond_cough_not_cold_samples = randsample(cond_cough_not_cold, 1000)
@@ -281,7 +281,7 @@ The probability of having lung disease increases dramatically. If instead we had
 """
 
 # ╔═╡ cd7b7f8e-8895-415b-88ac-1d72e7285b39
-cond_cough_and_cold = ld_and_cold |ᶜ (cough &ₚ cold)
+cond_cough_and_cold = ld_and_cold |ᶜ (cough .& cold)
 
 # ╔═╡ 7f797ddf-7d52-4fc9-aa7b-a1659030bc12
 cond_cough_cold_samples = randsample(cond_cough_and_cold, 1000)
@@ -323,13 +323,16 @@ function pass_prob(ω)
 end
 
 # ╔═╡ 0c566edd-f08d-4863-be84-765a015dd999
-pass = @~ Bernoulli(pass_prob)
+pass = @~ Bernoulli(Variable(pass_prob))
+
+# ╔═╡ 1e2e0d4f-a3a9-4348-b043-d66052c5e062
+md"We write `Variable(pass_prob)` instead of just `pass_prob` to specify that `pass_prob` is of a `Variable` type."
 
 # ╔═╡ e74d6024-5111-43b7-a101-3fdf7a417e38
-fair_exam_cond_not_pass = fair_exam |ᶜ !ₚ(pass)
+fair_exam_cond_not_pass = fair_exam |ᶜ .!(pass)
 
 # ╔═╡ 44e0070a-0a84-4231-8ecf-64759e033c5b
-does_homework_cond_not_pass = does_homework |ᶜ !ₚ(pass)
+does_homework_cond_not_pass = does_homework |ᶜ .!(pass)
 
 # ╔═╡ 480bba39-ce0d-4807-a126-86f11ef5b9bb
 samples_cond_not_pass =
@@ -352,9 +355,9 @@ does_homework_m(student) = student ~ Bernoulli(0.8)
 
 # ╔═╡ 2a8f55de-d44d-4ad8-89af-d4787f7b28e7
 pass_m(exam, student) = @~ Bernoulli(
-	ifelseₚ(fair_exam_m(exam), 
-		ifelseₚ(does_homework_m(student), 0.9, 0.4),
-		ifelseₚ(does_homework_m(student), 0.6, 0.2)))
+	ifelse.(fair_exam_m(exam), 
+		ifelse.(does_homework_m(student), 0.9, 0.4),
+		ifelse.(does_homework_m(student), 0.6, 0.2)))
 
 # ╔═╡ ea02c349-ecbf-4054-bedf-de5fb5a89b28
 begin
@@ -377,7 +380,7 @@ p(condition) =
 	randsample(joint(condition), 1000)
 
 # ╔═╡ 15bc136b-7d4d-4aae-b748-916e4fc03e04
-c = !ₚ(pass_m(exam1, bill))
+c = .!(pass_m(exam1, bill))
 
 # ╔═╡ f566cdd4-e4f9-4851-ae1d-d2905d78f97a
 viz(p(c))
@@ -395,7 +398,7 @@ See how conditional inferences about Bill and exam 1 change as you add in more d
 """
 
 # ╔═╡ 9eb80385-0ba2-4098-9f69-90c5dba05401
-c1 = !ₚ(pass_m(exam1, bill)) &ₚ !ₚ(pass_m(bill, 102))
+c1 = .!(pass_m(exam1, bill)) .& .!(pass_m(bill, 102))
 
 # ╔═╡ 75615669-497e-4f95-a358-1f6c2f233bf6
 viz(p(c1))
@@ -446,14 +449,14 @@ We can capture this set up with a model in which each block has a persistent “
 blicket(block) = block ~ Bernoulli(0.4)
 
 # ╔═╡ afa9c257-ad3c-45f5-b8ed-d9f62c9b3804
-power(block) = ifelseₚ(blicket(block), 0.9, 0.05)
+power(block) = ifelse.(blicket(block), 0.9, 0.05)
 
 # ╔═╡ 2d19b551-2c62-4e5a-9212-1cf6dfe06317
 function machine(blocks)
 	if isempty(blocks)
 		return @~ Bernoulli(0.05)
 	else
-		return (@~ Bernoulli(power(blocks[1]))) |ₚ machine(blocks[2:end])
+		return (@~ Bernoulli(power(blocks[1]))) .| machine(blocks[2:end])
 	end
 end
 
@@ -552,6 +555,7 @@ md"[Sobel et al. (2004)](https://scholar.google.com/scholar?q=%22Children%27s%20
 # ╠═35563ad5-7ed5-4a22-9af1-e52d36499d74
 # ╠═73c7cae9-9915-454c-b855-35c20210fc10
 # ╠═0c566edd-f08d-4863-be84-765a015dd999
+# ╟─1e2e0d4f-a3a9-4348-b043-d66052c5e062
 # ╠═e74d6024-5111-43b7-a101-3fdf7a417e38
 # ╠═44e0070a-0a84-4231-8ecf-64759e033c5b
 # ╠═480bba39-ce0d-4807-a126-86f11ef5b9bb

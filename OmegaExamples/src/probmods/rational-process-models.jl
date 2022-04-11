@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.1
+# v0.18.4
 
 using Markdown
 using InteractiveUtils
@@ -54,7 +54,7 @@ weight = StdUniform{Float64}()
 # ╔═╡ b050357f-596c-40d5-9bb2-83b87a95b268
 function agent_belief(i, ω)
 	w = (i ~ weight)(ω)
-	a =  ((@uid, i...)~ Bernoulli(w)) |ᶜ ((ω -> (i~ Binomial(5, w))(ω)) ==ₚ 4)
+	a =  ((@uid, i...)~ Bernoulli(w)) |ᶜ (Variable(ω -> (i~ Binomial(5, w))(ω)) .== 4)
 	a(ω)
 end
 

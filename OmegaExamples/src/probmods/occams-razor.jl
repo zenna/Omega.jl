@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.1
+# v0.18.4
 
 using Markdown
 using InteractiveUtils
@@ -70,7 +70,7 @@ rand_hyp(ω, data) =
 data = ["a"]
 
 # ╔═╡ b17022d8-3aa9-49fe-81d2-900850604801
-post(data) = hypothesis |ᶜ ((ω -> rand_hyp(ω, data)) ==ₚ data)
+post(data) = hypothesis |ᶜ pw(==, Variable(ω -> rand_hyp(ω, data)), data)
 
 # ╔═╡ 8b2efbb1-f395-4b40-9072-bec6faec6ffe
 viz(randsample(post(data), 1000))
@@ -79,7 +79,8 @@ viz(randsample(post(data), 1000))
 md"With a single observed `a`, we already favor hypothesis `Small`. What happens when we increase the amount of observed data? Consider the learning trajectory:"
 
 # ╔═╡ 1fa98cb2-92fa-4a6e-85cb-099c6759ed3f
-hyp_post(data) = (hypothesis ==ₚ "Big") |ᶜ ((ω -> rand_hyp(ω, data)) ==ₚ data)
+hyp_post(data) = 
+	(ω -> (hypothesis(ω) == "Big")) |ᶜ pw(==, Variable(ω -> rand_hyp(ω, data)), data)
 
 # ╔═╡ f3cdfea3-3458-40dd-a233-f56c2651f4d2
 full_data = ["a", "b", "a", "b", "b", "a", "b"]
@@ -88,10 +89,10 @@ full_data = ["a", "b", "a", "b", "b", "a", "b"]
 data_sizes = [0, 1, 3, 5, 7]
 
 # ╔═╡ c2ed6e46-3ce4-4b9c-942e-5591bae43769
-prob_Big(size, data) = mean(randsample(hyp_post(data[1:size]), 1000))
+prob_big(size, data) = mean(randsample(hyp_post(data[1:size]), 1000))
 
 # ╔═╡ 0d182c8e-bc9e-4d0d-ba08-6414b4f27ace
-lineplot(map(i -> prob_Big(i, full_data), data_sizes))
+lineplot(map(i -> prob_big(i, full_data), data_sizes))
 
 # ╔═╡ d2f7279c-43ea-4921-ad44-19c04bb2b0a3
 md"""
@@ -137,7 +138,7 @@ rand_hyp_(ω, data) =
 	map(i -> hypothesis_to_dist_(hypothesis_(ω), ω, i), 1:length(data))
 
 # ╔═╡ 789d19ab-88a9-4a75-b72a-d3c752014f1c
-posterior(data) = hypothesis_ |ᶜ ((ω -> rand_hyp_(ω, data)) ==ₚ data)
+posterior(data) = hypothesis_ |ᶜ pw(==, Variable(ω -> rand_hyp_(ω, data)), data)
 
 # ╔═╡ 8b13fac0-96b9-4d28-8e5e-92b71e38f8af
 viz(randsample(posterior(obs_data), 1000))
@@ -172,13 +173,14 @@ pseudo_counts = (α = 1, β = 1)
 fair = @~ Bernoulli(fair_prior)
 
 # ╔═╡ de7c9b8b-7692-448f-aa73-e7c67575afee
-coin_weight = ifelseₚ(fair, 0.5, @~ Beta(pseudo_counts...))
+coin_weight = ifelse.(fair, 0.5, @~ Beta(pseudo_counts...))
 
 # ╔═╡ d9ad32b3-f21f-433a-9e5d-85767c564592
 viz(randsample(coin_weight, 1000))
 
 # ╔═╡ d4099783-fa23-4208-9c49-03ad1fffa2e7
-evidence(data) = manynth(Bernoulli(coin_weight), 1:length(data)) ==ₚ (data .== "h")
+evidence(data) = 
+	pw(==, manynth(Bernoulli(coin_weight), 1:length(data)), (data .== "h"))
 
 # ╔═╡ 0ac4b96e-7b88-42d5-8db3-c0db16d3373d
 posterior_(data) = (@joint fair coin_weight) |ᶜ evidence(data)
@@ -200,7 +202,7 @@ Now let’s look at the learning trajectories for this model:
 """
 
 # ╔═╡ abcd9e36-bb81-4401-9a2e-37a3d868f9ef
-true_coin = ifelseₚ((@~ Bernoulli(0.9)), "h", "t")
+true_coin = ifelse.((@~ Bernoulli(0.9)), "h", "t")
 
 # ╔═╡ 25df8264-16c7-4e09-9e28-6f50c0dfbb57
 data_sizes_ = [0,1,3,6,10,20,30,40,50,60,70,100]
@@ -224,10 +226,10 @@ When statisticians suggest methods for model selection, they often include a pen
 unfair_weight = @~ Beta(pseudo_counts...)
 
 # ╔═╡ 3a8b42de-bbc1-4f00-ad81-8c4d30c19a95
-coin_weight_ = ifelseₚ(fair, 0.5, unfair_weight)
+coin_weight_ = ifelse.(fair, 0.5, unfair_weight)
 
 # ╔═╡ 746c1ca8-e58b-40e0-9793-b268efcebbd2
-results = (@joint fair coin_weight_) |ᶜ ((@~ Bernoulli(coin_weight_)) ==ₚ true)
+results = (@joint fair coin_weight_) |ᶜ ((@~ Bernoulli(coin_weight_)) .== true)
 
 # ╔═╡ 1b32a911-0118-41ba-b3db-70bda2d85c0f
 results_samples = randsample(results, 1000)

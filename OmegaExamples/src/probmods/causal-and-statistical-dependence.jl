@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.1
+# v0.18.4
 
 using Markdown
 using InteractiveUtils
@@ -35,8 +35,8 @@ Let’s examine this notion of “causal dependence” a little more carefully. 
 let
 	C = @~ Bernoulli()
 	B = @~ Bernoulli()
-	A = ifelseₚ(B, (@~ Bernoulli(0.1)), (@~ Bernoulli(0.4)))
-	randsample(A |ₚ C)
+	A = ifelse.(B, (@~ Bernoulli(0.1)), (@~ Bernoulli(0.4)))
+	randsample(A .| C)
 end
 
 # ╔═╡ 5b86b373-c48a-4f04-b84b-66434da0507a
@@ -50,26 +50,26 @@ For example, consider a simpler variant of our medical diagnosis scenario:
 smokes = @~ Bernoulli(0.2)
 
 # ╔═╡ a5f62e00-f02f-4545-be25-eddcce5f7e52
-lung_disease = (smokes &ₚ (@~ Bernoulli(0.1))) |ₚ (@~ Bernoulli(0.001))
+lung_disease = (smokes .& (@~ Bernoulli(0.1))) .| (@~ Bernoulli(0.001))
 
 # ╔═╡ 309770fe-bb69-4fe6-a67a-de91a986fda7
 cold = @~ Bernoulli(0.02)
 
 # ╔═╡ e7933f47-1cef-44ad-bbbf-271a07451127
 cough = pw(|, 
-	(cold &ₚ @~ Bernoulli()), 
-	(lung_disease &ₚ @~ Bernoulli()), 
+	(cold .& @~ Bernoulli()), 
+	(lung_disease .& @~ Bernoulli()), 
 	@~ Bernoulli(0.001)
 )
 
 # ╔═╡ c4564628-3072-4780-9bea-e25926a1abc2
-fever = (cold &ₚ @~ Bernoulli()) |ₚ @~ Bernoulli(0.01)
+fever = (cold .& @~ Bernoulli()) .| @~ Bernoulli(0.01)
 
 # ╔═╡ b579648a-5432-4ce0-a7ae-aac9f90ebd12
-chest_pain = (lung_disease &ₚ @~ Bernoulli(0.2)) |ₚ @~ Bernoulli(0.01)
+chest_pain = (lung_disease .& @~ Bernoulli(0.2)) .| @~ Bernoulli(0.01)
 
 # ╔═╡ df620afa-cb16-40af-bb1f-20a58019fd57
-shortness_of_breath = (lung_disease &ₚ @~ Bernoulli(0.2)) |ₚ @~ Bernoulli(0.01)
+shortness_of_breath = (lung_disease .& @~ Bernoulli(0.2)) .| @~ Bernoulli(0.01)
 
 # ╔═╡ 833d71f7-ec50-45b1-bab1-8bf9fb2867bd
 cold_cond = cold |ᶜ cough
@@ -96,7 +96,7 @@ There are several special situations that are worth mentioning. In some cases, w
 let
 	C = @~ Bernoulli()
 	B = @~ Bernoulli()
-	A = ifelseₚ(C, ifelseₚ(B, (@~ Bernoulli(0.85)), false), false)
+	A = ifelse.(C, ifelse.(B, (@~ Bernoulli(0.85)), false), false)
 	randsample(A)
 end
 
@@ -156,13 +156,13 @@ A = @~ Bernoulli()
 C = @~ Bernoulli()
 
 # ╔═╡ fd9cd041-792d-4489-bf69-4f6680e9efb9
-B = ifelseₚ(C, (@~ Bernoulli(0.1)), (@~ Bernoulli(0.4)))
+B = ifelse.(C, (@~ Bernoulli(0.1)), (@~ Bernoulli(0.4)))
 
 # ╔═╡ 4cd4bcd9-21ac-455b-a086-0b4502b10617
-viz(randsample((B |ᶜ (C ==ₚ true)), 1000))
+viz(randsample((B |ᶜ (C .== true)), 1000))
 
 # ╔═╡ 6418a755-32b8-491d-85d1-67683f4a05f8
-viz(randsample((B |ᶜ (C ==ₚ false)), 1000))
+viz(randsample((B |ᶜ (C .== false)), 1000))
 
 # ╔═╡ 94846995-9616-4ea9-b0de-de065960fd57
 md"""
@@ -175,16 +175,16 @@ Correlation is not just a symmetrized version of causality. Two events may be st
 X  = @~ Bernoulli()
 
 # ╔═╡ d41077b8-eaf6-474d-8113-a35c82b06a8d
-Y = ifelseₚ(X, (@~ Bernoulli()), (@~ Bernoulli(0.9)))
+Y = ifelse.(X, (@~ Bernoulli()), (@~ Bernoulli(0.9)))
 
 # ╔═╡ 1df8c40c-c894-4fa2-b80f-91a5f5f3bfd1
-Z = ifelseₚ(X, (@~ Bernoulli(0.1)), (@~ Bernoulli(0.4)))
+Z = ifelse.(X, (@~ Bernoulli(0.1)), (@~ Bernoulli(0.4)))
 
 # ╔═╡ 24f23296-cb77-481a-a8ac-05ec3ed65bcf
-viz(randsample((Z |ᶜ (Y ==ₚ true)), 100))
+viz(randsample((Z |ᶜ (Y .== true)), 100))
 
 # ╔═╡ c285f6c4-ae2d-4d2b-900e-7bf31482fdba
-viz(randsample((Z |ᶜ (Y ==ₚ false)), 100))
+viz(randsample((Z |ᶜ (Y .== false)), 100))
 
 # ╔═╡ 2fa92448-bc3b-49df-bebf-32e443487d7c
 md"""

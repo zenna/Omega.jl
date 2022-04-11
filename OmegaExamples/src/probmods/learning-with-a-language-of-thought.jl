@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.1
+# v0.18.4
 
 using Markdown
 using InteractiveUtils
@@ -21,7 +21,7 @@ For instance, imagine that we want a model that generates strings, but we want t
 """
 
 # ╔═╡ 51327bd3-0c04-48b1-b7db-b6bb5a7ac6b9
-random_const = string ∘ UniformDraw(0:9)
+random_const = Variable(string ∘ UniformDraw(0:9))
 
 # ╔═╡ 63caf0d9-6e91-40e2-8529-af7c2610b67f
 function random_combination(f, g, ω, i)
@@ -64,7 +64,7 @@ Consider the following program, which induces an arithmetic function from exampl
 
 # ╔═╡ 90294f8f-83ac-4101-84fa-0984467a5cef
 function_eval =
-	random_arithmetic_expression |ᶜ (eval ∘ Meta.parse ∘ random_arithmetic_expression ==ₚ 3)
+	random_arithmetic_expression |ᶜ (eval ∘ Meta.parse ∘ random_arithmetic_expression .== 3)
 
 # ╔═╡ eff3ce23-e1db-40b9-8aae-8b9520299b36
 randsample(function_eval, 100, alg = MH)
@@ -181,10 +181,10 @@ end
 
 # ╔═╡ 48ee1509-35ac-4e8b-ae99-f8b7250ef886
 obs_fn(x, ω) = 
-	(@~ Bernoulli(ifelseₚ(get_formula(ω, τ)(x), 1 - noise_param, noise_param)))(ω)
+	(@~ Bernoulli(ifelse.(get_formula(ω, τ)(x), 1 - noise_param, noise_param)))(ω)
 
 # ╔═╡ e30556ea-9c09-4f6b-b726-1c88af5e63c1
-evidence(ω) = all(map(x -> (obs_fn(x, ω) == (x.fep == 1)), data))
+evidence = Variable(ω -> all(map(x -> (obs_fn(x, ω) == (x.fep == 1)), data)))
 
 # ╔═╡ 1d61bf77-41c9-4079-9dfa-e734a836d4c5
 rule_posterior =  get_formula |ᶜ evidence

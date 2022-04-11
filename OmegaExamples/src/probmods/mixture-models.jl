@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.1
+# v0.18.4
 
 using Markdown
 using InteractiveUtils
@@ -47,16 +47,16 @@ obs_to_bag = DiscreteUniform(1, 3)
 
 # ╔═╡ 244c8a12-0241-4229-acaf-b5285add43c3
 obs_fn(data) = 
-	ω -> all(map(i -> make_bag(obs_to_bag(i, ω), ω) == data[i], 1:length(data)))
+	Variable(ω -> all(map(i -> make_bag(obs_to_bag(i, ω), ω) == data[i], 1:length(data))))
 
 # ╔═╡ 010c18fa-af74-45ab-859b-1cd75f5c48f3
 obs = [:red, :red, :blue, :blue, :red, :blue]
 
 # ╔═╡ 6f33bc95-e348-404e-ac77-1ad928cbedc4
-same_bag_1and2 = ((1 ~ obs_to_bag) ==ₚ (2 ~ obs_to_bag)) |ᶜ obs_fn(obs)
+same_bag_1and2 = ((1 ~ obs_to_bag) .== (2 ~ obs_to_bag)) |ᶜ obs_fn(obs)
 
 # ╔═╡ de573730-2626-4180-994a-8eac595e8986
-same_bag_1and3 = ((1 ~ obs_to_bag) ==ₚ (3 ~ obs_to_bag)) |ᶜ obs_fn(obs)
+same_bag_1and3 = ((1 ~ obs_to_bag) .== (3 ~ obs_to_bag)) |ᶜ obs_fn(obs)
 
 # ╔═╡ 8ad0bfec-192e-4d8a-b646-47001b3cebb9
 viz(randsample(same_bag_1and2, 1000))
@@ -80,15 +80,15 @@ obs_to_bag_mix(i, ω) = (i~ Categorical((i~ bag_mixture)(ω)))(ω)
 
 # ╔═╡ eb7a3c55-535c-4a5d-9b04-117f3fef6f6d
 obs_fn_mix(data) = 
-	ω -> all(map(i -> make_bag(obs_to_bag_mix(i, ω), ω) == data[i], 1:length(data)))
+	Variable(ω -> all(map(i -> make_bag(obs_to_bag_mix(i, ω), ω) == data[i], 1:length(data))))
 
 # ╔═╡ 99517093-0f0d-4ab1-9d65-5f1fdd2df58f
 same_bag_1and2_mix = 
-	((1 ~ obs_to_bag_mix) ==ₚ (2 ~ obs_to_bag_mix)) |ᶜ obs_fn_mix(obs)
+	((1 ~ obs_to_bag_mix) .== (2 ~ obs_to_bag_mix)) |ᶜ obs_fn_mix(obs)
 
 # ╔═╡ f7f2365a-88d2-4d55-ae2d-0627e8ec29df
 same_bag_1and3_mix = 
-	((1 ~ obs_to_bag_mix) ==ₚ (3 ~ obs_to_bag_mix)) |ᶜ obs_fn_mix(obs)
+	((1 ~ obs_to_bag_mix) .== (3 ~ obs_to_bag_mix)) |ᶜ obs_fn_mix(obs)
 
 # ╔═╡ ab98a869-b2fc-4d1b-b08f-6e7426064ae5
 viz(randsample(same_bag_1and2_mix, 1000))
@@ -180,10 +180,11 @@ vowel_2 = @~ Normal(prototype_2, 1)
 category = @~ Bernoulli()
 
 # ╔═╡ e57b870d-a7e8-4472-8b18-d71c5c407e9c
-value = ifelseₚ(category, vowel_1, vowel_2)
+value = ifelse.(category, vowel_1, vowel_2)
 
 # ╔═╡ 2ffd7b5a-245a-4204-bf34-94fb14c1c428
-perceived_value = value |ᶜ (manynth(Normal(value, 1), 1:length(stimuli)) ==ₚ stimuli)
+perceived_value = 
+	value |ᶜ pw(==, manynth(Normal(value, 1), 1:length(stimuli)), stimuli)
 
 # ╔═╡ 78485aca-9668-45c7-be64-f2d0a16fb1f2
 scatterplot(stimuli, randsample(perceived_value, length(stimuli), alg = MH))
@@ -241,10 +242,10 @@ rand_doc(doc) =
 manynth((i, ω) -> (pget(vocabulary) ∘ (i~Categorical(topic(i, ω))))(ω), 1:length(doc))
 
 # ╔═╡ 474e8b12-2171-4574-a9d2-8b4fbfc6e359
-evidence(ω) = map(doc -> (rand_doc(doc) ==ₚ doc)(ω), corpus)
+evidence(ω) = map(doc -> (rand_doc(doc) .== doc)(ω), corpus)
 
 # ╔═╡ 68657786-6afa-45d5-8c22-7f30881b4617
-model = (ω -> mapf(ω, topics)) |ᶜ (all ∘ evidence)
+model = (ω -> mapf(ω, topics)) |ᶜ Variable(all ∘ evidence)
 
 # ╔═╡ c55f67c0-6504-4371-807d-9b3543286bb3
 results = randsample(model, 1000, alg = MH)
@@ -272,7 +273,7 @@ observed_data = [true, true, true, true, false, false, false, false]
 # observed_data = [true, true, true, true, true, true, true, true]
 
 # ╔═╡ 1e20218c-52db-4831-a964-a18fdfdb3661
-coins = ifelseₚ((@~Bernoulli()), 1, [1, 2])
+coins = Variable(ω -> ((@~Bernoulli())(ω) ? 1 : [1, 2]))
 
 # ╔═╡ dd952ba1-5f28-409a-9266-246d2bdb6d02
 coin_to_weight = StdUniform{Float64}()
@@ -283,7 +284,7 @@ rand_obs(i, ω) =
 
 # ╔═╡ ef1f7ba1-afda-4a6a-8596-da00e2812d56
 coins_cond = 
-	(length ∘ coins) |ᶜ (manynth(rand_obs, 1:length(observed_data)) ==ₚ observed_data)
+	(length ∘ coins) |ᶜ pw(==, manynth(rand_obs, 1:length(observed_data)), observed_data)
 
 # ╔═╡ 89909e7e-df47-46a5-a761-6c1628b5c792
 # viz(randsample(coins_cond, 1000))
@@ -306,7 +307,7 @@ bags(i, ω) = (i~ UniformDraw(1:num_bags(ω)))(ω)
 
 # ╔═╡ 87b1041a-4f24-4404-9cd7-b0a60fac8433
 num_bags_cond = 
-	num_bags |ᶜ (manynth(bags, 1:length(observed_marbles)) ==ₚ observed_marbles)
+	num_bags |ᶜ pw(==, manynth(bags, 1:length(observed_marbles)), observed_marbles)
 
 # ╔═╡ 8ab0c943-1d93-45b4-add2-445dfcf759d4
 # viz(randsample(num_bags_cond, 1000))
@@ -418,15 +419,15 @@ get_bag_inf(i, ω, k = 1) =
 
 # ╔═╡ 33fec097-ac33-4223-a4ff-7c39100d8faf
 obs_fn_inf(data) = 
-	ω -> all(map(i -> make_bag_inf(get_bag_inf(i, ω), ω) == data[i], 1:length(data)))
+	Variable(ω -> all(map(i -> make_bag_inf(get_bag_inf(i, ω), ω) == data[i], 1:length(data))))
 
 # ╔═╡ 4c21efb6-f851-4ba7-8ffb-1caf3c44421b
 same_bag_12 = 
-	((1 ~ get_bag_inf) ==ₚ (2 ~ get_bag_inf)) |ᶜ obs_fn_inf(obs_marbles)
+	((1 ~ get_bag_inf) .== (2 ~ get_bag_inf)) |ᶜ obs_fn_inf(obs_marbles)
 
 # ╔═╡ 4f4c6dcf-49ed-4f9a-88f0-82ded6bf9851
 same_bag_13 = 
-	((1 ~ get_bag_inf) ==ₚ (3 ~ get_bag_inf)) |ᶜ obs_fn_inf(obs_marbles)
+	((1 ~ get_bag_inf) .== (3 ~ get_bag_inf)) |ᶜ obs_fn_inf(obs_marbles)
 
 # ╔═╡ 50a731ab-6221-4d49-8231-ee6f0ffa125e
 viz(randsample(same_bag_12, 20))

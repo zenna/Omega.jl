@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.1
+# v0.18.4
 
 using Markdown
 using InteractiveUtils
@@ -88,9 +88,9 @@ rand_make_bag(i, ω, colours, k) = map(n -> make_bag(i, ω, colours, n), 1:k)
 
 # ╔═╡ 82508f53-3232-48ac-b07d-62a895a28346
 obs_fn = pw(&, 
-	((ω -> rand_make_bag(1, ω, colours, length(obs[1]))) ==ₚ obs[1]),
-	((ω -> rand_make_bag(2, ω, colours, length(obs[2]))) ==ₚ obs[2]),
-	((ω -> rand_make_bag(3, ω, colours, length(obs[3]))) ==ₚ obs[3])
+	pw(==, Variable(ω -> rand_make_bag(1, ω, colours, length(obs[1]))),  obs[1]),
+	pw(==, Variable(ω -> rand_make_bag(2, ω, colours, length(obs[2]))), obs[2]),
+	pw(==, Variable(ω -> rand_make_bag(3, ω, colours, length(obs[3]))), obs[3])
 )
 
 # ╔═╡ cd88fd6c-7642-4ff7-9d7d-70184251387c
@@ -132,9 +132,9 @@ rand_make_bag_gl(i, ω, colours, k) = map(n -> make_bag_global(i, ω, colours, n
 
 # ╔═╡ d8165f92-6a64-4420-b9fd-198e9c105543
 obs_fn_global = pw(&, 
-	((ω -> rand_make_bag_gl(1, ω, colours, length(obs[1]))) ==ₚ obs[1]),
-	((ω -> rand_make_bag_gl(2, ω, colours, length(obs[2]))) ==ₚ obs[2]),
-	((ω -> rand_make_bag_gl(3, ω, colours, length(obs[3]))) ==ₚ obs[3])
+	pw(==, Variable(ω -> rand_make_bag_gl(1, ω, colours, length(obs[1]))), obs[1]),
+	pw(==, Variable(ω -> rand_make_bag_gl(2, ω, colours, length(obs[2]))), obs[2]),
+	pw(==, Variable(ω -> rand_make_bag_gl(3, ω, colours, length(obs[3]))), obs[3])
 )
 
 # ╔═╡ 34580098-147c-4592-9e1b-00ed5d0d23f0

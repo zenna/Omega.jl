@@ -1,10 +1,10 @@
 # Helper functions for probmods
 using UnicodePlots, Distributions, Omega, FreqTables, PDMats
 
-export viz, UniformDraw, pget, Dirichlet, viz_marginals, DiagNormal
+export viz, pget, Dirichlet, viz_marginals, DiagNormal
 
 "To visualize the generated samples of a random variable"
-viz(var::Vector{T} where {T<:Union{String,Char}}) =
+viz(var::Vector{T} where {T<:Union{String,Char, Symbol}}) =
     barplot(Dict(freqtable(var)))
 viz(var::Vector{<:Real}) = histogram(var, symbols = ["■"])
 viz(var::Vector{Bool}) = viz(string.(var))
@@ -20,12 +20,6 @@ function viz_marginals(var::Vector{NamedTuple{U, V}}) where {U, V}
 end
 
 # Required aditional distributions -
-struct UniformDraw{T}
-    elem::T
-end
-(u::UniformDraw)(i, ω) =
-    u.elem[(i ~ DiscreteUniform(1, length(u.elem)))(ω)]
-
 struct Dirichlet{V}
     α::V
 end

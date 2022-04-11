@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.1
+# v0.18.4
 
 using Markdown
 using InteractiveUtils
@@ -43,11 +43,8 @@ actual_widgets = [0.6, 0.7, 0.8]
 # ╔═╡ 2c88252c-ba83-423e-a340-c963f8cae334
 random_widgets = manynth(get_good_widget, 1:length(actual_widgets))
 
-# ╔═╡ 772edb3b-9d81-4cf1-bc8c-7f8373334a6c
-randsample(random_widgets)
-
 # ╔═╡ 7734b963-5cd6-42e6-9c09-fa1f4691109f
-tolerance_ = randsample(tolerance |ᶜ (random_widgets ==ₚ actual_widgets), 1000)
+tolerance_ = randsample(tolerance |ᶜ pw(==, random_widgets, actual_widgets), 1000)
 
 # ╔═╡ 7d411137-313e-473a-b9ef-4c82ccb3e2d8
 viz(tolerance_)
@@ -59,7 +56,7 @@ md"But notice that the definition of getGoodWidget is exactly like the definitio
 widget = @~ widget_machine
 
 # ╔═╡ b90bf4ab-7a19-439d-bae8-5d6a834f0d9a
-get_good_widget_simple = widget |ᶜ (widget >ₚ tolerance)
+get_good_widget_simple = widget |ᶜ (widget .> tolerance)
 
 # ╔═╡ 92076a20-a0c1-4cde-acf4-c3d4d9bd7568
 md"`randsample` uses rejection sampling by default, but we could also explicitly specify it by using `alg` keyword as given below:"
@@ -83,24 +80,26 @@ For instance, imagine that Sally walks up to a vending machine wishing to have a
 """
 
 # ╔═╡ 1d1b7607-e0f5-4234-b05b-40daba65bc36
-action_prior = @~ Categorical([0.5, 0.5])
+action_prior = Categorical([0.5, 0.5])
 
 # ╔═╡ 96fbba9c-516e-47cc-a3bc-7eefcbfdfc17
 function vending_machine(action)
 	if action == 1 
-		"bagel"
+		return :bagel
 	elseif action == 2
-		"cookie"
+		return :cookie
 	end
 end
 
 # ╔═╡ db8999c9-6293-4e3c-9a79-6b5c29770261
 function choose_action(goal_state, transition)
-	action_prior |ᶜ ((ω -> transition(action_prior(ω))) ==ₚ goal_state)
+	a = @~ action_prior
+	a |ᶜ (Variable(transition ∘ a) .== goal_state)
 end
 
 # ╔═╡ 94a623bd-0c48-478c-802a-21288ce6c9a5
-sally_cookie_samples = randsample(choose_action("cookie", vending_machine), 1000)
+sally_cookie_samples = 
+	string.(randsample(choose_action(:cookie, vending_machine), 1000))
 
 # ╔═╡ ef0c5d84-8e90-4508-a56b-cf621ce1e887
 viz(sally_cookie_samples)
@@ -110,7 +109,7 @@ md"""We see, unsurprisingly, that if Sally wants a cookie, she will always press
 
 # ╔═╡ deaa4d92-1863-4963-8a54-25b925240c5e
 function vending_machine_stochastic(ω, action)
-	choices = ["bagel", "cookie"]
+	choices = [:bagel, :cookie]
 	if action == 1 
 		choices[(@~ Categorical([0.9, 0.1]))(ω)]
 	elseif action == 2
@@ -119,13 +118,14 @@ function vending_machine_stochastic(ω, action)
 end
 
 # ╔═╡ 64c941d8-900e-41a8-b5ab-3539b45dccfb
-function choose_action_stochastic(goal_state, transition)
-	action_prior |ᶜ ((ω -> transition(ω, action_prior(ω))) ==ₚ goal_state)
+function choose_action_stochastic(goal_state, transition, i)
+	a = i ~ action_prior
+	a |ᶜ (Variable(ω -> transition(ω, a(ω))) .== goal_state)
 end
 
 # ╔═╡ 041bd9be-7161-4e2c-8ea1-f1e93c63836e
 action_samples = 
-	randsample(choose_action_stochastic("cookie", vending_machine_stochastic), 100)
+	randsample(choose_action_stochastic(:cookie, vending_machine_stochastic, 0), 100)
 
 # ╔═╡ 95cc8a2b-3280-4ed0-9d64-488062b09a10
 viz(string.(action_samples))
@@ -135,14 +135,14 @@ md"## Inferring Goals
 Now imagine that we don’t know Sally’s goal (which food she wants), but we observe her pressing button $2$. We can infer her goal (this is sometimes called “inverse planning”) as follows:"
 
 # ╔═╡ 344b85fc-d799-43a0-856c-297679084156
-goal = pget(["bagel", "cookie"]) ∘ @~ Categorical([.5, .5])
+goal = Variable(pget([:bagel, :cookie]) ∘ @~ Categorical([.5, .5]))
 
 # ╔═╡ 1f10beb3-9483-4619-83ba-49f743135898
-action_dist(ω) = 
-	choose_action_stochastic(goal(ω), vending_machine_stochastic)(ω)
+action_dist = 
+	Variable(ω -> choose_action_stochastic(goal(ω), vending_machine_stochastic, 1)(ω))
 
 # ╔═╡ fcf06a26-35e4-47ac-878b-dae9b34182c8
-goal_posterior = goal |ᶜ (action_dist ==ₚ 2)
+goal_posterior = goal |ᶜ (action_dist .== 2)
 
 # ╔═╡ 7d2f1234-84c3-4a63-87b9-f36b492fd3e0
 goal_post_samples = randsample(goal_posterior, 1000)
@@ -155,7 +155,7 @@ md"Now let’s imagine a more ambiguous case: button $2$ is “broken” and wil
 
 # ╔═╡ 0a4ac84e-f51a-41f3-88a2-65cb695b45cf
 function vending_machine_broken(ω, action)
-	choices = ["bagel", "cookie"]
+	choices = [:bagel, :cookie]
 	if action == 1 
 		choices[(@~ Categorical([0.9, 0.1]))(ω)]
 	elseif action == 2
@@ -164,11 +164,11 @@ function vending_machine_broken(ω, action)
 end
 
 # ╔═╡ 47672c99-dc1a-4674-b008-5c1007f8de80
-action_dist_broken(ω) = 
-	choose_action_stochastic(goal(ω), vending_machine_broken)(ω)
+action_dist_broken = 
+	Variable(ω -> choose_action_stochastic(goal(ω), vending_machine_broken, :broken)(ω))
 
 # ╔═╡ 01c7ff1f-2d5d-4334-ad16-7fb74a29391c
-goal_posterior_broken = goal |ᶜ (action_dist_broken ==ₚ 2)
+goal_posterior_broken = goal |ᶜ (action_dist_broken .== 2)
 
 # ╔═╡ a9f49983-d018-444e-a683-e32733821213
 goal_post_broken_samples = randsample(goal_posterior_broken, 1000)
@@ -187,31 +187,25 @@ If we have some prior knowledge about Sally’s preferences (which goals she is 
 A more interesting situation is when we believe that Sally has some preferences, but we don’t know what they are. We capture this by adding a higher level prior (a uniform) over preferences. Using this we can learn about Sally’s preferences from her actions: after seeing Sally press button $2$ several times, what will we expect her to want the next time?
 "
 
-# ╔═╡ d420ef02-1dde-4fc9-860e-b6da08ade38e
-action_prior_has_preference = Categorical([0.5, 0.5])
+# ╔═╡ a5223ceb-56ea-4dd0-9f3b-f147fb58b89a
 
-# ╔═╡ 2c25f6da-532c-4182-84d2-6a184aaef328
-function choose_action_(goal_state, transition, state = 0)
-	action = (@uid, state) ~ action_prior_has_preference
-	action |ᶜ ((ω -> transition(ω, action(ω))) ==ₚ goal_state)
-end
 
 # ╔═╡ 3dc36e8c-a494-4022-8c72-fd1b737d0301
 preference = @~ Uniform(0 , 1)
 
 # ╔═╡ e555e6fb-7f99-410d-b440-012819afa731
-goal_prior(ω) = (@~ Bernoulli(preference))(ω) ? "bagel" : "cookie"
+goal_prior(i, ω) = ifelse.(((@uid, i) ~ Bernoulli(preference)), :bagel, :cookie)(ω)
 
 # ╔═╡ 00ec2e96-85ae-410f-b3d1-efb4253da2aa
 action_dist_has_preference(i, ω) = 
-	choose_action_(goal_prior(ω), vending_machine_stochastic, i)(ω)
+	choose_action_stochastic(goal_prior(i, ω), vending_machine_stochastic, :has_preference)(ω)
 
 # ╔═╡ 003c79ab-1611-4a3e-963b-69215d886a2d
 random_actions = manynth(action_dist_has_preference, 1:3)
 
 # ╔═╡ ee6cef1f-f00e-4dba-9689-9d81240f5b84
 goal_posterior_samples = 
-		randsample(goal_prior |ᶜ (random_actions ==ₚ [2, 2, 2]), 1000)
+		randsample((@~ goal_prior) |ᶜ pw(==, random_actions, [2, 2, 2]), 1000)
 
 # ╔═╡ 3c1c3c99-b5d1-4266-b788-e4f3093fa8ec
 viz(goal_posterior_samples)
@@ -225,7 +219,7 @@ In the above preference inference, it is extremely important that sally _could h
 
 # ╔═╡ b56af991-6176-4a79-9c98-1d4cdc2e0f93
 function vending_machine_cookie(ω, action)
-	choices = ["bagel", "cookie"]
+	choices = [:bagel, :cookie]
 	if action == 1 
 		choices[(@~ Categorical([0.1, 0.9]))(ω)]
 	elseif action == 2
@@ -233,19 +227,25 @@ function vending_machine_cookie(ω, action)
 	end
 end
 
+# ╔═╡ e4603e7e-1ef9-43c9-8f55-e2c1e44805b7
+preference_cookie = Uniform(0, 1)
+
+# ╔═╡ a80b883a-6828-4860-8006-ae275faadeeb
+goal_prior_cookie(i, ω) = ifelse.(((@uid, i) ~ Bernoulli(i~preference_cookie)), :bagel, :cookie)(ω)
+
 # ╔═╡ 54f8f9d7-6eaf-4398-a58f-26460f138d77
 action_dist_cookie(i, ω) = 
-	choose_action_(goal_prior(ω), vending_machine_cookie, i)(ω)
+	choose_action_stochastic(goal_prior_cookie(i, ω), vending_machine_cookie, :cookie)(ω)
 
 # ╔═╡ ef2ce2f6-e013-4a45-8971-8ceb25464b69
 random_actions_cookie = manynth(action_dist_cookie, 1:3)
 
 # ╔═╡ de4fc02c-c665-4297-b226-a9822505ea27
 goal_posterior_cookie_samples = 
-		randsample(goal_prior |ᶜ (random_actions_cookie ==ₚ [2, 2, 2]), 1000)
+		randsample((@~goal_prior_cookie) |ᶜ pw(==, random_actions_cookie, [2, 2, 2]), 1000)
 
 # ╔═╡ aa9fc886-f3ca-4ba4-820c-2df951431ee8
-viz(goal_posterior_cookie_samples) # counterfactuals?
+viz(goal_posterior_cookie_samples)
 
 # ╔═╡ bdae86a5-ffa0-4a40-a9d9-cc74e7b2685b
 md"""
@@ -265,27 +265,25 @@ buttons_to_bagel_probs(n, ω) = ((@uid, n) ~ Uniform(0, 1))(ω)
 
 # ╔═╡ b3ebce3f-172b-45e6-b3b9-e598582b4799
 function vending_machine_know(action, ω)
-	choices = ["bagel", "cookie"]
+	choices = [:bagel, :cookie]
 	if action in [1, 2] 
 		c = buttons_to_bagel_probs(action, ω)
-		choices[(@~ Categorical([c, 1 - c]))(ω)]
+		choices[(:know ~ Categorical([c, 1 - c]))(ω)]
 	end
 end
 
-# ╔═╡ 18151805-6eab-4194-a417-7342c6982097
-function choose_action_know(goal_state, transition)
-	action_prior |ᶜ ((ω -> transition(action_prior(ω), ω)) ==ₚ goal_state)
-end
+# ╔═╡ 52402755-fe66-48e2-ba56-f1d87c124aad
+goal_know = Variable(pget([:bagel, :cookie]) ∘ @~ Categorical([.5, .5]))
 
 # ╔═╡ 1be75cb1-af3e-4292-ad92-9dfd1f872ba9
-action_dist_know(ω) = choose_action_know(goal(ω), vending_machine_know)(ω)
+action_dist_know = Variable(ω -> choose_action_stochastic(goal_know(ω), vending_machine_know, :know)(ω))
 
 # ╔═╡ 104c3b09-00d2-444f-a54d-bfef3b23bb79
 buttons(ω) = 
 	(button_1 = (1 ~ vending_machine_know)(ω), button_2 = (2 ~ vending_machine_know)(ω))
 
 # ╔═╡ 02213e53-3ae7-4648-90f5-8550960ff2d8
-buttons_posterior = buttons |ᶜ ((action_dist_know ==ₚ 2) &ₚ (goal ==ₚ "cookie"))
+buttons_posterior = buttons |ᶜ .&((action_dist_know .== 2), (goal .== :cookie))
 
 # ╔═╡ fe8cd9b8-dd5a-4e3f-8ad6-5e83da95ac99
 buttons_joint_samples = randsample(buttons_posterior, 1000)
@@ -301,22 +299,28 @@ Now imagine a vending machine that has only one button, but it can be pressed ma
 # ╔═╡ 2223b737-71d8-4561-a692-b90d057c6f5b
 action_prior_one_button = @~ Categorical([0.7, 0.2, 0.1])
 
+# ╔═╡ 4ad33334-5647-404b-86a1-4b9db8955604
+goal_one_button = Variable(pget([:bagel, :cookie]) ∘ @~ Categorical([.5, .5]))
+
+# ╔═╡ 6b025b7e-6ceb-4d34-91d0-55766fe18185
+buttons_to_bagel_probs_one_button(n, ω) = ((@uid, n) ~ Uniform(0, 1))(ω)
+
 # ╔═╡ aa93c504-d85e-4224-a2a5-649e51f25aa9
 function vending_machine_one_button(action, ω)
-	choices = ["bagel", "cookie"]
+	choices = [:bagel, :cookie]
 	if action in [1, 2, 3] 
-		c = buttons_to_bagel_probs(action, ω)
+		c = buttons_to_bagel_probs_one_button(action, ω)
 		choices[(@~ Categorical([c, 1 - c]))(ω)]
 	end
 end
 
 # ╔═╡ 52e4a044-db32-45e0-a601-7fbe2c2377dc
 function choose_action_one_button(goal_state, transition)
-	action_prior_one_button |ᶜ ((ω -> transition(action_prior_one_button(ω), ω)) ==ₚ goal_state)
+	action_prior_one_button |ᶜ (Variable(ω -> transition(action_prior_one_button(ω), ω)) .== goal_state)
 end
 
 # ╔═╡ 3ede7dc8-306f-44ae-a33d-d0a56d1f2274
-action_dist_one_button(ω) = choose_action_one_button(goal(ω), vending_machine_one_button)(ω)
+action_dist_one_button = Variable(ω -> choose_action_one_button(goal_one_button(ω), vending_machine_one_button)(ω))
 
 # ╔═╡ 31b13fda-f3ef-4b9f-b53c-f648424efcda
 buttons_(ω) = 
@@ -324,7 +328,7 @@ buttons_(ω) =
 
 # ╔═╡ 181819f5-0644-4d9b-be8a-05ada90f3575
 buttons_posterior_ = 
-	buttons_ |ᶜ ((action_dist_one_button ==ₚ 1) &ₚ(goal ==ₚ "cookie"))
+	buttons_ |ᶜ .&((action_dist_one_button .== 1), (goal .== :cookie))
 
 # ╔═╡ 731b1469-c307-4425-bbdd-6f07741354a8
 buttons_joint_samples_ = randsample(buttons_posterior_, 1000)
@@ -338,15 +342,33 @@ md"""
 In social cognition, we often make joint inferences about two kinds of mental states: agents’ beliefs about the world and their desires, goals or preferences. We can see an example of such a joint inference in the vending machine scenario. Suppose we condition on two observations: that Sally presses the button twice, and that this results in a cookie. Then, assuming that she knows how the machine works, we jointly infer that she wanted a cookie, that pressing the button twice is likely to give a cookie, and that pressing the button once is unlikely to give a cookie.
 """
 
+# ╔═╡ 70e79625-c8ee-4fc8-b306-f0ffced25443
+goal_kg = Variable(pget([:bagel, :cookie]) ∘ @~ Categorical([.5, .5]))
+
+# ╔═╡ c818c938-27e4-47de-b6aa-5c053b3521c8
+buttons_to_bagel_probs_kg(n, ω) = ((@uid, n) ~ Uniform(0, 1))(ω)
+
+# ╔═╡ 403404e0-84fc-42f1-bad1-fc72175b5d6c
+function vending_machine_kg(action, ω)
+	choices = [:bagel, :cookie]
+	if action in [1, 2, 3] 
+		c = buttons_to_bagel_probs_kg(action, ω)
+		choices[(@~ Categorical([c, 1 - c]))(ω)]
+	end
+end
+
+# ╔═╡ 232280b9-fe49-4e03-9bd8-646830ffdf92
+action_dist_kg = Variable(ω -> choose_action_one_button(goal_kg(ω), vending_machine_kg)(ω))
+
 # ╔═╡ a981b051-e6fc-4c35-88c8-f7f98a956d86
-knowledge_and_goals(ω) = (goal = goal(ω),
-          one_press_result = (1 ~ vending_machine_one_button)(ω),
-          two_press_result = (2 ~ vending_machine_one_button)(ω),
-          one_press_cookie_prob = 1 - (1 ~ buttons_to_bagel_probs)(ω))
+knowledge_and_goals(ω) = (goal = goal_kg(ω),
+          one_press_result = (1 ~ vending_machine_kg)(ω),
+          two_press_result = (2 ~ vending_machine_kg)(ω),
+          one_press_cookie_prob = 1 - (1 ~ buttons_to_bagel_probs_kg)(ω))
 
 # ╔═╡ ea60f93d-7e68-473b-aa7c-1d79c9c22b6b
 kg_posterior = 
-	knowledge_and_goals |ᶜ (((2 ~ vending_machine_one_button) ==ₚ "cookie") &ₚ (action_dist_one_button ==ₚ 2))
+	knowledge_and_goals |ᶜ pw(&, ((2 ~ vending_machine_kg) .== :cookie), (action_dist_kg .== 2))
 
 # ╔═╡ fba8029e-0167-4940-aeb5-71029acc61fb
 kg_samples = randsample(kg_posterior, 1000)
@@ -374,14 +396,14 @@ b_probs = [0.9, 0.1]
 
 # ╔═╡ cdd71cec-def1-44d7-987b-816b9e826c82
 function true_vending_machine(ω, action)
-	choices = ["bagel", "cookie"]
+	choices = [:bagel, :cookie]
 	c = b_probs[action]
 	choices[(@~ Categorical([c, 1 - c]))(ω)]
 end
 
 # ╔═╡ e907c9aa-afeb-41ae-aee3-d7ba4b904a57
 function random_machine(ω, action)
-	choices = ["bagel", "cookie"]
+	choices = [:bagel, :cookie]
 	choices[(@~ Categorical([0.5, 0.5]))(ω)]
 end
 
@@ -389,7 +411,7 @@ end
 knows = @~ Bernoulli()
 
 # ╔═╡ c9d90acc-23d3-478e-b887-32ff1bd552bd
-s = randsample(knows |ᶜ (((ω -> choose_action_stochastic("cookie", knows(ω) ? true_vending_machine : random_machine)(ω)) ==ₚ 1) &ₚ ((ω -> true_vending_machine(ω, 1)) ==ₚ "bagel")), 1000)
+s = randsample(knows |ᶜ (ω -> (choose_action_stochastic(:cookie, knows(ω) ? true_vending_machine : random_machine)(ω) == 1) & (true_vending_machine(ω, 1) == :bagel)), 1000)
 
 # ╔═╡ 65d1c8e0-e847-4d84-b7b7-1cf24cfce057
 viz(s)
@@ -407,13 +429,13 @@ sally_belief(i, ω) = ((@uid, i) ~ Uniform(0, 1))(ω)
 
 # ╔═╡ 92e83a4b-1f06-464e-9bc9-d849e9fd1336
 function sally_machine(ω, action)
-	choices = ["bagel", "cookie"]
+	choices = [:bagel, :cookie]
 	c = (action ~ sally_belief)(ω)
 	choices[(@~ Categorical([c, 1 - c]))(ω)]
 end
 
 # ╔═╡ c570958b-13fd-4909-91c2-3b126872c354
-s_ = randsample((ω -> sally_machine(ω, 1)) |ᶜ (((ω -> choose_action_stochastic("cookie", sally_machine)(ω)) ==ₚ 1) &ₚ ((ω -> true_vending_machine(ω, 1)) ==ₚ "bagel")), 1000)
+s_ = randsample((ω -> sally_machine(ω, 1)) |ᶜ (ω -> (choose_action_stochastic(:cookie, sally_machine)(ω) == 1) & (true_vending_machine(ω, 1) == :bagel)), 1000)
 
 # ╔═╡ 6d62e403-bfe4-4bef-8092-c9a20b884bab
 viz(s_)
@@ -448,39 +470,39 @@ begin
 end
 
 # ╔═╡ 6a76e0cd-7398-4b1b-9b63-0346b689833e
-side_prior = pget(["red", "green", "blue"]) ∘ @~ Categorical([1/3, 1/3, 1/3])
+side_prior = pget([:red, :green, :blue]) ∘ @~ Categorical([1/3, 1/3, 1/3])
 
 # ╔═╡ 4db9de3c-c181-4625-80f7-869e7dc9d2f4
 die_prior = @~ Categorical([0.5, 0.5])
 
 # ╔═╡ fbef5c02-1cd0-4cb3-b6d6-aae639d11585
-roll(die, ω) = (pget(["red", "green", "blue"]) ∘ die_to_probs(die))(ω)
+roll(die, ω) = (pget([:red, :green, :blue]) ∘ die_to_probs(die))(ω)
 
 # ╔═╡ f6700537-858a-421a-87a3-d5f76287f9ed
 begin
 	function teacher(die, depth)
-		return side_prior |ᶜ ((ω -> learner(side_prior(ω), depth)(ω)) ==ₚ die)
+		return side_prior |ᶜ (Variable(ω -> learner(side_prior(ω), depth)(ω)) .== die)
 	end
 	function learner(side, depth)
 		if (depth == 0)
-			return die_prior |ᶜ ((ω -> roll(die_prior(ω), ω)) ==ₚ side)
+			return die_prior |ᶜ (Variable(ω -> roll(die_prior(ω), ω)) .== side)
 		else
-			return die_prior |ᶜ ((ω -> teacher(die_prior(ω), depth - 1)(ω)) ==ₚ side)
+			return die_prior |ᶜ (Variable(ω -> teacher(die_prior(ω), depth - 1)(ω)) .== side)
 		end
 	end
 end
 
 # ╔═╡ a662c3a1-70d6-4305-84d3-a34c77bd5fb8
-viz(string.(randsample(learner("green", 3), 1000)))
+viz(string.(randsample(learner(:green, 3), 1000)))
 
 # ╔═╡ 1190f5c8-371e-41e8-be6c-4d3aea30805b
 md"""
 If we run this with recursion depth 0—that is a learner that does probabilistic inference without thinking about the teacher thinking—we find the learner infers hypothesis $2$ most of the time (about $60\%$ of the time). This is the same as using the “strong sampling” assumption: the learner infers $2$ because $2$ is more likely to have landed on side 2. However, if we increase the recursion depth we find this reverses: the learner infers $2$ only about $40\%$ of the time. Now die $1$ becomes the better inference, because “if the teacher had meant to communicate $2$, they would have shown the red side because that can never come from $1$.”
 
-This model, has been proposed by [Shafto et al. (2012)](https://langcog.stanford.edu/papers/SGF-perspectives2012.pdf) as a model of natural pedagogy. They describe several experimental tests of this model in the setting of simple “teaching games,” showing that people make inferences as above when they think the examples come from a helpful teacher, but not otherwise.
+This model has been proposed by [Shafto et al. (2012)](https://langcog.stanford.edu/papers/SGF-perspectives2012.pdf) as a model of natural pedagogy. They describe several experimental tests of this model in the setting of simple “teaching games,” showing that people make inferences as above when they think the examples come from a helpful teacher, but not otherwise.
 
 ### Communicating with Words
-Unlike the situation above, in which concrete examples were given from teacher to student, words in natural language denote more abstract concepts. However, we can use almost the same setup to reason about speakers and listeners communicating with words, if we assume that sentences have literal meanings, which anchor sentences to possible worlds. We assume for simplicity that the meaning of sentences are truth-functional: that each sentence corresponds to a function from states of the world to true/false.
+Unlike the situation above, in which concrete examples were given from teacher to student, words in natural language denote more abstract concepts. However, we can use almost the same setup to reason about speakers and listeners communicating with words, if we assume that sentences have literal meanings, which anchor sentences to possible worlds. We assume for simplicity that the meaning of sentences is truth-functional: that each sentence corresponds to a function from states of the world to true/false.
 """
 
 # ╔═╡ 19592b62-f93b-4422-a2de-9bb9fe5c2144
@@ -513,7 +535,7 @@ function meaning(words)
 end
 
 # ╔═╡ 09e2c795-96c4-41e8-8284-ded50b5eb76d
-state_prior = (@~ Categorical([0.25, 0.25, 0.25, 0.25])) -ₚ 1
+state_prior = (@~ Categorical([0.25, 0.25, 0.25, 0.25])) .- 1
 
 # ╔═╡ b322e2b8-a498-40d0-8264-69ba5034818a
 sentence_prior = pget(["all", "some", "none"]) ∘ @~ Categorical([1/3, 1/3, 1/3])
@@ -521,14 +543,14 @@ sentence_prior = pget(["all", "some", "none"]) ∘ @~ Categorical([1/3, 1/3, 1/3
 # ╔═╡ 05a564b5-af72-4d71-ad7a-5700699eb8e6
 begin
 	function speaker(state, depth)
-		condition = (ω -> listener(sentence_prior(ω), depth)(ω)) ==ₚ state
+		condition = Variable(ω -> listener(sentence_prior(ω), depth)(ω)) .== state
 		return sentence_prior |ᶜ condition
 	end
 	function listener(words, depth)
 		if depth == 0
-			condition = (ω -> meaning(words)(state_prior(ω)))
+			condition = Variable(ω -> meaning(words)(state_prior(ω)))
 		else
-			condition = (ω -> speaker(state_prior(ω), depth - 1)(ω)) ==ₚ words
+			condition = Variable(ω -> speaker(state_prior(ω), depth - 1)(ω)) .== words
 		end
 		state_prior |ᶜ condition
 	end
@@ -547,7 +569,6 @@ viz(string.(randsample(listener("some", 1), 1000))) # graph isn't same - in WebP
 # ╠═01c5334f-ff4b-4087-96ac-57131e65886b
 # ╠═68979be3-f3c4-4926-90d4-b095d42ccbb1
 # ╠═2c88252c-ba83-423e-a340-c963f8cae334
-# ╠═772edb3b-9d81-4cf1-bc8c-7f8373334a6c
 # ╠═7734b963-5cd6-42e6-9c09-fa1f4691109f
 # ╠═7d411137-313e-473a-b9ef-4c82ccb3e2d8
 # ╟─38576ae3-8cee-4ba0-9eb4-d81c167c808b
@@ -582,8 +603,7 @@ viz(string.(randsample(listener("some", 1), 1000))) # graph isn't same - in WebP
 # ╠═567147c8-6815-48c9-a72e-076b101555e5
 # ╠═c33a7649-1a0e-44ac-9b32-3afdb4abf564
 # ╟─3130e952-63ed-4236-bca6-f6629c38440c
-# ╠═d420ef02-1dde-4fc9-860e-b6da08ade38e
-# ╠═2c25f6da-532c-4182-84d2-6a184aaef328
+# ╠═a5223ceb-56ea-4dd0-9f3b-f147fb58b89a
 # ╠═3dc36e8c-a494-4022-8c72-fd1b737d0301
 # ╠═e555e6fb-7f99-410d-b440-012819afa731
 # ╠═00ec2e96-85ae-410f-b3d1-efb4253da2aa
@@ -592,6 +612,8 @@ viz(string.(randsample(listener("some", 1), 1000))) # graph isn't same - in WebP
 # ╠═3c1c3c99-b5d1-4266-b788-e4f3093fa8ec
 # ╟─4cf196fe-e24e-4f7c-8b96-3ebdd4b30cca
 # ╠═b56af991-6176-4a79-9c98-1d4cdc2e0f93
+# ╠═e4603e7e-1ef9-43c9-8f55-e2c1e44805b7
+# ╠═a80b883a-6828-4860-8006-ae275faadeeb
 # ╠═54f8f9d7-6eaf-4398-a58f-26460f138d77
 # ╠═ef2ce2f6-e013-4a45-8971-8ceb25464b69
 # ╠═de4fc02c-c665-4297-b226-a9822505ea27
@@ -601,7 +623,7 @@ viz(string.(randsample(listener("some", 1), 1000))) # graph isn't same - in WebP
 # ╟─06b51715-3aa3-4c4a-b12e-c8ad37ede492
 # ╠═0eae2e2f-bc8d-4f72-82d8-2923377ee2d5
 # ╠═b3ebce3f-172b-45e6-b3b9-e598582b4799
-# ╠═18151805-6eab-4194-a417-7342c6982097
+# ╠═52402755-fe66-48e2-ba56-f1d87c124aad
 # ╠═1be75cb1-af3e-4292-ad92-9dfd1f872ba9
 # ╠═104c3b09-00d2-444f-a54d-bfef3b23bb79
 # ╠═02213e53-3ae7-4648-90f5-8550960ff2d8
@@ -609,6 +631,8 @@ viz(string.(randsample(listener("some", 1), 1000))) # graph isn't same - in WebP
 # ╠═bff4d249-fcd3-4579-94b3-47a218fe7404
 # ╟─4c7553e7-98a4-4b3a-be3a-121b40e263df
 # ╠═2223b737-71d8-4561-a692-b90d057c6f5b
+# ╠═4ad33334-5647-404b-86a1-4b9db8955604
+# ╠═6b025b7e-6ceb-4d34-91d0-55766fe18185
 # ╠═aa93c504-d85e-4224-a2a5-649e51f25aa9
 # ╠═52e4a044-db32-45e0-a601-7fbe2c2377dc
 # ╠═3ede7dc8-306f-44ae-a33d-d0a56d1f2274
@@ -617,6 +641,10 @@ viz(string.(randsample(listener("some", 1), 1000))) # graph isn't same - in WebP
 # ╠═731b1469-c307-4425-bbdd-6f07741354a8
 # ╠═e66754b1-e389-4691-903f-dbb01aaa16af
 # ╟─db5df471-6ddd-41be-8cd8-eca55dc5f729
+# ╠═70e79625-c8ee-4fc8-b306-f0ffced25443
+# ╠═c818c938-27e4-47de-b6aa-5c053b3521c8
+# ╠═403404e0-84fc-42f1-bad1-fc72175b5d6c
+# ╠═232280b9-fe49-4e03-9bd8-646830ffdf92
 # ╠═a981b051-e6fc-4c35-88c8-f7f98a956d86
 # ╠═ea60f93d-7e68-473b-aa7c-1d79c9c22b6b
 # ╠═fba8029e-0167-4940-aeb5-71029acc61fb

@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.1
+# v0.18.4
 
 using Markdown
 using InteractiveUtils
@@ -100,7 +100,7 @@ Now let’s check that the first and second flips are independent, by conditioni
 
 # ╔═╡ eb9802d9-f765-48e3-8a46-58263779e756
 function test_independence(gen_sequence, val, ω)
-	(gen_sequence[1] |ᶜ (gen_sequence[1] ==ₚ val))(ω)
+	(gen_sequence[1] |ᶜ (gen_sequence[1] .== val))(ω)
 	gen_sequence[2](ω)
 end
 
@@ -176,36 +176,6 @@ Conditioning on the first value tells us something about the second. This model 
 It turns out that exchangeable sequences can always be modeled in the form used for the last example: _de Finetti’s theorem_ says that, under certain technical conditions, any exchangeable sequence can be represented in terms of some `latent_prior` distribution and observation function `f`.
 """
 
-# ╔═╡ dfacf8f1-356a-4255-8f80-5d86fa16d2fe
-md"## IIDs in Omega"
-
-# ╔═╡ 9f94944d-3702-4603-8c24-e4b4f3800770
-md"The above example can be made independent in Omega using the function `iid`. It creates a copy of the parent variable `@~ Bernoulli()` as well as `gen_sequence_` which is why the resulting variables are independent. This can be shown (by conditioning) as given below:"
-
-# ╔═╡ 4ee74436-419d-4836-aa20-c5da65e80f19
-gen_sequence_indep_class = iid(@~ gen_sequence_)
-
-# ╔═╡ 75522b7b-73dd-4b04-8984-ec51dc488a02
-gen_sequence_indep = map(i-> i ~ gen_sequence_indep_class, 1:2)
-
-# ╔═╡ 08c099b2-9038-4e4b-862b-11ed536c09d0
-gen_sequence_indep_samples = randsample(ω -> mapf(ω, gen_sequence_indep), 10000)
-
-# ╔═╡ 0cbc9f62-e8e6-4bfc-8d3b-ee2b1150cd45
-viz(map(x -> x[1], gen_sequence_indep_samples))
-
-# ╔═╡ 5529da6b-b514-4d82-8e7c-47dea9abb62c
-viz(map(x -> x[2], gen_sequence_indep_samples))
-
-# ╔═╡ 1953b97d-3ee6-4605-b52e-07a1bef76dd3
-md"This is the same as the result of `gen_sequence_dep_samples`. Now, testing for independence, we get:"
-
-# ╔═╡ da34c7d8-0693-4b7b-bbff-36453eb76fa8
-viz(randsample(ω -> test_independence(gen_sequence_indep, true, ω), 1000))
-
-# ╔═╡ 1e2ce1c5-dda8-4dd7-b571-b7a0ca910c9c
-viz(randsample(ω -> test_independence(gen_sequence_indep, false, ω), 1000))
-
 # ╔═╡ a5d4ec57-b620-4394-89ba-08bf3fcb1b8c
 md"## Example: Polya's Urn"
 
@@ -219,7 +189,7 @@ function urn_seq(urn, num_samples, ω)
 	if num_samples == 0
 		return empty(urn)
 	else
-		ball = ((@uid, num_samples) ~ UniformDraw(urn))(ω)
+		ball = ((@uid, num_samples) ~ Omega.UniformDraw(urn))(ω)
 		return vcat(ball, urn_seq(vcat(urn, ball), num_samples - 1, ω))
 	end
 end
@@ -280,10 +250,10 @@ is_fair = @~ Bernoulli()
 coin(i, ω) = ((@uid, i) ~ Bernoulli(is_fair(ω) ? 0.5 : 0.2))(ω)
 
 # ╔═╡ b1d26590-42c8-464c-b4c7-ee9baa699155
-obs_fn(obs) = ω -> map(i -> coin(i, ω, fair(fair_prior)), 1:length(obs))
+obs_fn(obs) = Variable(ω -> map(i -> coin(i, ω, fair(fair_prior)), 1:length(obs)))
 
 # ╔═╡ 67c6dafd-c4e0-42ff-85ac-ef9594a0ff72
-fair_posterior(obs) = fair(fair_prior) |ᶜ (obs_fn(obs) ==ₚ obs)
+fair_posterior(obs) = fair(fair_prior) |ᶜ pw(==, obs_fn(obs), obs)
 
 # ╔═╡ c7eb8d24-2c9d-4581-a5ea-aa38dbfc9a6e
 viz(randsample(fair_posterior(observed_data), 1000))
@@ -306,7 +276,7 @@ scatterplot(observed_data_sizes, p_estimates, marker = :xcross)
 rand_coins(seq) = manynth(coin, 1:length(seq))
 
 # ╔═╡ 27983de7-1fb8-4026-94ec-5f2bf650fad5
-is_fair_dist(seq) = is_fair |ᶜ (rand_coins(seq) ==ₚ seq)
+is_fair_dist(seq) = is_fair |ᶜ pw(==, rand_coins(seq), seq)
 
 # ╔═╡ d7df634a-3580-4556-a61a-4fe0e47760ac
 md"To check if 00000 is fair:"
@@ -349,7 +319,7 @@ coin_weight = @~StdUniform{Float64}()
 coin_ = Bernoulli(coin_weight)
 
 # ╔═╡ c4d1222e-8795-42b5-abf2-e53c48dda63d
-evidence(obs) = manynth(coin_, 1:length(obs)) ==ₚ obs
+evidence(obs) = pw(==, manynth(coin_, 1:length(obs)), obs)
 
 # ╔═╡ cfe6baf2-f1a5-4d6f-9283-a82e4eb99311
 weight_posterior(obs_data) = coin_weight |ᶜ evidence(obs_data)
@@ -393,7 +363,7 @@ coin_weight_ = @~ Beta(pseudo_counts...)
 coin_beta = Bernoulli(coin_weight_)
 
 # ╔═╡ bcc6e93e-fc96-4881-a72e-c214a1390964
-evidence_beta(obs) = manynth(coin_beta, 1:length(obs)) ==ₚ obs
+evidence_beta(obs) = pw(==, manynth(coin_beta, 1:length(obs)), obs)
 
 # ╔═╡ f71f5a45-89be-42c1-af9f-fcba45d793d0
 weight_posterior_beta(obs) = coin_weight_ |ᶜ evidence_beta(obs)
@@ -421,13 +391,13 @@ The following model explicitly builds in the prior belief that fair coins are li
 is_fair_ = @~ Bernoulli(0.999)
 
 # ╔═╡ a15c7d8e-f9d9-4615-8f97-bae3a0baa8a0
-real_weight = ifelseₚ(is_fair_, 0.5, @~ StdUniform{Float64}())
+real_weight = ifelse.(is_fair_, 0.5, @~ StdUniform{Float64}())
 
 # ╔═╡ 5cb0299a-27a2-4f65-b5db-4cceb60bc684
 coin_human_like = Bernoulli(real_weight)
 
 # ╔═╡ 947f20c4-92a9-43a9-855c-fd1c1aa841b6
-evidence_human_like(obs) = manynth(coin_human_like, 1:length(obs)) ==ₚ obs
+evidence_human_like(obs) = pw(==, manynth(coin_human_like, 1:length(obs)), obs)
 
 # ╔═╡ 2b00720e-c9cf-4ae0-8344-febf9e93dd1d
 weight_posterior_human_like(obs) = real_weight |ᶜ evidence_human_like(obs)
@@ -467,7 +437,7 @@ randsample(pw(.&, manynth(Bernoulli(cp), 1:2), [false, false]))
 function obs_function(data)
 	cp_ = manynth(Bernoulli(cp), 1:length(data.C))
 	b_ = manynth(Bernoulli(b), 1:length(data.C))
-	pw(.|, pw(.&, cp_, data.C), b_) ==ₚ data.E
+	pw(==, pw(.|, pw(.&, cp_, data.C), b_), data.E)
 end
 
 # ╔═╡ ae93dd8d-f4ec-4465-b007-d3ad47804284
@@ -525,16 +495,6 @@ Experiment with this model: when does it conclude that a causal relation is like
 # ╠═5b725967-d42c-4a3f-ab1b-7ab2331f3f9e
 # ╠═b9edb20e-c99a-48a6-a909-a84e8ee0358e
 # ╟─5399b7e0-9864-45ed-a598-69993f3a8dc3
-# ╟─dfacf8f1-356a-4255-8f80-5d86fa16d2fe
-# ╟─9f94944d-3702-4603-8c24-e4b4f3800770
-# ╠═4ee74436-419d-4836-aa20-c5da65e80f19
-# ╠═75522b7b-73dd-4b04-8984-ec51dc488a02
-# ╠═08c099b2-9038-4e4b-862b-11ed536c09d0
-# ╠═0cbc9f62-e8e6-4bfc-8d3b-ee2b1150cd45
-# ╠═5529da6b-b514-4d82-8e7c-47dea9abb62c
-# ╟─1953b97d-3ee6-4605-b52e-07a1bef76dd3
-# ╠═da34c7d8-0693-4b7b-bbff-36453eb76fa8
-# ╠═1e2ce1c5-dda8-4dd7-b571-b7a0ca910c9c
 # ╟─a5d4ec57-b620-4394-89ba-08bf3fcb1b8c
 # ╟─69b7c347-517d-4eae-ad90-4562f03d8f37
 # ╠═9fce8665-ff2b-4e12-ab80-67178f9e0ad6

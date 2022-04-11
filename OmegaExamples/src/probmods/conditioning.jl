@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.1
+# v0.18.4
 
 using Markdown
 using InteractiveUtils
@@ -49,7 +49,7 @@ B = @~ Bernoulli()
 C = @~ Bernoulli()
 
 # ╔═╡ 78fcf1a2-19f0-4b6a-9a45-3af4b45b20f2
-model = pw(+, A, B, C)
+model = A .+ B .+ C
 
 # ╔═╡ ae9646da-2e65-4566-8953-a761864b924f
 viz(randsample(model, 1000))
@@ -58,7 +58,7 @@ viz(randsample(model, 1000))
 md"The process described in model samples three numbers and adds them. The value of the final expression here is $0$, $1$, $2$ or $3$. A priori, each of the variables `A`, `B`, `C` has $0.5$ probability of being $1$ or $0$. However, suppose that we know that the sum `model` is equal to $3$. How does this change the space of possible values that variable `A` could have taken? `A` (and `B` and `C`) must be _equal_ to $1$ for this result to happen. We can see this in the following Omega inference, where we use `|ᶜ` to express the desired assumption (ie., to condition on random variables):"
 
 # ╔═╡ 0efba943-013b-40cc-8819-ba6852214543
-A_cnd = A |ᶜ (model ==ₚ 3)
+A_cnd = A |ᶜ (model .== 3)
 
 # ╔═╡ ca821906-6411-43c7-bbd3-93b72978a767
 viz(randsample(A_cnd, 100))
@@ -71,7 +71,7 @@ Now suppose that we condition on `model` being greater than or equal to $2$. The
 """
 
 # ╔═╡ 44be800d-abc8-476f-80d3-7f5a733f8c31
-A_cnd_new = A |ᶜ (model >=ₚ 2)
+A_cnd_new = A |ᶜ (model .>= 2)
 
 # ╔═╡ aa6705f4-1c2d-4556-954d-f3b198f7f3ba
 viz(randsample(A_cnd_new, 100))
@@ -94,7 +94,7 @@ B_ = @~ Bernoulli()
 C_ = @~ Bernoulli()
 
 # ╔═╡ e1e88bc4-9c29-4465-b73f-52737c42ca19
-D = A_ +ₚ B_ +ₚ C_
+D = A_ .+ B_ .+ C_
 
 # ╔═╡ b15a1f8e-2427-42a1-a3be-ee2b8d49adf4
 # take_sample(ω) = (D(ω) >= 2) ? A_(ω) : take_sample(split(ω))
@@ -126,10 +126,10 @@ observed_data = true
 prior = @~ Bernoulli()
 
 # ╔═╡ abc5ca50-e65e-40a0-8e5a-bb3f95388d82
-likelihood(h) = ifelseₚ(h, (@~ Bernoulli(0.9)), (@~ Bernoulli(0.1)))
+likelihood(h) = ifelse.(h, (@~ Bernoulli(0.9)), (@~ Bernoulli(0.1)))
 
 # ╔═╡ 20670696-b03e-4098-ac45-5dce59d389ed
-posterior = prior |ᶜ (likelihood(prior) ==ₚ observed_data)
+posterior = prior |ᶜ (likelihood(prior) .== observed_data)
 
 # ╔═╡ aaedbd7a-c66e-482c-878a-2c7ce366c482
 viz(randsample(posterior, 1000))
@@ -163,7 +163,7 @@ obs_X_ = 0 ~ Normal(true_X, 0.1)
 randsample((obs_X_, obs_X))
 
 # ╔═╡ 48e557ae-aaf3-4d59-8728-85634242c79b
-cnd_true_X = true_X |ᶜ (obs_X ==ₚ 0.2)
+cnd_true_X = true_X |ᶜ (obs_X .== 0.2)
 
 # ╔═╡ 5e5073bd-6866-4adb-863e-661a0a9b3bdf
 # randsample(cnd_true_X)
@@ -216,7 +216,7 @@ begin
 end
 
 # ╔═╡ bf5e6b09-47f1-475c-9a02-ba9ace529f85
- randsample(ω -> (winner(team1, team2)(ω), winner(team1_, team2_)(ω)))
+ randsample((winner(team1, team2), winner(team1_, team2_)))
 
 # ╔═╡ b15fc51a-f0bf-43bd-9e50-abf844108e54
 md"""
@@ -226,7 +226,7 @@ We can use this to ask a variety of different questions. For instance, how likel
 """
 
 # ╔═╡ 28f2db2a-2c93-41ff-986e-2f48a374a90e
-beat(team1, team2) = winner(team1, team2) ==ₚ team1
+beat(team1, team2) = ω -> (winner(team1, team2)(ω) == team1)
 
 # ╔═╡ 5cc66ffc-9751-47d6-b9a9-5c37747b0a63
 cnd_str = strength(team1.bob) |ᶜ beat(team1, team2)
@@ -248,8 +248,8 @@ begin
 end
 
 # ╔═╡ 1e9f74fd-a19c-4a2b-8065-5dd44be6092a
-condition = 
-	(strength(team_A.mary) >=ₚ strength(team_B.sue)) &ₚ beat((bob = 2, ), (jim = 6, ))
+condition(ω) = 
+(strength(team_A.mary)(ω) >= strength(team_B.sue)(ω)) & beat((bob=2,), (jim=6,))(ω)
 
 # ╔═╡ b3dad899-f286-4145-9725-afce161d61f7
 cnd_beat = beat(team_A, team_B) |ᶜ condition
@@ -332,7 +332,7 @@ benign_cyst = @~ Bernoulli(0.2)
 
 # ╔═╡ 85ecb534-af6d-468f-83f8-a26684080bb8
 positive_mammogram_ = 
-		(breast_cancer_ &ₚ @~ Bernoulli(0.8)) |ₚ (benign_cyst &ₚ @~ Bernoulli())
+		(breast_cancer_ .& @~ Bernoulli(0.8)) .| (benign_cyst .& @~ Bernoulli())
 
 # ╔═╡ 08a67559-33e6-479a-932f-d868b638dd6e
 breast_cancer_cond_ = breast_cancer_ |ᶜ positive_mammogram_
@@ -356,32 +356,32 @@ end
 
 # ╔═╡ d438dd9c-5f2c-4417-956d-62e7b7b863d0
 cough = pw(|, 
-		(cold &ₚ @~ Bernoulli()), 
-		(lung_cancer &ₚ @~ Bernoulli(0.3)), 
-		(TB &ₚ @~ Bernoulli(0.7)), 
-		(other &ₚ @~ Bernoulli(0.01))
+		(cold .& @~ Bernoulli()), 
+		(lung_cancer .& @~ Bernoulli(0.3)), 
+		(TB .& @~ Bernoulli(0.7)), 
+		(other .& @~ Bernoulli(0.01))
 )
 
 # ╔═╡ 1458c2a1-bacf-4433-9984-16be0b76eed3
 fever = pw(|, 
-	(cold &ₚ @~ Bernoulli(0.3)), 
-	(stomach_flu &ₚ @~ Bernoulli()), 
-	(TB &ₚ @~ Bernoulli(0.1)), 
-	(other &ₚ @~ Bernoulli(0.01))
+	(cold .& @~ Bernoulli(0.3)), 
+	(stomach_flu .& @~ Bernoulli()), 
+	(TB .& @~ Bernoulli(0.1)), 
+	(other .& @~ Bernoulli(0.01))
 )
 
 # ╔═╡ db5b3112-9ab0-4f53-9f5a-0c6f6714a87e
 chest_pain = pw(|, 
-	(lung_cancer &ₚ @~ Bernoulli()), 
-	(TB &ₚ @~ Bernoulli()), 
-	(other &ₚ @~ Bernoulli(0.01))
+	(lung_cancer .& @~ Bernoulli()), 
+	(TB .& @~ Bernoulli()), 
+	(other .& @~ Bernoulli(0.01))
 )
 
 # ╔═╡ 4596dd12-94d6-4c5f-a813-93681cdca973
 shortness_of_breath = pw(|, 
-	(lung_cancer &ₚ @~ Bernoulli()), 
-	(TB &ₚ @~ Bernoulli(0.2)), 
-	(other &ₚ @~ Bernoulli(0.01))
+	(lung_cancer .& @~ Bernoulli()), 
+	(TB .& @~ Bernoulli(0.2)), 
+	(other .& @~ Bernoulli(0.01))
 )
 
 # ╔═╡ 3ad98347-598b-4b61-8a63-461cd98e1f89
@@ -409,39 +409,39 @@ Expressing our knowledge as a probabilistic program of this form also makes it e
 begin
 	works_in_hospital = @~ Bernoulli(0.01)
     smokes = @~ Bernoulli(0.2)
-    lung_cancer_ = (@~ Bernoulli(0.01)) |ₚ (smokes &ₚ @~ Bernoulli(0.02))
-    TB_ = (@~ Bernoulli(0.005)) |ₚ (works_in_hospital &ₚ @~ Bernoulli(0.01))
-    cold_ = (@~ Bernoulli(0.2)) |ₚ (works_in_hospital &ₚ @~ Bernoulli(0.25))
+    lung_cancer_ = (@~ Bernoulli(0.01)) .| (smokes .& @~ Bernoulli(0.02))
+    TB_ = (@~ Bernoulli(0.005)) .| (works_in_hospital .& @~ Bernoulli(0.01))
+    cold_ = (@~ Bernoulli(0.2)) .| (works_in_hospital .& @~ Bernoulli(0.25))
 end
 
 # ╔═╡ 72d53f12-d2a1-4ddc-9c8b-5694c85a6d7b
 cough_ = pw(|, 
-	(cold_ &ₚ @~ Bernoulli()), 
-	(lung_cancer_ &ₚ @~ Bernoulli(0.3)), 
-	(TB_ &ₚ @~ Bernoulli(0.7)), 
-	(other &ₚ @~ Bernoulli(0.01))
+	(cold_ .& @~ Bernoulli()), 
+	(lung_cancer_ .& @~ Bernoulli(0.3)), 
+	(TB_ .& @~ Bernoulli(0.7)), 
+	(other .& @~ Bernoulli(0.01))
 )
 
 # ╔═╡ d94c1ee5-e729-4abe-9e84-68a1816cc886
 fever_ = pw(|, 
-	(cold_ &ₚ @~ Bernoulli(0.3)), 
-	(stomach_flu &ₚ @~ Bernoulli()), 
-	(TB_ &ₚ @~ Bernoulli(0.1)), 
-	(other &ₚ @~ Bernoulli(0.01))
+	(cold_ .& @~ Bernoulli(0.3)), 
+	(stomach_flu .& @~ Bernoulli()), 
+	(TB_ .& @~ Bernoulli(0.1)), 
+	(other .& @~ Bernoulli(0.01))
 )
 
 # ╔═╡ ffa7d097-16ea-4e17-8aae-6e36302fe6cc
 chest_pain_ = pw(|, 
-	(lung_cancer_ &ₚ @~ Bernoulli()), 
-	(TB_ &ₚ @~ Bernoulli()), 
-	(other &ₚ @~ Bernoulli(0.01))
+	(lung_cancer_ .& @~ Bernoulli()), 
+	(TB_ .& @~ Bernoulli()), 
+	(other .& @~ Bernoulli(0.01))
 )
 
 # ╔═╡ 8796daf8-ed11-4131-9e2f-c629cf65d02b
 shortness_of_breath_ = pw(|, 
-	(lung_cancer_ &ₚ @~ Bernoulli()), 
-	(TB_ &ₚ @~ Bernoulli(0.2)), 
-	(other &ₚ @~ Bernoulli(0.01))
+	(lung_cancer_ .& @~ Bernoulli()), 
+	(TB_ .& @~ Bernoulli(0.2)), 
+	(other .& @~ Bernoulli(0.01))
 )
 
 # ╔═╡ 488000ac-4d99-436d-91eb-af526773ca40
