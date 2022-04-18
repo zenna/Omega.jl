@@ -1,2 +1,5 @@
 module OmegaExamples
-end
+
+include("probmods/probmods_helper.jl")
+
+end # module
