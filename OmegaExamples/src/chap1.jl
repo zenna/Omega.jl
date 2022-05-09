@@ -28,6 +28,9 @@ md"## Introduction"
 # ╔═╡ 3c299c8c-5951-484a-baa3-a03bc26737fd
 md"Imagine a dataset that records how individuals move through a city. The figure below shows what a datapoint from this set might look like. It depicts an individual, who we’ll call Bob, moving along a street and then stopping at a restaurant. This restaurant is one of two nearby branches of a chain of Donut Stores. Two other nearby restaurants are also shown on the map." 
 
+# ╔═╡ 8b3e5c76-016f-4fc8-9928-496bb5903aec
+
+
 # ╔═╡ 8f27ede7-a8fd-4632-9e30-a31d6af157ed
 md"Given Bob’s movements alone, what can we infer about his preferences and beliefs? Since Bob spent a long time at the Donut Store, we infer that he bought something there. Since Bob could easily have walked to one of the other nearby eateries, we infer that Bob prefers donuts to noodles or salad.
 
@@ -90,9 +93,6 @@ histogram(randsample(x,1000))
 # ╔═╡ 3d0089ec-0965-4e49-a002-402aa8f10fa1
 ω = defω()
 
-# ╔═╡ 69e85c70-4df7-4d06-be74-a483aaf04c4f
-randsample(ω->geometric(0.5,ω),100)
-
 # ╔═╡ Cell order:
 # ╟─baa8189c-7d01-11ec-04a8-fbc26bfa45e1
 # ╟─83a5a411-f64a-4d38-b859-a733494dedc7
@@ -102,6 +102,7 @@ randsample(ω->geometric(0.5,ω),100)
 # ╟─92ba821b-ac86-466c-a7c2-a0c3a8f56a6c
 # ╟─edc5ca10-a06a-47c2-993a-3ddcb097ee5c
 # ╟─3c299c8c-5951-484a-baa3-a03bc26737fd
+# ╠═8b3e5c76-016f-4fc8-9928-496bb5903aec
 # ╟─8f27ede7-a8fd-4632-9e30-a31d6af157ed
 # ╟─7018a00e-75da-4664-a6ff-b6f5c735b72a
 # ╟─ce729190-1e88-4c15-a784-36c5827d6f7c
@@ -115,5 +116,4 @@ randsample(ω->geometric(0.5,ω),100)
 # ╠═13bd0bed-9d1d-444f-9c0d-d042077efac2
 # ╠═c560f336-4300-43bb-aa4a-d37cf07d4cf6
 # ╠═9ca088e5-8b8f-44f2-bd8e-5fa1fd2e9e52
-# ╠═3d0089ec-0965-4e49-a002-402aa8f10fa1
-# ╠═69e85c70-4df7-4d06-be74-a483aaf04c4f
+# ╟─3d0089ec-0965-4e49-a002-402aa8f10fa1
