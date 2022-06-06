@@ -5,8 +5,8 @@
 
     ```
 
-A class in Omega is a function of the form `f(id, \omega)`.
-It represents a sequence of random variables in the sense that ...
+A class in Omega is a function of the form `f(id,  ω::Ω)`.
+It represents a sequence of random variables.
 To get the nth member of a class use the function `nth`.
 
 There are primitive random variable classes in Omega.
