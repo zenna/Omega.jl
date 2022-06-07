@@ -15,7 +15,6 @@ Omega is built in Julia 1.  We're going through some changes while we separate o
 ```
 git clone git@github.com:zenna/Omega.jl.git
 > julia
-] add https://github.com/zenna/AndTraits.jl#main
 ] develop Omega.jl
 ```
 
