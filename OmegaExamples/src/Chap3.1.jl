@@ -106,6 +106,9 @@ function utility(state)
 	end
 end
 
+# ╔═╡ fa6f30b9-cc57-434b-b6ae-878f4ebbf9fd
+
+
 # ╔═╡ 192f1939-db26-4615-bd89-5ba6a50edfab
 @memoize function 𝔼(x)
 	Random.seed!(0)
@@ -122,8 +125,11 @@ end
 	end
 end
 
-# ╔═╡ cc99bbc6-cccf-40e0-b9c0-6de269ca4b8b
+# ╔═╡ f27bc89b-ae0d-4758-93fb-01e8eba54253
+fd = 0
 
+# ╔═╡ a1bd3091-3707-459d-a635-ddd58f55b1f0
+randsample(transition(ω->2,ω->fd))
 
 # ╔═╡ cecf0fe9-5a14-4b14-95a8-2344fde2ba6d
 dist4 = @~Normal()
@@ -266,6 +272,76 @@ end
 # ╔═╡ bba1b93b-007e-463a-8694-0604a3c1650b
 randsample(act1(ω->2, 2))
 
+# ╔═╡ cc99bbc6-cccf-40e0-b9c0-6de269ca4b8b
+begin
+	@memoize function act_copy(state, time_left)
+		@show "action_block"
+		action = (9+time_left)~UniformDraw([-1, 0, 1])
+		eu = expected_utility_copy(state, action, time_left)
+		eu_rid = rid(eu, action)
+		cond = @~Bernoulli(pw(err,pw(>=ₛ, ω->𝔼(eu_rid(ω)), 0.4)))
+		# cond = pw(>=, ω->𝔼(eu_rid(ω)), 0.6)
+		action_cond = action |ᶜ cond
+		return Variable(action_cond)
+	end
+	
+	@memoize function expected_utility_copy(state, action, time_left)
+		u = ω->utility(state(ω))
+		new_time_left = time_left - 1
+		@show new_time_left
+		if (time_left == 0)
+			@show "block 1"
+			return u
+		else
+			@show "block 2"
+			next_state = pw(+, state, action)
+			next_action = act_copy(next_state, new_time_left)
+			eu = expected_utility_copy(next_state, next_action, new_time_left)
+			return pw(+,u,eu)
+			# return eu
+		end
+	end
+end
+
+# ╔═╡ 2d011d5c-b3e7-4d95-a893-550a2073cd45
+function simulate(state, time_left)
+	if (time_left == 0)
+		return []
+	else
+		action = randsample(act_copy(state, time_left))
+		println(action)
+		next_state = transition(state, ω->action)
+		return vcat([randsample(state)], simulate(next_state, time_left-1))
+	end
+end
+
+# ╔═╡ 4c637db2-670d-43a5-804f-2f5202ee3092
+withkernel(Omega.kseα(15)) do
+simulate(ω->1, 3)
+end
+
+# ╔═╡ a2a2af31-6a3a-45d8-8d56-cce41f6a4e1f
+withkernel(Omega.kseα(15)) do
+action = randsample(act_copy(ω->3, 0))
+end
+
+# ╔═╡ b2e7ab0c-f354-4201-8343-a1a1941bc092
+state_w0 = @~UniformDraw([1,2,3])
+
+# ╔═╡ 2f413907-6298-4069-a51c-f9dd1680eeef
+state_w = pw(+,state_w0, action_s)
+
+# ╔═╡ 7dd87dbe-67df-47b6-81c6-dbac68e8861d
+𝔼(expected_utility_copy(state_w0,(act_copy(state_w0, 1)),1))
+
+# ╔═╡ e4ffc3d8-0f73-4b76-a75e-e8dac7b7a9aa
+withkernel(Omega.kseα(15)) do
+𝔼(expected_utility_copy(state_w0,(act_copy(state_w0, 3)),3))
+end
+
+# ╔═╡ 568d67ac-640f-44fb-92d4-91a85d1b429c
+viz(randsample(state_w,1000))
+
 # ╔═╡ 03e305b4-11ea-4cc5-a486-a9e72030fbc7
 withkernel(Omega.kseα(15)) do
 viz(randsample(act1(ω->0,3),1000))
@@ -327,6 +403,7 @@ histogram(randsample(ω->utility(state_final(ω)),100))
 # ╠═c22de25e-9006-4ba5-9991-eb3c077dcd35
 # ╠═3b9cf8fe-a934-4a35-b460-ea9d360ae5ea
 # ╠═85d9e825-b482-40ff-bcbb-24492317292e
+# ╠═fa6f30b9-cc57-434b-b6ae-878f4ebbf9fd
 # ╠═62c5a031-fa6d-427f-b29c-e517afffa134
 # ╠═0ec5835a-02c9-4740-925a-c34c1a04d817
 # ╠═089b72f7-f957-45c4-b47d-39457c4b9fcb
@@ -334,6 +411,16 @@ histogram(randsample(ω->utility(state_final(ω)),100))
 # ╠═345d357e-0c38-4f2f-8212-9a6294c20201
 # ╠═5b635a24-f6e0-4208-8b99-aa3fdf23a282
 # ╠═cc99bbc6-cccf-40e0-b9c0-6de269ca4b8b
+# ╠═b2e7ab0c-f354-4201-8343-a1a1941bc092
+# ╠═2f413907-6298-4069-a51c-f9dd1680eeef
+# ╠═568d67ac-640f-44fb-92d4-91a85d1b429c
+# ╠═7dd87dbe-67df-47b6-81c6-dbac68e8861d
+# ╠═e4ffc3d8-0f73-4b76-a75e-e8dac7b7a9aa
+# ╠═2d011d5c-b3e7-4d95-a893-550a2073cd45
+# ╠═4c637db2-670d-43a5-804f-2f5202ee3092
+# ╠═a2a2af31-6a3a-45d8-8d56-cce41f6a4e1f
+# ╠═f27bc89b-ae0d-4758-93fb-01e8eba54253
+# ╠═a1bd3091-3707-459d-a635-ddd58f55b1f0
 # ╠═c10a2ec0-ff46-4193-972c-6ea5a5d4f982
 # ╠═c1d88509-a9b7-4870-9a1e-ca66eccd5ba3
 # ╠═c388c6b2-9aa7-4eb6-9d80-1e6efa39659c
