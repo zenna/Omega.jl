@@ -68,27 +68,19 @@ In Omega, we can implement this utility-maximizing agent as a function maxAgent 
 # ╔═╡ 87e761dc-4568-4aa0-9727-fcfecbc308b8
 actions = ["italian", "french"]
 
-# ╔═╡ 6a5410b6-6554-470d-aead-441e27a6fba3
-function transitions(state, action)
-	if (action == "italian")
-		return "pizza"
-	else
-		return "steak frites"
-	end
-end
+# ╔═╡ bd6a5b71-f6a6-414b-bebd-846e7c29ae89
+transitions(state, action) = (action == "italian") ? "pizza" : "steak frites"
 
-# ╔═╡ 51001065-d985-4a04-8636-43c75c5d502e
-function utility(state)
-	if (state == "pizza")
-		return 10
-	else
-		return 0
-	end
-end
+# ╔═╡ 1433c8bf-5a1d-4e76-8c98-815e19dc67e5
+utility(state) = (state == "pizza") ? 10 : 0
 
 # ╔═╡ 69ccad80-cc34-474c-b680-99667eefde7a
 function max_agent(state)
-	return actions[argmax([utility(transitions(state,a)) for a in actions])]
+	
+	possible_next_states = [utility(transitions(state, a)) for a in actions]
+	argmax_action = argmax(possible_next_states)
+	max_action = actions[argmax_action]
+	
 end
 
 # ╔═╡ 391efe20-4df7-4ad7-adf8-05e7a58d6e09
@@ -104,13 +96,13 @@ md"**Exercise**: Which parts of the code can you change in order to make the age
 md"There is an alternative way to compute the optimal action for this problem. The idea is to treat choosing an action as an inference problem. The previous chapter showed how we can infer the probability that a coin landed Heads from the observation that two of three coins were Heads."
 
 # ╔═╡ 64e4a6d3-a1eb-46af-b5d3-10d242f19431
-a = @~Bernoulli() 
+a = @~ Bernoulli() 
 
 # ╔═╡ fee11783-344c-4bce-a2d5-878c077d223a
-b = @~Bernoulli()
+b = @~ Bernoulli()
 
 # ╔═╡ 3e35aec1-2d38-4bfb-aa8f-0e6d58d2fa68
-c = @~Bernoulli()
+c = @~ Bernoulli()
 
 # ╔═╡ 38b3425d-0210-4cd4-aef3-bec2f8ca42cb
 a_ = a |ᶜ (a +ₚ b +ₚ c ==ₚ 2)
@@ -142,20 +134,23 @@ function transitions_soft(action)
 	
 	nextStates = ["bad", "good", "spectacular"]
 	nextProbs = (action == "italian") ? [0.2, 0.6, 0.2] : [0.05, 0.9, 0.05]
-	z = @~Categorical(nextProbs)
+	z = @~ Categorical(nextProbs)
 	
-	return ω->nextStates[z(ω)]
+	ω->nextStates[z(ω)]
+	
 end
-	
 
 # ╔═╡ 35572f02-c5db-4c87-b1b8-c1efcfaacec0
 function utility_soft(state)
+	
 	table = Dict(
     "bad" => -10, 
     "good" => 6, 
     "spectacular" => 8
 	)
-	return table[state]
+	
+	table[state]
+	
 end
 
 # ╔═╡ b402f49f-5f3f-45fb-8382-18ef33c86368
@@ -167,10 +162,10 @@ md"The inferenceAgent, which uses the planning-as-inference idiom, can also be e
 To illustrate factor, consider the following variant of the twoHeads example above. Instead of placing a hard constraint on the total number of Heads outcomes, we give each setting of a, b and c a score based on the total number of heads. The score is highest when all three coins are Heads, but even the “all tails” outcomes is not ruled out completely."
 
 # ╔═╡ 6b636814-9317-4535-ad2b-91d706eaee5a
-r = @~Bernoulli(pw(err,(pw(==ₛ,pw(+,a,b,c),2))))
+condition = @~ Bernoulli(pw(err, (pw(==ₛ, pw(+, a, b, c), 2))))
 
 # ╔═╡ c2bdd457-1e32-4df0-ac4d-eb4a8589065b
-a_soft_condition = a |ᶜ r
+a_soft_condition = a |ᶜ condition
 
 # ╔═╡ 488545b2-a6d1-4d26-b60e-74c68f90c54f
 md"As another example, consider the following short program:"
@@ -204,13 +199,15 @@ Use the tools introduced above to determine the answer. Here is some code to get
 
 # ╔═╡ d26a52ec-de29-4fc0-8795-ca156297e00d
 mutable struct state_type
+	
 	prize_door
 	monty_door
 	alice_door
+	
 end
 
 # ╔═╡ f6c15353-7a59-4ff0-9cda-15c59efc5c9a
-doors = [1,2,3]
+doors = [1, 2, 3]
 
 # ╔═╡ f09797b3-1791-4df6-b1b6-7be7a0c12f1f
 md"Monty chooses a door that is neither Alice's door
@@ -218,9 +215,6 @@ nor the prize door"
 
 # ╔═╡ 3ef019ba-3b5b-4db7-ad8b-b0e896f35a79
 actions_mh = ["switch", "stay"]
-
-# ╔═╡ 01e8ddf2-bc12-4525-8b09-15ce75e69385
-state = state_type(1,2,3)
 
 # ╔═╡ b51552a9-cdfe-4a56-a39a-db115123671e
 md"If Alice switches, she randomly chooses a door that is
@@ -230,17 +224,8 @@ neither the one Monty showed nor her previous door"
 md"Utility is high (say 10) if Alice's door matches the
 prize door, 0 otherwise."
 
-# ╔═╡ 29f238af-30d1-4591-bd6a-bcde4e92ba1c
-function utility_mh(state)
-	if (state.alice_door == state.prize_door)
-		return 10
-	else
-		return 0
-	end
-end
-
-# ╔═╡ 8b3be05c-b03a-43f9-9159-99d4eb4825ba
-
+# ╔═╡ e2c6b782-6195-4cee-9b71-d66af774911c
+utility_mh(state) = ω->(state.alice_door(ω) == state.prize_door(ω) ? 10 : 0)
 
 # ╔═╡ 74e914b2-8b06-4f84-84b0-ccde60ee3cf7
 @memoize function 𝔼(x)
@@ -249,15 +234,10 @@ end
 	mean(randsample(x,1000))
 end
 
-# ╔═╡ bbc44566-2cc9-4f11-b65d-38133e563c05
-function maxEUAgent(ω)
-	return actions[argmax([
-		𝔼(ω->utility_soft(transitions_soft(a)(ω))) for a in actions
+# ╔═╡ 0c4fbed8-88e2-4b75-863a-bef05a9bfdb2
+maxEUAgent = actions[argmax([
+		𝔼( ω->utility_soft(transitions_soft(a)(ω)) ) for a in actions
 	])]
-end
-
-# ╔═╡ 170f9e54-43c5-4365-bdad-1a67751a59f9
-randsample(ω->maxEUAgent(ω))
 
 # ╔═╡ 8cfb178a-7be2-4852-afa1-0485cfb8f08b
 md"*Exercise*: Adjust the transition probabilities such that the agent chooses the Italian Restaurant."
@@ -309,9 +289,11 @@ viz(randsample(a_,1000))
 
 # ╔═╡ 2453eb89-01f2-4663-9e2d-3758b3e205d5
 function inference_agent(state)
-	action = @~UniformDraw(actions)
-	action_ = action |ᶜ pw(==,pw(transitions, state, action),"pizza")
-	return action_
+	
+	action_dist = @~ UniformDraw(actions)
+	condition = pw(==, pw(transitions, state, action_dist), "pizza") 
+	action_ = action_dist |ᶜ condition
+	
 end
 
 # ╔═╡ b8b16f86-524d-4186-9e8c-f84b88a11f7e
@@ -319,109 +301,113 @@ randsample(inference_agent("initialState"))
 
 # ╔═╡ 2143b3c5-d904-4671-911d-0cdaed00c648
 withkernel(Omega.kseα(0.4)) do
-	viz(randsample(a_soft_condition,1000))
+	
+	viz(randsample(a_soft_condition, 1000))
+	
 end
 
 # ╔═╡ 0c7e381a-b9a5-4e4b-9678-c5ad27497cbb
-n = @~UniformDraw([0,1,2])
+n = @~ UniformDraw([0, 1, 2])
 
 # ╔═╡ 2cf4b780-0f09-4a3e-8a89-6582340bf950
-r3 = @~Bernoulli(pw(err,pw(==ₛ,pw(*,n,n),4)))
+r3 = @~ Bernoulli(pw(err, pw(==ₛ, pw(*, n, n), 4)))
 
 # ╔═╡ 76b47737-2e32-4480-85ab-617a22c0aade
 n_cond = n |ᶜ r3
 
 # ╔═╡ b6b41129-e53c-4ddc-85ad-262d0dcdd529
 withkernel(Omega.kseα(0.2)) do
-viz(randsample(n_cond,1000))
+	
+	viz(randsample(n_cond, 1000))
+	
 end
 
 # ╔═╡ 68eeec07-7609-4284-8f4e-4d576c0d4968
 function soft_max_agent(state)
-	action = @~UniformDraw(actions)
-	function expected_utility(action)
-		utility = ω->pw(utility_soft,pw(transitions_soft, action)(ω))(ω)
-		utility_rid = rid(utility, action)
-		return (ω->𝔼(utility_rid(ω)))
-	end
-	cond_uts = @~Bernoulli(pw(err,pw(>=ₛ,expected_utility(action), 4)))
-	action_cond = action |ᶜ cond_uts
-	return action_cond
-end
 	
+	action = @~ UniformDraw(actions)
+	
+	function expected_utility(action)
+		utility = ω -> pw(utility_soft, pw(transitions_soft, action)(ω))(ω)
+		utility_rid = rid(utility, action)
+		(ω -> 𝔼(utility_rid(ω)))
+	end
+	
+	cond_uts = @~ Bernoulli(pw(err, pw(>=ₛ, expected_utility(action), 4)))
+	action_cond = action |ᶜ cond_uts
+		
+end
 
 # ╔═╡ 194efb61-2d02-49a5-aba1-7c7983bf384d
 withkernel(Omega.kseα(2)) do
-viz(randsample(soft_max_agent("initial_state"),1000))
+	
+	viz(randsample(soft_max_agent("initial_state"), 1000))
+	
 end
 
 # ╔═╡ 1cb9c65b-c467-40ca-86e0-7ef238e3f6de
 function monty(alice_door, prize_door)
-	door = @~UniformDraw(doors)
-	monty_door = door |ᶜ pw(&,pw(!=,door,prize_door),pw(!=,door,alice_door))
-	return monty_door
+	
+	door = @~ UniformDraw(doors)
+	monty_door = door |ᶜ pw(&, pw(!=, door, prize_door), pw(!=, door, alice_door))
+	monty_door
+	
 end
 
 # ╔═╡ f0ab5eb6-2e56-40b8-b07b-8599a8c55154
-door = @~UniformDraw(doors)
+door = @~ UniformDraw(doors)
 
 # ╔═╡ 33b5439c-0b86-4610-8de4-59604dbbb8b2
 function transitions_mh(state, action)
+	state_new = deepcopy(state)
 	if (action == "switch")
-		door = @~UniformDraw(doors) 
-		alice_door = door |ᶜ pw(&,pw(!=,door,state.monty_door),pw(!=,door,state.alice_door))
-		state.alice_door = alice_door
+		
+		door = @~ UniformDraw(doors) 
+		
+		alice_door = door |ᶜ pw(&, pw(!=, door, state.monty_door), pw(!=, door, state.alice_door))
+		state_new.alice_door = alice_door
+		
 	end
-	return state
+	
+	state_new
+	
 end
 
 # ╔═╡ 93fa9613-85e2-4776-a81e-6b39c351a9f8
-function sample_state()
-	alice_door = @~UniformDraw(doors)
-	prize_door = @~UniformDraw(doors)
+function sample_state_mh()
+	
+	alice_door = @~ UniformDraw(doors)
+	prize_door = @~ UniformDraw(doors)
 	monty_door = monty(alice_door, prize_door)
-	state = state_type(prize_door, monty_door, alice_door)
-	return state
+	
+	state_type(prize_door, monty_door, alice_door)
+	
 end
-
-# ╔═╡ d7cf1ee6-645a-47b2-ae74-0c0876ba1d48
-state_o1 = sample_state()
 
 # ╔═╡ 1ce8fb55-8106-4a15-88b2-8dcbe9a1dd51
 function agent_mh(actions)
-	action = @~UniformDraw(actions)
-	state = sample_state()
-	util = pw(utility_mh,pw(transitions_mh,state,action))
-	util_rid = rid(util,action)
+	
+	action = @~ UniformDraw(actions)
+	state = sample_state_mh()
+
+	new_state = transitions_mh(state, action)
+	util = utility_mh(new_state)
+	util_rid = rid(util, action)
+	
 	expected_utility = ω->𝔼(util_rid(ω))
-	conds = @~Bernoulli(pw(err,pw(>=ₛ, expected_utility, 4)))
+	conds = @~ Bernoulli(pw(err, pw(>=ₛ, expected_utility, 4)))
 	action_cond = action |ᶜ conds
-	return action_cond
+	
 end
 
-# ╔═╡ 6c5614f2-fd42-4049-97f8-ab80ad9d31a6
-alice_door = @~UniformDraw(doors)
+# ╔═╡ 90dde709-ff79-4583-a3e0-ef9cf9e06946
 
-# ╔═╡ 962f242a-857c-4cce-8864-216608a9326d
-prize_door = @~UniformDraw(doors)
+withkernel(Omega.kseα(10)) do
+	
+	viz(randsample(agent_mh(actions_mh),10000))
+	
+end
 
-# ╔═╡ 75b53cd6-33a5-4d64-a26a-2a627733eead
-monty_door = monty(alice_door, prize_door)
-
-# ╔═╡ 094e5d20-9e86-49eb-8648-0fac3f6494b8
-action_o1 = @~UniformDraw(actions_mh)
-
-# ╔═╡ 59375634-3a96-4bf5-8a13-d2dbfba678b2
-new_state_o1 = pw(transitions_mh,state_o1,action_o1)
-
-# ╔═╡ 750fdc60-c157-440b-a909-d037370603ec
-util_o1 = pw(utility_mh, new_state_o1)
-
-# ╔═╡ 2483c9fe-7f74-4e12-b4cd-bdd0b33d83a1
-util_rid_o1 = rid(util_o1, action_o1)
-
-# ╔═╡ 5109c9d4-5758-4920-982f-2f45b2f7a1b3
-expected_utility_o1 = ω->𝔼(util_rid_o1(ω))
 
 # ╔═╡ Cell order:
 # ╟─69f5f64e-7ae3-11ec-2649-111a12da3b87
@@ -439,8 +425,8 @@ expected_utility_o1 = ω->𝔼(util_rid_o1(ω))
 # ╟─6721abb4-24fd-425c-ae6a-e7c676c17d49
 # ╟─6a90dea1-7eb0-4e2e-8275-d68fa507ee11
 # ╠═87e761dc-4568-4aa0-9727-fcfecbc308b8
-# ╠═6a5410b6-6554-470d-aead-441e27a6fba3
-# ╠═51001065-d985-4a04-8636-43c75c5d502e
+# ╠═bd6a5b71-f6a6-414b-bebd-846e7c29ae89
+# ╠═1433c8bf-5a1d-4e76-8c98-815e19dc67e5
 # ╠═69ccad80-cc34-474c-b680-99667eefde7a
 # ╠═391efe20-4df7-4ad7-adf8-05e7a58d6e09
 # ╟─a3971c71-7649-46ec-8167-35df041a7a51
@@ -460,8 +446,7 @@ expected_utility_o1 = ω->𝔼(util_rid_o1(ω))
 # ╠═b98d669a-9de9-42f2-a470-c52fb51c4538
 # ╠═35572f02-c5db-4c87-b1b8-c1efcfaacec0
 # ╠═b402f49f-5f3f-45fb-8382-18ef33c86368
-# ╠═bbc44566-2cc9-4f11-b65d-38133e563c05
-# ╠═170f9e54-43c5-4365-bdad-1a67751a59f9
+# ╠═0c4fbed8-88e2-4b75-863a-bef05a9bfdb2
 # ╟─adacf3b8-8fd1-405a-a770-60d95a5ee8e0
 # ╠═6b636814-9317-4535-ad2b-91d706eaee5a
 # ╠═c2bdd457-1e32-4df0-ac4d-eb4a8589065b
@@ -482,24 +467,14 @@ expected_utility_o1 = ω->𝔼(util_rid_o1(ω))
 # ╟─f09797b3-1791-4df6-b1b6-7be7a0c12f1f
 # ╠═1cb9c65b-c467-40ca-86e0-7ef238e3f6de
 # ╠═3ef019ba-3b5b-4db7-ad8b-b0e896f35a79
-# ╠═01e8ddf2-bc12-4525-8b09-15ce75e69385
 # ╟─b51552a9-cdfe-4a56-a39a-db115123671e
 # ╠═f0ab5eb6-2e56-40b8-b07b-8599a8c55154
 # ╠═33b5439c-0b86-4610-8de4-59604dbbb8b2
 # ╟─f7d9ce97-f4e6-4998-a694-ab5a7d699605
-# ╠═29f238af-30d1-4591-bd6a-bcde4e92ba1c
+# ╠═e2c6b782-6195-4cee-9b71-d66af774911c
 # ╠═93fa9613-85e2-4776-a81e-6b39c351a9f8
 # ╠═1ce8fb55-8106-4a15-88b2-8dcbe9a1dd51
-# ╠═6c5614f2-fd42-4049-97f8-ab80ad9d31a6
-# ╠═962f242a-857c-4cce-8864-216608a9326d
-# ╠═75b53cd6-33a5-4d64-a26a-2a627733eead
-# ╠═094e5d20-9e86-49eb-8648-0fac3f6494b8
-# ╠═d7cf1ee6-645a-47b2-ae74-0c0876ba1d48
-# ╠═59375634-3a96-4bf5-8a13-d2dbfba678b2
-# ╠═750fdc60-c157-440b-a909-d037370603ec
-# ╠═8b3be05c-b03a-43f9-9159-99d4eb4825ba
-# ╠═2483c9fe-7f74-4e12-b4cd-bdd0b33d83a1
-# ╠═5109c9d4-5758-4920-982f-2f45b2f7a1b3
+# ╠═90dde709-ff79-4583-a3e0-ef9cf9e06946
 # ╠═74e914b2-8b06-4f84-84b0-ccde60ee3cf7
 # ╟─8cfb178a-7be2-4852-afa1-0485cfb8f08b
 # ╟─b628689f-03e5-4867-82ee-23b6ef5dffbf
