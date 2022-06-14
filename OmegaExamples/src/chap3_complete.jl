@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.6
+# v0.18.0
 
 using Markdown
 using InteractiveUtils
@@ -156,6 +156,11 @@ end
 # ╔═╡ b402f49f-5f3f-45fb-8382-18ef33c86368
 alpha = 1
 
+# ╔═╡ 0c4fbed8-88e2-4b75-863a-bef05a9bfdb2
+maxEUAgent = actions[argmax([
+		𝔼( ω->utility_soft(transitions_soft(a)(ω)) ) for a in actions
+	])]
+
 # ╔═╡ adacf3b8-8fd1-405a-a770-60d95a5ee8e0
 md"The inferenceAgent, which uses the planning-as-inference idiom, can also be extended using expectation. Previously, the agent’s action was conditioned on leading to the best consequence (“pizza”). This time, Tom is not aiming to choose the action most likely to have the best outcome. Instead, he wants the action with better outcomes on average. This can be represented in inferenceAgent by switching from a condition statement to a factor statement. The condition statement expresses a “hard” constraint on actions: actions that fail the condition are completely ruled out. The factor statement, by contrast, expresses a “soft” condition. Technically, factor(x) adds x to the unnormalized log-probability of the program execution within which it occurs.
 
@@ -233,11 +238,6 @@ utility_mh(state) = ω->(state.alice_door(ω) == state.prize_door(ω) ? 10 : 0)
 	@show "Calculating Expectations"
 	mean(randsample(x,1000))
 end
-
-# ╔═╡ 0c4fbed8-88e2-4b75-863a-bef05a9bfdb2
-maxEUAgent = actions[argmax([
-		𝔼( ω->utility_soft(transitions_soft(a)(ω)) ) for a in actions
-	])]
 
 # ╔═╡ 8cfb178a-7be2-4852-afa1-0485cfb8f08b
 md"*Exercise*: Adjust the transition probabilities such that the agent chooses the Italian Restaurant."
