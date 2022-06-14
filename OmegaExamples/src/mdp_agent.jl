@@ -13,6 +13,9 @@ Pkg.activate(Base.current_project())
 # ╔═╡ 5ea956cd-1bcc-486a-8e37-f34996d6bacd
 using Memoize
 
+# ╔═╡ a5473dde-a323-4974-a2fe-1651b9050279
+using Random
+
 # ╔═╡ dccd1f54-5462-4b4e-9ed3-592daff4cb5a
 using Parameters
 
@@ -289,7 +292,7 @@ mdp_n = GridWorld_new()
 mdp_n.tprob = 0.0
 
 # ╔═╡ 5f5b6ad7-8c94-4ad7-bd47-157c38ef274a
-gws_new = GridWorldState(4,2)
+gws_new = initialstate(mdp_n)
 
 # ╔═╡ ee7a4daa-c35a-46c2-a13f-df15bf3db8f8
 mdp = GridWorld_new(;features = reverse(grid), x_init = 3, y_init = 1, tprob = 0.0, total_time = 9)
@@ -301,8 +304,57 @@ mdp = GridWorld_new(;features = reverse(grid), x_init = 3, y_init = 1, tprob = 0
 	mean(randsample(x,1000))
 end
 
+# ╔═╡ e95fbba5-d01f-449a-ba6b-8aec445a7bd4
+xs = randsample(initialstate(mdp_n))
+
+# ╔═╡ 09b4b44e-e25d-4313-bad2-cbbd7b1c0f33
+utilito = reward(mdp_n, xs)
+
+# ╔═╡ 1e0141d4-4867-42c7-aa66-637f002004a1
+xs.time_left = 1
+
+# ╔═╡ 9f470749-a0ad-489a-a184-0032960e8ddb
+
+
+# ╔═╡ 3387d656-9d03-43a7-8fd0-400fcfddca37
+# begin
+# 	@memoize function act(mdp, state)
+# 		@show "action_block"
+# 		action = ω->(9)~UniformDraw(statetoaction(mdp, state(ω)))
+# 		eu = expected_utility(mdp, state, action)
+# 		eu_rid = ω->rid(eu(ω), action(ω))
+# 		cond = @~Bernoulli(pw(err, pw(>=ₛ, ω->𝔼(eu_rid(ω)(ω)), 0.4)))
+# 		action_cond = action |ᶜ cond
+# 		return Variable(action_cond)
+# 	end
+	
+# 	@memoize function expected_utility(mdp, state_dist, action_dist)
+		
+# 		function expected_utility_singular_state(mdp::GridWorld_new, state::GridWorldState, action)
+# 			u = reward(mdp, state)
+# 			if (state.done)
+# 				@show "block 1"
+# 				u
+# 				# return state
+# 			else
+# 				@show "block 2"
+# 				next_state = ω->transition(mdp, state, action(ω))
+# 				next_action = act(mdp, next_state)
+# 				eu = ω->expected_utility(mdp, next_state, next_action(ω))
+# 				pw(+,u,eu)
+# 			# return eu
+# 			end
+# 		end
+# 		util_state_dist = ω->expected_utility_singular_state(mdp, state_dist(ω), action_dist(ω))
+		
+# 	end
+# end
+
 # ╔═╡ 73df9a6f-f76d-4b80-bcb9-fe5fab0ba14f
-randsample(initialstate(mdp_n))
+x = randsample(initialstate(mdp_n))
+
+# ╔═╡ fa83f1fb-537b-498e-aa8c-24c52af3215b
+reward(mdp_n, x)
 
 # ╔═╡ a0778bee-638c-4864-a20f-869ed6523634
 mdp_n.x_init = 4
@@ -387,11 +439,20 @@ function statetoaction(mdp::GridWorld_new, state::GridWorldState)
 	end
 end
 
+# ╔═╡ 6003a973-f40a-4bf1-a06b-33b2855f6bea
+possible_actionso = ω -> statetoaction(mdp_n, xs)
+
+# ╔═╡ 9a91fe7a-a4f5-4c51-af02-367f03c75244
+possible_actions = ω -> statetoaction(mdp_n, initialstate(mdp_n)(ω))
+
 # ╔═╡ 7bb2ba66-e1f7-4740-bd22-6c351868e920
-gws_new2 = randsample(transition(mdp_n, gws_new, :right))
+gws_new2 = randsample(transition(mdp_n, gws_new(ω), :right))
 
 # ╔═╡ 20c90f60-22f5-44b7-ade0-2a05f987b7bc
 statetoaction(mdp_n,gws_new2)
+
+# ╔═╡ 6a4663b9-c028-485a-a4c0-5d5b62bb2dcb
+act(mdp_n, ω->gws_new2)
 
 # ╔═╡ c1ff4215-d501-40c4-9b4c-b28f5676d48c
 e = randsample(transition(mdp_n, gws_new2, :left))
@@ -399,41 +460,98 @@ e = randsample(transition(mdp_n, gws_new2, :left))
 # ╔═╡ 7c01717a-1eb2-4fe7-bcae-4801fab52412
 reward(mdp_new,e)
 
-# ╔═╡ 3387d656-9d03-43a7-8fd0-400fcfddca37
+# ╔═╡ 60f5ce6d-d2d3-4a7a-be09-164892030b72
 begin
-	@memoize function act(mdp, state)
-		@show "action_block"
-		action = ω->(9)~UniformDraw(statetoaction(mdp, state(ω)))
-		eu = expected_utility(mdp, state, action)
-		eu_rid = rid(eu, action)
-		cond = @~Bernoulli(pw(err,pw(>=ₛ, ω->𝔼(eu_rid(ω)), 0.4)))
-		action_cond = action |ᶜ cond
-		return Variable(action_cond)
-	end
-	
+	@memoize function actor(mdp, state)
+		possible_actions = ω -> statetoaction(mdp, state(ω)) #a distribution over states and actions possible in those states
+		action = ω -> @~ UniformDraw(possible_actions(ω)) # a distribution over states and a distribution of actions in those states
+		eu = ω -> expected_utility(mdp, state(ω), action(ω)) # returns a distribution of rewards over states
+		eu_rid = ω -> rid(eu(ω), action(ω)) # returns a distribution of intervention over different states
+		expected_val =  ω -> 𝔼(eu_rid(ω)(ω)) # eu_rid(ω) fixes the state, eu_rid(ω)(ω) gives the intervened distribution. So overall it will give a dist over states
+		cond = ω -> @~ Bernoulli(pw(err, pw(>=ₛ, expected_val(ω), 0.4))) 
+		action_cond = ω -> (action(ω) |ᶜ cond(ω))
+		Variable(action_cond)
+	end		
+		
 	@memoize function expected_utility(mdp, state, action)
-		u = ω->reward(mdp, state(ω))
-		if (state.done)
-			@show "block 1"
-			return u
-			# return state
+		utility = reward(mdp, state) 
+		if state.done
+			@show "block1"
+			ω->utility
 		else
-			@show "block 2"
-			next_state = ω->transition(mdp, state, action(ω))
-			next_action = act(mdp, next_state)
-			eu = ω->expected_utility(mdp, next_state, next_action(ω))
-			return pw(+,u,eu)
-			# return eu
+			@show "block2"
+			next_state = ω -> transition(mdp, state, action(ω))(ω) # distribution of all possible next states 
+			next_action = actor(mdp, next_state)
+			eu = ω -> expected_utility(mdp, next_state(ω), next_action(ω))
+			pw(+, ω -> utility, eu)
 		end
 	end
 end
 
-# ╔═╡ 6a4663b9-c028-485a-a4c0-5d5b62bb2dcb
-act(mdp_n, ω->gws_new2)
+# ╔═╡ eea21cbb-6943-4089-b7dd-d5aa52449247
+randsample(actor(mdp_n, initialstate(mdp_n)))
+
+# ╔═╡ b2f97b05-0598-4bf7-8597-42bf7657a54c
+actiono = ω -> @~UniformDraw(possible_actionso(ω))
+
+# ╔═╡ 363cb319-73bf-48b1-8f78-1784f2868042
+euo = ω -> expected_utility(mdp_n, xs, actiono(ω)) 
+
+# ╔═╡ 81920d83-7ccf-440a-bd15-5b5c01ce203a
+randsample(randsample(actiono))
+
+# ╔═╡ c9578bfb-98eb-478f-951f-f116a80b36b8
+possibleacts = @~ UniformDraw(statetoaction(mdp_n, xs))
+
+# ╔═╡ 7d7e3b69-c0dc-419c-87a1-eda1b0a2d37c
+next_stateo = ω -> transition(mdp_n, xs, possibleacts(ω))(ω)
+
+# ╔═╡ d9bd8ead-2f3a-4558-974a-6cd0b9d74ed6
+randsample(next_stateo)
+
+# ╔═╡ 7720d154-81bd-4869-abe4-53191a823b93
+possibleactionso2 = ω -> statetoaction(mdp, next_stateo(ω))
+
+# ╔═╡ 412acb89-db2a-4667-aa14-736ecfc342a2
+actionso2 = ω -> @~ UniformDraw(possibleactionso2(ω))
+
+# ╔═╡ 99021588-af96-44da-ac68-2d010faf8dfc
+euo2 = ω -> expected_utility(mdp_n, next_stateo(ω), actionso2(ω))
+
+# ╔═╡ fc15721a-8b69-4f06-aa63-d53ce55d3dac
+euo2_rid = ω -> rid(euo2(ω), actionso2(ω))
+
+# ╔═╡ 602326db-8481-4195-865b-32faedc348ac
+randsample(randsample(randsample(euo2_rid)))
+
+# ╔═╡ 6f2caf7f-6214-47a2-9a21-decedb4ae869
+expectedo = ω -> 𝔼(euo2_rid(ω)(ω))
+
+# ╔═╡ 004fb709-36c3-4d1d-92e5-76028d5bb2ae
+randsample(expectedo)
+
+# ╔═╡ 4639f57d-5998-4a62-9f03-4cbe38f97ba3
+action = ω -> @~ UniformDraw(possible_actions(ω))
+
+# ╔═╡ c93183e8-f6cd-4f33-9ab1-598967b66c22
+randsample(action)
+
+# ╔═╡ 9a4e4221-b5f8-48cf-995c-dcfd8c893333
+acs = @~UniformDraw([:up,:right])
+
+# ╔═╡ 5c06ae23-9746-4953-9238-8ddc7e74194c
+rx = randsample(randsample(ω->transition(mdp_n, x, acs(ω))))
+
+# ╔═╡ 3244f1ca-3d82-4bc1-890c-490b9d0fc8d3
+s = randsample(transition(mdp_n, rx, :up))
+
+# ╔═╡ 32ba8762-2e6b-4edf-9ac3-9b02240c90a6
+randsample(@~UniformDraw(statetoaction(mdp_n, gws_new)))
 
 # ╔═╡ Cell order:
 # ╠═d875eb5c-8c1c-11ec-36a5-7b417deacc42
 # ╠═5ea956cd-1bcc-486a-8e37-f34996d6bacd
+# ╠═a5473dde-a323-4974-a2fe-1651b9050279
 # ╠═ea4f9704-e963-4a24-b0a7-cd4ce9b9cce5
 # ╠═dad38bae-5e4a-40b1-a813-f4c1e9ebcd60
 # ╠═dccd1f54-5462-4b4e-9ed3-592daff4cb5a
@@ -482,8 +600,36 @@ act(mdp_n, ω->gws_new2)
 # ╠═7c01717a-1eb2-4fe7-bcae-4801fab52412
 # ╠═ee7a4daa-c35a-46c2-a13f-df15bf3db8f8
 # ╠═d8012ccc-32e2-46a7-a6fb-79bd093ae7e7
+# ╠═60f5ce6d-d2d3-4a7a-be09-164892030b72
+# ╠═6003a973-f40a-4bf1-a06b-33b2855f6bea
+# ╠═b2f97b05-0598-4bf7-8597-42bf7657a54c
+# ╠═363cb319-73bf-48b1-8f78-1784f2868042
+# ╠═09b4b44e-e25d-4313-bad2-cbbd7b1c0f33
+# ╠═e95fbba5-d01f-449a-ba6b-8aec445a7bd4
+# ╠═1e0141d4-4867-42c7-aa66-637f002004a1
+# ╠═c9578bfb-98eb-478f-951f-f116a80b36b8
+# ╠═7d7e3b69-c0dc-419c-87a1-eda1b0a2d37c
+# ╠═d9bd8ead-2f3a-4558-974a-6cd0b9d74ed6
+# ╠═7720d154-81bd-4869-abe4-53191a823b93
+# ╠═412acb89-db2a-4667-aa14-736ecfc342a2
+# ╠═99021588-af96-44da-ac68-2d010faf8dfc
+# ╠═fc15721a-8b69-4f06-aa63-d53ce55d3dac
+# ╠═9f470749-a0ad-489a-a184-0032960e8ddb
+# ╠═602326db-8481-4195-865b-32faedc348ac
+# ╠═6f2caf7f-6214-47a2-9a21-decedb4ae869
+# ╠═004fb709-36c3-4d1d-92e5-76028d5bb2ae
+# ╠═81920d83-7ccf-440a-bd15-5b5c01ce203a
+# ╟─eea21cbb-6943-4089-b7dd-d5aa52449247
+# ╠═9a91fe7a-a4f5-4c51-af02-367f03c75244
+# ╠═4639f57d-5998-4a62-9f03-4cbe38f97ba3
+# ╠═c93183e8-f6cd-4f33-9ab1-598967b66c22
 # ╠═3387d656-9d03-43a7-8fd0-400fcfddca37
 # ╠═73df9a6f-f76d-4b80-bcb9-fe5fab0ba14f
+# ╠═fa83f1fb-537b-498e-aa8c-24c52af3215b
+# ╠═5c06ae23-9746-4953-9238-8ddc7e74194c
+# ╠═3244f1ca-3d82-4bc1-890c-490b9d0fc8d3
+# ╠═9a4e4221-b5f8-48cf-995c-dcfd8c893333
+# ╠═32ba8762-2e6b-4edf-9ac3-9b02240c90a6
 # ╠═a0778bee-638c-4864-a20f-869ed6523634
 # ╠═99c2449b-00b9-433e-980c-9c40d20af68a
 # ╠═6a4663b9-c028-485a-a4c0-5d5b62bb2dcb
