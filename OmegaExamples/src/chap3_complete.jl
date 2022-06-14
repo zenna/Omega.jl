@@ -156,11 +156,6 @@ end
 # ╔═╡ b402f49f-5f3f-45fb-8382-18ef33c86368
 alpha = 1
 
-# ╔═╡ 0c4fbed8-88e2-4b75-863a-bef05a9bfdb2
-maxEUAgent = actions[argmax([
-		𝔼( ω->utility_soft(transitions_soft(a)(ω)) ) for a in actions
-	])]
-
 # ╔═╡ adacf3b8-8fd1-405a-a770-60d95a5ee8e0
 md"The inferenceAgent, which uses the planning-as-inference idiom, can also be extended using expectation. Previously, the agent’s action was conditioned on leading to the best consequence (“pizza”). This time, Tom is not aiming to choose the action most likely to have the best outcome. Instead, he wants the action with better outcomes on average. This can be represented in inferenceAgent by switching from a condition statement to a factor statement. The condition statement expresses a “hard” constraint on actions: actions that fail the condition are completely ruled out. The factor statement, by contrast, expresses a “soft” condition. Technically, factor(x) adds x to the unnormalized log-probability of the program execution within which it occurs.
 
@@ -238,6 +233,11 @@ utility_mh(state) = ω->(state.alice_door(ω) == state.prize_door(ω) ? 10 : 0)
 	@show "Calculating Expectations"
 	mean(randsample(x,1000))
 end
+
+# ╔═╡ 0c4fbed8-88e2-4b75-863a-bef05a9bfdb2
+maxEUAgent = actions[argmax([
+		𝔼( ω->utility_soft(transitions_soft(a)(ω)) ) for a in actions
+	])]
 
 # ╔═╡ 8cfb178a-7be2-4852-afa1-0485cfb8f08b
 md"*Exercise*: Adjust the transition probabilities such that the agent chooses the Italian Restaurant."
@@ -410,15 +410,15 @@ end
 
 
 # ╔═╡ Cell order:
-# ╟─69f5f64e-7ae3-11ec-2649-111a12da3b87
-# ╟─b6705156-3d39-44d4-80dd-4794b1f0b0e6
-# ╟─d8972d9c-f8a7-40e1-829f-0012dbf992a6
-# ╟─020a088e-d753-4030-8a21-d3be00a2d551
-# ╟─400c3307-6adb-49a5-b083-dffee6f60223
-# ╟─2b3e6015-5a91-4fa6-8efc-eadc121a0a07
-# ╟─19b5d039-e201-4e27-a3ec-633bcfaddba2
-# ╟─4c512b4b-dec8-4985-81a5-38c6701fbb45
-# ╟─a1a3bcf4-7270-4e89-9c44-69ca1a9c0d63
+# ╠═69f5f64e-7ae3-11ec-2649-111a12da3b87
+# ╠═b6705156-3d39-44d4-80dd-4794b1f0b0e6
+# ╠═d8972d9c-f8a7-40e1-829f-0012dbf992a6
+# ╠═020a088e-d753-4030-8a21-d3be00a2d551
+# ╠═400c3307-6adb-49a5-b083-dffee6f60223
+# ╠═2b3e6015-5a91-4fa6-8efc-eadc121a0a07
+# ╠═19b5d039-e201-4e27-a3ec-633bcfaddba2
+# ╠═4c512b4b-dec8-4985-81a5-38c6701fbb45
+# ╠═a1a3bcf4-7270-4e89-9c44-69ca1a9c0d63
 # ╟─709ad29c-9c48-4c5a-aeff-b6ddaee6cbdf
 # ╟─0ee2ac6a-5616-4804-b648-ccc76e421dbf
 # ╟─c59223df-0dd5-4776-8fd8-53b0269357ae
