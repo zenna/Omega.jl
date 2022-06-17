@@ -304,6 +304,9 @@ mdp = GridWorld_new(;features = reverse(grid), x_init = 3, y_init = 1, tprob = 0
 	mean(randsample(x,1000))
 end
 
+# ╔═╡ ed11423f-dd26-4439-b49e-445f0e85cad3
+
+
 # ╔═╡ e95fbba5-d01f-449a-ba6b-8aec445a7bd4
 xs = randsample(initialstate(mdp_n))
 
@@ -312,6 +315,9 @@ utilito = reward(mdp_n, xs)
 
 # ╔═╡ 1e0141d4-4867-42c7-aa66-637f002004a1
 xs.time_left = 1
+
+# ╔═╡ d3a9b147-373a-4c94-a463-a0272f2f6af7
+
 
 # ╔═╡ 9f470749-a0ad-489a-a184-0032960e8ddb
 
@@ -440,7 +446,7 @@ function statetoaction(mdp::GridWorld_new, state::GridWorldState)
 end
 
 # ╔═╡ 6003a973-f40a-4bf1-a06b-33b2855f6bea
-possible_actionso = ω -> statetoaction(mdp_n, xs)
+possible_actionso = ω -> statetoaction(mdp_n, (ω -> xs)(ω))
 
 # ╔═╡ 9a91fe7a-a4f5-4c51-af02-367f03c75244
 possible_actions = ω -> statetoaction(mdp_n, initialstate(mdp_n)(ω))
@@ -497,23 +503,29 @@ actiono = ω -> @~UniformDraw(possible_actionso(ω))
 # ╔═╡ 363cb319-73bf-48b1-8f78-1784f2868042
 euo = ω -> expected_utility(mdp_n, xs, actiono(ω)) 
 
-# ╔═╡ 81920d83-7ccf-440a-bd15-5b5c01ce203a
-randsample(randsample(actiono))
-
-# ╔═╡ c9578bfb-98eb-478f-951f-f116a80b36b8
-possibleacts = @~ UniformDraw(statetoaction(mdp_n, xs))
-
 # ╔═╡ 7d7e3b69-c0dc-419c-87a1-eda1b0a2d37c
-next_stateo = ω -> transition(mdp_n, xs, possibleacts(ω))(ω)
+next_stateo = ω -> transition(mdp_n, (ω->xs)(ω), actiono(ω)(ω))(ω)
 
-# ╔═╡ d9bd8ead-2f3a-4558-974a-6cd0b9d74ed6
+# ╔═╡ 78460a0d-462c-4ac8-8974-3d58f0418705
 randsample(next_stateo)
 
 # ╔═╡ 7720d154-81bd-4869-abe4-53191a823b93
-possibleactionso2 = ω -> statetoaction(mdp, next_stateo(ω))
+possibleactionso2 = ω -> statetoaction(mdp_n, next_stateo(ω))
+
+# ╔═╡ 6ec1ac7c-71cd-4989-b423-52c9b564cee6
+utilo2 = ω->reward(mdp_n, next_stateo(ω))
+
+# ╔═╡ c5581681-8160-4ced-910a-597adeb4bf05
+randsample(ω -> utilo2)
+
+# ╔═╡ 81920d83-7ccf-440a-bd15-5b5c01ce203a
+randsample(randsample(actiono))
 
 # ╔═╡ 412acb89-db2a-4667-aa14-736ecfc342a2
 actionso2 = ω -> @~ UniformDraw(possibleactionso2(ω))
+
+# ╔═╡ 42d143fd-8ecf-4f1c-a2bb-239c0c648fa8
+randsample(actionso2)
 
 # ╔═╡ 99021588-af96-44da-ac68-2d010faf8dfc
 euo2 = ω -> expected_utility(mdp_n, next_stateo(ω), actionso2(ω))
@@ -529,6 +541,9 @@ expectedo = ω -> 𝔼(euo2_rid(ω)(ω))
 
 # ╔═╡ 004fb709-36c3-4d1d-92e5-76028d5bb2ae
 randsample(expectedo)
+
+# ╔═╡ c9578bfb-98eb-478f-951f-f116a80b36b8
+possibleacts = @~ UniformDraw(statetoaction(mdp_n, xs))
 
 # ╔═╡ 4639f57d-5998-4a62-9f03-4cbe38f97ba3
 action = ω -> @~ UniformDraw(possible_actions(ω))
@@ -605,13 +620,18 @@ randsample(@~UniformDraw(statetoaction(mdp_n, gws_new)))
 # ╠═b2f97b05-0598-4bf7-8597-42bf7657a54c
 # ╠═363cb319-73bf-48b1-8f78-1784f2868042
 # ╠═09b4b44e-e25d-4313-bad2-cbbd7b1c0f33
+# ╠═7d7e3b69-c0dc-419c-87a1-eda1b0a2d37c
+# ╠═78460a0d-462c-4ac8-8974-3d58f0418705
+# ╠═7720d154-81bd-4869-abe4-53191a823b93
+# ╠═412acb89-db2a-4667-aa14-736ecfc342a2
+# ╠═6ec1ac7c-71cd-4989-b423-52c9b564cee6
+# ╠═c5581681-8160-4ced-910a-597adeb4bf05
+# ╠═42d143fd-8ecf-4f1c-a2bb-239c0c648fa8
+# ╠═ed11423f-dd26-4439-b49e-445f0e85cad3
 # ╠═e95fbba5-d01f-449a-ba6b-8aec445a7bd4
 # ╠═1e0141d4-4867-42c7-aa66-637f002004a1
 # ╠═c9578bfb-98eb-478f-951f-f116a80b36b8
-# ╠═7d7e3b69-c0dc-419c-87a1-eda1b0a2d37c
-# ╠═d9bd8ead-2f3a-4558-974a-6cd0b9d74ed6
-# ╠═7720d154-81bd-4869-abe4-53191a823b93
-# ╠═412acb89-db2a-4667-aa14-736ecfc342a2
+# ╠═d3a9b147-373a-4c94-a463-a0272f2f6af7
 # ╠═99021588-af96-44da-ac68-2d010faf8dfc
 # ╠═fc15721a-8b69-4f06-aa63-d53ce55d3dac
 # ╠═9f470749-a0ad-489a-a184-0032960e8ddb
