@@ -19,18 +19,18 @@ Initialised at `state_init`, yields `n` samples `::ΩT` using Metropolis Hasting
 
 # Arguments
 - `rng`: AbstractRng used to sample proposals in MH loop
-- `ΩT`: Type of samples
 - `n`: number of samples
-- `logdensity`:  Density that `mh` will sample from. Function of `ω`.
-- `f`: The random variable that we are taking samples from
-- `proposal`: a proposal distributioion.   Has the form:
-  `(ω_, log_p_q) = proposal(rng, ω)` where:
-    `ω_` is the proposal
-    `log_pqqp` is `log(g(p|q)/g(q|p))` the transition probability of moving from q to p
 - `state_init`: point to initialise from
+- `propose_and_logratio`: function to propose a new state and return its log density ratio
+Has the form:
+  `(x_, log_p_q) = proposal_and_logratio(rng, x)` where:
+    `x_` is the proposal
+    `log_pqqp` is `log(g(p|q)/g(q|p))` the transition probability of moving from q to p
 - `keep`: function from `i -> b::Bool` which says whether to keep the sample at ith iteration or not
 Useful for defining burn in or thinning.
   Example `keep = i -> ignorefirstn(100)(i) & thin(m)(i)`
+- `prestore` - function applied to each state before addition to result
+- `cb`: callback, called in each iteration.  Can be used for logging
 """
 function mh!(rng,
              logdensity,
