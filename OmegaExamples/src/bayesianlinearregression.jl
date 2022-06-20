@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.0
+# v0.19.8
 
 using Markdown
 using InteractiveUtils
@@ -10,6 +10,8 @@ begin
     # activate the shared project environment|
     Pkg.activate(Base.current_project())
     using Omega
+	Pkg.add("Distributions")
+	Pkg.instantiate()
 	using Distributions
 	using UnicodePlots
 	using Random: MersenneTwister
@@ -67,9 +69,6 @@ struct ϵ end
 # ╔═╡ b2cc4db2-76cf-11eb-390d-f151ff4b939d
 Y_class(i, ω) = linear_model(xs[i], M(ω), C(ω)) + (ϵ ∘ i ~ Normal(0, 0.1))(ω);
 
-# ╔═╡ 93ed05dd-cc5a-4b77-af0d-7cca48777510
-revise
-
 # ╔═╡ 800049e2-f44b-4839-a2ae-7fb0beeb5c0e
 Y⃗ = Mv(1:N, Y_class)
 
@@ -110,7 +109,6 @@ UnicodePlots.scatterplot(xs, samples)
 # ╠═a9765e1c-76cf-11eb-3495-79aa95e21afd
 # ╠═7fce6a74-8b68-45ce-bb9c-a4c4e39fcc1e
 # ╠═b2cc4db2-76cf-11eb-390d-f151ff4b939d
-# ╠═93ed05dd-cc5a-4b77-af0d-7cca48777510
 # ╠═800049e2-f44b-4839-a2ae-7fb0beeb5c0e
 # ╠═fa8b5cc2-7728-11eb-24b3-5db1bd7d0255
 # ╠═cf09331c-c5cd-49f0-8ad5-eced9cb56d37
