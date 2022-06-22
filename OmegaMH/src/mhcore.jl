@@ -11,7 +11,15 @@ const MH = MHAlg()
 function propose_and_logratio end
 
 """
-`mh(rng, ΩT, logdensity, f, n; proposal, state_init)`
+`mh!(rng,
+  logdensity,
+  n,
+  state_init,
+  propose_and_logratio,
+  samples;
+  keep = keepall,
+  prestore = identity,
+  cb = tonothing)`
 
 Metropolis Hastings Sampler
 
@@ -26,6 +34,7 @@ Has the form:
   `(x_, log_p_q) = proposal_and_logratio(rng, x)` where:
     `x_` is the proposal
     `log_pqqp` is `log(g(p|q)/g(q|p))` the transition probability of moving from q to p
+- `samples`: container to store result.  Will be mutated.
 - `keep`: function from `i -> b::Bool` which says whether to keep the sample at ith iteration or not
 Useful for defining burn in or thinning.
   Example `keep = i -> ignorefirstn(100)(i) & thin(m)(i)`
@@ -66,6 +75,7 @@ function mh!(rng,
   samples
 end
 
+"Not mutating form of [`mh!`](@ref)"
 function mh(rng,
             logdensity,
             n,

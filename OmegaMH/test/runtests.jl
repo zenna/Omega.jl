@@ -99,3 +99,19 @@ end
   test_manual_proposal()
   test_custom_proposal()
 end
+
+function gen_samples()
+  using Random
+  using Distributions
+  n = 1_000_000
+  z = 1.0
+  pinvert(θ) = z - θ, θ
+  function logdensity(θ_)
+      x, y = pinvert(θ_)
+      logpdf(Normal(0, 1), θ_) + logpdf(Normal(0, 1), y) + logpdf(Normal(0, 1), x)
+  end
+  propose_and_logratio(ω, x) = rand(ω, Normal(x, 0.1)), 0.0 
+  rng = Random.MersenneTwister(0)
+  samples = mh(rng, logdensity, n, 0.5, propose_and_logratio)
+  pinvert.(samples)
+end
