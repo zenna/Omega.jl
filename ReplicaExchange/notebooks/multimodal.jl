@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.21
+# v0.19.9
 
 using Markdown
 using InteractiveUtils
@@ -7,11 +7,15 @@ using InteractiveUtils
 # This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
 macro bind(def, element)
     quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
         local el = $(esc(element))
-        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : missing
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
         el
     end
 end
+
+# ╔═╡ cfea9bc2-dc6b-44d7-b64b-fadb407bc64f
+Pkg.activate(Base.current_project())
 
 # ╔═╡ 9c5d8972-7485-11eb-25f7-155fbbd40d98
 using Revise
@@ -31,14 +35,14 @@ using ReplicaExchange
 # ╔═╡ ebd11c9a-7484-11eb-2941-c78e3e22d260
 using Random
 
-# ╔═╡ 0464d3ec-7489-11eb-1081-d761307263db
-using Pkg; Pkg.add("PyPlot")
-
 # ╔═╡ 94d6f4e6-74ac-11eb-0871-a31b2df5526d
 using PlutoUI
 
 # ╔═╡ 128974e2-7483-11eb-03a0-15b2abc75d66
 md"# MCMC Test"
+
+# ╔═╡ 0464d3ec-7489-11eb-1081-d761307263db
+# using Plots
 
 # ╔═╡ 318e4a98-7483-11eb-1916-c9630ecf07e2
 md"First, let's setup our target density"
@@ -227,6 +231,7 @@ mcmc_dynamics(pdfs, traces, lb:ub)
 # ╔═╡ Cell order:
 # ╠═9c5d8972-7485-11eb-25f7-155fbbd40d98
 # ╟─128974e2-7483-11eb-03a0-15b2abc75d66
+# ╠═cfea9bc2-dc6b-44d7-b64b-fadb407bc64f
 # ╠═2c24aaca-7483-11eb-05a9-6f847b7d09b7
 # ╠═42bb4640-7483-11eb-0661-677c524c62b0
 # ╠═eeb0be1c-7483-11eb-341f-b1996e9a53a6

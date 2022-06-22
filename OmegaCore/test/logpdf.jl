@@ -3,6 +3,40 @@ using OmegaTest
 using Distributions
 using Test
 
+function gen_samples()
+  using Random
+  using Distributions
+  n = 1_000_000
+  z = 1.0
+  pinvert(θ, z) = z - θ, θ
+  x = 1 ~ StdNormal{Float64}()
+  y = 2 ~ StdNormal{Float64}()
+  z = x .+ y
+  z_ = 1.0
+  evidence = z .== z_
+  model = @joint(x, y) |^̧ evidence
+
+  # FIXME: TYPES!
+  propagate_to_exo(ω, evidence::typeof(evidence), evidence_) = 
+    evidence_ ? propagate(ω, z, z_)
+  
+  function propagate_to_exo(ω, z::typeof(z), z_)
+    θ = StdNormal{Float64}()(@uid(), ω)
+    x, y = pinvert(θ, z_)
+    propagate_to_exo(ω, x, x_)
+    propagate_to_exo(ω, y, y_)
+  end
+
+  function logdensity(θ_)
+      x, y = pinvert(θ_)
+      logpdf(Normal(0, 1), θ_) + logpdf(Normal(0, 1), y) + logpdf(Normal(0, 1), x)
+  end
+  propose_and_logratio(ω, x) = rand(ω, Normal(x, 0.1)), 0.0 
+  rng = Random.MersenneTwister(0)
+  samples = mh(rng, logdensity, n, 0.5, propose_and_logratio)
+  pinvert.(samples)
+end
+
 # function test_logpdf_ucond()
 #   a = 1 ~ Normal(0, 1)
 #   b = 2 ~ Normal(2, 3)
