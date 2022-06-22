@@ -72,9 +72,6 @@ include("logenergy.jl")
 include("rejection.jl")         # Rejection sampling Inference
 @reexport using .OmegaRejectionSample
 
-# include("pointwise.jl")
-# @reexport using .Pointwise
-
 include("mem.jl")
 @reexport using .Memoize
 

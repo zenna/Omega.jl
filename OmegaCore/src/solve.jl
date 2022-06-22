@@ -4,68 +4,71 @@ export solve, complete, isconditioned
 
 import OmegaCore
 
+using Spec
 import ..Var
 using ..Tagging: Solve, tag
 using ..Traits: trait
+using ..Tagging
 using ..Conditioning: Conditional
+using ..Var: PrimRandVar, Member, Variable
+using ..Var: Pw
 
-function isconditioned end
+export propagate!
 
-function solve end
+# FIXME: Not a good way to check const type
+const ConstTypes = Union{Real, Array{<:Real}}
 
-# function Var.
+"Variable of the form `X .== x`"
+const EqualityCondition{A, B} = Pw{Tuple{A, B}, typeof(==)} where {A, B <: ConstTypes}
+# const EqualityCondition = Int
 
-# function Var.prehook(::trait(Solve), f, ω)
-#   # Assume h has no specialization
-#   solve(f, ω)
-#     # then just continue as normal
-#   # either the recurse itself
+# function solve end
+
+# function Var.recurse(::trait(Solve), f, ω)
 #   solve(f, ω)
 # end
 
-# Doesn't have specialization we'll get here
-hasspecial(f, ω) = solve(f, ω)  ## don't want to do a prehook
+tagcomplete(ω) = tag(ω, (solve = true,))
 
-# doesn't have specialization
-solve(f, ω) = nothing
+"`ω` such that is well defined `x(ω)` is well-defined"
+function complete(x, ω)
+  ω_ = tagcomplete(ω)
+  ret = x(ω_)
+  ω_
+end
+@post complete(x, ω) = (ω_ = __ret__; isvalid(x, ω_) & (ω_ ⊆ ω))
 
-
-function Var.recurse(::trait(Solve), f, ω)
-  solve(f, ω)
+# Add a prehook for conditional variable
+function Var.prehook(::trait(Solve), f::Conditional)
+  propagate!(ω, f.c, true)
 end
 
-# Default case, no specialization:
-# solve(f, ω) = Var.recurse(f, ω)
-
-# # Defaualt case
-# solve(f, id, ω) = f(ω)
-
-function complete(x, ω = OmegaCore.defω())
-  x(tag(ω, (solve = true,)))
+# FIXME: Make this only work on a constant X = x
+@inline function propagate!(ω, x::EqualityCondition, x_)
+  if x_
+    propagate!(ω, x.args[1], x.args[2])
+  end
 end
 
+# propagate back to exogenous
+propagate!(ω, x::PrimRandVar, x_) =
+  ω[x] = x_
 
-# States:
-# NoExpansion, always used specialised, don't expand
-# Expand
+# idof(m::Member) = m.id
+#   idof(v::Variable) = v.f.id
 
-# "Given that we know `X` is `x_`"
-# function propagate_to_exo(ω, X, x_)
-
+# function Var.prehook(::trait(Cond), d::Distribution, id, ω)
+#   # FIXME: Is this correct?
+#   matches = idof(ω.tags.condition.a) == id
+#   if matches
+#     inv = invert(d, ω.tags.condition.b)
+#     ω[id] = (primdist(d), inv)
+#   end
 # end
 
-# What's the relationship between a conditioned rand var and 
-# This propagation
+# solution(f::Conditional, Ω = defΩ()) =
+#   solution(Random.GLOBAL_RNG, f, Ω)
 
-# What's a better name for propagation
-## implication? 
-# Shouod return a set of pairs or some omega
-# Do we need to return auxilaries too?
-## Yes!
-# Do we expcect the omega to be "full", like in solve?
-
-# Where should we specify how far we want to go back?
-# Might be unnecessary to go back to exogenous, e.g. in case of Bernoulli
-# how to ensure this is a safe thing to do
+# end
 
 end
