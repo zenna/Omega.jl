@@ -49,4 +49,21 @@ end
 # NoExpansion, always used specialised, don't expand
 # Expand
 
-end
+# "Given that we know `X` is `x_`"
+# function propagate_to_exo(ω, X, x_)
+
+# end
+
+# What's the relationship between a conditioned rand var and 
+# This propagation
+
+# What's a better name for propagation
+## implication? 
+# Shouod return a set of pairs or some omega
+# Do we need to return auxilaries too?
+## Yes!
+# Do we expcect the omega to be "full", like in solve?
+
+# Where should we specify how far we want to go back?
+# Might be unnecessary to go back to exogenous, e.g. in case of Bernoulli
+# how to ensure this is a safe thing to do
