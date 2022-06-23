@@ -9,12 +9,13 @@ Future = "9fa8497b-333b-5362-9e8d-4d0656e87820"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 Spec = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
+TestEnv = "1e6cf692-eddd-4d53-88a5-2d735e33781b"
 
 [compat]
+AndTraits = "0.1"
 Reexport = "0.2, 1"
 Spec = "0.3"
 julia = "1.6"
-AndTraits = "0.1"
 
 [extras]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"

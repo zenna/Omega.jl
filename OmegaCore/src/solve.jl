@@ -39,8 +39,8 @@ end
 @post complete(x, ω) = (ω_ = __ret__; isvalid(x, ω_) & (ω_ ⊆ ω))
 
 # Add a prehook for conditional variable
-function Var.prehook(::trait(Solve), f::Conditional)
-  propagate!(ω, f.c, true)
+function Var.prehook(::trait(Solve), f::Conditional, ω)
+  propagate!(ω, f.y, true)
 end
 
 # FIXME: Make this only work on a constant X = x
