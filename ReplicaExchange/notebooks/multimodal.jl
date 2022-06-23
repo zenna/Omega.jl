@@ -145,10 +145,9 @@ Plots.surface(-4:0.1:4, -4:0.1:4, (x, y) -> target_density_hard_rlx([x,y]), c = 
 temps = [1.0, 2.0, 20.0, 200.0]
 
 # ╔═╡ e5df8ac4-74a2-11eb-3a36-31d7ac95fba8
-function simulate_n(temp, state, samples_per_swap)
-	relaxed_logdensity = logrelax(target_logdensity_hard, temp)
+function simulate_n(rng, logenergy, state, samples_per_swap, i)
 	OmegaMH.mh(rng,
-			   relaxed_logdensity,
+			   logenergy,
 			   samples_per_swap,
 			   state,
 			   propose_and_logratio)
@@ -165,7 +164,9 @@ function evaluate(temp, state)
 end
 
 # ╔═╡ ee2bb440-748a-11eb-046b-e5a4741ffe99
-samples_hard_wow = re!(rng, temps, 1, 10000, [deepcopy(state_init) for i = 1:length(temps)], simulate_n, simulate_1, evaluate)
+logenergys = [x -> evaluate(temp, x) for temp in temps]
+samples_hard_wow = re!(rng, logenergys, 1, 10000, [deepcopy(state_init) for i = 1:length(temps)], [zeros(2) for i in 1:10000], simulate_n)#, simulate_1, evaluate)
+# samples_hard_wow = re!(rng, logenergys, 1, 10000, [deepcopy(state_init) for i = 1:length(temps)], simulate_n, simulate_1, evaluate)
 
 # ╔═╡ 59576824-74b3-11eb-1a98-d773404b49e0
 unpack(s) = [i[1] for i in s], [i[2] for i in s]
