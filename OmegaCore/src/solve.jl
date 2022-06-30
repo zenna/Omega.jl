@@ -1,6 +1,6 @@
 module Solver
 
-export solve, complete, isconditioned
+export solve, complete!, isconditioned
 
 import OmegaCore
 
@@ -20,32 +20,35 @@ const ConstTypes = Union{Real, Array{<:Real}}
 
 "Variable of the form `X .== x`"
 const EqualityCondition{A, B} = Pw{Tuple{A, B}, typeof(==)} where {A, B <: ConstTypes}
-# const EqualityCondition = Int
-
-# function solve end
-
-# function Var.recurse(::trait(Solve), f, ω)
-#   solve(f, ω)
-# end
 
 tagcomplete(ω) = tag(ω, (solve = true,))
 
-"`ω` such that is well defined `x(ω)` is well-defined"
-function complete(x, ω)
+"
+`complete!(x, ω)`
+
+*completes* `ω` in that it adds additional values in `ω` (assignments of random variables to values)
+so that.
+
+`ω::Ω` such that is well defined `x(ω)` is well-defined"
+function complete!(x, ω)
+  # FIXME: THere's a double use of ω
+  # One use is as the input we're going to extend
+  # And the other use is to generate new randomness
+  # Is this okay
   ω_ = tagcomplete(ω)
   ret = x(ω_)
   ω_
 end
-@post complete(x, ω) = (ω_ = __ret__; isvalid(x, ω_) & (ω_ ⊆ ω))
+@post complete!(x, ω) = (ω_ = __ret__; isvalid(x, ω_) & (ω_ ⊆ ω))
 
 # Add a prehook for conditional variable
-function Var.prehook(::trait(Solve), f::Conditional, ω)
+function Var.prehook(::trait(Solve), f::Conditional, ω) #FIXME: Use AndTraits
   propagate!(ω, f.y, true)
 end
 
-# FIXME: Make this only work on a constant X = x
 @inline function propagate!(ω, x::EqualityCondition, x_)
   if x_
+     # if (X == x_ )is true then X := x_
     propagate!(ω, x.args[1], x.args[2])
   end
 end

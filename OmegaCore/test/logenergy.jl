@@ -24,7 +24,29 @@ function test_logenergy_sum()
     propagate!(ω, x, x_)
     propagate!(ω, y, y_)
   end
-  ω = complete(model, defω())
+  ω = complete!(model, defω())
+end
+
+function test_ble()
+  rng = MersenneTwister(0);
+  N = 100;
+  xs = rand(rng, N)
+  m = 0.8
+  c = 1.2
+  linear_model(x, m, c) = m * x + c
+  obs_model(x) = linear_model(x, m, c) + randn(rng) * 0.1;
+  ys = obs_model.(xs);
+  M = 1 ~ Normal(0, 1);
+  C = 2 ~ Normal(0, 1);
+  struct ϵ end
+  Y_class(i, ω) = linear_model(xs[i], M(ω), C(ω)) + (ϵ ∘ i ~ Normal(0, 0.1))(ω);
+  function propagate!(ω, ::typeof(Y⃗), y_)
+    # We know the valeu of Y(i, ω) for some i
+  end
+  Y⃗ = Mv(1:N, Y_class)
+  evidence = pw(==, Y⃗, ys)
+  joint_posterior = @joint(M, C) |ᶜ evidence
+  complete!(joint_posterior, defω())
 end
 
 function test_logpdf_cond()
@@ -34,7 +56,7 @@ function test_logpdf_cond()
   x_ = -0.54321
   μc = μ |ᶜ (x .== x_)
   manual_ℓ = logpdf(Normal(0, 1), μ_) + logpdf(Normal(μ_, 1), x_)
-  ω = complete(μc, μ => μ_)
+  ω = complete!(μc, μ => μ_)
   auto_ℓ = logenergy(μc)
   @test manual_ℓ == auto_ℓ 
 end
