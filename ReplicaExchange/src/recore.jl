@@ -1,6 +1,6 @@
 
 using Spec
-using Base.Threads: @spawn
+using Base.Threads: @sync, @spawn
 export re!, re, re_all!, Replica, ReplicaAlg
 
 using InferenceBase
@@ -25,22 +25,23 @@ function swap_contexts!(rng, logenergys, states)
     j = i - 1
 
     # Evaluate energy of state i at temperature i
-    @show E_i_i = logenergys[i](states[i])
-    @show E_i_j = logenergys[i](states[j])
-    @show E_j_i = logenergys[j](states[i])
-    @show E_j_j = logenergys[j](states[j])
+    E_i_i = logenergys[i](states[i])
+    E_i_j = logenergys[i](states[j])
+    E_j_i = logenergys[j](states[i])
+    E_j_j = logenergys[j](states[j])
 
     probaccept = (E_i_j + E_j_i) - (E_i_i + E_j_j)
     
     doswap = log(rand(rng)) < probaccept
     if doswap
-      println("did swap", i, j)
+      # println("did swap", i, j)
       swap!(states, i, j)
-    else
-      println("did not swap", i, j)
+    # else
+      # println("did not swap", i, j)
     end
   end
 end
+  
 
 "`every(m)` -- `f` where `f(i) is true every i steps"
 every(m) = i -> i % m == 0
@@ -60,7 +61,7 @@ Replica Exchange Markov Chain Monte Carlo
 
 Replica exhange:
 - There are `n` different contexts, where a different context means a different target density
-- There arae `A` different algorithms.  These may be actually different algorithms
+- There are `A` different algorithms.  These may be actually different algorithms
   such as HMC vs SSMH, or different parameterizations of the same algorithm
 - The user provides some subset of the cross product, i.e. `(ctx1, alg1), (ctx2, alg2)`
 - runs `nreplicas = length(algs)` MCMC chains in parallel
@@ -84,6 +85,8 @@ Replica exhange:
 # Returns
 - `n` samples drawn from ground state
 """
+# @pre length(logenergys) == length(states) "Must have one density per initial state"
+
 function re!(rng,
              logenergys,
              samples_per_swap,
@@ -96,33 +99,31 @@ function re!(rng,
              cb = tonothing)
   nreplicas = length(states)
 
-
   GROUNDID = 1
   for num_swap = 1:num_swaps
-    for i = 1:nreplicas
-      @show i, :, logenergys[i](states[GROUNDID])
-      if i == GROUNDID
-        # @show typeof(logenergys)
-        # @assert false      
-        # If we're ground state, return swap_every samples
-        lb = (num_swap - 1) * samples_per_swap + 1
-        ub = lb + samples_per_swap - 1
-        @inbounds samples[lb:ub] = sim_chain_keep_n(rng,
-                                                    logenergys[GROUNDID],
-                                                    states[GROUNDID],
-                                                    samples_per_swap,
-                                                    i)
-        @inbounds states[GROUNDID] = samples[ub]
-      else
-        # If not ground state just return last sample
-        @inbounds states[i] = sim_chain_keep_last(rng, logenergys[i], states[i], samples_per_swap, i)
+    lb = (num_swap - 1) * samples_per_swap + 1
+    ub = lb + samples_per_swap - 1
+
+    Threads.@sync for i = 1:nreplicas
+      Threads.@spawn begin
+        if i == GROUNDID
+          # If we're ground state, return swap_every samples
+          @inbounds samples[lb:ub] = sim_chain_keep_n(rng,
+                                                  logenergys[GROUNDID],
+                                                  states[GROUNDID],
+                                                  samples_per_swap,
+                                                  i)
+          @inbounds states[GROUNDID] = samples[ub]
+        else
+          # If not ground state just return last sample
+          @inbounds states[i] = sim_chain_keep_last(rng, logenergys[i], states[i], samples_per_swap, i)
+        end
       end
     end
     swap_contexts!(rng, logenergys, states)
   end
   samples
 end
-# @pre length(logenergys) == length(states) "Must have one density per initial state"
 
 "Non-mutating re!"
 re(rng,
@@ -138,7 +139,7 @@ re(rng,
       logenergys,
       samples_per_swap,
       num_swaps,
-      states,
+      deepcopy(states),
       Vector{eltype(states)}(undef, num_swaps * samples_per_swap),
       sim_chain_keep_n,
       sim_chain_keep_last,
@@ -150,9 +151,8 @@ function re_all!(rng,
                  samples_per_swap,
                  num_swaps,
                  states,
-                 simulate_n,
-                 sim_chain_keep_last,
-                 evaluate,
+                 sim_chain_keep_n,
+                 swap_contexts! = swap_contexts!,
                  samples = [Vector{typeof(states[i])}(undef, num_swaps*samples_per_swap) for i = 1:length(states)])
             #  swap = every(div(n, 10)))
   # @pre length(ctxs) == length(algs)
@@ -163,16 +163,21 @@ function re_all!(rng,
 
   GROUNDID = 1
   for num_swap = 1:num_swaps
-    for i = 1:nreplicas
-      # If we're ground state, return swap_every samples
-      lb = (num_swap - 1) * samples_per_swap + 1
-      ub = lb + samples_per_swap - 1
-      samples[i][lb:ub] = simulate_n(logenergys[i],
-                                               states[i],
-                                               samples_per_swap)
-      states[i] = samples[i][ub]
+    lb = (num_swap - 1) * samples_per_swap + 1
+    ub = lb + samples_per_swap - 1
+
+    Threads.@sync for i = 1:nreplicas
+      Threads.@spawn begin
+        # If we're ground state, return swap_every samples
+        @inbounds samples[i][lb:ub] = sim_chain_keep_n(rng,
+                                                      logenergys[GROUNDID],
+                                                      states[GROUNDID],
+                                                      samples_per_swap,
+                                                      i)
+        @inbounds states[i] = samples[i][ub]
+      end
     end
-    swap_contexts!(rng, logenergys, states, evaluate)
+    swap_contexts!(rng, logenergys, states)
   end
   samples
 end
