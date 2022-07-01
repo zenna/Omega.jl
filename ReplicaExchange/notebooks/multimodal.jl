@@ -113,7 +113,7 @@ target_logdensity_hard(state) = logpdf(dist_hard, state);
 samples_hard = OmegaMH.mh(rng,
 						  target_logdensity_hard,
 						  num_samples,
-						  state_init,
+						  state_init_hard,
 						  propose_and_logratio)
 
 # ╔═╡ 519dc07e-7489-11eb-295b-3769fa285c29
@@ -165,8 +165,7 @@ end
 
 # ╔═╡ ee2bb440-748a-11eb-046b-e5a4741ffe99
 logenergys = [x -> evaluate(temp, x) for temp in temps]
-samples_hard_wow = re!(rng, logenergys, 1, 10000, [deepcopy(state_init) for i = 1:length(temps)], [zeros(2) for i in 1:10000], simulate_n)#, simulate_1, evaluate)
-# samples_hard_wow = re!(rng, logenergys, 1, 10000, [deepcopy(state_init) for i = 1:length(temps)], simulate_n, simulate_1, evaluate)
+samples_hard_wow = re!(rng, logenergys, 1, num_samples, [deepcopy(state_init_hard) for i = 1:length(temps)], [zeros(2) for i in 1:num_samples], simulate_n)
 
 # ╔═╡ 59576824-74b3-11eb-1a98-d773404b49e0
 unpack(s) = [i[1] for i in s], [i[2] for i in s]
@@ -199,16 +198,18 @@ end
 pdfs = [relax(target_density_hard, temp) for temp in temps]
 
 # ╔═╡ 0603ea0c-74ad-11eb-29ef-d58f5a17aba4
-swap_every = 10
+num_swaps = 100
 
 # ╔═╡ 0a36105a-74ad-11eb-27c8-ed6919e3c5c8
 samples_per_swap = 10000
 
 # ╔═╡ 17ace2ae-74ad-11eb-34be-3be5f9eb6f28
+# TODO: delete this block. I don't want to do it now because I'm editing in visual studio.
 niters = swap_every * samples_per_swap
 
 # ╔═╡ b82be6b2-74a8-11eb-1df2-9d26ac88ccbb
-traces = re_all!(rng, temps, swap_every, samples_per_swap, [deepcopy(rand(dist_hard)) for i = 1:length(temps)], simulate_n, simulate_1, evaluate)
+traces = re_all!(rng, logenergys, samples_per_swap, num_swaps, [deepcopy(state_init) for i = 1:length(temps)], simulate_n)
+# traces = re_all!(rng, temps, swap_every, samples_per_swap, [deepcopy(rand(dist_hard)) for i = 1:length(temps)], simulate_n, simulate_1, evaluate)
 
 # ╔═╡ 4eb016a8-74b3-11eb-0fb3-e78e6117666b
 Plots.histogram2d(unpack(traces[1])..., nbins = 100)
