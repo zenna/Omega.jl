@@ -1,5 +1,5 @@
 using OmegaCore
-using OmegaTest
+# using OmegaTest
 using Distributions
 using Test
 using Random
@@ -7,25 +7,25 @@ using Distributions
 
 import OmegaCore: propagate!
 
-function test_logenergy_sum()
-  n = 1_000_000
-  z = 1.0
-  pinvert(θ, z) = z - θ, θ
-  x = 1 ~ StdNormal{Float64}()
-  y = 2 ~ StdNormal{Float64}()
-  z = x .+ y
-  z_ = 1.0
-  evidence = z .== z_
-  model = @joint(x, y) |ᶜ evidence
+# function test_logenergy_sum()
+#   n = 1_000_000
+#   z = 1.0
+#   pinvert(θ, z) = z - θ, θ
+#   x = 1 ~ StdNormal{Float64}()
+#   y = 2 ~ StdNormal{Float64}()
+#   z = x .+ y
+#   z_ = 1.0
+#   evidence = z .== z_
+#   model = @joint(x, y) |ᶜ evidence
 
-  function propagate!(ω, f::typeof(z), z_)
-    θ = StdNormal{Float64}()(@uid(), ω)
-    x_, y_ = pinvert(θ, z_)
-    propagate!(ω, x, x_)
-    propagate!(ω, y, y_)
-  end
-  ω = complete!(model, defω())
-end
+#   function propagate!(ω, f::typeof(z), z_)
+#     θ = StdNormal{Float64}()(@uid(), ω)
+#     x_, y_ = pinvert(θ, z_)
+#     propagate!(ω, x, x_)
+#     propagate!(ω, y, y_)
+#   end
+#   ω = complete!(model, defω())
+# end
 
 function test_ble()
   rng = MersenneTwister(0);
@@ -38,14 +38,27 @@ function test_ble()
   ys = obs_model.(xs);
   M = 1 ~ Normal(0, 1);
   C = 2 ~ Normal(0, 1);
+
+  # FIXME: Can't define struct here
+  # Alt? 
   struct ϵ end
+
   Y_class(i, ω) = linear_model(xs[i], M(ω), C(ω)) + (ϵ ∘ i ~ Normal(0, 0.1))(ω);
-  function propagate!(ω, ::typeof(Y⃗), y_)
-    # We know the valeu of Y(i, ω) for some i
-  end
+
   Y⃗ = Mv(1:N, Y_class)
   evidence = pw(==, Y⃗, ys)
   joint_posterior = @joint(M, C) |ᶜ evidence
+
+  function propagate!(ω, ::typeof(Y⃗), Y⃗_)
+    for y_ in Y⃗_
+      propagate!(ω, Y_class, i, y_) # FIXME: no i defined and unclear how we'd get it
+    end
+  end
+  function propagate!(ω, ::typeof(Y_class), i, y_)
+    ϵ_ =  y_ -linear_model(xs[i], M(ω), C(ω))
+    # FIXME: still need to propagate
+  end
+
   complete!(joint_posterior, defω())
 end
 
