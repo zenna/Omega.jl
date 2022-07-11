@@ -34,10 +34,7 @@ function swap_contexts!(rng, logenergys, states)
     
     doswap = log(rand(rng)) < probaccept
     if doswap
-      # println("did swap", i, j)
       swap!(states, i, j)
-    # else
-      # println("did not swap", i, j)
     end
   end
 end
@@ -51,8 +48,8 @@ every(m) = i -> i % m == 0
         logenergys,
         samples_per_swap,
         num_swaps,
-        samples,
         states,
+        samples,
         sim_chain_keep_n,
         sim_chain_keep_last = last ∘ sim_chain_keep_n,
         swap_contexts! = swap_contexts!)`
@@ -85,7 +82,6 @@ Replica exhange:
 # Returns
 - `n` samples drawn from ground state
 """
-# @pre length(logenergys) == length(states) "Must have one density per initial state"
 
 function re!(rng,
              logenergys,
@@ -95,8 +91,7 @@ function re!(rng,
              samples,
              sim_chain_keep_n,
              sim_chain_keep_last = last ∘ sim_chain_keep_n,
-             swap_contexts! = swap_contexts!,
-             cb = tonothing)
+             swap_contexts! = swap_contexts!)
   nreplicas = length(states)
 
   GROUNDID = 1
@@ -125,7 +120,14 @@ function re!(rng,
   samples
 end
 
-"Non-mutating re!"
+@pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = num_swaps > 0 #"There must be at least 1 swap"
+@pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = all([isa(logenergy, Function) for logenergy in logenergys]) "logenergys is a Function"
+@pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = isa(sim_chain_keep_n, Function) "sim_chain_keep_n is a Function"
+@pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = length(logenergys) == length(states) "Must have one density per initial state"
+# usage of @cap and @ret in README of Spec.jl throws an error.
+# @post re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n, sim_chain_keep_last, swap_contexts!) = (@cap(x), @ret) "Result is sorted version of input"
+
+"Non-mutating version of [re!](@ref)."
 re(rng,
    logenergys,
    samples_per_swap,
@@ -133,8 +135,7 @@ re(rng,
    states,
    sim_chain_keep_n,
    sim_chain_keep_last = last ∘ sim_chain_keep_n,  
-  swap_contexts! = swap_contexts!,
-  cb = tonothing) = 
+  swap_contexts! = swap_contexts!) = 
   re!(rng,
       logenergys,
       samples_per_swap,
@@ -143,8 +144,14 @@ re(rng,
       Vector{eltype(states)}(undef, num_swaps * samples_per_swap),
       sim_chain_keep_n,
       sim_chain_keep_last,
-      swap_contexts!,
-      cb)
+      swap_contexts!)
+
+@pre re(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = num_swaps > 0 #"There must be at least 1 swap"
+@pre re(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = all([isa(logenergy, Function) for logenergy in logenergys]) "logenergys is a Function"
+@pre re(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = isa(sim_chain_keep_n, Function) "sim_chain_keep_n is a Function"
+@pre re(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = length(logenergys) == length(states) "Must have one density per initial state"
+# usage of @cap and @ret in README of Spec.jl throws an error.
+# @post re!(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n, sim_chain_keep_last, swap_contexts!) = (@cap(x), @ret) "Result is sorted version of input"
 
 function re_all!(rng,
                  logenergys,
@@ -154,7 +161,6 @@ function re_all!(rng,
                  sim_chain_keep_n,
                  swap_contexts! = swap_contexts!,
                  samples = [Vector{typeof(states[i])}(undef, num_swaps*samples_per_swap) for i = 1:length(states)])
-            #  swap = every(div(n, 10)))
   # @pre length(ctxs) == length(algs)
   nreplicas = length(states)
   if length(logenergys) != length(states)
@@ -181,19 +187,3 @@ function re_all!(rng,
   end
   samples
 end
-
-# Questions:
-# Can there be more than one ground context?
-# Is it true that from the ground context we need many samples and from
-# everythinge else we need 1 sample?
-# -- No, we only need samples from the ground context, we need scores
-# From the others
-# We need to be able to compute:
-  # In some context i, density of some other point
-
-# How should burn in / thinning work?
-# Choice of representation:
-## - alg(ctx, init_state)
-## - apply(alg, ctx, init_state)
-## - userprovidedfunc(alg, ctx, init_state)
-## Do we need both Algs and Ctxs??
