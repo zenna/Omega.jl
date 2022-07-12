@@ -11,3 +11,17 @@ Spec = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
 [compat]
 InferenceBase = "0.1.0"
 Spec = "0.3.0"
+
+[extras]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test", "Distributions", "Pkg", "Random", "Plots", "Markdown", "InteractiveUtils", "Revise", "PlutoUI"]

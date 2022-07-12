@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.21
+# v0.19.9
 
 using Markdown
 using InteractiveUtils
@@ -7,8 +7,9 @@ using InteractiveUtils
 # This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
 macro bind(def, element)
     quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
         local el = $(esc(element))
-        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : missing
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
         el
     end
 end
@@ -30,9 +31,6 @@ using ReplicaExchange
 
 # ╔═╡ ebd11c9a-7484-11eb-2941-c78e3e22d260
 using Random
-
-# ╔═╡ 0464d3ec-7489-11eb-1081-d761307263db
-using Pkg; Pkg.add("PyPlot")
 
 # ╔═╡ 94d6f4e6-74ac-11eb-0871-a31b2df5526d
 using PlutoUI
@@ -65,7 +63,7 @@ state_init = rand(2)
 target_logdensity(state) = logpdf(dist, state);
 
 # ╔═╡ 3b0ac92e-7484-11eb-2e90-cf94eb2e9731
-num_samples = 100001;
+num_samples = 10 # Increase for running the notebook. Set to be 10 for test speed.
 
 # ╔═╡ 4343d3b0-7484-11eb-388b-576f50c83335
 function propose_and_logratio(rng, state)
@@ -191,40 +189,32 @@ function mcmc_dynamics(pdfs, traces, lbub, xrng = -4:0.1:4, yrng = -4:0.1:4)
 			# , alpha = range(0.0; stop = 1.0, length = length(lbub)))
 		push!(plots, plt)
 	end
-	Plots.plot(plots..., layour = (4, 1))
+	Plots.plot(plots..., layout = (4, 1))
 end
 
 # ╔═╡ 745f702a-74a8-11eb-1ada-cf83599e0b17
 pdfs = [relax(target_density_hard, temp) for temp in temps]
 
 # ╔═╡ 0603ea0c-74ad-11eb-29ef-d58f5a17aba4
-num_swaps = 100
+num_swaps = 10 # Increase for running the notebook. Set to be 10 for test speed.
 
 # ╔═╡ 0a36105a-74ad-11eb-27c8-ed6919e3c5c8
-samples_per_swap = 10000
-
-# ╔═╡ 17ace2ae-74ad-11eb-34be-3be5f9eb6f28
-# TODO: delete this block. I don't want to do it now because I'm editing in visual studio.
-niters = swap_every * samples_per_swap
+samples_per_swap = 10 # Increase for running the notebook. Set to be 10 for test speed.
 
 # ╔═╡ b82be6b2-74a8-11eb-1df2-9d26ac88ccbb
 traces = re_all!(rng, logenergys, samples_per_swap, num_swaps, [deepcopy(state_init) for i = 1:length(temps)], simulate_n)
-# traces = re_all!(rng, temps, swap_every, samples_per_swap, [deepcopy(rand(dist_hard)) for i = 1:length(temps)], simulate_n, simulate_1, evaluate)
 
 # ╔═╡ 4eb016a8-74b3-11eb-0fb3-e78e6117666b
 Plots.histogram2d(unpack(traces[1])..., nbins = 100)
 
 # ╔═╡ 9e771a08-74ac-11eb-1260-ad7e2af51b1b
-@bind lb Slider(1:niters)
+@bind lb Slider(1:num_swaps * samples_per_swap)
 
 # ╔═╡ b8ac427c-74ac-11eb-0eca-a7234b0ab59a
-@bind ub Slider(lb:niters)
+@bind ub Slider(lb:num_swaps * samples_per_swap)
 
 # ╔═╡ 98226b20-74a8-11eb-28d4-c5d50971fcd5
 mcmc_dynamics(pdfs, traces, lb:ub)
-
-# ╔═╡ bd699f26-74ac-11eb-019e-bb6ef2c119d2
-
 
 # ╔═╡ Cell order:
 # ╠═9c5d8972-7485-11eb-25f7-155fbbd40d98
@@ -234,7 +224,6 @@ mcmc_dynamics(pdfs, traces, lb:ub)
 # ╠═eeb0be1c-7483-11eb-341f-b1996e9a53a6
 # ╠═9d2f2714-749b-11eb-1403-e3a045df62ca
 # ╠═ebd11c9a-7484-11eb-2941-c78e3e22d260
-# ╠═0464d3ec-7489-11eb-1081-d761307263db
 # ╠═94d6f4e6-74ac-11eb-0871-a31b2df5526d
 # ╟─318e4a98-7483-11eb-1916-c9630ecf07e2
 # ╠═27ced392-7483-11eb-3d36-7b8277daadff
@@ -278,10 +267,8 @@ mcmc_dynamics(pdfs, traces, lb:ub)
 # ╠═745f702a-74a8-11eb-1ada-cf83599e0b17
 # ╠═0603ea0c-74ad-11eb-29ef-d58f5a17aba4
 # ╠═0a36105a-74ad-11eb-27c8-ed6919e3c5c8
-# ╠═17ace2ae-74ad-11eb-34be-3be5f9eb6f28
 # ╠═b82be6b2-74a8-11eb-1df2-9d26ac88ccbb
 # ╠═4eb016a8-74b3-11eb-0fb3-e78e6117666b
 # ╠═9e771a08-74ac-11eb-1260-ad7e2af51b1b
 # ╠═b8ac427c-74ac-11eb-0eca-a7234b0ab59a
 # ╠═98226b20-74a8-11eb-28d4-c5d50971fcd5
-# ╠═bd699f26-74ac-11eb-019e-bb6ef2c119d2
