@@ -51,8 +51,8 @@ dist_hard = MixtureModel([MvNormal([-2.0, -2.0], [0.5, 0.5]),
   logenergys = make_test_density(dist)
 
   # We need a lot of samples to get pretty good performance.
-  samples_per_swap = 1
-  num_swaps = 1
+  samples_per_swap = 2
+  num_swaps = 2
   num_samples = samples_per_swap * num_swaps
 
   rng = Random.MersenneTwister(0)
@@ -101,11 +101,42 @@ dist_hard = MixtureModel([MvNormal([-2.0, -2.0], [0.5, 0.5]),
   # re! modifies states_init
   @test all(states_init_copy != states_init[i] for i in 1:length(logenergys))
 
-  # # re! approximatgely matches the mean and variance
+  # # re! approximately matches the mean and variance
   # @test mean(samples!) ≈ mean(dist) atol = 0.3
   # @test var(samples!) ≈ var(dist) atol = 0.3
 
   # # re! approximately matches the proportion in upper right quadrant (easy proxy for capturing multimodality in this special case)
   # proportion! = mean(sum(hcat(samples!...) .> 0, dims = 1) .> 0)
+  # @test proportion! ≈ true_proportion atol = 0.1
+
+
+  # Prep for re_all! tests.
+  rng = Random.MersenneTwister(0)
+  
+  states_init = [rand(rng, 2) for i in 1:length(logenergys)]
+  states_init_copy = deepcopy(states_init)
+
+  # preconditions work for re_all!
+  @test_throws PreconditionError specapply(re_all!, rng, logenergys, samples_per_swap, 0, states_init_copy, simulate_n)
+  @test_throws PreconditionError specapply(re_all!, rng, "incorrect input", samples_per_swap, num_swaps, states_init_copy, simulate_n)
+  @test_throws PreconditionError specapply(re_all!, rng, logenergys, samples_per_swap, num_swaps, states_init_copy, "incorrect input")
+  @test_throws PreconditionError specapply(re_all!, rng, logenergys, samples_per_swap, num_swaps, states_init_copy[2:end], simulate_n)
+
+  # re_all! returns an array of the right size.
+  samples_all! = re_all!(rng, logenergys, samples_per_swap, num_swaps, states_init_copy, simulate_n)
+  @test isa(samples_all!, Vector{Vector{Vector{Float64}}})
+  @test length(samples_all!) == length(logenergys)
+  @test all(Bool.([length(samples_all![i] == num_samples) for i in 1:length(logenergys)]))
+  @test all(Bool.([length(samples_all![i][j] == 2) for i in 1:length(logenergys) for j in 1:length(num_samples)]))
+
+  # re_all! modifies states_init
+  @test all(states_init_copy != states_init[i] for i in 1:length(logenergys))
+
+  # re_all! approximatgely matches the mean and variance
+  # @test mean(samples_all![end]) ≈ mean(dist) atol = 0.3
+  # @test var(samples_all![end]) ≈ var(dist) atol = 0.3
+
+  # # re! approximately matches the proportion in upper right quadrant (easy proxy for capturing multimodality in this special case)
+  # proportion! = mean(sum(hcat(samples_all![end]...) .> 0, dims = 1) .> 0)
   # @test proportion! ≈ true_proportion atol = 0.1
 end
