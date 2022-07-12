@@ -54,30 +54,38 @@ every(m) = i -> i % m == 0
         sim_chain_keep_last = last ∘ sim_chain_keep_n,
         swap_contexts! = swap_contexts!)`
              
-Replica Exchange Markov Chain Monte Carlo
+Replica Exchange Markov Chain Monte Carlo (REMCMC)
 
-Replica exhange:
-- There are `n` different contexts, where a different context means a different target density
-- There are `A` different algorithms.  These may be actually different algorithms
-  such as HMC vs SSMH, or different parameterizations of the same algorithm
-- The user provides some subset of the cross product, i.e. `(ctx1, alg1), (ctx2, alg2)`
-- runs `nreplicas = length(algs)` MCMC chains in parallel
-- Each alg is run in a different context.
-  - The most common form of a context is a temperature
-- We assume there is a ground context which is the true model we wish to sample from
-- 
+Description:
+- REMCMC is a Markov Chain Monte Carlo algorithm for sampling from the cartesian product 
+  of a collection of `n` distributions given their respective densities.
+- REMCMC works by running `n` independent MCMC chains in parallel for `samples_per_swap` steps using 
+  a user-specified transition kernel (`sim_chain_keep_n`), and then subsequently proposing 
+  a special transition kernel that swaps the position of parallel chains.
+- REMCMC is agnostic to the user-specified transition kernel, as long as its stationary distribution
+  is equal to the distribution corresponding to its respective input density. E.g. this permits HMC or RW-MCMC.
+- A common use-case for REMCMC is when the target distribution is non-smooth and we would expect
+  a single MCMC transition kernel to become stuck near a local optima. Then, the collection of distributions
+  are induced by annealing the target distribution with a sequence of increasing temperatures.
+- In this implementation we assume that the user is only interested in samples from the single target distribution
+  and that the same `sim_chain_keep_n` is used for each of the `n` distributions.
+- Note: re! mutates `states` and `samples`.
 
 # Arguments
 - `rng`: AbstractRng used to sample proposals in MH loop
-- `logenergys`: collection of `n` logenergys to sample from
-- `samples_per_swap` : number of samples drawn between each exchange
-- `num_swaps`: number of swaps (num_samples = `samples_per_swap` * `num_swaps`)
-- `states`: initial states
+- `logenergys`: collection of `n` logenergys (log unnormalized densities) to sample from. Each `logenergy = getindex(logenergys, i::Int64)`
+  is a function from the domain of `states` to the reals.
+- `samples_per_swap` : number of samples drawn between each exchange (i.e. swap)
+- `num_swaps`: number of swaps
+- `states`: initial states. Note: re! mutates `states`.
+- `samples`: Vector of samples from the target density to mutate
 - `sim_chain_keep_n` : algorithm to take `samples_per_swap` mcmc steps and return all n
-  - should support `sim_chain_keep_n(logenergy, init_state, n_samples)``
-- `sim_chain_keep_1` : algorithm to take `samples_per_swap` mcmc steps and return only last
-- `samples`: Vector of samples to mutate
-- `swap_contexts!` function that swaps contexts every `num_swaps`, i.e. does exchange
+  - should support `sim_chain_keep_n(rng, logenergy, init_state, samples_pre_swap, i)`
+- `sim_chain_keep_last` : optional function that takes `samples_per_swap` mcmc steps and return only the last sample.
+  - should support `sim_chain_keep_last(rng, logenergy, init_state, samples_pre_swap, i)`
+- `swap_contexts!` : optional mutating function that swaps contexts every `num_swaps`, i.e. performs the exchange between
+  parallel chains.
+  - should support `swap_contexts!(rng, logenergys, states)`
 
 # Returns
 - `n` samples drawn from ground state
@@ -120,14 +128,61 @@ function re!(rng,
   samples
 end
 
-@pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = num_swaps > 0 #"There must be at least 1 swap"
+@pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = num_swaps > 0 "There must be at least 1 swap"
 @pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = all([isa(logenergy, Function) for logenergy in logenergys]) "logenergys is a Function"
 @pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = isa(sim_chain_keep_n, Function) "sim_chain_keep_n is a Function"
 @pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = length(logenergys) == length(states) "Must have one density per initial state"
 # usage of @cap and @ret in README of Spec.jl throws an error.
 # @post re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n, sim_chain_keep_last, swap_contexts!) = (@cap(x), @ret) "Result is sorted version of input"
 
-"Non-mutating version of [re!](@ref)."
+
+"""
+  `re(rng,
+        logenergys,
+        samples_per_swap,
+        num_swaps,
+        states,
+        sim_chain_keep_n,
+        sim_chain_keep_last = last ∘ sim_chain_keep_n,
+        swap_contexts! = swap_contexts!)`
+             
+Replica Exchange Markov Chain Monte Carlo (REMCMC)
+Non-mutating version of [re!](@ref).
+
+Description:
+- REMCMC is a Markov Chain Monte Carlo algorithm for sampling from the cartesian product 
+  of a collection of `n` distributions given their respective densities.
+- REMCMC works by running `n` independent MCMC chains in parallel for `samples_per_swap` steps using 
+  a user-specified transition kernel (`sim_chain_keep_n`), and then subsequently proposing 
+  a special transition kernel that swaps the position of parallel chains.
+- REMCMC is agnostic to the user-specified transition kernel, as long as its stationary distribution
+  is equal to the distribution corresponding to its respective input density. E.g. this permits HMC or RW-MCMC.
+- A common use-case for REMCMC is when the target distribution is non-smooth and we would expect
+  a single MCMC transition kernel to become stuck near a local optima. Then, the collection of distributions
+  are induced by annealing the target distribution with a sequence of increasing temperatures.
+- In this implementation we assume that the user is only interested in samples from the single target distribution
+  and that the same `sim_chain_keep_n` is used for each of the `n` distributions.
+- Note: re does not mutate `states`.
+
+# Arguments
+- `rng`: AbstractRng used to sample proposals in MH loop
+- `logenergys`: collection of `n` logenergys (log unnormalized densities) to sample from. Each `logenergy = getindex(logenergys, i::Int64)`
+  is a function from the domain of `states` to the reals.
+- `samples_per_swap` : number of samples drawn between each exchange (i.e. swap)
+- `num_swaps`: number of swaps
+- `states`: initial states. Note: re does not mutate `states`.
+- `sim_chain_keep_n` : algorithm to take `samples_per_swap` mcmc steps and return all n
+  - should support `sim_chain_keep_n(rng, logenergy, init_state, samples_pre_swap, i)`
+- `sim_chain_keep_last` : optional function that takes `samples_per_swap` mcmc steps and return only the last sample.
+  - should support `sim_chain_keep_last(rng, logenergy, init_state, samples_pre_swap, i)`
+- `swap_contexts!` : optional mutating function that swaps contexts every `num_swaps`, i.e. performs the exchange between
+  parallel chains.
+  - should support `swap_contexts!(rng, logenergys, states)`
+
+# Returns
+- `n` samples drawn from ground state
+"""
+
 re(rng,
    logenergys,
    samples_per_swap,
