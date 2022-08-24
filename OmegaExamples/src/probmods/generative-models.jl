@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.4
+# v0.19.11
 
 using Markdown
 using InteractiveUtils
@@ -11,6 +11,9 @@ begin
     Pkg.activate(Base.current_project())
 	using Omega, Distributions, OmegaExamples, UnicodePlots
 end
+
+# ╔═╡ dcb61d0f-5b41-4ebf-ab08-c0f0e69484d6
+Pkg.instantiate()
 
 # ╔═╡ ce896412-97f8-4102-9ed5-bc74dfdb26d4
 md"### Models, simulation, and degrees of belief"
@@ -490,6 +493,7 @@ end
 md"There are a countably infinite number of such flips, each independent of all the others. The outcome of each, once determined, will always have the same value."
 
 # ╔═╡ Cell order:
+# ╠═dcb61d0f-5b41-4ebf-ab08-c0f0e69484d6
 # ╠═ec0d1440-51ea-11ec-0aef-1f9c2da69ffd
 # ╟─ce896412-97f8-4102-9ed5-bc74dfdb26d4
 # ╟─cd268cc7-e246-4254-94eb-4809e96b224b
