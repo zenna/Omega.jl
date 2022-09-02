@@ -53,44 +53,11 @@ every(m) = i -> i % m == 0
         sim_chain_keep_n,
         sim_chain_keep_last = last ∘ sim_chain_keep_n,
         swap_contexts! = swap_contexts!)`
-             
-Replica Exchange Markov Chain Monte Carlo (REMCMC)
 
-Description:
-- REMCMC is a Markov Chain Monte Carlo algorithm for sampling from the cartesian product 
-  of a collection of `n` distributions given their respective densities.
-- REMCMC works by running `n` independent MCMC chains in parallel for `samples_per_swap` steps using 
-  a user-specified transition kernel (`sim_chain_keep_n`), and then subsequently proposing 
-  a special transition kernel that swaps the position of parallel chains.
-- REMCMC is agnostic to the user-specified transition kernel, as long as its stationary distribution
-  is equal to the distribution corresponding to its respective input density. E.g. this permits HMC or RW-MCMC.
-- A common use-case for REMCMC is when the target distribution is non-smooth and we would expect
-  a single MCMC transition kernel to become stuck near a local optima. Then, the collection of distributions
-  are induced by annealing the target distribution with a sequence of increasing temperatures.
-- In this implementation we assume that the user is only interested in samples from the single target distribution
-  and that the same `sim_chain_keep_n` is used for each of the `n` distributions.
-- Note: re! mutates `states` and `samples`.
+Mutating version of Replica Exchange Markov Chain Monte Carlo (REMCMC)        
 
-# Arguments
-- `rng`: AbstractRng used to sample proposals in MH loop
-- `logenergys`: collection of `n` logenergys (log unnormalized densities) to sample from. Each `logenergy = getindex(logenergys, i::Int64)`
-  is a function from the domain of `states` to the reals.
-- `samples_per_swap` : number of samples drawn between each exchange (i.e. swap)
-- `num_swaps`: number of swaps
-- `states`: initial states. Note: re! mutates `states`.
-- `samples`: Collection of samples from the target density to mutate
-- `sim_chain_keep_n` : algorithm to take `samples_per_swap` mcmc steps and return all n
-  - should support `sim_chain_keep_n(rng, logenergy, init_state, samples_pre_swap, i)`
-- `sim_chain_keep_last` : optional function that takes `samples_per_swap` mcmc steps and return only the last sample.
-  - should support `sim_chain_keep_last(rng, logenergy, init_state, samples_pre_swap, i)`
-- `swap_contexts!` : optional mutating function that swaps contexts every `num_swaps`, i.e. performs the exchange between
-  parallel chains.
-  - should support `swap_contexts!(rng, logenergys, states)`
-
-# Returns
-- `n` samples drawn from ground state
+See documentation for [`re`](@ref) for details.
 """
-
 function re!(rng,
              logenergys,
              samples_per_swap,
@@ -149,7 +116,6 @@ iscallable(f) = !isempty(methods(f))
         swap_contexts! = swap_contexts!)`
              
 Replica Exchange Markov Chain Monte Carlo (REMCMC)
-Non-mutating version of [re!](@ref).
 
 Description:
 - REMCMC is a Markov Chain Monte Carlo algorithm for sampling from the cartesian product 
@@ -184,7 +150,6 @@ Description:
 # Returns
 - `n` samples drawn from ground state
 """
-
 re(rng,
    logenergys,
    samples_per_swap,
@@ -253,7 +218,6 @@ Description:
 # Returns
 - `n` samples drawn from ground state
 """
-
 function re_all!(rng,
                  logenergys,
                  samples_per_swap,
