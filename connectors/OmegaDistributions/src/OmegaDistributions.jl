@@ -4,6 +4,7 @@ using Distributions: Normal, Bernoulli, UnivariateDistribution, Distribution, Un
 import Distributions, OmegaCore
 using OmegaCore.Var: liftapply, Member, StdUniform, StdNormal
 import OmegaCore.Var
+import OmegaCore.propagate
 
 OmegaCore.Var.traitvartype(class::Type{<:Distribution}) = Var.TraitIsClass
 
@@ -42,5 +43,10 @@ end
 
 
 
+function OmegaCore.propagate(rng, class::Member{<:Normal, I}, y) where {I}
+  warn("fixme")
+	x = class.class
+	(class.id ~ StdNormal{Float64}()) => (y - x.μ) / x.σ
+end
 
 end

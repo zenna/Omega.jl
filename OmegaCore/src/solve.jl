@@ -13,7 +13,7 @@ using ..Conditioning: Conditional
 using ..Var: PrimRandVar, Member, Variable
 using ..Var: Pw
 
-export propagate!
+export propagate!, propagate
 
 # FIXME: Not a good way to check const type
 const ConstTypes = Union{Real, Array{<:Real}}
@@ -74,4 +74,17 @@ propagate!(ω, x::PrimRandVar, x_) =
 
 # end
 
+@inline propagate(rng, x::PrimRandVar, x_) = (x => x_)
+@inline propagate(rng, x_y::Conditional, tf::Bool) =  tf ? propagate(rng, x_y.x, x_y.y) : error("Unhandled case, propagate with false") 
+
+
+
+function propagate_test()
+  x = :x ~ Normal(0, 1)
+  y = :y ~ Normal.(x, 1)
+  evidence = pw(y, 2.3)
+  propagate(nothing, evidence, true)
+  # x_post = cnd(x, pw(y, 2.3))
+  # propagate(nothing, x_post, )
+end
 end
