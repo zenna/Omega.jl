@@ -14,9 +14,6 @@ macro bind(def, element)
     end
 end
 
-# ╔═╡ 9c5d8972-7485-11eb-25f7-155fbbd40d98
-using Revise
-
 # ╔═╡ 2c24aaca-7483-11eb-05a9-6f847b7d09b7
 using Distributions
 
@@ -217,7 +214,6 @@ Plots.histogram2d(unpack(traces[1])..., nbins = 100)
 mcmc_dynamics(pdfs, traces, lb:ub)
 
 # ╔═╡ Cell order:
-# ╠═9c5d8972-7485-11eb-25f7-155fbbd40d98
 # ╟─128974e2-7483-11eb-03a0-15b2abc75d66
 # ╠═2c24aaca-7483-11eb-05a9-6f847b7d09b7
 # ╠═42bb4640-7483-11eb-0661-677c524c62b0
