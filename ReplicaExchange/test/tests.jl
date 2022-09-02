@@ -50,7 +50,7 @@ dist_hard = MixtureModel([MvNormal([-2.0, -2.0], [0.5, 0.5]),
 
   logenergys = make_test_density(dist)
 
-  # We need a lot of samples to get pretty good performance.
+  # Small number of samples to get tests to run fast
   samples_per_swap = 2
   num_swaps = 2
   num_samples = samples_per_swap * num_swaps
@@ -75,17 +75,6 @@ dist_hard = MixtureModel([MvNormal([-2.0, -2.0], [0.5, 0.5]),
   # re does not modify states_init
   @test all(states_init_copy[i] == states_init[i] for i in 1:length(logenergys))
 
-  # # re approximately matches the mean and variance
-  # @test mean(samples) ≈ mean(dist) atol = 0.3
-  # @test var(samples) ≈ var(dist) atol = 0.3
-
-  # # re approximately matches the proportion in upper right quadrant (easy proxy for capturing multimodality in this special case)
-  # # Distributions.jl doesn't have a cdf method, so we'll just take a Monte Carlo estimate.
-  # proportion = mean(sum(hcat(samples...) .> 0, dims = 1) .> 0)
-  # true_samples = rand(rng, dist, num_samples)
-  # true_proportion = mean(sum(true_samples .> 0, dims = 1) .> 0)
-  # @test proportion ≈ true_proportion atol = 0.1
-
   # preconditions work for re!
   @test_throws PreconditionError specapply(re!, rng, logenergys, samples_per_swap, 0, states_init_copy, Vector{eltype(states_init)}(undef, num_samples), simulate_n)
   @test_throws PreconditionError specapply(re!, rng, "incorrect input", samples_per_swap, num_swaps, states_init_copy, Vector{eltype(states_init)}(undef, num_samples), simulate_n)
@@ -100,15 +89,6 @@ dist_hard = MixtureModel([MvNormal([-2.0, -2.0], [0.5, 0.5]),
 
   # re! modifies states_init
   @test all(states_init_copy != states_init[i] for i in 1:length(logenergys))
-
-  # # re! approximately matches the mean and variance
-  # @test mean(samples!) ≈ mean(dist) atol = 0.3
-  # @test var(samples!) ≈ var(dist) atol = 0.3
-
-  # # re! approximately matches the proportion in upper right quadrant (easy proxy for capturing multimodality in this special case)
-  # proportion! = mean(sum(hcat(samples!...) .> 0, dims = 1) .> 0)
-  # @test proportion! ≈ true_proportion atol = 0.1
-
 
   # Prep for re_all! tests.
   rng = Random.MersenneTwister(0)
@@ -131,12 +111,4 @@ dist_hard = MixtureModel([MvNormal([-2.0, -2.0], [0.5, 0.5]),
 
   # re_all! modifies states_init
   @test all(states_init_copy != states_init[i] for i in 1:length(logenergys))
-
-  # re_all! approximatgely matches the mean and variance
-  # @test mean(samples_all![end]) ≈ mean(dist) atol = 0.3
-  # @test var(samples_all![end]) ≈ var(dist) atol = 0.3
-
-  # # re! approximately matches the proportion in upper right quadrant (easy proxy for capturing multimodality in this special case)
-  # proportion! = mean(sum(hcat(samples_all![end]...) .> 0, dims = 1) .> 0)
-  # @test proportion! ≈ true_proportion atol = 0.1
 end
