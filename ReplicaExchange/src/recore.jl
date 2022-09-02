@@ -135,8 +135,7 @@ iscallable(f) = !isempty(methods(f))
 @pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = all([iscallable(logenergy) for logenergy in logenergys]) "logenergys is callable"
 @pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = iscallable(sim_chain_keep_n) "sim_chain_keep_n is callable"
 @pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = length(logenergys) == length(states) "Must have one density per initial state"
-# usage of @cap and @ret in README of Spec.jl throws an error.
-# @post re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n, sim_chain_keep_last, swap_contexts!) = (@cap(x), @ret) "Result is sorted version of input"
+@post re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = length(__ret__) == length(samples) "Returns samples with the same length as the input"
 
 
 """
@@ -208,8 +207,7 @@ re(rng,
 @pre re(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = all([iscallable(logenergy) for logenergy in logenergys]) "logenergys is callable"
 @pre re(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = iscallable(sim_chain_keep_n) "sim_chain_keep_n is callable"
 @pre re(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = length(logenergys) == length(states) "Must have one density per initial state"
-# usage of @cap and @ret in README of Spec.jl throws an error.
-# @post re!(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n, sim_chain_keep_last, swap_contexts!) = (@cap(x), @ret) "Result is sorted version of input"
+@post re(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = length(__ret__) == samples_per_swap * num_swaps "Returns samples with the correct length"
 
 """
   `re_all!(rng,
@@ -291,5 +289,4 @@ end
 @pre re_all!(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = all([iscallable(logenergy) for logenergy in logenergys]) "logenergys is callable"
 @pre re_all!(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = iscallable(sim_chain_keep_n) "sim_chain_keep_n is callable"
 @pre re_all!(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = length(logenergys) == length(states) "Must have one density per initial state"
-# usage of @cap and @ret in README of Spec.jl throws an error.
-# @post re!(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n, sim_chain_keep_last, swap_contexts!) = (@cap(x), @ret) "Result is sorted version of input"
+@post re_all!(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = length(__ret__) == length(states) "Returns samples with the correct length"
