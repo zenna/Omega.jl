@@ -11,9 +11,9 @@ import Random
 
 # Gaussian drift proposal
 function propose_and_logratio(rng, state)
-	prop_dist = MvNormal(state, [0.1, 0.1])
-	sample = rand(rng, prop_dist)
-	(sample, 0)
+  prop_dist = MvNormal(state, [0.1, 0.1])
+  sample = rand(rng, prop_dist)
+  (sample, 0)
 end
 
 # Each replica uses a random walk Metropolis Hastings inference method
