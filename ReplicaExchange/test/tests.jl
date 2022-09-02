@@ -76,6 +76,7 @@ dist_hard = MixtureModel([MvNormal([-2.0, -2.0], [0.5, 0.5]),
   @test all(states_init_copy[i] == states_init[i] for i in 1:length(logenergys))
 
   # preconditions work for re!
+  @test_throws PreconditionError specapply(re!, rng, logenergys, samples_per_swap, num_swaps, states_init_copy, Vector{eltype(states_init)}(undef, num_samples-1), simulate_n)
   @test_throws PreconditionError specapply(re!, rng, logenergys, samples_per_swap, 0, states_init_copy, Vector{eltype(states_init)}(undef, num_samples), simulate_n)
   @test_throws PreconditionError specapply(re!, rng, "incorrect input", samples_per_swap, num_swaps, states_init_copy, Vector{eltype(states_init)}(undef, num_samples), simulate_n)
   @test_throws PreconditionError specapply(re!, rng, logenergys, samples_per_swap, num_swaps, states_init_copy, Vector{eltype(states_init)}(undef, num_samples), "incorrect input")

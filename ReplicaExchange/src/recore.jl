@@ -128,6 +128,7 @@ function re!(rng,
   samples
 end
 
+@pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = length(samples) == samples_per_swap * num_swaps
 @pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = num_swaps > 0 "There must be at least 1 swap"
 @pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = all([isa(logenergy, Function) for logenergy in logenergys]) "logenergys is a Function"
 @pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = isa(sim_chain_keep_n, Function) "sim_chain_keep_n is a Function"
