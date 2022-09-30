@@ -72,7 +72,8 @@ C = @~ Normal(0, 5);
 struct ϵ end
 
 # ╔═╡ b2cc4db2-76cf-11eb-390d-f151ff4b939d
-Y_class(i, ω) = linear_model(xs[i], M(ω), C(ω)) + (ϵ ∘ i ~ Normal(0, 0.1))(ω);
+Y_class(i, ω) = 
+	linear_model(xs[i], M(ω), C(ω)) + (ϵ ∘ i ~ Normal(0, 0.1))(ω);
 
 # ╔═╡ 800049e2-f44b-4839-a2ae-7fb0beeb5c0e
 Y⃗ = Mv(1:N, Y_class)
@@ -93,6 +94,12 @@ md"## Solving Manually"
 md"Conditional on `Y⃗` being equal to `ys`, some other things are true."
 
 # ╔═╡ f4f6f0b1-4da7-41da-b0b5-22f27c7c82dd
+"""
+Propagate the fact that Given that we know that Y⃗ is equal to ys, 
+
+Returns:
+`ω`: mapping of exogenous random variables to values consistent with inputs
+"""
 function propagate(rng, ::typeof(Y⃗), ys)
 	# We know that the value of Yᵢ is ys[i]
 	map(iy -> propagate(rng, Y_class, iy[1], iy[2]), enumerate(ys))
@@ -120,10 +127,11 @@ rng_ = MersenneTwister(0)
 # ╔═╡ bf6755f0-5294-43ca-8212-d823fbbd6b6e
 function ℓπ_noise(θ)
 	m_, c_ = θ
-	map(iy -> propagate(rng_, Y_class, iy[1], iy[2], m_, c_), enumerate(ys))
+	map(iy -> propagate(rng_, Y⃗, iy[1], iy[2], m_, c_), enumerate(ys))
 end
 
 # ╔═╡ b02f5a68-ef9c-4267-8415-9f845ff6f8c9
+"Posterior density function"
 function ℓπ(θ)
 	m_, c_ = θ
 	mexp = propagate(nothing, M, m_)
@@ -180,7 +188,7 @@ adaptor = StanHMCAdaptor(MassMatrixAdaptor(metric), StepSizeAdaptor(0.8, integra
 # Run the sampler to draw samples from the specified Gaussian, where
 #   - `samples` will store the samples
 #   - `stats` will store diagnostic statistics for each sample
-samples, stats = sample(hamiltonian, proposal, initial_θ, n_samples, adaptor, n_adapts; progress=true)
+# samples, stats = sample(hamiltonian, proposal, initial_θ, n_samples, adaptor, n_adapts; progress=true)
 
 # ╔═╡ aa781fbe-76d0-11eb-387a-3dc1cbf700f8
 # samples = randsample(joint_posterior |ᶜ evidence, 1000; alg = MH) 

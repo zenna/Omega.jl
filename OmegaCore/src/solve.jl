@@ -1,6 +1,6 @@
 module Solver
 
-export solve, complete!, isconditioned
+export solve, complete, isconditioned
 
 import OmegaCore
 
@@ -13,37 +13,50 @@ using ..Conditioning: Conditional
 using ..Var: PrimRandVar, Member, Variable
 using ..Var: Pw
 
-export propagate!, propagate
+export propagate!, propagate, complete
 
 # FIXME: Not a good way to check const type
 const ConstTypes = Union{Real, Array{<:Real}}
 
+# FIXME
 "Variable of the form `X .== x`"
 const EqualityCondition{A, B} = Pw{Tuple{A, B}, typeof(==)} where {A, B <: ConstTypes}
 
-tagcomplete(ω) = tag(ω, (solve = true,))
+tagcomplete(ω) = tag(ω, (solve = (ω = ω),))
 
-"
-`complete!(x, ω)`
+"""
+`complete(auxω, x, ω)`
 
 *completes* `ω` in that it adds additional values in `ω` (assignments of random variables to values)
 so that.
 
-`ω::Ω` such that is well defined `x(ω)` is well-defined"
-function complete!(x, ω)
-  # FIXME: THere's a double use of ω
-  # One use is as the input we're going to extend
-  # And the other use is to generate new randomness
-  # Is this okay
-  ω_ = tagcomplete(ω)
-  ret = x(ω_)
-  ω_
-end
-@post complete!(x, ω) = (ω_ = __ret__; isvalid(x, ω_) & (ω_ ⊆ ω))
+Inputs:
+- `auxω`: auxiliary ω that determines how to complete initial `ω`
+- `x`: a function of `ω`
+- `ω`: initial ω
 
-# Add a prehook for conditional variable
-function Var.prehook(::trait(Solve), f::Conditional, ω) #FIXME: Use AndTraits
-  propagate!(ω, f.y, true)
+Returns:
+`ω::Ω` such that is well defined `x(ω)` is well-defined
+"""
+function complete(auxω, x, initω)
+  ω_ = tagcomplete(initω)
+  ret = x(ω_)
+  ω_.tags.solve
+end
+@post complete(x, ω) = (ω_ = __ret__; isvalid(x, ω_) & (ω_ ⊆ ω))
+
+# # Add a prehook for conditional variable
+# function Var.prehook(::trait(Solve), f::Conditional, ω) #FIXME: Use AndTraits
+#   propagate!(ω, f.y, true)
+# end
+
+function Var.recurse(::trait(Solve), f::PrimRandVar, ω)
+  @show f
+  @show ω
+  # Produce a value for f from its prior
+
+  ω.tags.solve.ω[f] = # auxω(f)
+  @assert false
 end
 
 @inline function propagate!(ω, x::EqualityCondition, x_)
@@ -57,34 +70,15 @@ end
 propagate!(ω, x::PrimRandVar, x_) =
   ω[x] = x_
 
-# idof(m::Member) = m.id
-#   idof(v::Variable) = v.f.id
-
-# function Var.prehook(::trait(Cond), d::Distribution, id, ω)
-#   # FIXME: Is this correct?
-#   matches = idof(ω.tags.condition.a) == id
-#   if matches
-#     inv = invert(d, ω.tags.condition.b)
-#     ω[id] = (primdist(d), inv)
-#   end
-# end
-
-# solution(f::Conditional, Ω = defΩ()) =
-#   solution(Random.GLOBAL_RNG, f, Ω)
-
-# end
+"If x is a random variable of the form X == x_, propagate further"
+@inline propagate(rng, x::EqualityCondition, tf) =
+  tf ? propagate(rng, x.args[1], x.args[2]) : error("Toimplement")
 
 @inline propagate(rng, x::PrimRandVar, x_) = (x => x_)
-@inline propagate(rng, x_y::Conditional, tf::Bool) =  tf ? propagate(rng, x_y.x, x_y.y) : error("Unhandled case, propagate with false") 
 
+@inline propagate(rng, x_y::Conditional, tf::Bool) = 
+  tf ? propagate(rng, x_y.y, true) : error("Unhandled cas") 
 
-
-function propagate_test()
-  x = :x ~ Normal(0, 1)
-  y = :y ~ Normal.(x, 1)
-  evidence = pw(y, 2.3)
-  propagate(nothing, evidence, true)
-  # x_post = cnd(x, pw(y, 2.3))
-  # propagate(nothing, x_post, )
-end
+# So what are the questions?
+# 1. Should auxω support the randomnes 
 end
