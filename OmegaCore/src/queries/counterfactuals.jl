@@ -1,9 +1,3 @@
-# Templates of causal queries
-module Queries
-
-using ..Conditioning: cnd, |ᶜ, ConditionException, condf
-using ..Interventions: intervene, Intervention, AbstractIntervention, |ᵈ
-
 export cf, fc, cndint
 
 """
@@ -103,5 +97,3 @@ julia> randsample(icond, 3)
 
 """
 cndint(i, y) = i |ᶜ (ω -> (y |ᵈ i(ω))(ω))
-
-end
