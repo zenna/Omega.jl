@@ -96,4 +96,4 @@ julia> randsample(icond, 3)
 ```
 
 """
-cndint(i, y) = i |ᶜ (ω -> (y |ᵈ i(ω))(ω))
+cndint(i, y) = i |ᶜ (ω -> (y |ᵈ i(ω))(ω))  
