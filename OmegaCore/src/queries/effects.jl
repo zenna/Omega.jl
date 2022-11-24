@@ -1,5 +1,5 @@
 ## Several different types of queries, direct, natural, controlled
-export cde, acde, nde, ande, total_effect, ate
+export cde, acde, nde, ande, total_effect, ate, Y_x_z_x
 
 """
 Total effect
@@ -52,6 +52,24 @@ function nde(Y, x, x_, Z, ω)
 end
 
 """
+Double Hypothetical:
+Value `Y` would have taken in world `ω` if `X``had `x` but `Z` had been the value it actually took
+in the Hypothetical scenario that `X` had `x_`
+
+Same as:
+
+hi(Y, ω -> Intervention(X => x, Z => z_(ω)))
+# Not quite
+
+Key thing is
+that the intervention is a random variable
+"""
+@inline function Y_x_z_x(ω, Y, X, x, x_, Z) 
+  z = intervene(Z, X => x_)(ω)
+  intervene(Y, (X => x, Z => z))(ω)
+end
+
+"""
 Average natural direct effect
 
 `ande(Y, x, x_, Z)`
@@ -59,35 +77,51 @@ Average natural direct effect
 Example:
 ```julia
 using Omega, Distributions
-# Simple example of a model where X has a natural direct effect on Y but is mediated by Z
-# There's a switch to turn the heater on or off : X
-heater_on = 1 ~ Bernoulli(0.5)
-heater_temp = ifelse.(heater_on, 10 ~ Normal(20, 1), 11 ~ Normal(0, 1))
 
-# The ambient temperature is a function of the season
-iswinter = 231 ~ Bernoulli(0.5)
-ambient_temp = ifelse.(iswinter, 2 ~ Normal(0, 1), 3 ~ Normal(20, 1))
+# Another example
+# Taking a medicine probabilistically improves your sleep (in hours) and relieves your symptoms
+# Your overall rested (between 0 and 1) is higher the more you've slept
+# The more rested you are the less aggrevated your symptoms are
+# The medecine also directly reduces your symptoms 
 
-# The total temperature is the sum of the ambient and heater temperature
-total = ambient_temp .+ heater_temp
-temp = 43131 ~ Normal.(total, 1)
+# Taken the medicine or not
+taken_med = 1 ~ Bernoulli(0.5)
+# The amount of sleep you get (in hours)
+nsleep = Variable(ifelse.(taken_med, 2 ~ Truncated(Normal(8, 1), 0, Inf), 3 ~ Truncated(Normal(6, 1), 0, Inf)))
+# How rested you are (between 0 and 1) is higher the more you've slept
+a = 3 .* (nsleep .- 2)
+# need a to be positive, so clamp
+a2 = Variable(clamp.(a, 0.1, Inf))
+rested = Variable(4 ~ Beta.(a2, 9))
 
-# Average natural direct effect of the heater on the temperature
-ande(temp, heater_on, true, false, ambient_temp)
 
+# The medicine can improve my symptoms (between 0 and 1) and it's more effective if I've rested
+med_effective = 5 ~ Bernoulli.(rested)
 
-```
+health = ifelse.(taken_med, 6 ~ Beta.(8, 2), 7 ~ Beta.(2, 8))
+
+# I feel well if I'm both well rested and my symptoms are low
+well_being = rested .* health
+
+# Average natural direct effect of the medicine on my well being
+# This represents the average effect of the medicine on my well being
+@show ande(well_being, taken_med, true, false, nsleep)
+# X = taken_med
+# x = true
+# x_ = false
+# Z = nsleep
+# Y = well_being
+````
 """
 function ande(Y, X, x, x_, Z) 
   # Should probably pull out this as it might
   # be a useful construction independently of `ande`
   # Wel lit is used in nde above, so there
-
-  function Y_x_z_x(ω)
+  function Y_x_z_x(ω) # Effect of X = x on Y removing influence through Z
     z = intervene(Z, X => x_)(ω)
-    intervene(Y, (X => x, Z => z))(ω)
+    @show intervene(Y, (X => x, Z => z))(ω)
   end
-  𝔼(Y_x_z_x) - 𝔼(intervene(Y, X => x_))
+  𝔼(Y_x_z_x) - 𝔼(intervene(Y, X => x))
 end
 
 """
@@ -98,20 +132,52 @@ Average treatment effect
 ```julia
 using Omega, Distributions
 
-# There's a switch to turn the heater on or off : X
-heater_on = 1 ~ Bernoulli(0.5)
-heater_temp = ifelse.(heater_on, 10 ~ Normal(10, 1), 11 ~ Normal(0, 1))
+# Taken the medicine or not
+taken_med = 1 ~ Bernoulli(0.5)
+# The amount of sleep you get (in hours)
+sleep = ifelse.(taken_med, 2 ~ Truncated(Normal(8, 1), 0, Inf), 3 ~ Truncated(Normal(6, 1), 0, Inf))
+# How rested you are (between 0 and 1) is higher the more you've slept
+α = 3 .* (sleep .- 2)
+# need α to be positive, so clamp
+α_ = clamp.(α, 0.1, Inf)
+rested = 4 ~ Beta.(α_, 9)
 
-# The ambient temperature is a function of the season
-iswinter = 1 ~ Bernoulli(0.5)
-ambient_temp = ifelse.(iswinter, 2 ~ Normal(0, 1), 3 ~ Normal(20, 1))
+# The medicine can improve my symptoms (between 0 and 1) and it's more effective if I've rested
+med_effective = 5 ~ Bernoulli.(rested)
 
-# The total temperature is the sum of the ambient and heater temperature
-total = ambient_temp .+ 10 .* heater_temp
-temp = 4 ~ Normal.(total, 1)
+health = ifelse.(taken_med, 6 ~ Beta.(8, 2), 7 ~ Beta.(2, 8))
 
-# Average treatment effect of the heater on the temperature
-ate(temp, heater_on, true, false)
+# I feel well if I'm both well rested and my symptoms are low
+well_being = rested .* health
+
+# Average treatment effect
+ate(well_being, taken_med, true, false)
+
+Now in Pyro:
+```python
+import pyro
+import pyro.distributions as dist
+import pyro.poutine as poutine
+from pyro.infer import SVI, Trace_ELBO
+from pyro.optim import Adam
+
+def model():
+    taken_med = pyro.sample("taken_med", dist.Bernoulli(0.5))
+    sleep = pyro.sample("sleep", dist.TruncatedNormal(8 if taken_med else 6, 1, 0, 10))
+    α = 3 * (sleep - 2)
+    rested = pyro.sample("rested", dist.Beta(α, 9))
+    med_effective = pyro.sample("med_effective", dist.Bernoulli(rested))
+    health = pyro.sample("health", dist.Beta(8 if med_effective else 2, 2 if med_effective else 8))
+    well_being = pyro.sample("well_being", dist.Beta(rested * health, 1 - rested * health))
+
+def guide():
+    taken_med = pyro.sample("taken_med", dist.Bernoulli(0.5))
+    sleep = pyro.sample("sleep", dist.TruncatedNormal(8 if taken_med else 6, 1, 0, 10))
+    α = 3 * (sleep - 2)
+    rested = pyro.sample("rested", dist.Beta(α, 9))
+    med_effective = pyro.sample("med_effective", dist.Bernoulli(rested))
+    health = pyro.sample("health", dist.Beta(8 if med_effective else 2, 2 if med_effective else 8))
+    well_being = pyro.sample("well_being", dist.Beta(rested * health, 1 - rested * health))
 ```
 """
 function ate(Y, X, x, x_)

@@ -7,7 +7,7 @@ export expectation,
 function expectation end
 
 function expectation(x; k = 100000)
-  𝔼(x; k = 100000) = sum(OmegaCore.randsample(x, k)) / k
+  sum(OmegaCore.randsample(x, k)) / k
 end
 
 # Short hand
