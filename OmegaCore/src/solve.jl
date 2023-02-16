@@ -4,49 +4,81 @@ export solve, complete, isconditioned
 
 import OmegaCore
 
+using Spec
 import ..Var
 using ..Tagging: Solve, tag
 using ..Traits: trait
+using ..Tagging
 using ..Conditioning: Conditional
+using ..Var: PrimRandVar, Member, Variable
+using ..Var: Pw
 
-function isconditioned end
+export propagate!, propagate, complete
 
-function solve end
+# FIXME: Not a good way to check const type
+const ConstTypes = Union{Real, Array{<:Real}}
 
-# function Var.
+# FIXME
+"Variable of the form `X .== x`"
+const EqualityCondition{A, B} = Pw{Tuple{A, B}, typeof(==)} where {A, B <: ConstTypes}
 
-# function Var.prehook(::trait(Solve), f, ω)
-#   # Assume h has no specialization
-#   solve(f, ω)
-#     # then just continue as normal
-#   # either the recurse itself
-#   solve(f, ω)
+tagcomplete(ω) = tag(ω, (solve = (ω = ω),))
+
+"""
+`complete(auxω, x, ω)`
+
+*completes* `ω` in that it adds additional values in `ω` (assignments of random variables to values)
+so that.
+
+Inputs:
+- `auxω`: auxiliary ω that determines how to complete initial `ω`
+- `x`: a function of `ω`
+- `ω`: initial ω
+
+Returns:
+`ω::Ω` such that is well defined `x(ω)` is well-defined
+"""
+function complete(auxω, x, initω)
+  ω_ = tagcomplete(initω)
+  ret = x(ω_)
+  ω_.tags.solve
+end
+@post complete(x, ω) = (ω_ = __ret__; isvalid(x, ω_) & (ω_ ⊆ ω))
+
+# # Add a prehook for conditional variable
+# function Var.prehook(::trait(Solve), f::Conditional, ω) #FIXME: Use AndTraits
+#   propagate!(ω, f.y, true)
 # end
 
-# Doesn't have specialization we'll get here
-hasspecial(f, ω) = solve(f, ω)  ## don't want to do a prehook
+function Var.recurse(::trait(Solve), f::PrimRandVar, ω)
+  @show f
+  @show ω
+  # Produce a value for f from its prior
 
-# doesn't have specialization
-solve(f, ω) = nothing
-
-
-function Var.recurse(::trait(Solve), f, ω)
-  solve(f, ω)
+  ω.tags.solve.ω[f] = # auxω(f)
+  @assert false
 end
 
-# Default case, no specialization:
-# solve(f, ω) = Var.recurse(f, ω)
-
-# # Defaualt case
-# solve(f, id, ω) = f(ω)
-
-function complete(x, ω = OmegaCore.defω())
-  x(tag(ω, (solve = true,)))
+@inline function propagate!(ω, x::EqualityCondition, x_)
+  if x_
+     # if (X == x_ )is true then X := x_
+    propagate!(ω, x.args[1], x.args[2])
+  end
 end
 
+# propagate back to exogenous
+propagate!(ω, x::PrimRandVar, x_) =
+  ω[x] = x_
 
-# States:
-# NoExpansion, always used specialised, don't expand
-# Expand
+"If x is a random variable of the form X == x_, propagate further"
+@inline propagate(rng, x::EqualityCondition, tf) =
+  tf ? propagate(rng, x.args[1], x.args[2]) : error("Toimplement")
 
+@inline propagate(rng, x::PrimRandVar, x_) = (x => x_)
+
+@inline propagate(rng, x_y::Conditional, tf::Bool) = 
+  tf ? propagate(rng, x_y.y, true) : error("Unhandled cas") 
+
+# So what are the questions?
+# 1. Should auxω support the randomnes 
 end

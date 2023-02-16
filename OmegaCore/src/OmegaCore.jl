@@ -44,7 +44,7 @@ include("conditioning.jl")         # Conditioning variables
 include("Higher/higher.jl")            # Higher order inference
 @reexport using .Higher
 
-include("queries.jl")           # Query Templtes
+include("queries/queries.jl")           # Query Templtes
 @reexport using .Queries
 
 include("sample.jl")            # Sample
@@ -71,9 +71,6 @@ include("logenergy.jl")
 
 include("rejection.jl")         # Rejection sampling Inference
 @reexport using .OmegaRejectionSample
-
-# include("pointwise.jl")
-# @reexport using .Pointwise
 
 include("mem.jl")
 @reexport using .Memoize

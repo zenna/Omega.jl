@@ -39,6 +39,9 @@ using PlutoUI
 # ╔═╡ 128974e2-7483-11eb-03a0-15b2abc75d66
 md"# MCMC Test"
 
+# ╔═╡ 0464d3ec-7489-11eb-1081-d761307263db
+# using Plots
+
 # ╔═╡ 318e4a98-7483-11eb-1916-c9630ecf07e2
 md"First, let's setup our target density"
 
@@ -220,6 +223,7 @@ mcmc_dynamics(pdfs, traces, lb:ub)
 # ╔═╡ Cell order:
 # ╠═9c5d8972-7485-11eb-25f7-155fbbd40d98
 # ╟─128974e2-7483-11eb-03a0-15b2abc75d66
+# ╠═cfea9bc2-dc6b-44d7-b64b-fadb407bc64f
 # ╠═2c24aaca-7483-11eb-05a9-6f847b7d09b7
 # ╠═42bb4640-7483-11eb-0661-677c524c62b0
 # ╠═eeb0be1c-7483-11eb-341f-b1996e9a53a6

@@ -11,7 +11,7 @@ Pkg.develop(path = joinpath(pwd(), "..", "..", "connectors", "OmegaDistributions
   include("core.jl")
   include("intervene.jl")
   include("higherintervene.jl")
-  include("logpdf.jl")
+  include("logenergy.jl")
   include("multivariate.jl")
   include("namedtuple.jl")
   # include("solution.jl")
