@@ -140,7 +140,6 @@ l(x) = LiftBox(x)
 @inline liftapplyt(::AndTraits.traitmatch(TraitUnknownVariableType), f, i, ω) = f
 @inline liftapplyt(::AndTraits.traitmatch(TraitIsVariableOrClass), f, i, ω) = f(i, ω)
 
-
 ## Broadcasting
 struct PointwiseStyle <: Broadcast.BroadcastStyle end
 Base.BroadcastStyle(::Type{<:AbstractVariableOrClass}) = PointwiseStyle()
