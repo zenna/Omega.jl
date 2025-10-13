@@ -5,6 +5,7 @@ using ..Traits, ..RNG, ..Var, ..Tagging, ..Space
 using ..Util: Box
 using ..Basis: AbstractΩ
 using ..SeenVars
+using ..OmegaCore:Ω
 
 export logenergy, ℓ, logenergyexo
 
@@ -23,13 +24,14 @@ logintsize(::Type{Int64}) = log(1) - log(BigInt(2)^(64))
 logenergy(dist::PrimRandVar, v) = logenergy(dist.class, v)
 
 "`logenergyexo(ω)` Log energy of `ω` only on exogenous variables"
-function logenergyexo(ω)
-  reduce(pairs(ω); init = 0.0) do logpdf_, (dist, val)
+logenergyexo(ω::Ω) = logenergyexo(pairs(ω))
+
+"`logenergyexo(ω)` Log energy of `ω` only on exogenous variables"
+function logenergyexo(pairs_)
+  reduce(pairs_; init = 0.0) do logpdf_, (dist, val)
     logpdf_ + logenergy(dist, val)
   end
 end
-
-
 
 """
 `logenergy(rng::AbstractRNG, x, ω)`

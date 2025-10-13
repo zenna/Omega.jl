@@ -10,7 +10,6 @@ makedocs(
     "Home" => "index.md",
     "Basic Tutorial" => "basictutorial.md",
     "Modeling" => "model.md",
-    "(Conditional) Independence" => "conditionalindependence.md",
     "Conditional Inference" => "inference.md",
     "Soft Execution" => "soft.md",
     "Inference Algorithms" => ["Sampling Algorithms" => "inferencealgorithms.md",

@@ -140,14 +140,20 @@ l(x) = LiftBox(x)
 @inline liftapplyt(::AndTraits.traitmatch(TraitUnknownVariableType), f, i, ω) = f
 @inline liftapplyt(::AndTraits.traitmatch(TraitIsVariableOrClass), f, i, ω) = f(i, ω)
 
-
 ## Broadcasting
 struct PointwiseStyle <: Broadcast.BroadcastStyle end
 Base.BroadcastStyle(::Type{<:AbstractVariableOrClass}) = PointwiseStyle()
 Base.broadcastable(x::AbstractVariableOrClass) = x
 
-Base.broadcasted(::PointwiseStyle, f, args...)  = pw(f, args...)
+# Base.broadcasted(::PointwiseStyle, f, args...)  = pw(f, args...)
 Base.BroadcastStyle(::PointwiseStyle, ::Base.Broadcast.DefaultArrayStyle{0}) = PointwiseStyle()
+
+function Base.Broadcast.copy(bc::Base.Broadcast.Broadcasted{PointwiseStyle})
+  pw(bc.f, map(Base.Broadcast.materialize, bc.args)...)
+end
+
+Base.Broadcast.instantiate(bc::Base.Broadcast.Broadcasted{PointwiseStyle}) = bc
+
 
 # Handle `f` is random variable over functions
 Base.broadcast(f::AbstractVariableOrClass, args...) = pw(f, args...)

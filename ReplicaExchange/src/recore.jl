@@ -1,6 +1,6 @@
 
 using Spec
-using Base.Threads: @spawn
+using Base.Threads: @sync, @spawn
 export re!, re, re_all!, Replica, ReplicaAlg
 
 using InferenceBase
@@ -25,22 +25,20 @@ function swap_contexts!(rng, logenergys, states)
     j = i - 1
 
     # Evaluate energy of state i at temperature i
-    @show E_i_i = logenergys[i](states[i])
-    @show E_i_j = logenergys[i](states[j])
-    @show E_j_i = logenergys[j](states[i])
-    @show E_j_j = logenergys[j](states[j])
+    E_i_i = logenergys[i](states[i])
+    E_i_j = logenergys[i](states[j])
+    E_j_i = logenergys[j](states[i])
+    E_j_j = logenergys[j](states[j])
 
     probaccept = (E_i_j + E_j_i) - (E_i_i + E_j_j)
     
     doswap = log(rand(rng)) < probaccept
     if doswap
-      println("did swap", i, j)
       swap!(states, i, j)
-    else
-      println("did not swap", i, j)
     end
   end
 end
+  
 
 "`every(m)` -- `f` where `f(i) is true every i steps"
 every(m) = i -> i % m == 0
@@ -50,39 +48,15 @@ every(m) = i -> i % m == 0
         logenergys,
         samples_per_swap,
         num_swaps,
-        samples,
         states,
+        samples,
         sim_chain_keep_n,
         sim_chain_keep_last = last ∘ sim_chain_keep_n,
         swap_contexts! = swap_contexts!)`
-             
-Replica Exchange Markov Chain Monte Carlo
 
-Replica exhange:
-- There are `n` different contexts, where a different context means a different target density
-- There arae `A` different algorithms.  These may be actually different algorithms
-  such as HMC vs SSMH, or different parameterizations of the same algorithm
-- The user provides some subset of the cross product, i.e. `(ctx1, alg1), (ctx2, alg2)`
-- runs `nreplicas = length(algs)` MCMC chains in parallel
-- Each alg is run in a different context.
-  - The most common form of a context is a temperature
-- We assume there is a ground context which is the true model we wish to sample from
-- 
+Mutating version of Replica Exchange Markov Chain Monte Carlo (REMCMC)        
 
-# Arguments
-- `rng`: AbstractRng used to sample proposals in MH loop
-- `logenergys`: collection of `n` logenergys to sample from
-- `samples_per_swap` : number of samples drawn between each exchange
-- `num_swaps`: number of swaps (num_samples = `samples_per_swap` * `num_swaps`)
-- `states`: initial states
-- `sim_chain_keep_n` : algorithm to take `samples_per_swap` mcmc steps and return all n
-  - should support `sim_chain_keep_n(logenergy, init_state, n_samples)``
-- `sim_chain_keep_1` : algorithm to take `samples_per_swap` mcmc steps and return only last
-- `samples`: Vector of samples to mutate
-- `swap_contexts!` function that swaps contexts every `num_swaps`, i.e. does exchange
-
-# Returns
-- `n` samples drawn from ground state
+See documentation for [`re`](@ref) for details.
 """
 function re!(rng,
              logenergys,
@@ -92,39 +66,90 @@ function re!(rng,
              samples,
              sim_chain_keep_n,
              sim_chain_keep_last = last ∘ sim_chain_keep_n,
-             swap_contexts! = swap_contexts!,
-             cb = tonothing)
+             swap_contexts! = swap_contexts!)
   nreplicas = length(states)
-
 
   GROUNDID = 1
   for num_swap = 1:num_swaps
-    for i = 1:nreplicas
-      @show i, :, logenergys[i](states[GROUNDID])
-      if i == GROUNDID
-        # @show typeof(logenergys)
-        # @assert false      
-        # If we're ground state, return swap_every samples
-        lb = (num_swap - 1) * samples_per_swap + 1
-        ub = lb + samples_per_swap - 1
-        @inbounds samples[lb:ub] = sim_chain_keep_n(rng,
-                                                    logenergys[GROUNDID],
-                                                    states[GROUNDID],
-                                                    samples_per_swap,
-                                                    i)
-        @inbounds states[GROUNDID] = samples[ub]
-      else
-        # If not ground state just return last sample
-        @inbounds states[i] = sim_chain_keep_last(rng, logenergys[i], states[i], samples_per_swap, i)
+    lb = (num_swap - 1) * samples_per_swap + 1
+    ub = lb + samples_per_swap - 1
+
+    Threads.@sync for i = 1:nreplicas
+      Threads.@spawn begin
+        if i == GROUNDID
+          # If we're ground state, return swap_every samples
+          @inbounds samples[lb:ub] = sim_chain_keep_n(rng,
+                                                  logenergys[GROUNDID],
+                                                  states[GROUNDID],
+                                                  samples_per_swap,
+                                                  i)
+          @inbounds states[GROUNDID] = samples[ub]
+        else
+          # If not ground state just return last sample
+          @inbounds states[i] = sim_chain_keep_last(rng, logenergys[i], states[i], samples_per_swap, i)
+        end
       end
     end
     swap_contexts!(rng, logenergys, states)
   end
   samples
 end
-# @pre length(logenergys) == length(states) "Must have one density per initial state"
 
-"Non-mutating re!"
+iscallable(f) = !isempty(methods(f))
+
+@pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = length(samples) == samples_per_swap * num_swaps
+@pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = num_swaps > 0 "There must be at least 1 swap"
+@pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = all([iscallable(logenergy) for logenergy in logenergys]) "logenergys is callable"
+@pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = iscallable(sim_chain_keep_n) "sim_chain_keep_n is callable"
+@pre re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = length(logenergys) == length(states) "Must have one density per initial state"
+@post re!(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = length(__ret__) == length(samples) "Returns samples with the same length as the input"
+
+
+"""
+  `re(rng,
+        logenergys,
+        samples_per_swap,
+        num_swaps,
+        states,
+        sim_chain_keep_n,
+        sim_chain_keep_last = last ∘ sim_chain_keep_n,
+        swap_contexts! = swap_contexts!)`
+             
+Replica Exchange Markov Chain Monte Carlo (REMCMC)
+
+Description:
+- REMCMC is a Markov Chain Monte Carlo algorithm for sampling from the cartesian product 
+  of a collection of `n` distributions given their respective densities.
+- REMCMC works by running `n` independent MCMC chains in parallel for `samples_per_swap` steps using 
+  a user-specified transition kernel (`sim_chain_keep_n`), and then subsequently proposing 
+  a special transition kernel that swaps the position of parallel chains.
+- REMCMC is agnostic to the user-specified transition kernel, as long as its stationary distribution
+  is equal to the distribution corresponding to its respective input density. E.g. this permits HMC or RW-MCMC.
+- A common use-case for REMCMC is when the target distribution is non-smooth and we would expect
+  a single MCMC transition kernel to become stuck near a local optima. Then, the collection of distributions
+  are induced by annealing the target distribution with a sequence of increasing temperatures.
+- In this implementation we assume that the user is only interested in samples from the single target distribution
+  and that the same `sim_chain_keep_n` is used for each of the `n` distributions.
+- Note: re does not mutate `states`.
+
+# Arguments
+- `rng`: AbstractRng used to sample proposals in MH loop
+- `logenergys`: collection of `n` logenergys (log unnormalized densities) to sample from. Each `logenergy = getindex(logenergys, i::Int64)`
+  is a function from the domain of `states` to the reals.
+- `samples_per_swap` : number of samples drawn between each exchange (i.e. swap)
+- `num_swaps`: number of swaps
+- `states`: initial states. Note: re does not mutate `states`.
+- `sim_chain_keep_n` : algorithm to take `samples_per_swap` mcmc steps and return all n
+  - should support `sim_chain_keep_n(rng, logenergy, init_state, samples_pre_swap, i)`
+- `sim_chain_keep_last` : optional function that takes `samples_per_swap` mcmc steps and return only the last sample.
+  - should support `sim_chain_keep_last(rng, logenergy, init_state, samples_pre_swap, i)`
+- `swap_contexts!` : optional mutating function that swaps contexts every `num_swaps`, i.e. performs the exchange between
+  parallel chains.
+  - should support `swap_contexts!(rng, logenergys, states)`
+
+# Returns
+- `n` samples drawn from ground state
+"""
 re(rng,
    logenergys,
    samples_per_swap,
@@ -132,63 +157,100 @@ re(rng,
    states,
    sim_chain_keep_n,
    sim_chain_keep_last = last ∘ sim_chain_keep_n,  
-  swap_contexts! = swap_contexts!,
-  cb = tonothing) = 
+  swap_contexts! = swap_contexts!) = 
   re!(rng,
       logenergys,
       samples_per_swap,
       num_swaps,
-      states,
+      deepcopy(states),
       Vector{eltype(states)}(undef, num_swaps * samples_per_swap),
       sim_chain_keep_n,
       sim_chain_keep_last,
-      swap_contexts!,
-      cb)
+      swap_contexts!)
 
+@pre re(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = num_swaps > 0 #"There must be at least 1 swap"
+@pre re(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = all([iscallable(logenergy) for logenergy in logenergys]) "logenergys is callable"
+@pre re(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = iscallable(sim_chain_keep_n) "sim_chain_keep_n is callable"
+@pre re(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = length(logenergys) == length(states) "Must have one density per initial state"
+@post re(rng, logenergys, samples_per_swap, num_swaps, states, samples, sim_chain_keep_n) = length(__ret__) == samples_per_swap * num_swaps "Returns samples with the correct length"
+
+"""
+  `re_all!(rng,
+        logenergys,
+        samples_per_swap,
+        num_swaps,
+        states,
+        sim_chain_keep_n,
+        sim_chain_keep_last = last ∘ sim_chain_keep_n,
+        swap_contexts! = swap_contexts!)`
+             
+Replica Exchange Markov Chain Monte Carlo (REMCMC)
+Version of [re!](@ref) that returns all chains, rather than just a single target.
+
+Description:
+- REMCMC is a Markov Chain Monte Carlo algorithm for sampling from the cartesian product 
+  of a collection of `n` distributions given their respective densities.
+- REMCMC works by running `n` independent MCMC chains in parallel for `samples_per_swap` steps using 
+  a user-specified transition kernel (`sim_chain_keep_n`), and then subsequently proposing 
+  a special transition kernel that swaps the position of parallel chains.
+- REMCMC is agnostic to the user-specified transition kernel, as long as its stationary distribution
+  is equal to the distribution corresponding to its respective input density. E.g. this permits HMC or RW-MCMC.
+- A common use-case for REMCMC is when the target distribution is non-smooth and we would expect
+  a single MCMC transition kernel to become stuck near a local optima. Then, the collection of distributions
+  are induced by annealing the target distribution with a sequence of increasing temperatures.
+- In this implementation we assume that `sim_chain_keep_n` is used for each of the `n` distributions.
+- Note: re_all! mutates `states` and `samples`.
+
+# Arguments
+- `rng`: AbstractRng used to sample proposals in MH loop
+- `logenergys`: collection of `n` logenergys (log unnormalized densities) to sample from. Each `logenergy = getindex(logenergys, i::Int64)`
+  is a function from the domain of `states` to the reals.
+- `samples_per_swap` : number of samples drawn between each exchange (i.e. swap)
+- `num_swaps`: number of swaps
+- `states`: initial states. Note: re does not mutate `states`.
+- `sim_chain_keep_n` : algorithm to take `samples_per_swap` mcmc steps and return all n
+  - should support `sim_chain_keep_n(rng, logenergy, init_state, samples_pre_swap, i)`
+- `swap_contexts!` : optional mutating function that swaps contexts every `num_swaps`, i.e. performs the exchange between
+  parallel chains.
+  - should support `swap_contexts!(rng, logenergys, states)`
+- `samples`: optional collection of samples from the target density to mutate
+
+# Returns
+- `n` samples drawn from ground state
+"""
 function re_all!(rng,
                  logenergys,
                  samples_per_swap,
                  num_swaps,
                  states,
-                 simulate_n,
-                 sim_chain_keep_last,
-                 evaluate,
+                 sim_chain_keep_n,
+                 swap_contexts! = swap_contexts!,
                  samples = [Vector{typeof(states[i])}(undef, num_swaps*samples_per_swap) for i = 1:length(states)])
-            #  swap = every(div(n, 10)))
-  # @pre length(ctxs) == length(algs)
+
   nreplicas = length(states)
-  if length(logenergys) != length(states)
-    error("length(logenergys) != length(states)")
-  end
 
   GROUNDID = 1
   for num_swap = 1:num_swaps
-    for i = 1:nreplicas
-      # If we're ground state, return swap_every samples
-      lb = (num_swap - 1) * samples_per_swap + 1
-      ub = lb + samples_per_swap - 1
-      samples[i][lb:ub] = simulate_n(logenergys[i],
-                                               states[i],
-                                               samples_per_swap)
-      states[i] = samples[i][ub]
+    lb = (num_swap - 1) * samples_per_swap + 1
+    ub = lb + samples_per_swap - 1
+
+    Threads.@sync for i = 1:nreplicas
+      Threads.@spawn begin
+        @inbounds samples[i][lb:ub] = sim_chain_keep_n(rng,
+                                                      logenergys[GROUNDID],
+                                                      states[GROUNDID],
+                                                      samples_per_swap,
+                                                      i)
+        @inbounds states[i] = samples[i][ub]
+      end
     end
-    swap_contexts!(rng, logenergys, states, evaluate)
+    swap_contexts!(rng, logenergys, states)
   end
   samples
 end
 
-# Questions:
-# Can there be more than one ground context?
-# Is it true that from the ground context we need many samples and from
-# everythinge else we need 1 sample?
-# -- No, we only need samples from the ground context, we need scores
-# From the others
-# We need to be able to compute:
-  # In some context i, density of some other point
-
-# How should burn in / thinning work?
-# Choice of representation:
-## - alg(ctx, init_state)
-## - apply(alg, ctx, init_state)
-## - userprovidedfunc(alg, ctx, init_state)
-## Do we need both Algs and Ctxs??
+@pre re_all!(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = num_swaps > 0 #"There must be at least 1 swap"
+@pre re_all!(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = all([iscallable(logenergy) for logenergy in logenergys]) "logenergys is callable"
+@pre re_all!(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = iscallable(sim_chain_keep_n) "sim_chain_keep_n is callable"
+@pre re_all!(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = length(logenergys) == length(states) "Must have one density per initial state"
+@post re_all!(rng, logenergys, samples_per_swap, num_swaps, states, sim_chain_keep_n) = length(__ret__) == length(states) "Returns samples with the correct length"

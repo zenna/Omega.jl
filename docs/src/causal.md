@@ -1,97 +1,89 @@
 # Causal Inference
 
-Omega supports causal inference through the `replace` function.  Causal inference is a topic of much confusion, we recommend this [blog post](https://www.inference.vc/untitled/) for a primer.
+Omega supports causal inference through the `intervene` function.  Causal inference is a topic of much confusion, we recommend this [blog post](https://www.inference.vc/untitled/) for a primer.
 
-## Causal Intervention - the `replace` operator
+## Causal Intervention - the `intervene` operator
 
-The `replace` operator models an intervention to a model.
+The `intervene` operator models an intervention to a model.
 It changes the model.
 
 ```@docs
-Omega.replace
+Omega.intervene
 ```
 
 In Omega we use the syntax:
 
 ```julia
-replace(X, θold => θnew)
+intervene(X, θold => θnew)
 ```
-To mean the random variable `X` where `θold` has been replaced with `θnew`.  For this to be meaningful, `θold` must be a parent of `x`.
+To mean the random variable `X` where `θold` has been replaced with `θnew`.  For this to be a worthwhile thing to do, `X` should causally depend on`θold` in the sense that the computation of `X` requires the computation of `θold`.
 
 Let's look at an example:
 
 ```julia
-julia> μold = normal(0.0, 1.0)
-45:Omega.normal(0.0, 1.0)::Float64
+julia> μold = @~ Normal(0.0, 1.0)
 
-julia> x = normal(μold, 1.0)
-46:Omega.normal(Omega.normal, 1.0)::Float64
+julia> x = @~ Normal.(μold, 1.0)
 
 julia> μnew = 100.0
-47:Omega.normal(100.0, 1.0)::Float64
 
-julia> xnew = replace(x, μold => μnew)
-julia> rand((x, xnew))
+julia> xnew = intervene(x, μold => μnew)
+julia> randsample((x, xnew))
 (-2.664230595692529, 96.99998702926271)
 ```
 
-Observe that the sample from `xnew` is much greater, because it has the mean of the normal distribution has been changed to `100`
+Observe that the sample from `xnew` is much greater, because it has the mean of `100`
 
 ### Replace a Random Variable with a Random Variable
 Repacing a random variable with a constant is actually a special case of replacing a random variable with another random variable.  The syntax is the same:
 
 ```julia
-julia> xnewnew = replace(x, μold => normal(200.0, 1.0))
-julia> rand((x, xnew, xnewnew))
+julia> xnewnew = intervene(x, μold => @~ Normal(200.0, 1.0))
+julia> randsample((x, xnew, xnewnew))
 (-1.2756627673001866, 99.1080578175426, 198.14711316585564)
 ```
 
 ### Changing Multiple Variables
 
-`replace` allow you to change many variables at once  Simply pass in a variable number of pairs, or a dictionary:
+`intervene` allow you to change many variables at once -- simply pass in a tuple of pairs:
 
 ```julia
-μ1 = normal(0, 1)
-μ2 = normal(0, 1)
-y = normal(μ1 + μ2, 1)
-xnewmulti = replace(y, μ1 => normal(200.0, 1.0), μ2 => normal(300.0, 1.0))
-rand((xnewmulti))
+μ1 = @~ Normal(0, 1)
+μ2 = @~ Normal(0, 1)
+y = @~ Normal.(μ1 .+ μ2, 1)
+xnewmulti = intervene(y, (μ1 => (@~ Normal(200.0, 1.0)), μ2 => (@~ Normal(300.0, 1.0))))
+randsample((xnewmulti))
 (-1.2756627673001866, 99.1080578175426, 198.14711316585564)
 ```
 
 # Counterfactuals
 
-The utility of `replace` may not be obvious at first glance.
-We can use `replace` and `cond` separately and in combination to ask lots of different kinds of questions.
-In this example, we model the relationship betwee the weather outside and teh thermostat reading inside a house.
+The utility of `intervene` may not be obvious at first glance.
+We can use `intervene` and `cnd` separately and in combination to ask lots of different kinds of questions.
+
+In this example, we model the relationship betwee the weather outside and the thermometer reading inside a house.
 Broadly, the model says that the weather outside is dictataed by the time of day, while the temperature inside is determined by whether the air conditioning is on, and whether the window is open.
 
 First, setup simple priors over the time of day, and variables to determine whether the air conditioning is on and whether the iwndow is open:
 
 ```julia
-timeofday = uniform([:morning, :afternoon, :evening])
-is_window_open = bernoulli(0.5,Bool)
-is_ac_on = bernoulli(0.3,Bool)
+timeofday = @~ UniformDraw([:morning, :afternoon, :evening])
+is_window_open = @~ Bernoulli(0.5)
+is_ac_on = @~ Bernoulli(0.3)
 ```
 
 Second, assume that the outside temperature depends on the time of day, being hottest in the afternoon, but cold at night:
 
 ```julia
-function outside_temp_(rng)
-  if timeofday(rng) == :morning
-    normal(rng, 20.0, 1.0)
-  elseif timeofday(rng) == :afternoon
-    normal(rng, 32.0, 1.0)
+function outside_temp(ω)
+  if timeofday(ω) == :morning
+    @~ Normal(ω, 20.0, 1.0)
+  elseif timeofday(ω) == :afternoon
+    @~ Normal(ω, 32.0, 1.0)
   else
-    normal(rng, 10.0, 1.0)
+    @~ Normal(ω, 10.0, 1.0)
   end
 end
-```
-
-Remember, in this style we have to use  `ciid` to convert a function into a `RandVar`
-
-```julia
-outside_temp = ciid(outside_temp_)
 ```
 
 The `inside_temp` before considering the effects of the window is room temperature, unless the ac is on, which makes it colder.
@@ -155,7 +147,7 @@ julia> samples = rand((timeofday, is_window_open, is_ac_on, outside_temp, inside
 - If I were to close the window, and turn on the AC would that make it hotter or colder"
 
 ```
-thermostatnew = replace(thermostat, is_ac_on => true, is_window_open => false)
+thermostatnew = intervene(thermostat, is_ac_on => true, is_window_open => false)
 diffsamples = rand(thermostatnew - thermostat, 10000, alg = RejectionSample)
 julia> mean(diffsamples)
 -4.246869797640215
@@ -197,3 +189,4 @@ julia> rand((timeofday, outside_temp, inside_temp, thermostat), thermostatnew - 
  (:evening, 9.381925134669295, 25.6283276833937, 17.505126409031497)
  (:evening, 9.121300508670375, 25.182478479511474, 17.151889494090923)
 ```
+# Causal Patterns

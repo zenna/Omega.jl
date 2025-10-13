@@ -110,5 +110,6 @@ end
 @inline passintervene(traits, i::AbstractIntervention, intctx, x, ω) =
   prepostapply(traits, x, ω)
 
-Var.dispatch(traits::trait(Intervene), f, ω::AbstractΩ) = 
+function Var.dispatch(traits::trait(Intervene), f, ω::AbstractΩ)
   passintervene(traits, ω.tags.intervene.intervention, ω.tags.intervene.intctx, f, ω)
+end

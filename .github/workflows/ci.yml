@@ -12,6 +12,7 @@ jobs:
         version:
           - '1.6'
           - '1.7'
+          - '1.8'
           - 'nightly'
         os:
           - ubuntu-latest
@@ -57,7 +58,7 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Pkg
-            Pkg.update()
+            Pkg.develop(url = pwd())
             Pkg.add(url = pwd(), subdir = "OmegaCore")'
       - run: |
           julia --project=docs -e '

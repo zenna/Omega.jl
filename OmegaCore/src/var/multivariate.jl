@@ -1,55 +1,37 @@
 export Mv, manynth, dimsnth
 
-# """
-# Multivariate distribution: Random array where each variable is ciid given
-# values for parameters.
+"""
+Multivariate distribution from class: Random array where each variable is ciid given
+values for parameters.
 
-# `Mv(dist, shape)`
+`Mv(ids, class)`
 
-# # Arguments 
-# - `dist` a variable class, i.e. `dist(id, ω)` must b defined, e.g. `Normal(0, 1)`
-# - `shape` Dimensions of Multivariate
+# Arguments 
+- `ids` Collection of ids
+- `f` a variable class, i.e. `f(id, ω)` must be defined, e.g. `~ Normal(0, 1)`
 
-# # Returns
+# Returns
+- Random variable: `ω -> [x(i, ω), x(i+1, ω), ..., x(n, ω)]` for all `i` in `ids`
 
-# # Example
-# ```julia
-# x = 1 ~ Normal(0, 1)
-# function f(id, ω)
-#   x(ω) + Uniform(0, 1)(id, ω)
-# end
-# xs = 2 ~ Mv(f, (3, 3))
-# randsample((x, xs))
-# ```
-# """
-# struct Mv{T, SHAPE}
-#   dist::T
-#   shape::SHAPE
-# end
-
-# Mv(dist, N::Integer) = Mv(dist, (N,))
-
-# traitlift(::Type{<:Mv}) = Lift()
-
-# # Base.eltype(Mv{T}) where {T} = 
-# prim(d::Normal) = StdNormal()
-# func(d::Normal, x) = x * d.σ + d.μ
-# @inline Var.recurse(mv::Mv{<:Distribution}, id, ω) =
-#   map(x -> func(mv.dist, x), resolve(Mv(prim(mv.dist), mv.shape), id, ω))
-# f(x::Dims) = map(i->1:i, x)
-# g(x::Dims) = Iterators.product(f(x)...)
-# @inline Var.recurse(mv::Mv{<:T}, id, ω) where T =
-#   map(id_ -> mv.dist(append(id, id_), ω), g(mv.shape))
-# Base.rand(rng::AbstractRNG, mv::Mv{<:PrimDist}) = 
-#   rand(rng, mv.dist, mv.shape)
-
-struct Mv{IDXS, FS} <:  AbstractVariable
-  idxs::IDXS
+# Example
+```jldoctest
+x = 1 ~ Normal(0, 1)
+function f(id, ω)
+  x(ω) + Uniform(0, 1)(id, ω)
+end
+xs = 2 ~ Mv(f, (3, 3))
+randsample((x, xs))
+```
+"""
+struct Mv{IDS, FS} <:  AbstractVariable
+  ids::IDS
   f::FS
 end
 
-Var.recurse(mv::Mv, ω) =  map(i -> mv.f(i, ω), mv.idxs)
+Var.recurse(mv::Mv, ω) =  map(i -> mv.f(i, ω), mv.ids)
 
-# FIXME: Maybe the ids should come first, not sure
+"`manynth(f, ids)` - shorthand for `Mv(ids, f)` See also: [`Mv`](@ref)"
 @inline manynth(f, ids) = Mv(ids, f)
+
+"`dimsnth(f, shape::Dims)` Like [`manynth`](@ref), but `shape` is a tuple of dimensions"
 @inline dimsnth(f, shape::Dims) = Mv(CartesianIndices(shape), f)

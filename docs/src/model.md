@@ -1,31 +1,40 @@
-In Omega, the main thing one does is construct random variables, and then compute inferences from them.  
+Informally,
 
-Omega comes with a small number of built-in primitive distributions.  One example  is the [standard uniform](https://en.wikipedia.org/wiki/Uniform_distribution_(continuous)#Standard_uniform):
-
-```julia
-using Omega
-x1 = 1 ~ StdUniform{Float64}()
-```
-
-What is the `1` doing here?  To explain, we need to introduce the idea of a __random variable class__.  Intuitively, a random variable class is a collection of random variables.
-
-Tec
+Omega comes with a small number of built-in primitive probability distributions.  One example  is the [standard uniform](https://en.wikipedia.org/wiki/Uniform_distribution_(continuous)#Standard_uniform):
 
 ```julia
 using Omega
-x1 = 1 ~ StdUniform{Float64}()
+xs = StdUniform{Float64}()
 ```
+
+`xs` represents a collection of random variables, which we call a __random variable class__.  To get the nth random variable in a random variable class we use the `nth` function
+
+```julia
+x1 = nth(xs, 1)
+```
+
+A more convenient way to write this is using `~`
+
+```julia
+x1 = 1 ~ xs
+```
+
+Random variables, such as `x1` represent quantities whose true value is uncertain.  There are many ways in English to express
+
+
+All of the probability distributions in the `Distributions.jl` package are random variable classes.
 
 ```julia
 using  Distributions
 x1 = @~ Uniform(0.0, 1.0)
 ```
 
-`x1` is a random variable not a sample.
+
+ sample.
 To construct another random variable `x2`, we do the same. 
 
 ```julia
-x2 = Uniform(0.0, 1.0)
+x2 = @~ Uniform(0.0, 1.0)
 ```
 
 `x1` and `x2` are [identically distributed and independent (i.i.d.)](https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables).
@@ -43,36 +52,35 @@ julia> randsample((x1, x1))
 ```
 
 ### Composition
-There are two ways to compose random variables: the statistical style, which can be less verbose, and more intuitive, but has some limitations, and the explicit style, which is more general.
+A single primitive random variable by itself isn't very interesting or useful.  In order to model complex things in the world we will typically need to compose together random variables into more complex ones.
 
-In the statistical style we create random variables by combining a number of primitives.
+There are two ways to compose random variables: the __statistical style__, which can be less verbose, and more intuitive, but has some limitations, and the __explicit style__, which is more general.
 
+Statistical style is convenient because it allows us to treat a `T`-valued random variable as if it is a value of type `T`.  For instance `@~ Uniform(0.0, 1.0)` is `Float64`-valued random variable, and hence using the statistical style, we can add, multiply, divide them as if they were values of type `Float64`.
 
-
-Statistical style is convenient because it allows us to treat a random variable which returns values of type `T` as if it is a value of type `T`.  For instance the `Uniform(0.0, 1.0)` is `Float64`.  Using the statistical style, we can add, multiply, divide them as if they were values of type `Float64`.
-
+To add two random variables we use the dot-form of the `+` function:
 
 ```julia
 x3 = x1 .+ x2
+randsample(@joint(x1, x2, x3))
+(x1 = 0.3940869955915858, x2 = 0.5380135911080237, x3 = 0.9321005866996095)
 ```
 
-Note `x3` is a random variable.
+`x3` is a random variable.
 
-This includes inequalities:
+We can apply inequalities in the same way:
 
 ```julia
 p = x3 .> 1.0
+julia> randsample(@joint(x3, p))
+(x3 = 1.2748335833273177, p = true)
 ```
 
-```julia
-julia> randsample(p)
-false
-```
-
-A particularly useful case is that primitive distributions which take parameters of type `T`, also accept `RandVar` with `elemtype` `T`
+Random variable families which take parameters of type `T` can in the same way take `T`-valued random variables.
 
 ```julia
-n = Normal.(x3, 1.0)
+μ = @~ Normal(0, 1)
+n = @~ Normal.(μ, 1)
 ```
 
 Suppose you write your own function which take `Float64`s as input:
@@ -81,45 +89,49 @@ Suppose you write your own function which take `Float64`s as input:
 myfunc(x::Float64, y::Float64) = (x * y)^2
 ```
 
-We can't automatically apply `myfunc` to random variables; it will cause a method error
+We can't apply `myfunc` to random variables; it will cause a method error
 
 ```julia
 julia> myfunc(x1, x2)
 ERROR: MethodError: no method matching myfunc...
 ```
 
-However this is easily remedied with the function `lift`:
-
-```julia
-pw(myfunc, x1, x2)
-```
-
-Or simply:
+However this is easily remedied with dot notation
 
 ```julia
 myfunc.(x1, x2)
 ```
 
 ## Explicit Style
-The above style is convenient but has a few limitations and it hides a lot of the machinery.
-To create random variables in the explicit style, create a normal Julia function that takes as input
+The above style is convenient but has a few limitations.  For example, we can't use it with Julia's conditional branching constructs like `if`
+
+```julia
+if p
+  3
+else
+  4
+end
+ERROR: TypeError: non-boolean (OmegaCore.Var.Pw{Tuple{OmegaCore.Var.Pw{Tuple{Member{Uniform{Float64}, Int64}, Member{Uniform{Float64}, Int64}}, typeof(+)}, Float64}, typeof(>)}) used in boolean context
+```
+
+To create random variables in the explicit style, create a normal Julia function that takes as input `ω`
 
 For instance, to define a bernoulli distribution in explicit style:
 
 ```julia
-x_(ω) = @~ StdNormal{Float64}()(ω) > 0.5
+x(ω::Ω) = @~ StdNormal{Float64}()(ω) > 0.5
 ```
 
-`x_` is just a normal julia function.  
+`x` is just a normal julia function.  
 
-All of the primitive distributions can be used in explicit style by passing the `rng` object as the first parameter (type constraints are added just to show that the return values are not random variables but elements.  But __don't add them to your own code!__ It will prevent automatic differentiation based inference procedures from working): 
+All of the primitive distributions can be used in explicit style by passing the `ω` object as the first parameter (type constraints are added just to show that the return values are not random variables but elements.  But __don't add them to your own code!__ It will prevent automatic differentiation based inference procedures from working): 
 
 ```julia
-function x_(ω)
-  if Bernoulli(ω, 0.5, Bool)::Bool
-    normal(ω, 0.0, 1.0)::Float64
-  else Bernoulli(ω, 0.5, Bool)
-    betarv(ω, 2.0, 2.0)::Float64
+function x(ω)
+  if (@~ Bernoulli(0.5))(ω)::Bool
+    (@~ Normal(0, 1))(ω)::Float64
+  else (@~ Bernoulli(0.5))(ω)::Bool
+    (@~ Beta(2.0, 2.0))(ω)::Float64
   end
 end
 ```
@@ -135,7 +147,7 @@ z = x .+ y
 
 ### Random Variable Families 
 
-Often we want to parameterize a random variable.  To do this we create functions which return random variables.
+Often we want to parameterize a random variable.  To do this we create functions which return random variables as a function of some parameters.
 For example, we can make a Uniform distribution family (without using Distributions.jl) by defining a function which maps `a` and `b` to a random variable
 
 ```julia
