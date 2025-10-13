@@ -31,6 +31,7 @@ function isclass(v::Function)
 end
 
 function traitvartype_(f::Function)
+
   # Core.println(f)
   if isvariable(f)
     TraitIsVariable
@@ -45,10 +46,11 @@ end
 #   traitvartype(f)
 # end
 
-@generated function traitvartype(f::Type{<:Function})
-  functype = f.parameters[1]
-  traitvartype_(functype.instance)
-end
+# @generated function traitvartype(f::Type{<:Function})
+#   functype = f.parameters[1]
+#   traitvartype_(functype.instance)
+# end
+traitvartype(::Type{F}) where {F<:Function} = traitvartype_(F.instance)
 
 
 # By default we don't know the variable type
