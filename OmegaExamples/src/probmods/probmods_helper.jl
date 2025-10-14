@@ -12,11 +12,21 @@ viz(var::Vector{NamedTuple{U, V}}) where {U, V} =
     barplot(Dict(freqtable(var)), ylabel = string(U[1], ", ", U[2]), xlabel = "Frequency")
 
 function viz_marginals(var::Vector{NamedTuple{U, V}}) where {U, V}
-    c = barplot(Dict(freqtable(string.(U[1], "_", map(x -> x[U[1]], var)))))
-    for i in 2:length(U)
-        barplot!(c, Dict(freqtable(string.(U[i], "_", map(x -> x[U[i]], var)))))
+    if isa(getfield(var[1], U[1]), Real)
+        display((U[1]))
+        display(histogram(getfield.(var, U[1]), symbols = ["■"]))
+        for name in U[2:end]
+            display(name)
+            display(histogram(getfield.(var, name), symbols = ["■"]))
+        end
+        return nothing
+    else
+        c = barplot(Dict(freqtable(string.(U[1], "_", getfield.(var, U[1])))), ylabel = string(U[1]), xlabel = "Frequency")
+        for name in U[2:end]
+            c = barplot!(c, Dict(freqtable(string.(name, "_", getfield.(var, name)))), ylabel = string(name), xlabel = "Frequency")
+        end
+        return c
     end
-    c
 end
 
 # Required aditional distributions -

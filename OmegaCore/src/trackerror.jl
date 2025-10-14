@@ -53,6 +53,12 @@ function Conditioning.condf(::trait(Err), ω, x, y)
   x(ω)
 end
 
+# If we are ignoring conditions, do not update error tracking and just return x(ω).
+# This specialization resolves ambiguity when both Err and IgnoreCondition traits are present.
+function Conditioning.condf(::trait(Err, IgnoreCondition), ω, x, y)
+  x(ω)
+end
+
 function Conditioning.cond!(::trait(Err), ω, bool)
   dotrack(ω) && conjoinerror!(ω.tags.err, bool)
   bool

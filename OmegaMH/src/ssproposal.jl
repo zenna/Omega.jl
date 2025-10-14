@@ -21,7 +21,10 @@ function subpropose(qω, ::Member{<:UniformInt{T}}, val; σ = 0.01) where {T}
 end
 
 function subpropose(qω, ::Member{<:StdUniform}, val; σ = 0.1)
-  @assert false "not implemented"
+  σT = convert(typeof(val), σ)
+  δ = σT * convert(typeof(val), randn(qω))
+  v = val + δ
+  min(max(v, zero(val)), oneunit(val))
 end
 
 function Proposal.propose(qω, f, ω, ::SSProposal)

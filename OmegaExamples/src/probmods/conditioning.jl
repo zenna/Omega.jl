@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.4
+# v0.20.19
 
 using Markdown
 using InteractiveUtils
@@ -97,7 +97,6 @@ C_ = @~ Bernoulli()
 D = A_ .+ B_ .+ C_
 
 # ╔═╡ b15a1f8e-2427-42a1-a3be-ee2b8d49adf4
-# take_sample(ω) = (D(ω) >= 2) ? A_(ω) : take_sample(split(ω))
 take_sample(ω) = (D(ω) >= 2) ? A_(ω) : take_sample(defω())
 
 # ╔═╡ e0c9c0d1-cd53-4a0f-858b-ee60b70e2a54
@@ -166,7 +165,10 @@ randsample((obs_X_, obs_X))
 cnd_true_X = true_X |ᶜ (obs_X .== 0.2)
 
 # ╔═╡ 5e5073bd-6866-4adb-863e-661a0a9b3bdf
-# randsample(cnd_true_X)
+# ╠═╡ disabled = true
+#=╠═╡
+randsample(cnd_true_X)
+  ╠═╡ =#
 
 # ╔═╡ 967c0589-e549-40d1-9ed3-8ca71a380b4e
 md"You will note that when you run the above function, it never finishes. (Why? Think about what rejection sampling tries to do here…) "
@@ -178,7 +180,7 @@ md"### Example: Reasoning about Tug of War"
 md"Imagine a game of tug of war, where each person may be strong or weak, and may be lazy or not on each match. If a person is lazy they only pull with half their strength. The team that pulls hardest will win. We assume that strength is a continuous property of an individual, and that on any match, each person has a 1 in 3 chance of being lazy."
 
 # ╔═╡ 07cfafb4-bc93-4c80-9c63-688f5afb8176
-strength(person) = person ~ TruncatedNormal(1, 1, 0.01, Inf)
+strength(person) = person ~ truncated(Normal(1, 1), 0.1, Inf)
 
 # ╔═╡ ca86dc25-90a8-49d1-b69f-b2e073bdf9f6
 lazy(n, ω) = (n ~ Bernoulli(1/3))(ω)

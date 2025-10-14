@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.4
+# v0.20.19
 
 using Markdown
 using InteractiveUtils
@@ -161,22 +161,19 @@ evidence = pw(&,
 	(Variable(ω -> bin(ω, data[2].n, data[2].age, a, b, (@uid, 2))) .== data[2].k),
 	(Variable(ω -> bin(ω, data[3].n, data[3].age, a, b, (@uid, 3))) .== data[3].k),
 	(Variable(ω -> bin(ω, data[4].n, data[4].age, a, b, (@uid, 4))) .== data[4].k)
-) # map gives the same variables for `bin`
+) # map gives the same `Variable`s for `bin`
 
 # ╔═╡ b98f226b-df22-44a2-b917-e22dbcad46b3
-viz(randsample(evidence, 1000)) # it wasn't this way before changing to `.`
+viz(randsample(evidence, 1000))
 
 # ╔═╡ fa5f280b-eb1b-483b-b7b9-05ef931b80a5
-a_posterior = a |ᶜ evidence
-
-# ╔═╡ 08cfd264-9969-4436-9af8-a1e5c342dc9e
-b_posterior = b |ᶜ evidence
+ab = @joint a b
 
 # ╔═╡ d9e93d06-0fab-4c44-89ba-f7ea17ddc908
-posterior = @joint a_posterior b_posterior
+posterior = ab |ᶜ evidence
 
 # ╔═╡ 181a9dbf-550d-439e-a9f2-f67aae3fb992
-viz_margnials(randsample(posterior, 1000, alg = MH))
+viz_marginals(randsample(posterior, 1000, alg = MH))
 
 # ╔═╡ 383f3eee-9fef-47ce-91b6-b4adbdea819b
 md"""
@@ -344,7 +341,6 @@ Of course when we, as scientists, try to test our cognitive models of people, we
 # ╠═998a3439-2be5-4e2e-a7ad-ed11b8d17f62
 # ╠═b98f226b-df22-44a2-b917-e22dbcad46b3
 # ╠═fa5f280b-eb1b-483b-b7b9-05ef931b80a5
-# ╠═08cfd264-9969-4436-9af8-a1e5c342dc9e
 # ╠═d9e93d06-0fab-4c44-89ba-f7ea17ddc908
 # ╠═181a9dbf-550d-439e-a9f2-f67aae3fb992
 # ╟─383f3eee-9fef-47ce-91b6-b4adbdea819b

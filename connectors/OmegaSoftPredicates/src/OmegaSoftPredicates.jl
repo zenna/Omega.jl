@@ -3,6 +3,7 @@ module OmegaSoftPredicates
 using SoftPredicates
 using SoftPredicates: AbstractSoftBool
 import OmegaCore
+import InferenceBase: to_logerr
 using OmegaCore: pw
 
 export softconstraints,
@@ -17,6 +18,8 @@ export softconstraints,
 
 
 OmegaCore.initerror(::Type{T}) where T <: AbstractSoftBool = one(T)
+
+to_logerr(x::AbstractSoftBool) = SoftPredicates.logerr(x)
 
 softconstraints(x) = OmegaCore.condvar(x, DualSoftBool{Float64}) # zt: should this be fized to float64?
 

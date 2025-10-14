@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.4
+# v0.20.19
 
 using Markdown
 using InteractiveUtils
@@ -50,7 +50,7 @@ tolerance_ = randsample(tolerance |ᶜ pw(==, random_widgets, actual_widgets), 1
 viz(tolerance_)
 
 # ╔═╡ 38576ae3-8cee-4ba0-9eb4-d81c167c808b
-md"But notice that the definition of getGoodWidget is exactly like the definition of rejection sampling! We can re-write this much more simply"
+md"But notice that the definition of `getGoodWidget` is exactly like the definition of rejection sampling! We can re-write this much more simply"
 
 # ╔═╡ b1d5fd2a-f049-4664-9773-c74247028b86
 widget = @~ widget_machine

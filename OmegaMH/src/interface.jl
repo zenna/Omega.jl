@@ -1,3 +1,4 @@
+using SoftPredicates
 """
 
 ```
@@ -21,7 +22,7 @@ function OmegaCore.randsample(rng,
                               ::MHAlg;
                               state_init = auto_init(rng, x, ΩT),
                               propose_and_logratio = defpropose_and_logratio(x),
-                              logenergy = auto_logenergy(x),
+                              logenergy = auto_logenergy(x, SoftPredicates.DualSoftBool{Float64}),
                               kwargs...)
   ωsamples = mh(rng, logenergy, n, state_init, propose_and_logratio; kwargs...) 
   map(x ∘ OmegaCore.tagignorecondition, ωsamples)
