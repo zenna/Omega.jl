@@ -167,10 +167,13 @@ evidence = pw(&,
 viz(randsample(evidence, 1000))
 
 # ╔═╡ fa5f280b-eb1b-483b-b7b9-05ef931b80a5
-ab = @joint a b
+a_posterior = a |ᶜ evidence
+
+# ╔═╡ 190ebe12-890f-46fe-8d21-d575781356d4
+b_posterior = b |ᶜ evidence
 
 # ╔═╡ d9e93d06-0fab-4c44-89ba-f7ea17ddc908
-posterior = ab |ᶜ evidence
+posterior = @joint a_posterior b_posterior
 
 # ╔═╡ 181a9dbf-550d-439e-a9f2-f67aae3fb992
 viz_marginals(randsample(posterior, 1000, alg = MH))
@@ -341,6 +344,7 @@ Of course when we, as scientists, try to test our cognitive models of people, we
 # ╠═998a3439-2be5-4e2e-a7ad-ed11b8d17f62
 # ╠═b98f226b-df22-44a2-b917-e22dbcad46b3
 # ╠═fa5f280b-eb1b-483b-b7b9-05ef931b80a5
+# ╠═190ebe12-890f-46fe-8d21-d575781356d4
 # ╠═d9e93d06-0fab-4c44-89ba-f7ea17ddc908
 # ╠═181a9dbf-550d-439e-a9f2-f67aae3fb992
 # ╟─383f3eee-9fef-47ce-91b6-b4adbdea819b

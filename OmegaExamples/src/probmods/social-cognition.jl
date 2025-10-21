@@ -44,7 +44,7 @@ actual_widgets = [0.6, 0.7, 0.8]
 random_widgets = manynth(get_good_widget, 1:length(actual_widgets))
 
 # ╔═╡ 7734b963-5cd6-42e6-9c09-fa1f4691109f
-tolerance_ = randsample(tolerance |ᶜ pw(==, random_widgets, actual_widgets), 1000)
+tolerance_ = randsample(tolerance |ᶜ pw(==, random_widgets, actual_widgets), 1000, alg=MH)
 
 # ╔═╡ 7d411137-313e-473a-b9ef-4c82ccb3e2d8
 viz(tolerance_)
@@ -118,14 +118,14 @@ function vending_machine_stochastic(ω, action)
 end
 
 # ╔═╡ 64c941d8-900e-41a8-b5ab-3539b45dccfb
-function choose_action_stochastic(goal_state, transition, i)
+function choose_action_stochastic(goal, transition, i)
 	a = i ~ action_prior
-	a |ᶜ (Variable(ω -> transition(ω, a(ω))) .== goal_state)
+	a |ᶜ (Variable(ω -> transition(ω, a(ω))) .== goal)
 end
 
 # ╔═╡ 041bd9be-7161-4e2c-8ea1-f1e93c63836e
 action_samples = 
-	randsample(choose_action_stochastic(:cookie, vending_machine_stochastic, 0), 100)
+	randsample(choose_action_stochastic(:cookie, vending_machine_stochastic, 0), 1000)
 
 # ╔═╡ 95cc8a2b-3280-4ed0-9d64-488062b09a10
 viz(string.(action_samples))
@@ -165,19 +165,20 @@ end
 
 # ╔═╡ 47672c99-dc1a-4674-b008-5c1007f8de80
 action_dist_broken = 
-	Variable(ω -> choose_action_stochastic(goal(ω), vending_machine_broken, :broken)(ω))
+	Variable(ω -> 
+			 choose_action_stochastic(goal, vending_machine_broken, 1)(ω))
 
 # ╔═╡ 01c7ff1f-2d5d-4334-ad16-7fb74a29391c
 goal_posterior_broken = goal |ᶜ (action_dist_broken .== 2)
 
 # ╔═╡ a9f49983-d018-444e-a683-e32733821213
-goal_post_broken_samples = randsample(goal_posterior_broken, 1000)
+goal_post_broken_samples = randsample(goal_posterior_broken, 100)
 
 # ╔═╡ 567147c8-6815-48c9-a72e-076b101555e5
-viz(goal_post_broken_samples) # Isn't right : should get 3:7, now it is 1:1
+viz(goal_post_broken_samples)
 
 # ╔═╡ c33a7649-1a0e-44ac-9b32-3afdb4abf564
-# md"Despite the fact that button $2$ is equally likely to result in either bagel or cookie, we have inferred that Sally probably wants a cookie. This is a result of the inference implicitly taking into account the counterfactual alternatives: if Sally had wanted a bagel, she would have likely pressed button $1$. The inner query takes these alternatives into account, adjusting the probability of the observed action based on alternative goals."
+md"Despite the fact that button $2$ is equally likely to result in either bagel or cookie, we have inferred that Sally probably wants a cookie. This is a result of the inference implicitly taking into account the counterfactual alternatives: if Sally had wanted a bagel, she would have likely pressed button $1$. The inner query takes these alternatives into account, adjusting the probability of the observed action based on alternative goals."
 
 # ╔═╡ 3130e952-63ed-4236-bca6-f6629c38440c
 md"## Inferring preferences
@@ -202,7 +203,7 @@ random_actions = manynth(action_dist_has_preference, 1:3)
 
 # ╔═╡ ee6cef1f-f00e-4dba-9689-9d81240f5b84
 goal_posterior_samples = 
-		randsample((@~ goal_prior) |ᶜ pw(==, random_actions, [2, 2, 2]), 1000)
+		randsample((@~ goal_prior) |ᶜ pw(==, random_actions, [2, 2, 2]), 100)
 
 # ╔═╡ 3c1c3c99-b5d1-4266-b788-e4f3093fa8ec
 viz(goal_posterior_samples)
@@ -239,7 +240,7 @@ random_actions_cookie = manynth(action_dist_cookie, 1:3)
 
 # ╔═╡ de4fc02c-c665-4297-b226-a9822505ea27
 goal_posterior_cookie_samples = 
-		randsample((@~goal_prior_cookie) |ᶜ pw(==, random_actions_cookie, [2, 2, 2]), 1000)
+		randsample((@~goal_prior_cookie) |ᶜ pw(==, random_actions_cookie, [2, 2, 2]), 100)
 
 # ╔═╡ aa9fc886-f3ca-4ba4-820c-2df951431ee8
 viz(goal_posterior_cookie_samples)
@@ -317,7 +318,7 @@ buttons_posterior_ =
 	buttons_ |ᶜ .&((action_dist_one_button .== 1), (goal .== :cookie))
 
 # ╔═╡ 731b1469-c307-4425-bbdd-6f07741354a8
-buttons_joint_samples_ = randsample(buttons_posterior_, 1000)
+buttons_joint_samples_ = randsample(buttons_posterior_, 100)
 
 # ╔═╡ e66754b1-e389-4691-903f-dbb01aaa16af
 viz_marginals(buttons_joint_samples_)
@@ -355,7 +356,7 @@ kg_posterior =
 	knowledge_and_goals |ᶜ pw(&, (Variable(ω -> vending_machine_kg(ω, 2)) .== :cookie), (action_dist_kg .== 2))
 
 # ╔═╡ fba8029e-0167-4940-aeb5-71029acc61fb
-kg_samples = randsample(kg_posterior, 1000)
+kg_samples = randsample(kg_posterior, 100)
 
 # ╔═╡ 63497503-d967-467b-8962-c14089454d0d
 kg_ = map(b -> Base.structdiff(b, (one_press_cookie_prob = b.one_press_cookie_prob, )), kg_samples) 
@@ -395,7 +396,7 @@ end
 knows = @~ Bernoulli()
 
 # ╔═╡ c9d90acc-23d3-478e-b887-32ff1bd552bd
-s = randsample(knows |ᶜ (ω -> (choose_action_stochastic(:cookie, knows(ω) ? true_vending_machine : random_machine, :know)(ω) == 1) & (true_vending_machine(ω, 1) == :bagel)), 1000)
+s = randsample(knows |ᶜ (ω -> (choose_action_stochastic(:cookie, knows(ω) ? true_vending_machine : random_machine, :know)(ω) == 1) & (true_vending_machine(ω, 1) == :bagel)), 100)
 
 # ╔═╡ 65d1c8e0-e847-4d84-b7b7-1cf24cfce057
 viz(s)
@@ -419,7 +420,7 @@ function sally_machine(ω, action)
 end
 
 # ╔═╡ c570958b-13fd-4909-91c2-3b126872c354
-s_ = randsample((ω -> sally_machine(ω, 1)) |ᶜ (ω -> (choose_action_stochastic(:cookie, sally_machine, :believe)(ω) == 1) & (true_vending_machine(ω, 1) == :bagel)), 1000)
+s_ = randsample((ω -> sally_machine(ω, 1)) |ᶜ (ω -> (choose_action_stochastic(:cookie, sally_machine, :believe)(ω) == 1) & (true_vending_machine(ω, 1) == :bagel)), 100)
 
 # ╔═╡ 6d62e403-bfe4-4bef-8092-c9a20b884bab
 viz(s_)
@@ -477,7 +478,7 @@ begin
 end
 
 # ╔═╡ a662c3a1-70d6-4305-84d3-a34c77bd5fb8
-viz(string.(randsample(learner(:green, 3), 1000)))
+viz(string.(randsample(learner(:green, 3), 100)))
 
 # ╔═╡ 1190f5c8-371e-41e8-be6c-4d3aea30805b
 md"""
@@ -541,7 +542,7 @@ begin
 end
 
 # ╔═╡ 43ff6d9e-0725-406e-b87f-eb37209967d4
-viz(string.(randsample(listener("some", 1), 1000))) # graph isn't same - in WebPpl, they expect some, but not all
+viz(string.(randsample(listener("some", 1), 100)))
 
 # ╔═╡ Cell order:
 # ╠═ad4f98b4-4d34-40e6-a546-1013badd310a
@@ -585,7 +586,7 @@ viz(string.(randsample(listener("some", 1), 1000))) # graph isn't same - in WebP
 # ╠═01c7ff1f-2d5d-4334-ad16-7fb74a29391c
 # ╠═a9f49983-d018-444e-a683-e32733821213
 # ╠═567147c8-6815-48c9-a72e-076b101555e5
-# ╠═c33a7649-1a0e-44ac-9b32-3afdb4abf564
+# ╟─c33a7649-1a0e-44ac-9b32-3afdb4abf564
 # ╟─3130e952-63ed-4236-bca6-f6629c38440c
 # ╠═3dc36e8c-a494-4022-8c72-fd1b737d0301
 # ╠═e555e6fb-7f99-410d-b440-012819afa731

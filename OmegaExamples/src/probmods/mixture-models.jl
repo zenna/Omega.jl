@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.4
+# v0.20.19
 
 using Markdown
 using InteractiveUtils
@@ -52,17 +52,28 @@ obs_fn(data) =
 # ╔═╡ 010c18fa-af74-45ab-859b-1cd75f5c48f3
 obs = [:red, :red, :blue, :blue, :red, :blue]
 
+# ╔═╡ e20950af-2d25-4f19-bf73-264f0b326e4a
+randsample(obs_fn(obs))
+
+# ╔═╡ 7052239a-b836-4c5c-a0fc-77f8693e8ae1
+obs123(ω::Ω) = (obs1=(1~obs_to_bag)(ω), obs2=(2~obs_to_bag)(ω), obs3=(3~obs_to_bag)(ω))
+
+# ╔═╡ d7d77ad4-3c24-4b22-8713-93743a6ba49c
+samples123 = randsample(obs123 |ᶜ obs_fn(obs), 1000)
+
 # ╔═╡ 6f33bc95-e348-404e-ac77-1ad928cbedc4
-same_bag_1and2 = ((1 ~ obs_to_bag) .== (2 ~ obs_to_bag)) |ᶜ obs_fn(obs)
+same_bag_1and2::Vector{Bool} = 
+		getfield.(samples123, :obs1) .== getfield.(samples123, :obs2)
 
 # ╔═╡ de573730-2626-4180-994a-8eac595e8986
-same_bag_1and3 = ((1 ~ obs_to_bag) .== (3 ~ obs_to_bag)) |ᶜ obs_fn(obs)
+same_bag_1and3::Vector{Bool} = 
+		getfield.(samples123, :obs1) .== getfield.(samples123, :obs3)
 
 # ╔═╡ 8ad0bfec-192e-4d8a-b646-47001b3cebb9
-viz(randsample(same_bag_1and2, 1000))
+viz(same_bag_1and2)
 
 # ╔═╡ c3b3ed66-4be0-4bc0-ba90-e480fd59cb27
-viz(randsample(same_bag_1and3, 1000))
+viz(same_bag_1and3)
 
 # ╔═╡ ee296542-36b6-4542-8f5d-35ab7105270c
 md"""
@@ -82,19 +93,25 @@ obs_to_bag_mix(i, ω) = (i~ Categorical((i~ bag_mixture)(ω)))(ω)
 obs_fn_mix(data) = 
 	Variable(ω -> all(map(i -> make_bag(obs_to_bag_mix(i, ω), ω) == data[i], 1:length(data))))
 
+# ╔═╡ 6be355a6-ed7c-420f-8f7f-f575205b83dd
+begin
+	obs123_mix(ω::Ω) = (obs1=(1~obs_to_bag_mix)(ω), obs2=(2~obs_to_bag_mix)(ω), obs3=(3~obs_to_bag_mix)(ω))
+	samples123_mix = randsample(obs123_mix |ᶜ obs_fn_mix(obs), 1000)
+end
+
 # ╔═╡ 99517093-0f0d-4ab1-9d65-5f1fdd2df58f
-same_bag_1and2_mix = 
-	((1 ~ obs_to_bag_mix) .== (2 ~ obs_to_bag_mix)) |ᶜ obs_fn_mix(obs)
+same_bag_1and2_mix::Vector{Bool} = 
+		getfield.(samples123_mix, :obs1) .== getfield.(samples123_mix, :obs2)
 
 # ╔═╡ f7f2365a-88d2-4d55-ae2d-0627e8ec29df
-same_bag_1and3_mix = 
-	((1 ~ obs_to_bag_mix) .== (3 ~ obs_to_bag_mix)) |ᶜ obs_fn_mix(obs)
+same_bag_1and3_mix::Vector{Bool} = 
+		getfield.(samples123_mix, :obs1) .== getfield.(samples123_mix, :obs3)
 
 # ╔═╡ ab98a869-b2fc-4d1b-b08f-6e7426064ae5
-viz(randsample(same_bag_1and2_mix, 1000))
+viz(same_bag_1and2_mix)
 
 # ╔═╡ 62375f29-fa4a-46a7-803d-001a3cfe620d
-viz(randsample(same_bag_1and3_mix, 1000))
+viz(same_bag_1and3_mix)
 
 # ╔═╡ 470b8eab-cec3-4bf6-a7d6-9a6341c6ce94
 md"""
@@ -144,8 +161,8 @@ cat_to_mean(i, ω) = (x_mean = x_mean(i, ω), y_mean = y_mean(i, ω))
 function predictives(data, ω)
 	for (i, d) in enumerate(data)
 		mus = cat_to_mean(obs_to_cat(i, ω), ω)
-		cond!(ω, (i ~ Normal(mus.x_mean, 0.01))(ω) ==ₛ d.x)
-		cond!(ω, ((@uid, i) ~ Normal(mus.y_mean, 0.01))(ω) ==ₛ d.y)
+		cond!(ω, (i ~ Normal(mus.x_mean, 0.01))(ω) == d.x)
+		cond!(ω, ((@uid, i) ~ Normal(mus.y_mean, 0.01))(ω) == d.y)
 	end
 	return cat_to_mean(obs_to_cat(@uid, ω), ω)
 end
@@ -226,7 +243,7 @@ corpus = split.([
 ])
 
 # ╔═╡ 5bbef8f3-afd0-4545-ba56-19e94ce6166b
-topics = map(i -> (ω -> (i~ OmegaExamples.Dirichlet(η))(ω)), 1:num_topics)
+topics = [Variable(ω -> (i~ OmegaExamples.Dirichlet(η))(ω)) for i in 1:num_topics]
 
 # ╔═╡ bcec4fab-5c28-49c6-988f-d252d0d3a505
 topic_dist(i, ω) = (i~ OmegaExamples.Dirichlet(alpha))(ω)
@@ -251,10 +268,10 @@ model = (ω -> mapf(ω, topics)) |ᶜ Variable(all ∘ evidence)
 results = randsample(model, 1000, alg = MH)
 
 # ╔═╡ bea4dd18-f686-4e16-86c9-86e9b3c0ecd0
-barplot(vocabulary, map(x -> mean(results[1][x]), 1:4))
+barplot(vocabulary, map(x -> mean(first.(results)[x]), 1:4))
 
 # ╔═╡ ddac7295-ef47-477a-8c3c-d08c583fd026
-barplot(vocabulary, map(x -> mean(results[2][x]), 1:4))
+barplot(vocabulary, map(x -> mean(last.(results)[x]), 1:4))
 
 # ╔═╡ 8aabbc7b-3f85-4986-a196-3b12800cd68e
 md"""
@@ -414,26 +431,32 @@ function make_bag_inf(i, ω)
 end
 
 # ╔═╡ 65a3c717-7720-4643-9bd0-c7d7329ee603
-get_bag_inf(i, ω, k = 1) = 
-	((i, k) ~ Bernoulli(residuals_(ω)))(ω) ? k : get_bag_inf(i, ω, k+1)
+obs_to_bag_inf(i, ω, k = 1) = 
+	((i, k) ~ Bernoulli(residuals_(ω)))(ω) ? k : obs_to_bag_inf(i, ω, k+1)
 
 # ╔═╡ 33fec097-ac33-4223-a4ff-7c39100d8faf
 obs_fn_inf(data) = 
-	Variable(ω -> all(map(i -> make_bag_inf(get_bag_inf(i, ω), ω) == data[i], 1:length(data))))
+	Variable(ω -> all(map(i -> make_bag_inf(obs_to_bag_inf(i, ω), ω) == data[i], 1:length(data))))
+
+# ╔═╡ 35c90f70-351d-410a-ae8c-d52ddde23dfd
+begin
+	obs123_inf(ω::Ω) = (obs1=(1~obs_to_bag_inf)(ω), obs2=(2~obs_to_bag_inf)(ω), obs3=(3~obs_to_bag_inf)(ω))
+	samples123_inf = randsample(obs123_inf |ᶜ obs_fn_inf(obs_marbles), 100)
+end
 
 # ╔═╡ 4c21efb6-f851-4ba7-8ffb-1caf3c44421b
-same_bag_12 = 
-	((1 ~ get_bag_inf) .== (2 ~ get_bag_inf)) |ᶜ obs_fn_inf(obs_marbles)
+same_bag_12_inf::Vector{Bool} = 
+	getfield.(samples123_inf, :obs1) .== getfield.(samples123_inf, :obs2)
 
 # ╔═╡ 4f4c6dcf-49ed-4f9a-88f0-82ded6bf9851
-same_bag_13 = 
-	((1 ~ get_bag_inf) .== (3 ~ get_bag_inf)) |ᶜ obs_fn_inf(obs_marbles)
+same_bag_13_inf::Vector{Bool} = 
+	getfield.(samples123_inf, :obs1) .== getfield.(samples123_inf, :obs3)
 
 # ╔═╡ 50a731ab-6221-4d49-8231-ee6f0ffa125e
-viz(randsample(same_bag_12, 20))
+viz(same_bag_12_inf)
 
 # ╔═╡ b461d87b-ff77-4211-9813-d7cbec0461c5
-viz(randsample(same_bag_13, 10))
+viz(same_bag_13_inf)
 
 # ╔═╡ 56095cc7-03e2-42a6-838b-106281e18be2
 md"""
@@ -451,7 +474,10 @@ Like the unbounded mixture above, there are an infinite set of possible catgorie
 # ╠═268507f9-581c-454d-8c4a-5f158f190be0
 # ╠═7cef9d52-abcb-41f9-b0ea-f46a8407bc80
 # ╠═244c8a12-0241-4229-acaf-b5285add43c3
+# ╠═e20950af-2d25-4f19-bf73-264f0b326e4a
 # ╠═010c18fa-af74-45ab-859b-1cd75f5c48f3
+# ╠═7052239a-b836-4c5c-a0fc-77f8693e8ae1
+# ╠═d7d77ad4-3c24-4b22-8713-93743a6ba49c
 # ╠═6f33bc95-e348-404e-ac77-1ad928cbedc4
 # ╠═de573730-2626-4180-994a-8eac595e8986
 # ╠═8ad0bfec-192e-4d8a-b646-47001b3cebb9
@@ -460,6 +486,7 @@ Like the unbounded mixture above, there are an infinite set of possible catgorie
 # ╠═ae0a9675-f9b6-44c0-8ea9-f71ed06a02e0
 # ╠═9aa43d24-1136-481c-8c69-a5705f1e189e
 # ╠═eb7a3c55-535c-4a5d-9b04-117f3fef6f6d
+# ╠═6be355a6-ed7c-420f-8f7f-f575205b83dd
 # ╠═99517093-0f0d-4ab1-9d65-5f1fdd2df58f
 # ╠═f7f2365a-88d2-4d55-ae2d-0627e8ec29df
 # ╠═ab98a869-b2fc-4d1b-b08f-6e7426064ae5
@@ -538,6 +565,7 @@ Like the unbounded mixture above, there are an infinite set of possible catgorie
 # ╠═dbba9fa2-7abb-4f75-98eb-39c4e25d3a2e
 # ╠═65a3c717-7720-4643-9bd0-c7d7329ee603
 # ╠═33fec097-ac33-4223-a4ff-7c39100d8faf
+# ╠═35c90f70-351d-410a-ae8c-d52ddde23dfd
 # ╠═4c21efb6-f851-4ba7-8ffb-1caf3c44421b
 # ╠═4f4c6dcf-49ed-4f9a-88f0-82ded6bf9851
 # ╠═50a731ab-6221-4d49-8231-ee6f0ffa125e

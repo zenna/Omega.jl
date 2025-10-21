@@ -59,11 +59,11 @@ function agent_belief(i, ω)
 end
 
 # ╔═╡ 43d1f4e9-56a0-44bd-b9ad-177654dde799
-agent_belief_samples(i) = randsample(ω -> agent_belief((@uid, i), ω), 1000)
+agent_belief_samples(i, N_samples=100) = randsample(ω -> agent_belief((@uid, i), ω), N_samples)
 
 # ╔═╡ 4eaf8a19-086a-460a-b6c7-0f1ae26648f0
-max_agent(i) = 
-	count(x -> x == true, agent_belief_samples(i)) > count(x -> x == false, agent_belief_samples(i))
+max_agent(i, N_samples=100) = 
+	count(agent_belief_samples(i, N_samples)) > N_samples/2
 
 # ╔═╡ 63465f7f-d200-4440-be50-c8ff39e2690a
 max_agent_samples = map(i -> max_agent(i), 1:100)
@@ -72,7 +72,7 @@ max_agent_samples = map(i -> max_agent(i), 1:100)
 viz(max_agent_samples)
 
 # ╔═╡ f7269ff3-606d-4494-9f0c-1771941c2312
-sample_agent = map(i -> randsample(ω -> agent_belief((@uid, i), ω)), 1:1000)
+sample_agent = map(i -> randsample(ω -> agent_belief((@uid, i), ω)), 1:100) # assigns a new uid
 
 # ╔═╡ 123df858-97c1-475e-b908-2e83c4009a13
 viz(sample_agent)

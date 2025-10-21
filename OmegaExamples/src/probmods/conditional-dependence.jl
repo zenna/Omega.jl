@@ -138,7 +138,7 @@ ints = @joint int_1 int_2
 sum_cond = ints |ᶜ (int_1 .+ int_2 .== 9)
 
 # ╔═╡ 72fb2dc6-b89f-4bec-a00f-a09cdc19bfa3
-val = randsample(sum_cond, 1000)
+val = randsample(sum_cond, 100)
 
 # ╔═╡ 998e9e30-af54-4ced-afb2-44e9ca5c10e1
 scatterplot([v.int_1 for v in val], [v.int_2 for v in val], marker = :xcross)
@@ -152,7 +152,7 @@ This gives perfect anti-correlation in conditional inferences for `int_1` and `i
 eq_cond = ints |ᶜ (int_1 .== int_2)
 
 # ╔═╡ 14de8534-62d2-4051-b590-403f80ab4c77
-val_eq = randsample(eq_cond, 1000)
+val_eq = randsample(eq_cond, 100)
 
 # ╔═╡ b5be4e3e-be2a-41f8-9038-773eda8b8073
 scatterplot([v.int_1 for v in val_eq], [v.int_2 for v in val_eq], marker = :xcross)
@@ -216,7 +216,7 @@ shortness_of_breath = (lung_disease .& @~ Bernoulli(0.2)) .| @~ Bernoulli(0.01)
 smokes_cond_c_cp_sob = smokes |ᶜ pw(&, cough, chest_pain, shortness_of_breath)
 
 # ╔═╡ 370c6749-de71-4783-a831-02b8c692181b
-viz(randsample(smokes_cond_c_cp_sob, 1000))
+viz(randsample(smokes_cond_c_cp_sob, 100))
 
 # ╔═╡ 7e98268f-81c5-4e63-9f34-7af0f75f415e
 md"""
@@ -239,7 +239,7 @@ To illustrate, observe how the probabilities of `cold` and `lung_disease` change
 """
 
 # ╔═╡ be042ac7-93f1-4ab8-9420-fe06ceafa945
-viz(randsample(smokes_cond_c_cp_sob_ld, 1000))
+viz(randsample(smokes_cond_c_cp_sob_ld, 100))
 
 # ╔═╡ 40794e8e-53f9-4204-8bda-551b6c51cc7e
 ld_and_cold = @joint lung_disease cold
@@ -248,7 +248,7 @@ ld_and_cold = @joint lung_disease cold
 ld_and_cold_cond = ld_and_cold |ᶜ cough
 
 # ╔═╡ 6400f767-dcb1-4230-90b9-b6d23066c0fd
-cond_cough_samples = randsample(ld_and_cold_cond, 1000)
+cond_cough_samples = randsample(ld_and_cold_cond, 100)
 
 # ╔═╡ 28be1b57-23ac-4d2f-854c-2d81872b3853
 viz(cond_cough_samples)
@@ -267,7 +267,7 @@ Now suppose we also learn that the patient does _not_ have a cold.
 cond_cough_not_cold = ld_and_cold |ᶜ (cough .& .!(cold))
 
 # ╔═╡ 2f383a73-2e95-4d0a-adf0-ed80bbb8ec63
-cond_cough_not_cold_samples = randsample(cond_cough_not_cold, 1000)
+cond_cough_not_cold_samples = randsample(cond_cough_not_cold, 100)
 
 # ╔═╡ 0834861d-e58e-4880-a5c5-26958e295015
 viz(cond_cough_not_cold_samples)
@@ -284,7 +284,7 @@ The probability of having lung disease increases dramatically. If instead we had
 cond_cough_and_cold = ld_and_cold |ᶜ (cough .& cold)
 
 # ╔═╡ 7f797ddf-7d52-4fc9-aa7b-a1659030bc12
-cond_cough_cold_samples = randsample(cond_cough_and_cold, 1000)
+cond_cough_cold_samples = randsample(cond_cough_and_cold, 100)
 
 # ╔═╡ af695d20-321c-4d7e-9d23-7f015e064446
 viz(cond_cough_cold_samples)
@@ -336,7 +336,7 @@ does_homework_cond_not_pass = does_homework |ᶜ .!(pass)
 
 # ╔═╡ 480bba39-ce0d-4807-a126-86f11ef5b9bb
 samples_cond_not_pass =
-	randsample((@joint fair_exam_cond_not_pass does_homework_cond_not_pass), 1000)
+	randsample((@joint fair_exam_cond_not_pass does_homework_cond_not_pass), 100)
 
 # ╔═╡ 59f754da-897f-4564-b944-b8230ad3ea8b
 viz_marginals(samples_cond_not_pass)
@@ -377,7 +377,7 @@ joint(condition) = ω -> (fair_exam_exam1 = fair_exam_exam1(condition)(ω),
 
 # ╔═╡ 4189eedc-e757-4edd-8581-114526440dbb
 p(condition) = 
-	randsample(joint(condition), 1000)
+	randsample(joint(condition), 100)
 
 # ╔═╡ 15bc136b-7d4d-4aae-b748-916e4fc03e04
 c = .!(pass_m(exam1, bill))
@@ -464,13 +464,13 @@ end
 blicket_cond = blicket(1) |ᶜ machine([1, 2])
 
 # ╔═╡ f4aa162d-9ff7-4db2-94d6-98c85da8a395
-viz(randsample(blicket_cond, 1000))
+viz(randsample(blicket_cond, 100))
 
 # ╔═╡ a0afd23b-636e-4a62-a242-07e1480f7d72
 md"The backward blocking scenario described above:"
 
 # ╔═╡ 8981dd2a-3d8d-43e2-b504-72352d69cb1c
-viz(randsample(blicket(1) |ᶜ machine([2]), 1000))
+viz(randsample(blicket(1) |ᶜ machine([2]), 100))
 
 # ╔═╡ beb0f49a-03b9-496c-abf3-f32b6d37766f
 md"[Sobel et al. (2004)](https://scholar.google.com/scholar?q=%22Children%27s%20causal%20inferences%20from%20indirect%20evidence%3A%20Backwards%20blocking%20and%20Bayesian%20reasoning%20in%20preschoolers%22) tried this with children, finding that four year-olds perform similarly to the model: evidence that $B$ is a blicket explains away the evidence that $A$ and $B$ made the detector go away."

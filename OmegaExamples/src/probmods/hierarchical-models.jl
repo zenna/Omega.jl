@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.4
+# v0.20.19
 
 using Markdown
 using InteractiveUtils
@@ -32,7 +32,10 @@ As a simplification of this situation consider the following generative process.
 colours = [:black, :blue, :green, :orange, :red]
 
 # ╔═╡ d77244a2-6c81-4347-a573-f607c325518b
-colour_probs(n, ω, i) = (i~ OmegaExamples.Dirichlet(n, 1))(ω)
+colour_probs(n, ω, i) = ((@uid, i...)~ Dirichlet(n, 1))(ω)
+
+# ╔═╡ 03ad311b-0449-4ab1-93c7-782a78968e19
+randsample(ω -> (@~ Categorical(colour_probs(5, ω, 1)))(ω), 10)
 
 # ╔═╡ bf360f12-e0bc-401b-92c1-133cba3cc4f6
 make_bag(i, ω, colours, n = @uid) = 
@@ -45,7 +48,7 @@ randsample(ω -> make_bag(1, ω, colours))
 bagA, bagB = (@uid, 1), (@uid, 2)
 
 # ╔═╡ 720e982d-7312-43c6-8658-75271d50b5ae
-ωs = map(i -> defω(), 1:100)
+ωs = map(i -> defω(), 1:100);
 
 # ╔═╡ d5f5f577-5fc2-4159-a389-b1b7b8eaaded
 let
@@ -105,7 +108,7 @@ bags(ω, colours) = (
 predictives = (ω -> bags(ω, colours)) |ᶜ obs_fn
 
 # ╔═╡ 255a909a-863d-4958-a8a1-c63c377d8dfd
-viz_marginals(string.(randsample(predictives, 1000, alg = MH)))
+viz_marginals(string.(randsample(predictives, 10)))
 
 # ╔═╡ 5f4256bc-9296-4709-bee6-16e11ce8cda2
 md"""
@@ -149,7 +152,7 @@ bags_global(ω, colours) = (
 predictives_global = (ω -> bags_global(ω, colours)) |ᶜ obs_fn_global
 
 # ╔═╡ 418939ad-7f4b-4930-a845-ffa6d6d4e21d
-viz_marginals(string.(randsample(predictives_global, 1000, alg = MH)))
+string.(randsample(predictives_global, 1)) # should use MH for plots, but MH has errors with Categorical
 
 # ╔═╡ 848e250a-707f-4d18-bb45-96de52f853de
 md"""
@@ -196,7 +199,7 @@ data = [:red, :red, :blue, :red, :red, :blue, :red, :red, :blue, :red, :red, :bl
 num_obs = [1, 3, 6, 9, 12]
 
 # ╔═╡ df3872fc-b2be-4072-bbb5-d77935bc3b4b
-posteriors = map(i -> randsample(posterior(data[1:i]), 1000, alg = MH), num_obs)
+posteriors = map(i -> randsample(posterior(data[1:i]), 10), num_obs)
 
 # ╔═╡ 6a84c4d0-c530-4448-947e-6fe7bfcb78b3
 # plot the learning curve
@@ -222,7 +225,7 @@ posterior_same(data) =
 
 # ╔═╡ f1a52b02-7240-4c86-879f-e59495228826
 posteriors_same = 
-		map(i -> randsample(posterior_same(data[1:i]), 1000, alg = MH), num_obs)
+		map(i -> randsample(posterior_same(data[1:i]), 10), num_obs)
 
 # ╔═╡ 6c11597e-94d1-4e75-8392-9e809f8cd0b6
 # plot
@@ -290,7 +293,7 @@ predictives_s(ω) = (
 )
 
 # ╔═╡ e98eb573-6911-4799-99bd-483d85951506
-viz_marginals(randsample(predictives_s |ᶜ obs_fn, 1000, alg = MH))
+randsample(predictives_s |ᶜ obs_fn, 1) 
 
 # ╔═╡ e649464a-ff9a-423f-b8e4-2b95664d2bd6
 md"""
@@ -382,7 +385,7 @@ cat_N_color(ω) = make_attr_dist(6, ω, :color)
 predictives_attr = @joint cat_5_shape cat_5_color cat_N_shape cat_N_color
 
 # ╔═╡ 0a67bd81-564e-4b48-8a8d-614aff4a4161
-predictives_attr_samples = randsample(predictives_attr |ᶜ obs_fn_attr, 1000, alg = MH)
+predictives_attr_samples = randsample(predictives_attr |ᶜ obs_fn_attr, 1)
 
 # ╔═╡ ec541e6d-d801-4982-98c4-f765c86f8ffc
 md"""
@@ -493,7 +496,7 @@ function head_to_phrase(ω)
 end
 
 # ╔═╡ 55efc98e-bf91-44c2-9d8a-0c68c69dcd36
-# uses factor in the code below (compares vector of strings with their `score`)-
+# uses factor in the code below (compares vector of strings with their `score`), which is not present in Omega 
 
 # ╔═╡ af7bf1d6-1edd-4db5-9c27-7f17a05943ee
 lang(ω) = (@~ Bernoulli(head_to_phrase(ω)["N"]))(ω) ? "N second" : "N first"
@@ -528,6 +531,7 @@ Hierarchical model structures give rise to a number of important learning phenom
 # ╟─2c1386e4-9011-43e1-935a-0408aa119f81
 # ╠═8fbf82d1-f88c-4565-a3e1-70bb949dd1ca
 # ╠═d77244a2-6c81-4347-a573-f607c325518b
+# ╠═03ad311b-0449-4ab1-93c7-782a78968e19
 # ╠═bf360f12-e0bc-401b-92c1-133cba3cc4f6
 # ╠═9bb472fd-f762-470d-bc47-7a7f480c88a7
 # ╠═6ce22c12-1eea-4f5d-b97b-57c42cde6bf7

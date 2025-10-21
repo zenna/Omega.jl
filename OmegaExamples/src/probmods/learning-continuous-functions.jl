@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.4
+# v0.20.19
 
 using Markdown
 using InteractiveUtils
@@ -55,9 +55,10 @@ post = (@joint order coeffs) |ᶜ obs_fn
 function post_fn_samples(rng)
 	ps = Float64[]
 	for x in rng
-		as = randsample(post, 1, alg = MH)
+		as = first(randsample(post, 1, alg = MH))
 		push!(ps, make_poly(as.coeffs[1:as.order])(x))
 	end
+	ps
 end
 
 # ╔═╡ bee4722f-5571-40ef-a0aa-17a922db8791
@@ -77,28 +78,28 @@ dm = 10
 σ(z) = one(z) / (one(z) + exp(-z))
 
 # ╔═╡ e327abe3-6f77-49f6-9e1b-508966ce36af
-make_fn(m1, m2, b1) = x -> m2 * σ.(m1 * x .+ b1)
+make_fn(m1, m2, b1) = x ->  m2 * σ.(m1 * x .+ b1)
 
 # ╔═╡ c91ad23a-0d26-422a-a949-5369ffc8894c
-m1(i, ω) = transpose(((@uid, i) ~ DiagNormal(zeros(dm), ones(dm)))(ω))
+m1(i, ω::Ω) = ((@uid, i) ~ DiagNormal(zeros(dm), ones(dm)))(ω)
 
 # ╔═╡ ece732ec-df15-41ab-84b3-8cb8072286d8
-b1(i, ω) = ((@uid, i) ~ DiagNormal(zeros(dm), ones(dm)))(ω)
+b1(i, ω::Ω) = ((@uid, i) ~ DiagNormal(zeros(dm), ones(dm)))(ω)
 
 # ╔═╡ 29f10d97-9a38-4f1a-bf2d-de5a6f29a035
-m2(i, ω) = ((@uid, i) ~ DiagNormal(zeros(dm), ones(dm)))(ω)
+m2(i, ω::Ω) = transpose(((@uid, i) ~ DiagNormal(zeros(dm), ones(dm)))(ω))
 
 # ╔═╡ 826c50d3-614b-4154-bcdb-72035cd28dbc
 function posterior(ω, data)
 	for (i, d) in enumerate(data)
-		cond!(ω, (i ~ Normal(d.x, 0.1))(ω) ==ₛ d.y)
+		cond!(ω, (i ~ Normal(d.x, 0.1))(ω) == d.y)
 	end
 	return (m1 = (@~ m1)(ω), m2 = (@~ m2)(ω), b1 = (@~ b1)(ω))
 end
 
 # ╔═╡ f99d7a23-9ab9-4ba1-b9c3-48a01503b8d8
 post_func_samples(xs) = 
-	map(x -> make_fn(randsample(ω -> posterior(ω, obs_data), 1, alg = MH)...)(x), xs)
+	map(make_fn(first(randsample(ω -> posterior(ω, obs_data), 1, alg = MH))...), xs)
 
 # ╔═╡ d2573159-50f7-4a9d-a9ec-74b3ec7cf0cc
 lineplot(-5:0.1:5, post_func_samples(-5:0.1:5))
@@ -151,7 +152,7 @@ sample_XY(i, ω) = randsample(i~f)((i~DiagNormal(zeros(ld), ones(ld)))(ω))
 function post_unsupervised(ω, data)
 	means = manynth(sample_XY, 1:length(data))(ω)
 	for (i, d) in enumerate(data)
-		cond!(ω, ((@uid, i)~ DiagNormal(means[i], out_sig))(ω) ==ₛ [d.x, d.y])
+		cond!(ω, ((@uid, i)~ DiagNormal(means[i], out_sig))(ω) == [d.x, d.y])
 	end
 	return means
 end
@@ -160,10 +161,10 @@ end
 scatterplot(map(o -> o.x, obs_data), map(o -> o.y, obs_data), marker = :xcross)
 
 # ╔═╡ 88feb759-b2d1-4cba-9fc5-52d8a48f42b6
-samples_unsupervised = randsample(ω -> post_unsupervised(ω, obs_data), 1, alg = MH)
+samples_unsupervised = first(randsample(ω -> post_unsupervised(ω, obs_data), 1, alg = MH))
 
 # ╔═╡ 457d9495-6b7c-4851-8bf8-d586ee3aaf54
-scatterplot(map(o -> o.x, samples_unsupervised), map(o -> o.y, samples_unsupervised), marker = :xcross)
+scatterplot(first.(samples_unsupervised), last.(samples_unsupervised), marker = :xcross)
 
 # ╔═╡ 5ca6ef68-cff7-48a2-8173-02eb26202c2e
 md"""
@@ -179,10 +180,10 @@ obs_data_new = map(x -> (x = x, y = x*x), -4:0.1:4)
 
 # ╔═╡ 0e317d8b-73f5-46f6-a084-79a631fdb495
 samples_unsupervised_new = 
-	randsample(ω -> post_unsupervised(ω, obs_data_new), 1, alg = MH)
+	first(randsample(ω -> post_unsupervised(ω, obs_data_new), 1, alg = MH))
 
 # ╔═╡ a129aef2-6091-4e3c-963d-937d585152fc
-scatterplot(map(o -> o.x, samples_unsupervised_new), map(o -> o.y, samples_unsupervised_new), marker = :xcross)
+scatterplot(first.(samples_unsupervised_new), last.(samples_unsupervised_new), marker = :xcross)
 
 # ╔═╡ b630a294-e0b3-41a0-bcc1-814facc019fb
 md"""
@@ -190,7 +191,7 @@ Notice that we still fit the data reasonably well, but now we generalize a bit m
 """
 
 # ╔═╡ 7674251f-978b-4b48-8c38-8c6c2d88bb1b
-# Minibatches - how to?
+# Minibatches 
 
 # ╔═╡ Cell order:
 # ╠═7c022d50-7ec4-11ec-1fde-8be8fdb0f22f

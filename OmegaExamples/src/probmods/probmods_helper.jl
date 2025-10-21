@@ -9,7 +9,7 @@ viz(var::Vector{T} where {T<:Union{String,Char, Symbol}}) =
 viz(var::Vector{<:Real}) = histogram(var, symbols = ["■"])
 viz(var::Vector{Bool}) = viz(string.(var))
 viz(var::Vector{NamedTuple{U, V}}) where {U, V} = 
-    barplot(Dict(freqtable(var)), ylabel = string(U[1], ", ", U[2]), xlabel = "Frequency")
+    barplot(Dict(freqtable(var)))
 
 function viz_marginals(var::Vector{NamedTuple{U, V}}) where {U, V}
     if isa(getfield(var[1], U[1]), Real)
@@ -21,9 +21,9 @@ function viz_marginals(var::Vector{NamedTuple{U, V}}) where {U, V}
         end
         return nothing
     else
-        c = barplot(Dict(freqtable(string.(U[1], "_", getfield.(var, U[1])))), ylabel = string(U[1]), xlabel = "Frequency")
+        c = barplot(Dict(freqtable(string.(U[1], "_", getfield.(var, U[1])))))
         for name in U[2:end]
-            c = barplot!(c, Dict(freqtable(string.(name, "_", getfield.(var, name)))), ylabel = string(name), xlabel = "Frequency")
+            c = barplot!(c, Dict(freqtable(string.(name, "_", getfield.(var, name)))))
         end
         return c
     end

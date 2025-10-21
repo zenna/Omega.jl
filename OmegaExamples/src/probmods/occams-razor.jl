@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.4
+# v0.20.19
 
 using Markdown
 using InteractiveUtils
@@ -89,7 +89,7 @@ full_data = ["a", "b", "a", "b", "b", "a", "b"]
 data_sizes = [0, 1, 3, 5, 7]
 
 # ╔═╡ c2ed6e46-3ce4-4b9c-942e-5591bae43769
-prob_big(size, data) = mean(randsample(hyp_post(data[1:size]), 1000))
+prob_big(size, data) = mean(randsample(hyp_post(data[1:size]), 100))
 
 # ╔═╡ 0d182c8e-bc9e-4d0d-ba08-6414b4f27ace
 lineplot(map(i -> prob_big(i, full_data), data_sizes))
@@ -141,7 +141,7 @@ rand_hyp_(ω, data) =
 posterior(data) = hypothesis_ |ᶜ pw(==, Variable(ω -> rand_hyp_(ω, data)), data)
 
 # ╔═╡ 8b13fac0-96b9-4d28-8e5e-92b71e38f8af
-viz(randsample(posterior(obs_data), 1000))
+viz(randsample(posterior(obs_data), 100))
 
 # ╔═╡ f437636e-51f9-4bed-8bc7-4fcd174b5f75
 md"""
@@ -176,7 +176,7 @@ fair = @~ Bernoulli(fair_prior)
 coin_weight = ifelse.(fair, 0.5, @~ Beta(pseudo_counts...))
 
 # ╔═╡ d9ad32b3-f21f-433a-9e5d-85767c564592
-viz(randsample(coin_weight, 1000))
+viz(randsample(coin_weight, 1000) .- 0.5)
 
 # ╔═╡ d4099783-fa23-4208-9c49-03ad1fffa2e7
 evidence(data) = 
@@ -186,7 +186,7 @@ evidence(data) =
 posterior_(data) = (@joint fair coin_weight) |ᶜ evidence(data)
 
 # ╔═╡ ff4b24be-bbc4-44c4-8ca1-748291fefc3c
-post_ = randsample(posterior(observed_data), 1000, alg = MH)
+post_ = randsample(posterior_(observed_data), 1000, alg = MH)
 
 # ╔═╡ ff4969a3-2015-4fcb-a2c5-33dd9f768a32
 viz(map(p -> p.fair, post_))
@@ -209,7 +209,7 @@ data_sizes_ = [0,1,3,6,10,20,30,40,50,60,70,100]
 
 # ╔═╡ 0cf65054-f35c-494d-b51b-d17a0abbb285
 predictions = 
-	mean.(map(d -> randsample(posterior(randsample(true_coin, d)), 1000, alg = MH), data_sizes_))
+	mean.(map(d -> getfield.(randsample(posterior_(randsample(true_coin, d)), 1000, alg = MH), :coin_weight), data_sizes_))
 
 # ╔═╡ e7a9cc50-728d-4d84-9996-b7ed02b61a78
 lineplot(predictions, data_sizes_)

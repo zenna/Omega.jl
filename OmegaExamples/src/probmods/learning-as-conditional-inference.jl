@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.4
+# v0.20.19
 
 using Markdown
 using InteractiveUtils
@@ -341,7 +341,7 @@ estimates_(n) = weight_posterior(ones(Int64, n))
 obs_data_sizes = [0,1,2,4,8,16,25,30,50,70,100]
 
 # ╔═╡ c5d2b42f-5a23-42e5-963f-17560264ca03
-e = map(n -> mean(randsample(estimates_(n), 1000)), obs_data_sizes)
+e = map(n -> mean(randsample(estimates_(n), 100)), obs_data_sizes)
 
 # ╔═╡ e635efbe-2b93-4e8a-ab68-011e2d5deee4
 scatterplot(obs_data_sizes, e, marker = :xcross)
@@ -394,7 +394,7 @@ is_fair_ = @~ Bernoulli(0.999)
 real_weight = ifelse.(is_fair_, 0.5, @~ StdUniform{Float64}())
 
 # ╔═╡ 5cb0299a-27a2-4f65-b5db-4cceb60bc684
-coin_human_like = Bernoulli(real_weight)
+coin_human_like(i, ω::Ω) = ((@uid, i...) ~ Bernoulli(real_weight))(ω)
 
 # ╔═╡ 947f20c4-92a9-43a9-855c-fd1c1aa841b6
 evidence_human_like(obs) = pw(==, manynth(coin_human_like, 1:length(obs)), obs)
@@ -406,7 +406,7 @@ weight_posterior_human_like(obs) = real_weight |ᶜ evidence_human_like(obs)
 estimates_human_like(n) = weight_posterior_human_like(ones(Int64, n))
 
 # ╔═╡ ba627b32-2572-4b0b-bed9-6aebf86b4f50
-d_sizes = [0,1,2,4,6,8,10,12,15,20,25,30,40,50]
+d_sizes = [0,1,2,4,6,8,10,12,15,20]
 
 # ╔═╡ e969d56c-3f54-441b-896a-21dd2736c45c
 exp = map(n -> mean(randsample(estimates_human_like(n), 100)), d_sizes)

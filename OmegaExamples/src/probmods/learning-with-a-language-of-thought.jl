@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.4
+# v0.20.19
 
 using Markdown
 using InteractiveUtils
@@ -21,17 +21,17 @@ For instance, imagine that we want a model that generates strings, but we want t
 """
 
 # ╔═╡ 51327bd3-0c04-48b1-b7db-b6bb5a7ac6b9
-random_const = Variable(string ∘ UniformDraw(0:9))
+random_const(i, ω::Ω) = string(((@uid, i) ~ UniformDraw(0:9))(ω))
 
 # ╔═╡ 63caf0d9-6e91-40e2-8529-af7c2610b67f
 function random_combination(f, g, ω, i)
-	op = (i ~ UniformDraw(['+', '-', '*', '/', '^']))(ω)
+	op = ((@uid, i) ~ UniformDraw(['+', '-', '*', '/', '^']))(ω)
 	return string('(', f, op, g, ')')
 end
 
 # ╔═╡ e14a2bc6-7b78-40b5-96c1-deaedffb2552
 function random_arithmetic_expression(ω, i = 0)
-	if (i ~ Bernoulli())(ω)
+	if ((@uid, i) ~ Bernoulli())(ω)
 		e1 = random_arithmetic_expression(ω, (i..., 1))
 		e2 = random_arithmetic_expression(ω, (i..., 2))
 		return random_combination(e1, e2, ω, i)
@@ -62,12 +62,25 @@ md"""
 Consider the following program, which induces an arithmetic function from examples. The basic form is the same as the above example but to evaluate the expression we use `eval(Meta.parse(x))` where `x` is the expression in string form.
 """
 
+# ╔═╡ 0eda59ca-4b9d-4bce-819b-ebf9cd2ec73a
+function evaluates_to_3(ω::Ω)
+    result = try
+        eval(Meta.parse(random_arithmetic_expression(ω))) == 3
+    catch
+        false
+    end
+    return result
+end
+
+# ╔═╡ 9db29889-462c-41e8-b993-f30f352a0be7
+randsample((random_arithmetic_expression, evaluates_to_3))
+
 # ╔═╡ 90294f8f-83ac-4101-84fa-0984467a5cef
 function_eval =
-	random_arithmetic_expression |ᶜ (eval ∘ Meta.parse ∘ random_arithmetic_expression .== 3)
+	random_arithmetic_expression |ᶜ evaluates_to_3
 
 # ╔═╡ eff3ce23-e1db-40b9-8aae-8b9520299b36
-randsample(function_eval, 100, alg = MH)
+viz(randsample(function_eval, 50))
 
 # ╔═╡ 9a22ab15-d0fd-4636-99c8-c3cd3f8a03cf
 md"""
@@ -108,11 +121,11 @@ feps = map(make_obj,
 
 # ╔═╡ ea8c704d-4da4-4087-89e1-55d2279f99d6
 non_feps = map(make_obj, 
-	[   [0, 0, 1, 1, 0], 
+	[
+		[0, 0, 1, 1, 0], 
 		[1, 0, 0, 1, 0], 
 		[1, 1, 1, 0, 0], 
-		[1, 1, 1, 1, 0]
-	])
+		[1, 1, 1, 1, 0]])
 
 # ╔═╡ f98eb772-a876-401b-af95-aca72bb5878f
 others = map(make_obj, 
@@ -137,11 +150,11 @@ begin
 	human_feps = [.77, .78, .83, .64, .61]
 	human_non_feps = [.39, .41, .21, .15]
     human_other = [.56, .41, .82, .40, .32, .53, .20]
-    human_data = vcat(human_feps, human_non_feps)
+    human_data = vcat(human_feps, human_non_feps, human_other)
 end
 
 # ╔═╡ a8ad83d0-253c-487e-91a5-1439b9ce146b
-τ = 0.3
+τ = 0.2
 
 # ╔═╡ a7886471-3b38-4979-83d8-f322d50cd227
 noise_param = exp(-1.5)
@@ -149,16 +162,16 @@ noise_param = exp(-1.5)
 # ╔═╡ 3561f219-0b68-4458-a21b-57fcacffb85e
 # a generative process for disjunctive normal form propositional equations:
 function sample_pred(i, ω)
-	trait = (i ~ UniformDraw([:trait1, :trait2, :trait3, :trait4]))(ω)
-    value = (i ~ Bernoulli())(ω)
+	trait = ((@uid, i...) ~ UniformDraw([:trait1, :trait2, :trait3, :trait4]))(ω)
+    value = ((@uid, i...) ~ Bernoulli())(ω)
   return x -> (x[trait] == value)
 end
 
 # ╔═╡ a216de95-eff3-4c03-abb0-00696d75b800
 function sample_conj(ω, τ, i = 0)
-	if (i ~ Bernoulli(τ))(ω)
+	if ((@uid, :conj, i...) ~ Bernoulli(τ))(ω)
 		c = sample_conj(ω, τ, i + 1)
-		p = sample_pred((@uid, i), ω)
+		p = sample_pred(i, ω)
 		return x -> (c(x) & p(x))
 	else
 		return sample_pred(i, ω)
@@ -170,9 +183,9 @@ x = (trait1 = true, trait2 = true, trait3 = true, trait4 = true, fep = 1)
 
 # ╔═╡ 04549696-5c3e-4439-83d6-ead8a5d438b5
 function get_formula(ω, τ, i = 0)
-	if (i ~ Bernoulli(τ))(ω)
+	if ((@uid, :formula, i...) ~ Bernoulli(τ))(ω)
 		c = sample_conj(ω, τ, i + 1)
-		f = get_formula(ω, i + 1)
+		f = get_formula(ω, τ, i + 1)
 		return x -> (c(x) | f(x))
 	else
 		return sample_conj(ω, τ, @uid)
@@ -187,10 +200,13 @@ obs_fn(x, ω) =
 evidence = Variable(ω -> all(map(x -> (obs_fn(x, ω) == (x.fep == 1)), data)))
 
 # ╔═╡ 1d61bf77-41c9-4079-9dfa-e734a836d4c5
-rule_posterior =  get_formula |ᶜ evidence
+rule_posterior =  (ω -> get_formula(ω, τ, @uid)) |ᶜ evidence
 
 # ╔═╡ c29f86eb-2775-46d0-abed-6bf5c25b3d2a
-# scatterplot(randsample(ω -> map(rule_posterior(ω), all_objects), 1000), human_data, marker = :xcross)
+samples = randsample(ω -> map(rule_posterior(ω), all_objects), 100)
+
+# ╔═╡ cfbb89aa-20f5-4669-8ff3-33fe388011df
+scatterplot(first(mean(samples, dims=1)), human_data, marker = :xcross)
 
 # ╔═╡ a66c5002-f6a5-4ece-ab0c-f53c7951ac76
 md"""
@@ -219,6 +235,8 @@ This style of compositional concept induction model, can be naturally extended t
 # ╠═df6bacaf-ef1b-46c6-b99b-d9ee06debf4d
 # ╟─11c2c5b9-aee6-4a70-904b-798970398bed
 # ╟─3c8efb48-d333-4461-ad82-e680ca86163e
+# ╠═0eda59ca-4b9d-4bce-819b-ebf9cd2ec73a
+# ╠═9db29889-462c-41e8-b993-f30f352a0be7
 # ╠═90294f8f-83ac-4101-84fa-0984467a5cef
 # ╠═eff3ce23-e1db-40b9-8aae-8b9520299b36
 # ╟─9a22ab15-d0fd-4636-99c8-c3cd3f8a03cf
@@ -242,4 +260,5 @@ This style of compositional concept induction model, can be naturally extended t
 # ╠═e30556ea-9c09-4f6b-b726-1c88af5e63c1
 # ╠═1d61bf77-41c9-4079-9dfa-e734a836d4c5
 # ╠═c29f86eb-2775-46d0-abed-6bf5c25b3d2a
+# ╠═cfbb89aa-20f5-4669-8ff3-33fe388011df
 # ╟─a66c5002-f6a5-4ece-ab0c-f53c7951ac76
