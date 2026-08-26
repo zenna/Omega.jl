@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.19
+# v1.0.3
 
 using Markdown
 using InteractiveUtils
@@ -92,7 +92,10 @@ data_sizes = [0, 1, 3, 5, 7]
 prob_big(size, data) = mean(randsample(hyp_post(data[1:size]), 100))
 
 # ╔═╡ 0d182c8e-bc9e-4d0d-ba08-6414b4f27ace
+# ╠═╡ disabled = true
+#=╠═╡
 lineplot(map(i -> prob_big(i, full_data), data_sizes))
+  ╠═╡ =#
 
 # ╔═╡ d2f7279c-43ea-4921-ad44-19c04bb2b0a3
 md"""
