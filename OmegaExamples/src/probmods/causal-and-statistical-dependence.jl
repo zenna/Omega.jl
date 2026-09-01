@@ -7,9 +7,21 @@ using InteractiveUtils
 # ╔═╡ c08b8e40-5759-11ec-0aa3-2fe92a5c73af
 begin
 	import Pkg
-    # activate the shared project environment
-    Pkg.activate(Base.current_project())
-    using Omega, Distributions, UnicodePlots, OmegaExamples
+	Pkg.activate(mktempdir())
+    repo = "https://github.com/zenna/Omega.jl"
+    rev = "complete-probmods"
+	Pkg.add([
+        Pkg.PackageSpec(url=repo, rev=rev),
+        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaCore"),
+        Pkg.PackageSpec(url=repo, rev=rev, subdir="InferenceBase"),
+        Pkg.PackageSpec(url=repo, rev=rev, subdir="SoftPredicates"),
+        Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaDistributions"),
+        Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaSoftPredicates"),
+        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaMH"),
+        Pkg.PackageSpec(url=repo, rev=rev, subdir="ReplicaExchange"),
+        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaExamples"),
+    ])
+    using Omega, Distributions, OmegaExamples, UnicodePlots
 end
 
 # ╔═╡ ff1115c2-6e2a-49af-93dd-610a1346fb5f

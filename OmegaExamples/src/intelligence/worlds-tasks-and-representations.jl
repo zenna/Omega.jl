@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.19
+# v1.0.3
 
 using Markdown
 using InteractiveUtils
@@ -8,11 +8,19 @@ using InteractiveUtils
 begin
     import Pkg
 	Pkg.activate(mktempdir())
+    repo = "https://github.com/zenna/Omega.jl"
+    rev = "complete-probmods"
 	Pkg.add([
-        Pkg.PackageSpec(url="https://github.com/zenna/Omega.jl", rev="complete-probmods"),
-        # Pkg.PackageSpec(url="https://github.com/zenna/Omega.jl", rev="complete-probmods", subdir="OmegaExamples")
+        Pkg.PackageSpec(url=repo, rev=rev),
+        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaCore"),
+        Pkg.PackageSpec(url=repo, rev=rev, subdir="InferenceBase"),
+        Pkg.PackageSpec(url=repo, rev=rev, subdir="SoftPredicates"),
+        Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaDistributions"),
+        Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaSoftPredicates"),
+        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaMH"),
+        Pkg.PackageSpec(url=repo, rev=rev, subdir="ReplicaExchange"),
+        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaExamples"),
     ])
-    # Pkg.activate(Base.current_project())
     using Omega, Distributions, OmegaExamples, UnicodePlots
 end
 
@@ -299,7 +307,7 @@ We supplied the count representation. Omega performs inference within the model 
 """
 
 # ╔═╡ Cell order:
-# ╠═a1a8a3ea-2261-4c42-b08a-724c6ab4dd91
+# ╟─a1a8a3ea-2261-4c42-b08a-724c6ab4dd91
 # ╟─82477a57-922f-4532-811f-728c5cce86f9
 # ╟─25051bc1-d5b0-47ec-8c11-2895cc9d2d5e
 # ╟─4f16c855-b116-40e0-8010-16284fbb23cb
