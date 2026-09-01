@@ -4,4 +4,6 @@ authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.1.0"
 
 [deps]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"

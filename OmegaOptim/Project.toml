@@ -4,4 +4,5 @@ authors = ["Zenna Tavares <zennatavares@gmail.com>"]
 version = "0.1.0"
 
 [deps]
+OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"

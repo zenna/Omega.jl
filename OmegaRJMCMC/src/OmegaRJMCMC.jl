@@ -2,6 +2,7 @@
 module OmegaRJMCMC
 
 using OmegaCore
+using Distributions: Bernoulli
 using LinearAlgebra: det
 using ForwardDiff: jacobian
 

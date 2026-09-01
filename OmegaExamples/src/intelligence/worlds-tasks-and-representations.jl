@@ -7,7 +7,12 @@ using InteractiveUtils
 # ╔═╡ a1a8a3ea-2261-4c42-b08a-724c6ab4dd91
 begin
     import Pkg
-    Pkg.activate(Base.current_project())
+	Pkg.activate(mktempdir())
+	Pkg.add([
+        Pkg.PackageSpec(url="https://github.com/zenna/Omega.jl", rev="complete-probmods"),
+        # Pkg.PackageSpec(url="https://github.com/zenna/Omega.jl", rev="complete-probmods", subdir="OmegaExamples")
+    ])
+    # Pkg.activate(Base.current_project())
     using Omega, Distributions, OmegaExamples, UnicodePlots
 end
 

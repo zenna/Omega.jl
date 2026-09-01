@@ -5,4 +5,5 @@ version = "0.1.0"
 
 [deps]
 Cassette = "7057c7e9-c182-5462-911a-8362d720325c"
+Spec = "b8ccf107-3a88-5e0f-823b-b838c6a0f327"
 OmegaCore = "84d23798-d00f-4e9b-a82e-be69778c030a"

@@ -3,3 +3,17 @@
 *.jl.mem
 .vscode
 /docs/build/
+
+# Package manifests (applications and examples retain their lockfiles)
+/Manifest.toml
+/JuliaManifest.toml
+/InferenceBase/Manifest.toml
+/OmegaCore/Manifest.toml
+/OmegaGrad/Manifest.toml
+/OmegaIMCMC/Manifest.toml
+/OmegaMH/Manifest.toml
+/OmegaOptim/Manifest.toml
+/OmegaRJMCMC/Manifest.toml
+/ReplicaExchange/Manifest.toml
+/SoftPredicates/Manifest.toml
+/connectors/OmegaDistributions/Manifest.toml
