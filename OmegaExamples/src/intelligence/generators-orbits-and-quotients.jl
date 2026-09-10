@@ -7,20 +7,21 @@ using InteractiveUtils
 # ╔═╡ 38d37e89-dce4-4d4c-a7b7-06739e64f02d
 begin
     import Pkg
-	Pkg.activate(mktempdir())
-    repo = "https://github.com/zenna/Omega.jl"
-    rev = "complete-probmods"
-	Pkg.add([
-        Pkg.PackageSpec(url=repo, rev=rev),
-        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaCore"),
-        Pkg.PackageSpec(url=repo, rev=rev, subdir="InferenceBase"),
-        Pkg.PackageSpec(url=repo, rev=rev, subdir="SoftPredicates"),
-        Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaDistributions"),
-        Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaSoftPredicates"),
-        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaMH"),
-        Pkg.PackageSpec(url=repo, rev=rev, subdir="ReplicaExchange"),
-        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaExamples"),
-    ])
+	# Pkg.activate(mktempdir())
+ #    repo = "https://github.com/zenna/Omega.jl"
+ #    rev = "complete-probmods"
+	# Pkg.add([
+ #        Pkg.PackageSpec(url=repo, rev=rev),
+ #        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaCore"),
+ #        Pkg.PackageSpec(url=repo, rev=rev, subdir="InferenceBase"),
+ #        Pkg.PackageSpec(url=repo, rev=rev, subdir="SoftPredicates"),
+ #        Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaDistributions"),
+ #        Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaSoftPredicates"),
+ #        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaMH"),
+ #        Pkg.PackageSpec(url=repo, rev=rev, subdir="ReplicaExchange"),
+ #        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaExamples"),
+ #    ])
+	Pkg.activate(Base.current_project())
     using Omega, Distributions, OmegaExamples, UnicodePlots
 end
 
@@ -31,8 +32,6 @@ md"""
 Chapter 1 compressed an ordered sequence of coin flips into `(flips, heads)`. The compression worked for inferring which coin produced the data, but the chapter did not explain where that representation came from.
 
 This chapter constructs the representation from transformations. We will specify a small operation that changes a sequence, compose that operation to find all connected sequences, check which tasks stay constant across those sequences, and replace each set of task-equivalent sequences with one quotient coordinate.
-
-The example uses the same fair-versus-trick-coin task throughout.
 """
 
 # ╔═╡ eefb02dc-8061-4f7a-9e06-5e6ef2245daa
@@ -100,6 +99,16 @@ orbit = permutation_orbit(seed_sequence)
 # ╔═╡ 418fab8f-9189-4207-b3c7-d73d62f9efbf
 show_sequence.(orbit)
 
+# ╔═╡ 93eee783-6141-42a6-9339-41d9fb8f4ec1
+md"""
+You should see `HHHT`, `HHTH`, `HTHH`, and `THHH`. `permutation_orbit` keeps a
+collection of sequences it has seen and a queue of sequences whose neighbours
+it still needs to visit. Each swap adds a new sequence only once.
+
+Change the seed to two heads and two tails. Before running it, how many distinct
+orderings do you expect? Keep the seed short: enumerating an orbit can grow quickly.
+"""
+
 # ╔═╡ 29691ca0-bf06-4b9a-823c-5797755e8f2b
 md"""
 ## The orbit: every reachable observation
@@ -114,17 +123,22 @@ The orbit contains four sequences instead of ``4!=24`` because exchanging two id
 """
 
 # ╔═╡ c4bc0456-a9ee-4fbe-b019-207489a8df9e
-begin
-    is_fair_prior = 0.5
-    fair_weight = 0.5
-    trick_weight = 0.85
-    is_fair_coin = @~ Bernoulli(is_fair_prior)
+is_fair_prior = 0.5
 
-    count_representation(sequence) = (
-        flips = length(sequence),
-        heads = count(identity, sequence),
-    )
-end
+# ╔═╡ 5ca2b180-360a-4060-b00d-4bbab5d78c34
+fair_weight = 0.5
+
+# ╔═╡ fab79419-5f2b-48e0-938f-b8d5de3c04ff
+trick_weight = 0.85
+
+# ╔═╡ ffea1c21-b53f-44c8-8604-de2eb21b9456
+is_fair_coin = @~ Bernoulli(is_fair_prior)
+
+# ╔═╡ 46e5b1a6-1b7a-4f13-abb6-6fe01db9a498
+count_representation(sequence) = (
+    flips = length(sequence),
+    heads = count(identity, sequence),
+)
 
 # ╔═╡ 7a368cd2-2d06-42a5-a2d7-d0833bad92d4
 function is_fair_posterior(sequence)
@@ -156,9 +170,17 @@ orbit_table = [
     for sequence in orbit
 ]
 
+# ╔═╡ c7b15d79-9a36-45d8-be13-494d33dc81b1
+md"""
+Read across the rows. Every ordering has three heads and the same fair-coin
+posterior, about 0.404, but the longest head run is either two or three.
+`count_representation` preserves the first answer and loses information needed
+for the second. Try moving the tail by hand in `seed_sequence` and compare.
+"""
+
 # ╔═╡ 23171ad6-ce90-444a-b4cd-301625072c90
 md"""
-## Task Invariants
+## Task invariants
 
 A task ``T`` is **invariant** under a transformation ``g`` when
 
@@ -194,7 +216,7 @@ The **quotient space** ``X/S_n`` replaces every orbit in the original sequence s
 q(x)=(\operatorname{length}(x),\operatorname{heads}(x))
 ```
 
-is a concrete quotient map. Chapter 1's count representation is a coordinate system for the permutation quotient.
+is a quotient map. The count representation is therefore a coordinate system for the permutation quotient.
 """
 
 # ╔═╡ e198f3a9-15a2-4716-b774-297566c845d8
@@ -257,7 +279,7 @@ T = D\circ q.
 
 Here, ``q`` is `count_representation`, and ``D`` computes the posterior from a head count. The factorisation makes the task easier because the solver no longer needs separate rules for `HHHT`, `HHTH`, `HTHH`, and `THHH`. It evaluates one decoder at their shared coordinate `(flips = 4, heads = 3)`. Across all length-``n`` observations, the decoder handles ``n+1`` inputs instead of ``2^n`` ordered inputs.
 
-This reduction concerns the information and computation required by the task. It does not, by itself, prove that every Omega inference algorithm will run faster; that claim would require a runtime comparison of concrete inference implementations.
+Try increasing the sequence length from four to five in the quotient cells. Compare the number of raw sequences with the number of head-count coordinates before deciding which space you would want to compute over.
 """
 
 # ╔═╡ d31f7f48-217c-4a71-a344-f94701216d1e
@@ -315,35 +337,91 @@ posterior_samples = randsample(
 
 # ╔═╡ afc53e76-c93f-40d0-9bfb-bfb912157f91
 md"""
-The posterior above now conditions `is_fair_coin` on a count drawn directly from `Binomial`. No ordered flip vector appears in this inference path. The sampled estimate approaches the exact value from `count_decoder`; their small difference comes from finite Monte Carlo sampling.
+The posterior above conditions `is_fair_coin` on a count drawn directly from
+`Binomial`. Each proposed world chooses a coin type and draws a head count for
+the observed number of flips. Rejection sampling keeps the coin type when that
+count matches `observed_quotient_coordinate.heads`.
+
+Conditioning on the count gives the same coin posterior as conditioning on the
+original sequence: the binomial coefficient multiplies both coin likelihoods
+by the same amount and cancels when we normalise them. That cancellation also
+explains why `count_decoder` can omit the coefficient. At the starting settings,
+the exact probability is about 0.404; the estimate from 300 accepted samples
+fluctuates around it. Try a seed with two heads, then with four heads, keeping
+the length fixed. More heads favour the trick coin and lower the fair-coin
+probability.
+"""
+
+# ╔═╡ d14da63b-9d12-48c3-91b3-14bebea2c584
+md"""
+## What the count cannot tell us
+
+Now ask for the longest uninterrupted run of heads in the observed sequence.
+The count coordinate records how many heads occurred, but discards where they
+occurred. The starting orbit makes that loss explicit:
+
+| Sequence | Count coordinate `(flips, heads)` | Longest head run |
+|:--|:--|--:|
+| `HHHT` | `(4, 3)` | 3 |
+| `HHTH` | `(4, 3)` | 2 |
+| `HTHH` | `(4, 3)` | 2 |
+| `THHH` | `(4, 3)` | 3 |
+
+Let ``L(x)`` denote the longest head run. A decoder that receives only
+``q(x)=(4,3)`` must give the same answer for all four sequences. It therefore
+cannot return both ``L(\mathtt{HHHT})=3`` and ``L(\mathtt{HHTH})=2``.
+No decoder ``D`` can satisfy ``L=D\circ q`` for every sequence: the run task
+is not constant within a permutation orbit.
+
+The next cells explore what remains uncertain when we know only the count.
+`UniformDraw(orbit)` chooses an ordering uniformly from the seed's orbit.
+Under our conditionally i.i.d. coin model, this is the conditional distribution
+of the sequence given its count: all orderings in the orbit have equal
+probability under either coin. The first plot samples these orderings; the
+second applies `longest_head_run` to each sampled ordering.
 """
 
 # ╔═╡ 99113292-4f6b-4587-a16b-883e87335561
 random_orbit_member = @~ UniformDraw(orbit)
 
-# ╔═╡ ecd47b5e-e5e6-4d47-8f37-7458127c9057
-random_observation = random_orbit_member
+# ╔═╡ 9e3a7f46-0c42-4459-b4aa-c7e1f8eac705
+viz(show_sequence.(randsample(random_orbit_member, 400)))
 
 # ╔═╡ 155d65f4-9d27-4c3d-95c9-0b722fefe11f
-random_longest_run = longest_head_run ∘ random_observation
-
-# ╔═╡ 9e3a7f46-0c42-4459-b4aa-c7e1f8eac705
-viz(show_sequence.(randsample(random_orbit_member, 1200)))
+random_longest_run = longest_head_run ∘ random_orbit_member
 
 # ╔═╡ 110f2caf-213f-4b44-864e-71fdb2f90afd
-viz(randsample(random_longest_run, 1200))
+viz(randsample(random_longest_run, 400))
 
 # ╔═╡ 27c2eaee-bf98-4fba-af39-9dd467e47639
 md"""
-## Why put the orbit in Omega?
+For the starting seed `HHHT`, the first plot should give each ordering roughly
+one quarter of the samples. The second should split roughly equally between
+runs of length two and three, because two orbit members give each answer.
+More samples make those proportions more stable; they cannot reveal which
+ordering produced the original observation.
 
-`random_orbit_member` places a probability distribution over raw observations that differ only by a lawful transformation. The first Unicode plot confirms that all four orderings occur. The longest-run plot varies because that task does not factor through the count quotient.
+The count and the model thus determine a **distribution over possible run
+lengths**, but the count does not determine the observed sequence's run length.
+Choosing one orbit member, or reporting the mean run length of 2.5, cannot
+recover that missing answer. If we need both the coin posterior and the exact
+longest run, we could retain the sequence or compute and store its longest run
+alongside the count before discarding the order.
 
-For coin inference, `quotient_head_count` instead models the smaller count state directly. The raw orbit remains here only to visualise the distinctions that the quotient removes and to contrast them with a task for which those distinctions matter.
+## Discussion
 
-## Limitations
+Try `HHTT` as the seed by setting `seed_sequence` to `[true, true, false, false]`.
+Its orbit has six members. Use `orbit_table` to predict the proportions of runs
+of length one and two before sampling. Which task answers remain constant
+throughout the orbit, and which vary? Why must the binomial count likelihood
+include all six orderings even though the coin posterior decoder can cancel
+that factor?
 
-We supplied the generators, identified the quotient, and replaced the sequence model with its binomial pushforward. Omega does not discover the permutation group, quotient, or binomial model automatically. A serially dependent coin model could make order relevant even for coin inference, in which case the count quotient would no longer preserve the posterior and the binomial replacement would be invalid.
+We chose adjacent swaps because they preserve the coin posterior in this
+model. For the longest-run task, reversal still preserves the answer: it
+reverses each run without changing its length. Arbitrary adjacent swaps can
+split or join runs. Grouping a sequence with its reversal therefore preserves
+the run task, while grouping all permutations loses too much.
 """
 
 # ╔═╡ Cell order:
@@ -358,11 +436,17 @@ We supplied the generators, identified the quotient, and replaced the sequence m
 # ╠═3a8bc4d7-f8c5-42f1-9b29-700569a4c15f
 # ╠═fa19402a-5e85-424e-a763-175b0bf19a38
 # ╠═418fab8f-9189-4207-b3c7-d73d62f9efbf
+# ╟─93eee783-6141-42a6-9339-41d9fb8f4ec1
 # ╟─29691ca0-bf06-4b9a-823c-5797755e8f2b
 # ╠═c4bc0456-a9ee-4fbe-b019-207489a8df9e
+# ╠═5ca2b180-360a-4060-b00d-4bbab5d78c34
+# ╠═fab79419-5f2b-48e0-938f-b8d5de3c04ff
+# ╠═ffea1c21-b53f-44c8-8604-de2eb21b9456
+# ╠═46e5b1a6-1b7a-4f13-abb6-6fe01db9a498
 # ╠═7a368cd2-2d06-42a5-a2d7-d0833bad92d4
 # ╠═d68473f3-6e1e-4356-bd66-2d10134494a4
 # ╠═ea71f949-27d2-43df-a982-d5823240f2b5
+# ╟─c7b15d79-9a36-45d8-be13-494d33dc81b1
 # ╟─23171ad6-ce90-444a-b4cd-301625072c90
 # ╠═9c3913d5-704e-407b-8a30-37b1eb13f442
 # ╟─d1942514-c302-4c41-854b-2fd1656262d9
@@ -383,9 +467,9 @@ We supplied the generators, identified the quotient, and replaced the sequence m
 # ╠═3470acaa-e4bc-45c5-b318-fea0cf20608e
 # ╠═3344e29b-e5fb-4f29-a5c9-b15c314568d7
 # ╟─afc53e76-c93f-40d0-9bfb-bfb912157f91
+# ╟─d14da63b-9d12-48c3-91b3-14bebea2c584
 # ╠═99113292-4f6b-4587-a16b-883e87335561
-# ╠═ecd47b5e-e5e6-4d47-8f37-7458127c9057
-# ╠═155d65f4-9d27-4c3d-95c9-0b722fefe11f
 # ╠═9e3a7f46-0c42-4459-b4aa-c7e1f8eac705
+# ╠═155d65f4-9d27-4c3d-95c9-0b722fefe11f
 # ╠═110f2caf-213f-4b44-864e-71fdb2f90afd
 # ╟─27c2eaee-bf98-4fba-af39-9dd467e47639
