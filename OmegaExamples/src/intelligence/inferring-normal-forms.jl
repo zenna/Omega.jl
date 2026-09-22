@@ -31,7 +31,7 @@ md"""
 
 Chapter 1 introduces a generative world, tasks, and task-sufficient representations. Chapter 2 introduces generators, their orbits, and quotient representations. This chapter will combine those ingredients by treating a normal form as a canonical coordinate for a task-relevant quotient and inferring which candidate normal form fits the task.
 
-The worked example will continue to use ordered coin-flip sequences. It will compare normal forms induced by a supplied library of transformations, such as the identity, reversal, and adjacent swaps. Omega will represent uncertainty over these candidates and condition that uncertainty on whether each normal form preserves the chosen task.
+The worked example will continue to use ordered coin-flip sequences. It will compare normal forms induced by a supplied library of transformations, such as the identity, reversal, and adjacent swaps. We will represent uncertainty over these candidates and condition that uncertainty on whether each normal form preserves the representation required to solve the chosen task.
 
 ## Planned example
 

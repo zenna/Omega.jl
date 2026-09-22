@@ -27,6 +27,10 @@ end
 
 # ╔═╡ 82477a57-922f-4532-811f-728c5cce86f9
 md"""
+
+This notebook series is a tutorial for the paper:
+[Yu (2026), *The Art of Making Problems Simple: A Theory of Intelligence*](https://doi.org/10.31234/osf.io/pghzn). We expand on examples in [Probmods](http://probmods.org/) to detail the ideas in the paper. 
+
 # 1. Worlds, Tasks, and Representations
 
 Chapter 1 of ProbMods, [Generative Models](https://pluto.land/n/zlwvqg1g), begins with the idea of a working model: a model captures some useful structure in the world, and we can run it to imagine what might happen. A probabilistic program makes this idea concrete by describing a process that generates possible states of the world.
@@ -41,7 +45,7 @@ Q:\Omega\longrightarrow Y.
 The input is a possible world ``\omega\in\Omega``. The output ``Q(\omega)\in Y``
 is the answer in that world. For example, a yes-or-no question has
 ``Y=\{\mathsf{false},\mathsf{true}\}``, while a question about distance may return
-a real number. The task is to compute ``Q(\omega)``.
+a real number. The _task_ is to compute ``Q(\omega)``.
 
 A **representation** is a function
 
@@ -64,7 +68,7 @@ Q = D\circ R.
 
 This chapter asks: **which representation makes the required computation easy?**
 
-This chapter tries to separate three ingredients:
+This chapter separates three ingredients:
 
 1. a probabilistic model of possible worlds;
 2. a question, and the task of computing its answer;
@@ -73,14 +77,13 @@ This chapter tries to separate three ingredients:
 
 # ╔═╡ 25051bc1-d5b0-47ec-8c11-2895cc9d2d5e
 md"""
-## Running a model in Omega
+## Prerequisite: Omega
 
 Omega is a probabilistic programming language. A random variable is a computation
-that takes a possible world `ω` and returns a value. The cell `defω()` constructs
-a runtime world, and `x(ω)` evaluates the Boolean random variable `x` in it.
+that takes a possible world `ω` and returns a value. The cell below, `defω()`, constructs a runtime world, and `x(ω)` evaluates the Boolean random variable `x` in it, described by a Bernoulli distribution.
 
 Run the cells below, then evaluate `x(ω)` again. It returns the same value in the
-same world. Try `x(defω())` to evaluate it in a fresh world.
+same world. Try `x(defω())` or re-running the `ω = defω()` cell to evaluate it in a fresh world.
 """
 
 # ╔═╡ 03340860-8c42-4db2-bd9d-2bc73b2e8775
@@ -98,7 +101,7 @@ md"""
 
 Suppose a friend gives you a coin. It may be fair, or it may be a trick coin that lands heads 85% of the time. The program below first chooses which kind of coin your friend gave you and then generates a sequence of flips. After seeing the flips, we can ask which coin probably produced them.
 
-The inference follows the coin example in ProbMods' [Learning as conditional inference](https://pluto.land/n/1nr1tmd6). It also gives representation a concrete role: must the learner retain the order of every flip, or is the number of heads enough for this query?
+The inference follows the coin example in ProbMods' [Learning as conditional inference](https://pluto.land/n/1nr1tmd6).
 """
 
 # ╔═╡ 1ae181a6-bcb0-437e-b928-4c44eebeb5fa
@@ -147,7 +150,7 @@ sequence_b = [true, false, true, true]  # HTHH
 
 # ╔═╡ bd3756f2-17f0-4586-850a-eef5b71a200a
 md"""
-## What the representation looks like
+## What different representations look like
 
 The full representation keeps the ordered `Vector{Bool}`. A smaller representation keeps only the sequence length and number of heads:
 
@@ -268,8 +271,13 @@ md"""
 `coin_given_sequence` uses `|ᶜ` to condition the coin type on that event.
 `coin_given_count` takes a count representation and matches only the number of heads.
 The three sampling cells below therefore ask the same coin question using
-different representations of the data. Keep the sequences short while exploring;
-matching one long ordered sequence can make rejection sampling slow.
+different representations of the data.
+
+**Rejection sampling** repeatedly draws a proposed world from the prior model:
+it chooses a coin type and generates flips from that coin. It keeps the coin
+type if the flips satisfy the observation condition and discards the proposal
+otherwise. The retained coin types are samples from the posterior. Averaging
+their Boolean values estimates the posterior probability that the coin is fair.
 """
 
 # ╔═╡ c0e04a0c-31b2-4bef-adb9-76ddf62cc80d
@@ -341,9 +349,7 @@ sequences and predict how the posterior will move before rerunning the cells.
 
 # ╔═╡ 2d36f2e8-e119-4d4f-8e92-7e53b70631db
 md"""
-We can now ask the same question in three ways: condition on either ordered observation, or condition on their shared count. The Monte Carlo estimates vary slightly because they use finite samples. The exact calculation above shows that all three queries define the same posterior.
-
-The representation matters because it exposes the symmetry of the model. Permuting the flips changes the raw sequence but leaves the inference coordinate unchanged.
+The representation here matters because it exposes the symmetry of the model. Permuting the flips changes the raw sequence but leaves the inference coordinate unchanged.
 """
 
 # ╔═╡ 702915e6-180c-4bfb-8ebc-5c8536443026
@@ -353,7 +359,10 @@ md"""
 The earlier calls each requested 400 **accepted posterior samples**. They did
 not fix how many worlds the sampler had to propose before finding those matches.
 To see the difference, we will generate a fixed collection of proposed worlds
-and apply both acceptance rules to that same collection.
+and apply both acceptance rules to that same collection. This makes the proposal
+and rejection steps explicit: each rule keeps matching worlds and discards the
+rest. Unlike the earlier calls, which stop after 400 acceptances, this experiment
+stops after a fixed number of proposals and counts how many each rule accepts.
 
 Each proposal below contains a coin type and the sequence it generated. Both
 use the same `ω`, so the recorded coin type is the one that generated the flips.
@@ -364,9 +373,10 @@ use the same `ω`, so the recorded coin type is the one that generated the flips
 proposal_count = 2000
 
 # ╔═╡ fabd4375-afca-4042-9ef4-715a817ff6b3
-coin_and_flips = Variable(ω -> (
-    fair=is_fair_coin(ω), flips=flip_sequence(length(sequence_a))(ω),
-))
+coin_and_flips(ω::Ω) = (
+	fair=is_fair_coin(ω), 
+	flips=flip_sequence(length(sequence_a))(ω),
+)
 
 # ╔═╡ f9d72d13-ea08-4e1e-819d-89450340dfd2
 proposed_worlds = randsample(coin_and_flips, proposal_count)
@@ -430,7 +440,7 @@ independent Boolean draws with the same posterior probability ``p``. Conditional
 on accepting ``m`` worlds, their average has standard deviation
 ``sqrt(p(1-p)/m)``. We use the exact posterior from the earlier decoder to display
 that expected sampling variation. Four times as many accepted samples gives
-about half the standard deviation. This describes variation across runs;
+about half the standard deviation. This comparison describes variation across runs;
 individual estimates need not improve monotonically.
 
 Rerun `proposed_worlds` and inspect the table again. Then raise `proposal_count`
@@ -440,38 +450,8 @@ given accuracy. If you instead fix the number of accepted samples, as in the
 This experiment compares proposal budgets; it does not measure elapsed time.
 """
 
-# ╔═╡ 56adaf9b-c9ce-4383-8820-a49c73123b2a
-md"""
-## Change the task, change the representation
-
-Now suppose the task asks for the longest uninterrupted run of heads. Order becomes relevant, so the count representation no longer retains enough information.
-"""
-
-# ╔═╡ 40361dd3-739f-4d2a-95f5-1451837b4d21
-function longest_head_run(sequence)
-    longest = 0
-    current = 0
-    for flip in sequence
-        current = flip ? current + 1 : 0
-        longest = max(longest, current)
-    end
-    longest
-end
-
-# ╔═╡ bc767067-65cf-4d83-8398-5ab8f19f5411
-[
-    (
-        sequence = show_sequence(sequence),
-        count_representation = count_representation(sequence),
-        longest_head_run = longest_head_run(sequence),
-    )
-    for sequence in [sequence_a, sequence_b]
-]
-
 # ╔═╡ dce4c493-f693-45d7-998b-50b243c9ebde
 md"""
-`HHHT` and `HTHH` occupy the same count coordinate, but their longest runs are three and two. No decoder can recover both answers from `(flips = 4, heads = 3)`. The count representation is sufficient for inferring the latent coin mechanism and insufficient for detecting sequential structure.
-
 ## Discussion
 
 Change `sequence_b` while keeping its head count fixed. Which results stay the
@@ -481,7 +461,7 @@ asks for information that this representation discards.
 
 Now imagine a coin whose probability of heads depends on the previous flip.
 Would counting heads still preserve the posterior? What would you need to keep
-instead? Chapter 3 will consider uncertainty over a library of representations.
+instead?
 """
 
 # ╔═╡ Cell order:
@@ -542,7 +522,4 @@ instead? Chapter 3 will consider uncertainty over a library of representations.
 # ╠═0e45638d-4d9e-4baf-939f-d4202ed1d612
 # ╠═755fc40b-08a9-42bf-91b7-abe83a67db5d
 # ╟─43fdb83f-e487-4fb0-a138-680b92603ba4
-# ╟─56adaf9b-c9ce-4383-8820-a49c73123b2a
-# ╠═40361dd3-739f-4d2a-95f5-1451837b4d21
-# ╠═bc767067-65cf-4d83-8398-5ab8f19f5411
 # ╟─dce4c493-f693-45d7-998b-50b243c9ebde

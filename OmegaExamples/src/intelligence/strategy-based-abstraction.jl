@@ -26,7 +26,7 @@ end
 
 # ╔═╡ 6d728a56-c1a2-4ae3-9c61-a06c9b47e498
 md"""
-# 7. Strategy-based compression
+# 7. Representation of policies in multi-agent settings
 
 The preceding chapters treat a representation as a task-dependent compression
 of possible worlds. This chapter applies that idea to another agent: a focal
@@ -416,8 +416,7 @@ can also explain behaviour that ignores the focal actions.
 
 Both focal agents choose greedily from their predictions of the next round.
 What additional predictions would they need to consider the effect of today's
-action on later cooperation? Chapter 8 explores how changing a self-model can
-change the behaviour it predicts for someone else.
+action on later cooperation?
 """
 
 # ╔═╡ Cell order:

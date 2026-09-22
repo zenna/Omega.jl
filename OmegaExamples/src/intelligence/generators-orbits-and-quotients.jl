@@ -31,7 +31,7 @@ md"""
 
 Chapter 1 compressed an ordered sequence of coin flips into `(flips, heads)`. The compression worked for inferring which coin produced the data, but the chapter did not explain where that representation came from.
 
-This chapter constructs the representation from transformations. We will specify a small operation that changes a sequence, compose that operation to find all connected sequences, check which tasks stay constant across those sequences, and replace each set of task-equivalent sequences with one quotient coordinate.
+This chapter constructs the representation by composing transformations of the original representation. We will specify a small operation that changes a sequence, compose that operation to find all connected sequences, check which tasks stay constant across those sequences, and replace each set of task-equivalent sequences with one quotient coordinate.
 """
 
 # ╔═╡ eefb02dc-8061-4f7a-9e06-5e6ef2245daa
@@ -120,6 +120,14 @@ A group acts on a space when each group element transforms an object in that spa
 ```
 
 The orbit contains four sequences instead of ``4!=24`` because exchanging two identical heads does not produce a new sequence. More generally, a sequence with ``k`` heads has ``\binom{n}{k}`` distinct orbit members. The orbit reveals which raw distinctions arise only from order.
+
+We now compare two questions from Chapter 1 across this orbit.
+`is_fair_posterior` asks for the probability that the fair coin generated the
+observed sequence, using the same prior and coin weights as Chapter 1.
+`longest_head_run` asks for the largest number of consecutive heads in that
+sequence. The first query infers a hidden coin type; the second computes a
+property of the observed data. The table below evaluates both queries for every
+orbit member so we can check which answers survive a change in flip order.
 """
 
 # ╔═╡ c4bc0456-a9ee-4fbe-b019-207489a8df9e
@@ -230,20 +238,26 @@ all_boolean_sequences(3)
 
 # ╔═╡ 48a69650-fa64-4c11-b5de-809025e1b1d3
 md"""
-For all boolean sequences of the same length as the seed sequence, filter based on whether the count representation of that boolean sequence matches that of the seed representation (i.e., we get the class of elements whose number of heads matches the seed sequence):
+The next cell filters all Boolean sequences of the seed's length to those with
+the same head count. These sequences form the seed's quotient class.
 """
 
 # ╔═╡ 81d2cb4d-1a0f-4830-9027-b1c8dcbd98c4
-count_class = filter(sequence -> (count_representation(sequence) == count_representation(seed_sequence)),
-	all_boolean_sequences(length(seed_sequence)))
+count_class = filter(
+	s -> (count_representation(s) == count_representation(seed_sequence)),
+	all_boolean_sequences(length(seed_sequence))
+)
 
 # ╔═╡ 4664d6f7-7819-430a-8554-4acb2023f19e
 (
     orbit_equals_count_class = Set(Tuple.(orbit)) == Set(Tuple.(count_class)),
-    raw_sequence_count = length(all_boolean_sequences(4)),
-    quotient_coordinate_count =
+    
+	raw_sequence_count = length(all_boolean_sequences(4)),
+    
+	quotient_coordinate_count =
         length(unique(count_representation.(all_boolean_sequences(4)))),
-    orbit_size = length(orbit),
+    
+	orbit_size = length(orbit),
 )
 
 # ╔═╡ b785c40d-a8b5-4cd2-bc75-75c6b0c83751
@@ -262,10 +276,9 @@ four_flip_quotient = quotient_classes(
 )
 
 # ╔═╡ 7544520d-1088-4bb4-ab7f-74093b1bdd32
-sort([
-    (heads = coordinate.heads, class_size = length(class))
-    for (coordinate, class) in four_flip_quotient
-], by = row -> row.heads)
+sort([(heads = coordinate.heads, class_size = length(class))
+    for (coordinate, class) in four_flip_quotient], 
+	 by = row -> row.heads)
 
 # ╔═╡ 5f018a7d-142e-4f3e-9d61-953f94f3a63e
 md"""
@@ -301,7 +314,7 @@ P(q(X)=(n,k)\mid\theta)
 =\binom{n}{k}\theta^k(1-\theta)^{n-k}.
 ```
 
-This is exactly the probability mass function of ``\operatorname{Binomial}(n,\theta)``. In other words, pushing the ordered Bernoulli-sequence model through the quotient map produces a binomial count model. We can therefore generate and condition on the quotient coordinate directly instead of constructing an ordered sequence and then counting it.
+This expression is the probability mass function of ``\operatorname{Binomial}(n,\theta)``. Applying the quotient map to the ordered Bernoulli-sequence model therefore produces a binomial count model. We can generate and condition on the quotient coordinate directly instead of constructing an ordered sequence and then counting it.
 """
 
 # ╔═╡ 0484323e-84f4-4864-aefa-fb5748382393
@@ -311,16 +324,14 @@ binomial_head_count(n, weight) = @~ Binomial(n, weight)
 observed_quotient_coordinate = count_representation(seed_sequence)
 
 # ╔═╡ 9da2e32a-5bd5-4725-9e56-a9e184c21966
-quotient_head_count = Variable(ω ->
-    binomial_head_count(
+quotient_head_count(ω::Ω) = binomial_head_count(
         observed_quotient_coordinate.flips,
         is_fair_coin(ω) ? fair_weight : trick_weight,
     )(ω)
-)
 
 # ╔═╡ 0f08478d-a70f-4037-bdaa-6c2ac220026d
 fair_coin_posterior = is_fair_coin |ᶜ
-    (quotient_head_count .== observed_quotient_coordinate.heads)
+    ω -> (quotient_head_count(ω) .== observed_quotient_coordinate.heads)
 
 # ╔═╡ 3470acaa-e4bc-45c5-b318-fea0cf20608e
 posterior_samples = randsample(
@@ -368,7 +379,7 @@ occurred. The starting orbit makes that loss explicit:
 | `THHH` | `(4, 3)` | 3 |
 
 Let ``L(x)`` denote the longest head run. A decoder that receives only
-``q(x)=(4,3)`` must give the same answer for all four sequences. It therefore
+``q(x)=(4,3)`` must give the same answer for all four sequences. Hence, it
 cannot return both ``L(\mathtt{HHHT})=3`` and ``L(\mathtt{HHTH})=2``.
 No decoder ``D`` can satisfy ``L=D\circ q`` for every sequence: the run task
 is not constant within a permutation orbit.

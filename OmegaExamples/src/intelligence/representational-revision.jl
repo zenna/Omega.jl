@@ -27,7 +27,7 @@ end
 
 # ╔═╡ af30ec1c-dcc4-4034-af27-277646e90e4c
 md"""
-# 5. Representational revision
+# 4. Representational revision
 
 This chapter is a preview of revising a representation when the task changes.
 Chapter 1 gives a concrete starting point: a head count answers the coin question,
@@ -51,4 +51,4 @@ with revising its available transformations.
 
 # ╔═╡ Cell order:
 # ╠═4af644ea-ae6a-48ce-b3d9-22986572c733
-# ╟─af30ec1c-dcc4-4034-af27-277646e90e4c
+# ╠═af30ec1c-dcc4-4034-af27-277646e90e4c
