@@ -7,35 +7,41 @@ using InteractiveUtils
 # ╔═╡ a1a8a3ea-2261-4c42-b08a-724c6ab4dd91
 begin
     import Pkg
-	# Pkg.activate(mktempdir())
- #    repo = "https://github.com/zenna/Omega.jl"
- #    rev = "complete-probmods"
-	# Pkg.add([
- #        Pkg.PackageSpec(url=repo, rev=rev),
- #        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaCore"),
- #        Pkg.PackageSpec(url=repo, rev=rev, subdir="InferenceBase"),
- #        Pkg.PackageSpec(url=repo, rev=rev, subdir="SoftPredicates"),
- #        Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaDistributions"),
- #        Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaSoftPredicates"),
- #        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaMH"),
- #        Pkg.PackageSpec(url=repo, rev=rev, subdir="ReplicaExchange"),
- #        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaExamples"),
- #    ])
-	Pkg.activate(Base.current_project())
+    # Set to `true` to run against your local Omega.jl checkout instead of
+    # installing the published `complete-probmods` branch.
+    use_local_omega = true
+    if use_local_omega
+        Pkg.activate(Base.current_project())
+    else
+        Pkg.activate(mktempdir())
+        repo = "https://github.com/zenna/Omega.jl"
+        rev = "complete-probmods"
+        Pkg.add([
+            Pkg.PackageSpec(url=repo, rev=rev),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaCore"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="InferenceBase"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="SoftPredicates"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaDistributions"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaSoftPredicates"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaMH"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="ReplicaExchange"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaExamples"),
+        ])
+    end
     using Omega, Distributions, OmegaExamples, UnicodePlots
 end
 
 # ╔═╡ 82477a57-922f-4532-811f-728c5cce86f9
 md"""
 
-This notebook series is a tutorial for the paper:
-[Yu (2026), *The Art of Making Problems Simple: A Theory of Intelligence*](https://doi.org/10.31234/osf.io/pghzn). We expand on examples in [Probmods](http://probmods.org/) to detail the ideas in the paper. 
+This notebook series is an intuitive introduction to the ideas in the paper:
+[Yu (2026), *The Art of Making Problems Simple: A Theory of Intelligence*](https://doi.org/10.31234/osf.io/pghzn_v3). We expand on examples from [ProbMods](https://probmods.org/) (Goodman, Tenenbaum & The ProbMods Contributors) to build intuition for those ideas; the chapters do not follow the paper section by section. Full references are at the end of each notebook.
 
-# 1. Worlds, Tasks, and Representations
+# 1. Worlds, tasks, and representations
 
-Chapter 1 of ProbMods, [Generative Models](https://pluto.land/n/zlwvqg1g), begins with the idea of a working model: a model captures some useful structure in the world, and we can run it to imagine what might happen. A probabilistic program makes this idea concrete by describing a process that generates possible states of the world.
+Chapter 1 of ProbMods, [Generative Models](https://probmods.org/chapters/generative-models.html) ([Omega version](https://pluto.land/n/zlwvqg1g)), begins with the idea of a working model: a model captures some useful structure in the world, and we can run it to imagine what might happen. A probabilistic program makes this idea concrete by describing a process that generates possible states of the world.
 
-Once we have such a model, we can ask it many questions. We treat a **question**
+Once we have such a model, we can ask it many questions. We treat a *question*
 as a function
 
 ```math
@@ -47,28 +53,36 @@ is the answer in that world. For example, a yes-or-no question has
 ``Y=\{\mathsf{false},\mathsf{true}\}``, while a question about distance may return
 a real number. The _task_ is to compute ``Q(\omega)``.
 
-A **representation** is a function
+A *representation* is a function
 
 ```math
 R:\Omega\longrightarrow Z
 ```
 
-that describes a world in another space ``Z``. Think of a subway map. The city
-is the world, and the map represents it using stations and connections. The map
+that describes a world in another space ``Z``. Think of a subway map: the city
+is the "world", and the map represents it using stations and connections. The map
 supports questions such as "Can I travel from one station to another?" while
 discarding details such as building colours. Those details would matter for a
 different question, such as "What colour is the building above this station?"
 
-A representation supports a question when a decoder ``D:Z\to Y`` can recover
+In practice, a learner rarely sees the whole world. In the example below, it sees
+a sequence of coin flips but not which coin produced them. We write the observed
+part of a world as ``x=\pi(\omega)``, and the questions and representations we
+build take that observation as input: ``Q:X\to Y`` and ``R:X\to Z``.
+
+A representation supports a question when a decoder ``D_{QR}:Z\to Y`` can recover
 the answer from it:
 
 ```math
-Q = D\circ R.
+Q = D_{QR}\circ R.
 ```
 
-This chapter asks: **which representation makes the required computation easy?**
+Put another way, a representation decides which *distinctions* to keep.
+A decoder exists exactly when the question never separates two
+observations that the representation treats as the same.
 
-This chapter separates three ingredients:
+This chapter asks which representation makes the answer to a question easy to
+compute. To study that, it separates three ingredients:
 
 1. a probabilistic model of possible worlds;
 2. a question, and the task of computing its answer;
@@ -79,11 +93,26 @@ This chapter separates three ingredients:
 md"""
 ## Prerequisite: Omega
 
-Omega is a probabilistic programming language. A random variable is a computation
-that takes a possible world `ω` and returns a value. The cell below, `defω()`, constructs a runtime world, and `x(ω)` evaluates the Boolean random variable `x` in it, described by a Bernoulli distribution.
+Omega is a probabilistic programming language. A random variable is a function
+that takes a possible world `ω` and returns a value. The ProbMods
+[Generative Models](https://pluto.land/n/zlwvqg1g) notebook introduces Omega in
+more detail; the few pieces this series uses are:
 
-Run the cells below, then evaluate `x(ω)` again. It returns the same value in the
-same world. Try `x(defω())` or re-running the `ω = defω()` cell to evaluate it in a fresh world.
+- `@~ Bernoulli(p)` creates a new random variable with the given distribution.
+  Each use of `@~` gives an independent random variable.
+- `id ~ Bernoulli(p)` does the same with an explicit name `id`. Different names
+  give independent random variables, so `(i ~ Bernoulli(p))(ω)` inside a loop
+  over `i` draws a fresh value for each `i`. We use this for sequences of flips.
+- `Variable(ω -> ...)` builds a random variable from any function of the world,
+  usually by combining other random variables evaluated in the same `ω`.
+- `randsample(x, n)` evaluates `x` in `n` fresh worlds and returns the values.
+- `x |ᶜ condition` conditions `x` on a Boolean random variable. We introduce it
+  when we first use it below.
+
+The cell `ω = defω()` constructs a world, and `x(ω)` evaluates the Boolean random
+variable `x` in it. Run the cells below, then evaluate `x(ω)` again. It returns
+the same value in the same world. Try `x(defω())` or re-run the `ω = defω()` cell
+to evaluate it in a fresh world.
 """
 
 # ╔═╡ 03340860-8c42-4db2-bd9d-2bc73b2e8775
@@ -101,7 +130,7 @@ md"""
 
 Suppose a friend gives you a coin. It may be fair, or it may be a trick coin that lands heads 85% of the time. The program below first chooses which kind of coin your friend gave you and then generates a sequence of flips. After seeing the flips, we can ask which coin probably produced them.
 
-The inference follows the coin example in ProbMods' [Learning as conditional inference](https://pluto.land/n/1nr1tmd6).
+The inference follows the coin example in ProbMods' [Learning as conditional inference](https://probmods.org/chapters/learning-as-conditional-inference.html) ([Omega version](https://pluto.land/n/1nr1tmd6)).
 """
 
 # ╔═╡ 1ae181a6-bcb0-437e-b928-4c44eebeb5fa
@@ -265,28 +294,23 @@ whereas the event "exactly ``k`` heads" has probability
 The count-conditioned query therefore accepts ``{n \choose k}`` times as many proposed worlds as a query conditioned on one particular ordering. The current implementation of the count query still generates all ``n`` flips in each proposed world, so the representation improves its acceptance rate but not the cost of generating one proposal. A generative model that represents the head count directly with a binomial random variable can also avoid constructing the ordered sequence when no task needs it.
 """
 
-# ╔═╡ ae66ee93-fc10-4cf3-a0fa-e0b90b54c880
-md"""
-`sequence_condition` asks whether a generated sequence matches the observation.
-`coin_given_sequence` uses `|ᶜ` to condition the coin type on that event.
-`coin_given_count` takes a count representation and matches only the number of heads.
-The three sampling cells below therefore ask the same coin question using
-different representations of the data.
-
-**Rejection sampling** repeatedly draws a proposed world from the prior model:
-it chooses a coin type and generates flips from that coin. It keeps the coin
-type if the flips satisfy the observation condition and discards the proposal
-otherwise. The retained coin types are samples from the posterior. Averaging
-their Boolean values estimates the posterior probability that the coin is fair.
-"""
-
 # ╔═╡ c0e04a0c-31b2-4bef-adb9-76ddf62cc80d
 sequence_condition(observed) =
     Variable(ω -> flip_sequence(length(observed))(ω) == observed)
 
+# ╔═╡ ae66ee93-fc10-4cf3-a0fa-e0b90b54c880
+md"""
+`sequence_condition` asks whether a generated sequence matches the observation.
+"""
+
 # ╔═╡ 439377a4-9cb9-4c7a-aaf0-7cce2642bb5a
 coin_given_sequence(observed::Vector) =
     is_fair_coin |ᶜ sequence_condition(observed)
+
+# ╔═╡ dc1891ce-891e-4a00-8292-7419b6ad8428
+md"""
+`coin_given_sequence` uses `|ᶜ` to condition the coin type on that event.
+"""
 
 # ╔═╡ 45536470-c40d-43a8-8e43-02e5d3afbb47
 head_count_variable(n) = Variable(
@@ -296,6 +320,14 @@ head_count_variable(n) = Variable(
 # ╔═╡ 762e18ac-ef81-4b68-aa05-205821498823
 coin_given_count(representation::NamedTuple) =
 	is_fair_coin |ᶜ (ω -> head_count_variable(representation.flips)(ω) == representation.heads)
+
+# ╔═╡ bbcebc14-1ac8-43a9-b4a1-f2da9f133802
+md"""
+`coin_given_count` takes a count representation and matches only the number of heads.
+
+The three sampling cells below therefore ask the same coin question using
+different representations of the data. Rejection sampling repeatedly draws a proposed world from the prior model: it chooses a coin type and generates flips from that coin. It keeps the coin type if the flips satisfy the observation condition and discards the proposal otherwise. The retained coin types are samples from the posterior. Averaging their Boolean values estimates the posterior probability that the coin is fair.
+"""
 
 # ╔═╡ 16d99340-a821-4620-97e2-b1601786fefa
 posterior_a_samples = randsample(
@@ -356,10 +388,10 @@ The representation here matters because it exposes the symmetry of the model. Pe
 md"""
 ## Compare the number of proposed worlds
 
-The earlier calls each requested 400 **accepted posterior samples**. They did
+The earlier calls each requested 400 *accepted posterior samples*. They did
 not fix how many worlds the sampler had to propose before finding those matches.
 To see the difference, we will generate a fixed collection of proposed worlds
-and apply both acceptance rules to that same collection. This makes the proposal
+and apply both acceptance rules to that same collection. This setup makes the proposal
 and rejection steps explicit: each rule keeps matching worlds and discards the
 rest. Unlike the earlier calls, which stop after 400 acceptances, this experiment
 stops after a fixed number of proposals and counts how many each rule accepts.
@@ -438,16 +470,14 @@ although a particular run can still put the sequence estimate closer to the answ
 `sampling_sd` makes the accuracy comparison explicit. Accepted coin types are
 independent Boolean draws with the same posterior probability ``p``. Conditional
 on accepting ``m`` worlds, their average has standard deviation
-``sqrt(p(1-p)/m)``. We use the exact posterior from the earlier decoder to display
+``\sqrt{p(1-p)/m}``. We use the exact posterior from the earlier decoder to display
 that expected sampling variation. Four times as many accepted samples gives
 about half the standard deviation. This comparison describes variation across runs;
 individual estimates need not improve monotonically.
 
 Rerun `proposed_worlds` and inspect the table again. Then raise `proposal_count`
-or change the observed sequence. The advantage is fewer **proposals** for a
-given accuracy. If you instead fix the number of accepted samples, as in the
-400-sample calls above, the two estimators have the same sampling variance.
-This experiment compares proposal budgets; it does not measure elapsed time.
+or change the observed sequence. The count representation's advantage is that it
+needs fewer proposals for a given accuracy.
 """
 
 # ╔═╡ dce4c493-f693-45d7-998b-50b243c9ebde
@@ -456,12 +486,22 @@ md"""
 
 Change `sequence_b` while keeping its head count fixed. Which results stay the
 same, and which change? The count is useful for the coin question because the
-model makes flip order irrelevant once we know the coin type. A task about runs
-asks for information that this representation discards.
+model makes flip order irrelevant once we know the coin type.
 
 Now imagine a coin whose probability of heads depends on the previous flip.
 Would counting heads still preserve the posterior? What would you need to keep
-instead?
+instead? Chapter 6 returns to such a coin and asks how a learner could tell it
+apart from the coin in this chapter.
+"""
+
+# ╔═╡ 4b226b54-aaca-49a8-a4a5-7b02934e3235
+md"""
+---
+## References
+
+- Yu, A. J. (2026). *The Art of Making Problems Simple: A Theory of Intelligence*. PsyArXiv. [doi:10.31234/osf.io/pghzn_v3](https://doi.org/10.31234/osf.io/pghzn_v3)
+- Goodman, N. D., Tenenbaum, J. B., & The ProbMods Contributors (2016). *Probabilistic Models of Cognition* (2nd ed.). [probmods.org](https://probmods.org/)
+- Tavares, Z., Koppel, J., Zhang, X., Das, R., & Solar-Lezama, A. (2021). A language for counterfactual generative models. *Proceedings of the 38th International Conference on Machine Learning*, PMLR 139, 10173–10182. [pdf](http://www.zenna.org/publications/causal.pdf)
 """
 
 # ╔═╡ Cell order:
@@ -495,11 +535,13 @@ instead?
 # ╟─9f38845c-d921-431f-8653-23a5026496ca
 # ╟─d9145ff1-52d8-4b62-b5f3-cf5e43599e6a
 # ╟─9ff3cc91-ff52-42d4-b5fe-cdb89ad4dc92
-# ╟─ae66ee93-fc10-4cf3-a0fa-e0b90b54c880
 # ╠═c0e04a0c-31b2-4bef-adb9-76ddf62cc80d
+# ╟─ae66ee93-fc10-4cf3-a0fa-e0b90b54c880
 # ╠═439377a4-9cb9-4c7a-aaf0-7cce2642bb5a
+# ╟─dc1891ce-891e-4a00-8292-7419b6ad8428
 # ╠═45536470-c40d-43a8-8e43-02e5d3afbb47
 # ╠═762e18ac-ef81-4b68-aa05-205821498823
+# ╟─bbcebc14-1ac8-43a9-b4a1-f2da9f133802
 # ╠═16d99340-a821-4620-97e2-b1601786fefa
 # ╠═2b65c790-4206-484c-915f-294b4c0bc0c3
 # ╠═e77105d0-fbb6-40dc-8aa1-c0d74b5d49c5
@@ -523,3 +565,4 @@ instead?
 # ╠═755fc40b-08a9-42bf-91b7-abe83a67db5d
 # ╟─43fdb83f-e487-4fb0-a138-680b92603ba4
 # ╟─dce4c493-f693-45d7-998b-50b243c9ebde
+# ╟─4b226b54-aaca-49a8-a4a5-7b02934e3235

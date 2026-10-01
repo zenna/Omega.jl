@@ -7,7 +7,27 @@ using InteractiveUtils
 # ╔═╡ 61c9278e-5cbf-4e3c-944d-13d2618b4896
 begin
     import Pkg
-    Pkg.activate(Base.current_project())
+    # Set to `true` to run against your local Omega.jl checkout instead of
+    # installing the published `complete-probmods` branch.
+    use_local_omega = true
+    if use_local_omega
+        Pkg.activate(Base.current_project())
+    else
+        Pkg.activate(mktempdir())
+        repo = "https://github.com/zenna/Omega.jl"
+        rev = "complete-probmods"
+        Pkg.add([
+            Pkg.PackageSpec(url=repo, rev=rev),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaCore"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="InferenceBase"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="SoftPredicates"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaDistributions"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaSoftPredicates"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaMH"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="ReplicaExchange"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaExamples"),
+        ])
+    end
     using Omega, Distributions, Statistics
 end
 
@@ -15,47 +35,53 @@ end
 md"""
 # 8. Executable self-models and interventions
 
-How might you predict a person who is more forgiving than you? One possibility
-is to run a model of yourself with a different way of responding to past hurts.
-Here we write that self-model as a program in Omega, intervene on it, and use
-the edited program to predict another player.
+We continue Chapter 7's repeated Stag Hunt, with the same `hunt_stag` and
+`forage_safe` actions and the same question of how trust recovers. Chapter 7
+modelled another player by choosing among the focal agent's strategy programs.
+Here we start with one executable self-model, intervene on its memory or update
+rule, and use the edited program to predict another player.
 
 The example draws on executable behaviour models in
 [Modeling Others' Minds as Code](https://arxiv.org/abs/2510.01272) and the use of
 self-prediction and functional similarity in
 [Embedded Universal Predictive Intelligence](https://arxiv.org/abs/2511.22226).
-We supply the self-model here; learning that model from your own behaviour is a
-further question. The example illustrates one idea from these papers, not the
+We supply the self-model here; i.e., we do not learn that model from "self"-behaviour. The example illustrates one idea from these papers, not the
 full embedded-agent framework.
 """
 
 # ╔═╡ 21fbdb61-d032-4ccc-84c8-4262bab12e34
 md"""
-## A program that remembers a betrayal
+## A program that remembers a loss of trust
 
-Imagine a repeated cooperation game. Each round, both players choose whether to
-cooperate or defect. Mutual cooperation pays 3 each; unilateral defection pays 5
-to the defector and 0 to the cooperator; mutual defection pays 1 each. Our player
-follows a behaviour rule rather than calculating which action maximises reward.
+As in Chapter 7, both players act simultaneously. Hunting pays 4 if the partner
+also hunts and 0 otherwise; safe foraging always pays 1. Our self-model follows
+a supplied trust rule. It does not calculate a greedy response from an opponent
+prediction as Chapter 7's focal agent did. The finite action sequences below
+are diagnostic inputs; the players do not observe an ending round.
 
-We use `true` for cooperation and `false` for defection. The player cooperates
+We encode `hunt_stag` as `true` and `forage_safe` as `false`. The player hunts
 while its resentment is below a tolerance. After seeing the partner's action,
-it retains a fraction of its resentment and adds one if the partner defected.
-The fraction, `retention`, controls how long a betrayal continues to matter.
+it retains a fraction of its resentment and adds one if the partner foraged.
+Resentment measures the lingering loss of trust; choosing the safe action is
+not necessarily a betrayal. The fraction, `retention`, controls how long that
+choice continues to matter. At the default tolerance and retention 1, one safe
+action prevents hunting forever, as in Chapter 7's `grim_trust`; smaller values
+let resentment fade.
 """
 
 # ╔═╡ a4bb15c8-3bd0-45de-b938-7e0b5a92d5a0
-decay_update(resentment, cooperated, retention) = retention * resentment + !cooperated
+decay_update(resentment, hunted, retention) =
+    retention * resentment + !hunted
 
 # ╔═╡ 01035d77-5bf8-4016-b651-c129da768769
 md"""
-`!cooperated` is `true` when the partner defects, so it adds one in that case.
+`!hunted` is `true` when the partner forages safely, so it adds one in that case.
 With retention 0.9, the player carries 90% of its previous resentment into the
 next round. With retention 0.2, it carries only 20%. We call the second player
 more forgiving in this specific sense.
 
 The function below runs this rule through a sequence of partner actions. It
-records resentment and the intended action **before** observing each round's
+records resentment and the intended action *before* observing each round's
 partner action, because the players act simultaneously. Every call starts at
 zero resentment, so separate episodes do not share memory.
 """
@@ -65,10 +91,10 @@ function replay(observed; retention=0.9, tolerance=0.5, update=decay_update)
     resentment = 0.0
     states = Float64[]
     actions = Bool[]
-    for cooperated in observed
+    for hunted in observed
         push!(states, resentment)
         push!(actions, resentment < tolerance)
-        resentment = update(resentment, cooperated, retention)
+        resentment = update(resentment, hunted, retention)
     end
     (; states, actions, resentment, next_action=resentment < tolerance)
 end
@@ -82,13 +108,13 @@ replay(partner_actions)
 # ╔═╡ 370eabdd-ec8d-40c2-814b-c6b36ec7ced8
 md"""
 At the starting settings you should see actions
-`[true, true, false, false, false, false]`. The player cooperates in round 2
-because it has not yet seen that round's betrayal. It defects in round 3, then
-continues to defect while its resentment slowly fades.
+`[true, true, false, false, false, false]`. The player hunts in round 2
+because it has not yet seen that round's safe action. It forages safely in
+round 3, then continues to forage safely while its resentment slowly fades.
 
 Try replacing `false` with `true` in `partner_actions`. The player now has
-nothing to resent. Restore the betrayal, then change the call to
-`replay(partner_actions; retention=0.2)`. When does cooperation resume?
+nothing to resent. Restore the safe action, then change the call to
+`replay(partner_actions; retention=0.2)`. When does hunting resume?
 Keep retention between 0 and 1 and tolerance positive throughout this tutorial.
 """
 
@@ -116,7 +142,7 @@ self_model(observed; tolerance=0.5) = Variable(ω -> replay(observed;
 md"""
 `self_model` calls the same `replay` function, taking its retention and update
 rule from the named expressions. We can now express "what would I do if I let
-resentment fade faster?" with `|ᵈ`, the intervention operator.
+resentment fade faster?" with `|ᵈ`, the intervention operator from Chapter 6.
 """
 
 # ╔═╡ 224a23a4-e77f-401e-a3d6-fc7a6336a59d
@@ -135,12 +161,12 @@ md"""
 it out of its one-element collection. These models contain no random choices,
 so repeated executions give the same result.
 
-At the starting settings, the forgiving model returns to cooperation in round
-4; the original still defects. The intervention changes the retention expression
+At the starting settings, the forgiving model returns to hunting in round
+4; the original still forages safely. The intervention changes the retention expression
 inside `forgiving` and leaves `original` intact. Try 0.5 or 1.0 in the intervention
 cell and compare the action sequences. At 1.0, resentment never fades.
 
-These are predictions on the same supplied partner sequence. The partner does
+These results are predictions on the same supplied partner sequence. The partner does
 not respond to the model's actions in this example.
 """
 
@@ -148,9 +174,9 @@ not respond to the model's actions in this example.
 md"""
 ## The same intervention can have different effects
 
-Suppose two self-models have different tolerances. One cooperates below
+Suppose two self-models have different tolerances. One hunts below
 resentment 0.5; the other requires resentment below 0.1. We give both the same
-history: one betrayal followed by one cooperative action.
+history: one safe action followed by one hunt.
 """
 
 # ╔═╡ 3f718c33-483c-4283-af30-65e6646b4010
@@ -174,11 +200,11 @@ forgiveness = self_retention => 0.2
 # ╔═╡ 0b045858-aae3-4ae3-ab07-7a20c074ea90
 md"""
 Look at `resentment` and `next_action` in each result. Resentment falls from
-0.9 to 0.2 in both models. The first model switches from defection to cooperation;
-the second still defects because 0.2 exceeds its tolerance.
+0.9 to 0.2 in both models. The first model switches from safe foraging to hunting;
+the second still forages safely because 0.2 exceeds its tolerance.
 
 Add another `true` to `shared_history`. The edited second model now has resentment
-0.04 and cooperates too. Its unchanged next action in the shorter history did not
+0.04 and hunts too. Its unchanged next action in the shorter history did not
 mean the intervention had no effect: the difference appeared later.
 
 Try changing the second model's tolerance. Predictions depend both on the edit
@@ -208,7 +234,7 @@ their_actions = [true, true, false, true, true]
 
 # ╔═╡ 0acb1ed7-cb7f-4d73-840b-1f7f06ce3265
 md"""
-The other player retaliates once after our defection, then cooperates again.
+The other player retaliates once after our safe foraging, then hunts again.
 That sequence suggests faster recovery than our starting self-model.
 
 We will consider five possible retention values. The prior gives each value a
@@ -259,9 +285,9 @@ other_model = self_model(my_actions) |ᵈ (self_retention => other_retention)
 md"""
 `other_model` is our self-model with an uncertain retention value. To allow
 occasional actions that disagree with its rule, we add an execution error.
-`Bernoulli(p)` generates a Boolean action that cooperates with probability `p`.
-For an intended cooperation we use probability 0.9; for an intended defection
-we use 0.1. Each round gets its own random choice, named by `(:action, t)`.
+`Bernoulli(p)` generates a Boolean hunt indicator with probability `p`.
+For an intended hunt we use probability 0.9; for intended safe foraging we use
+0.1. Each round gets its own random choice, named by `(:action, t)`.
 """
 
 # ╔═╡ b2c542b2-d0fb-4323-a2d6-4cb69d4918b2
@@ -269,8 +295,8 @@ error_rate = 0.1
 
 # ╔═╡ 10c91bf2-619b-4861-9085-047365a832a8
 generated_actions = Variable(ω -> [
-    ((:action, t) ~ Bernoulli(cooperates ? 1-error_rate : error_rate))(ω)
-    for (t, cooperates) in enumerate(other_model(ω).actions)
+    ((:action, t) ~ Bernoulli(hunts ? 1-error_rate : error_rate))(ω)
+    for (t, hunts) in enumerate(other_model(ω).actions)
 ])
 
 # ╔═╡ 9eae1867-3393-4ce0-9462-eaff31c8e8b1
@@ -278,7 +304,7 @@ randsample(generated_actions, 5)
 
 # ╔═╡ 366da59f-8ab3-4fc4-8195-f10ea5979437
 md"""
-These are five possible action sequences before conditioning. Some contain
+The cell shows five possible action sequences before conditioning. Some contain
 long retaliation, and execution errors can produce an unexpected action at any
 round. Rerun the cell to see different draws. Try increasing `error_rate` towards
 0.5: at 0.5, the observed actions tell us nothing about retention.
@@ -305,17 +331,17 @@ retention_samples = randsample(posterior, 400; alg=RejectionSample)
 # ╔═╡ cd6b7f5b-7160-40ca-8a80-f9a0a5cde696
 md"""
 At the starting settings, most posterior samples should have retention 0.0 or
-0.2. Both values explain the quick return to cooperation. We cannot distinguish
+0.2. Both values explain the quick return to hunting. We cannot distinguish
 them from this interaction alone: they predict the same intended actions.
 The prior favours 0.2, so it usually receives more posterior weight.
 
 Change `their_actions` to `[true, true, false, false, false]`. The posterior now
 favours longer-lasting resentment. Alternatively, set both action sequences to
-all `true`: every candidate predicts cooperation, so the posterior stays close
+all `true`: every candidate predicts hunting, so the posterior stays close
 to the chosen prior. Keep the two sequences the same length.
 
-The displayed proportions fluctuate because they come from samples. Increasing
-400 reduces that fluctuation but takes longer. Keep the sequences short while
+The displayed proportions fluctuate because they come from samples. Raising the
+sample count of 400 reduces that fluctuation but takes longer. Keep the sequences short while
 exploring: rejection sampling can become slow when matching a full trace is rare.
 """
 
@@ -324,8 +350,8 @@ md"""
 ## Predict a new interaction
 
 Can the inferred edits predict a history we have not yet observed? We now supply
-two consecutive defections followed by cooperation. For each sampled retention,
-we run a fresh episode and predict a cooperation probability in each round.
+two consecutive safe actions followed by hunting. For each sampled retention,
+we run a fresh episode and predict a hunting probability in each round.
 The function includes the same execution error as the inference model.
 """
 
@@ -333,31 +359,31 @@ The function includes the same execution error as the inference model.
 new_actions = [true, false, false, true, true, true, true, true]
 
 # ╔═╡ 83681362-b6da-43b7-89e9-b1dc16bda2ac
-cooperation_probabilities(retention, observed) = [
-    cooperates ? 1-error_rate : error_rate
-    for cooperates in replay(observed; retention=retention).actions
+hunt_probabilities(retention, observed) = [
+    hunts ? 1-error_rate : error_rate
+    for hunts in replay(observed; retention=retention).actions
 ]
 
 # ╔═╡ abd8092b-844f-468b-b8ea-fc22a996751d
-predicted_cooperation = mean([
-    cooperation_probabilities(retention, new_actions)
+predicted_hunting = mean([
+    hunt_probabilities(retention, new_actions)
     for retention in retention_samples
 ])
 
 # ╔═╡ ca177850-7235-46f3-b705-7e6b36324542
-self_prediction = cooperation_probabilities(only(randsample(self_retention, 1)), new_actions)
+self_prediction = hunt_probabilities(only(randsample(self_retention, 1)), new_actions)
 
 # ╔═╡ dc964126-d2a9-4cd2-acfd-e5af25e90f68
 [(round=t, partner_action=new_actions[t],
-  unchanged_self=self_prediction[t], inferred_other=predicted_cooperation[t])
+  unchanged_self=self_prediction[t], inferred_other=predicted_hunting[t])
  for t in eachindex(new_actions)]
 
 # ╔═╡ 7c3b744c-ea3c-4b41-90e7-9b74ee2415cb
 md"""
-At the starting settings, both predictions initially favour cooperation and
-then retaliation. Around round 5, the inferred other-model favours cooperation
-again, while the unchanged self-model still favours defection. The two small
-retention values differ here: 0.0 recovers after the first cooperative response,
+At the starting settings, both predictions initially favour hunting and
+then retaliation. Around round 5, the inferred other-model favours hunting
+again, while the unchanged self-model still favours safe foraging. The two small
+retention values differ here: 0.0 recovers after the first hunt,
 whereas 0.2 also carries a small residual resentment. They happen to agree on
 these actions at tolerance 0.5.
 
@@ -375,16 +401,16 @@ to compare against them.
 md"""
 ## Change the rule, not only a parameter
 
-Suppose someone forgives after two consecutive cooperative actions, regardless
-of how many defections preceded them. We can express that rule by replacing the
-update function. Its internal state now counts how many cooperative actions are
-still needed: a defection sets it to two, and cooperation reduces it by one.
-The action rule continues to cooperate when the state is below 0.5.
+We now express Chapter 7's `repair_after_two` as an edit to the self-model.
+Two consecutive hunts restore trust, regardless of how many safe actions
+preceded them. We replace the update function so its internal state counts how
+many hunts are still needed: a safe action sets it to two, and a hunt reduces
+it by one. The action rule hunts when the state is below 0.5.
 """
 
 # ╔═╡ 0080c9fc-9e9a-4a68-bb86-4842321639bd
-repair_after_two(remaining, cooperated, retention) =
-    cooperated ? max(0.0, remaining - 1) : 2.0
+repair_after_two(remaining, hunted, retention) =
+    hunted ? max(0.0, remaining - 1) : 2.0
 
 # ╔═╡ 28ca22c8-fe23-44e1-ba49-c6e7d0e48fbb
 repair_model = self_model(new_actions) |ᵈ (resentment_update => repair_after_two)
@@ -394,12 +420,12 @@ randsample(repair_model, 1)
 
 # ╔═╡ b388db30-75fc-4bcf-b24e-e3784e5d3550
 md"""
-For the starting `new_actions`, the repair model resumes cooperation in round
-6: it has seen cooperative actions in rounds 4 and 5. Insert more defections
-before those two cooperative actions. Each defection restarts the countdown,
-but two consecutive cooperations still suffice to restore cooperation.
+For the starting `new_actions`, the repair model resumes hunting in round
+6: it has seen hunts in rounds 4 and 5. Insert more safe actions
+before those two hunts. Each safe action restarts the countdown,
+but two consecutive hunts still suffice to restore hunting.
 
-Try setting the countdown to `3.0` in the function. How many cooperative actions does the model now require?
+Try setting the countdown to `3.0` in the function. How many hunts does the model now require?
 The `retention` argument stays in the function signature so it fits the same
 interface, but this rule does not use it. A retention intervention therefore has
 no effect on this model. Run the cell below to see that directly.
@@ -409,11 +435,30 @@ no effect on this model. Run the cell below to see that directly.
 randsample(self_model(new_actions) |ᵈ
     (resentment_update => repair_after_two, self_retention => 0.2), 1)
 
+# ╔═╡ 43df7d4c-ceb6-4c75-9f0f-a595b3090cda
+md"""
+Use the same focal histories as Chapter 7, now as inputs to an edited opponent
+model: safe, safe, hunt and safe, hunt, hunt. Both had opponent actions hunt,
+safe, safe. The repair rule predicts safe foraging next in the first history
+and hunting in the second. We display its intended next action directly;
+Chapter 7 averaged such predictions over its posterior strategy library.
+"""
+
+# ╔═╡ d2ac6e0e-b0a3-4c90-a195-ddda1dc9c6f2
+[(history=name,
+  next_action=only(randsample(self_model(observed) |ᵈ
+      (resentment_update => repair_after_two), 1)).next_action ?
+      :hunt_stag : :forage_safe)
+ for (name, observed) in [
+     (:history_without_repair, [false, false, true]),
+     (:history_after_repair, [false, true, true]),
+ ]]
+
 # ╔═╡ 587471de-a298-4a40-8022-3b93878c88b1
 md"""
 Try retention 0.5 in the decay model. With tolerance 0.5, it can produce the
-same actions as the two-cooperation countdown rule: after a defection the state
-is at least 1 but below 2, so one cooperation leaves it at least 0.5 and two
+same actions as the two-hunt countdown rule: after a safe action the state
+is at least 1 but below 2, so one hunt leaves it at least 0.5 and two
 bring it below 0.5. Both models start at zero and share that action threshold.
 
 Matching actions do not make the mechanisms identical. Changing retention to
@@ -422,12 +467,30 @@ behaviour unchanged. A model's expressive limits depend on both the behaviour
 rules it can represent and the interventions it makes available.
 
 We supplied the new function ourselves. The earlier inference only chooses a
-retention value; it cannot discover this update function, even when a retention value matches its actions. To explore a larger model space,
-you could let the unknown edit choose between update functions as well.
+retention value; it cannot discover this update function, even when a retention value matches its actions. This gap is the limit Chapter 4 described:
+tuning a parameter within a representation cannot add a distinction the
+representation lacks, and a new update rule is such a distinction. To explore a
+larger model space, you could let the unknown edit choose between update
+functions as well.
 
 An edit can change an action immediately, change it only after more experience,
 or leave it unchanged because the model never uses the edited expression.
 Which effect you predict depends on the self-model you start with.
+"""
+
+# ╔═╡ ef2a91f7-f227-4b27-b902-b044133e048d
+md"""
+---
+## References
+
+This notebook is part of a tutorial series introducing the ideas in Yu (2026).
+
+- Yu, A. J. (2026). *The Art of Making Problems Simple: A Theory of Intelligence*. PsyArXiv. [doi:10.31234/osf.io/pghzn_v3](https://doi.org/10.31234/osf.io/pghzn_v3)
+- Goodman, N. D., Tenenbaum, J. B., & The ProbMods Contributors (2016). *Probabilistic Models of Cognition* (2nd ed.). [probmods.org](https://probmods.org/)
+- Tavares, Z., Koppel, J., Zhang, X., Das, R., & Solar-Lezama, A. (2021). A language for counterfactual generative models. *Proceedings of the 38th International Conference on Machine Learning*, PMLR 139, 10173–10182. [pdf](http://www.zenna.org/publications/causal.pdf)
+- Jha, K., Huang, A. Y., Ye, E., Jaques, N., & Kleiman-Weiner, M. (2025). Modeling others' minds as code. [arXiv:2510.01272](https://arxiv.org/abs/2510.01272)
+- Meulemans, A., Nasser, R., Wołczyk, M., Weis, M. A., Kobayashi, S., Richards, B., Lajoie, G., Steger, A., Hutter, M., Manyika, J., Saurous, R. A., Sacramento, J., & Agüera y Arcas, B. (2025). Embedded universal predictive intelligence: A coherent framework for multi-agent learning. [arXiv:2511.22226](https://arxiv.org/abs/2511.22226)
+- Skyrms, B. (2004). *The Stag Hunt and the Evolution of Social Structure*. Cambridge University Press.
 """
 
 # ╔═╡ Cell order:
@@ -492,4 +555,7 @@ Which effect you predict depends on the self-model you start with.
 # ╠═aabb5af8-c554-4baa-abec-167595238469
 # ╟─b388db30-75fc-4bcf-b24e-e3784e5d3550
 # ╠═b29f76d9-5f66-4421-89e7-8bcb73ffa6bf
+# ╟─43df7d4c-ceb6-4c75-9f0f-a595b3090cda
+# ╠═d2ac6e0e-b0a3-4c90-a195-ddda1dc9c6f2
 # ╟─587471de-a298-4a40-8022-3b93878c88b1
+# ╟─ef2a91f7-f227-4b27-b902-b044133e048d

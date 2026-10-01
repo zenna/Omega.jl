@@ -7,27 +7,33 @@ using InteractiveUtils
 # ╔═╡ 38d37e89-dce4-4d4c-a7b7-06739e64f02d
 begin
     import Pkg
-	# Pkg.activate(mktempdir())
- #    repo = "https://github.com/zenna/Omega.jl"
- #    rev = "complete-probmods"
-	# Pkg.add([
- #        Pkg.PackageSpec(url=repo, rev=rev),
- #        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaCore"),
- #        Pkg.PackageSpec(url=repo, rev=rev, subdir="InferenceBase"),
- #        Pkg.PackageSpec(url=repo, rev=rev, subdir="SoftPredicates"),
- #        Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaDistributions"),
- #        Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaSoftPredicates"),
- #        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaMH"),
- #        Pkg.PackageSpec(url=repo, rev=rev, subdir="ReplicaExchange"),
- #        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaExamples"),
- #    ])
-	Pkg.activate(Base.current_project())
+    # Set to `true` to run against your local Omega.jl checkout instead of
+    # installing the published `complete-probmods` branch.
+    use_local_omega = true
+    if use_local_omega
+        Pkg.activate(Base.current_project())
+    else
+        Pkg.activate(mktempdir())
+        repo = "https://github.com/zenna/Omega.jl"
+        rev = "complete-probmods"
+        Pkg.add([
+            Pkg.PackageSpec(url=repo, rev=rev),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaCore"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="InferenceBase"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="SoftPredicates"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaDistributions"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaSoftPredicates"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaMH"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="ReplicaExchange"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaExamples"),
+        ])
+    end
     using Omega, Distributions, OmegaExamples, UnicodePlots
 end
 
 # ╔═╡ ca43a069-c726-4b3e-acf8-d99e64462646
 md"""
-# 2. Generators, Orbits, and Quotients
+# 2. Generators, orbits, and quotients
 
 Chapter 1 compressed an ordered sequence of coin flips into `(flips, heads)`. The compression worked for inferring which coin produced the data, but the chapter did not explain where that representation came from.
 
@@ -38,7 +44,7 @@ This chapter constructs the representation by composing transformations of the o
 md"""
 ## A local generator: swap two neighbours
 
-Let ``\tau_i`` exchange flips at positions ``i`` and ``i+1``. This adjacent swap is a **generator**: a simple transformation whose compositions produce more complicated transformations.
+Let ``\tau_i`` exchange flips at positions ``i`` and ``i+1``. This adjacent swap is a *generator*: a simple transformation whose compositions produce more complicated transformations.
 
 """
 
@@ -68,9 +74,9 @@ seed_sequence = [true, true, true, false] # HHHT
 
 # ╔═╡ c8a316d8-2302-4869-9935-b0a9133b6527
 md"""
-Each swap is an **involution** because applying it twice returns the original sequence: ``\tau_i^2=e``, where ``e`` is the identity transformation. Composition also matters: swapping positions 2 and 3, then positions 3 and 4, can differ from reversing that order.
+Each swap is an *involution* because applying it twice returns the original sequence: ``\tau_i^2=e``, where ``e`` is the identity transformation. Composition also matters: swapping positions 2 and 3, then positions 3 and 4, can differ from reversing that order.
 
-For sequences of length ``n``, the adjacent swaps generate the **symmetric group** ``S_n``, the group of all permutations of ``n`` positions. Composing two permutations produces another permutation, composition is associative, an identity leaves the sequence unchanged, and every permutation has an inverse. These group properties let us move around a structured family of sequences without changing their values, only their positions.
+For sequences of length ``n``, the adjacent swaps generate the *symmetric group* ``S_n``, the group of all permutations of ``n`` positions. Composing two permutations produces another permutation, composition is associative, an identity leaves the sequence unchanged, and every permutation has an inverse. These group properties let us move around a structured family of sequences without changing their values, only their positions.
 """
 
 # ╔═╡ 3a8bc4d7-f8c5-42f1-9b29-700569a4c15f
@@ -113,7 +119,7 @@ orderings do you expect? Keep the seed short: enumerating an orbit can grow quic
 md"""
 ## The orbit: every reachable observation
 
-A group acts on a space when each group element transforms an object in that space. Here, ``S_4`` acts on four-flip sequences by permuting their positions. The **orbit** of `HHHT` is the set of sequences reachable under that action:
+A group acts on a space when each group element transforms an object in that space. Here, ``S_4`` acts on four-flip sequences by permuting their positions. The *orbit* of `HHHT` is the set of sequences reachable under that action:
 
 ```math
 \operatorname{Orb}(x)=\{g\cdot x:g\in S_4\}.
@@ -190,7 +196,7 @@ for the second. Try moving the tail by hand in `seed_sequence` and compare.
 md"""
 ## Task invariants
 
-A task ``T`` is **invariant** under a transformation ``g`` when
+A task ``T`` is *invariant* under a transformation ``g`` when
 
 ```math
 T(g\cdot x)=T(x).
@@ -216,9 +222,9 @@ end
 md"""
 ## From an orbit to a quotient
 
-Define ``x\sim y`` when a permutation carries ``x`` to ``y``. This relation is an **equivalence relation**: every sequence is equivalent to itself, equivalence works in both directions, and equivalences compose. Its equivalence classes are the permutation orbits.
+Define ``x\sim y`` when a permutation carries ``x`` to ``y``. This relation is an *equivalence relation*: every sequence is equivalent to itself, equivalence works in both directions, and equivalences compose. Its equivalence classes are the permutation orbits.
 
-The **quotient space** ``X/S_n`` replaces every orbit in the original sequence space ``X`` with one object. For Boolean sequences of fixed length, the number of heads uniquely labels each quotient class. The map
+The *quotient space* ``X/S_n`` replaces every orbit in the original sequence space ``X`` with one object. For Boolean sequences of fixed length, the number of heads uniquely labels each quotient class. The map
 
 ```math
 q(x)=(\operatorname{length}(x),\operatorname{heads}(x))
@@ -284,7 +290,7 @@ sort([(heads = coordinate.heads, class_size = length(class))
 md"""
 The quotient reduces the 16 ordered four-flip sequences to five coordinates, one for each possible head count. In general, it reduces ``2^n`` Boolean sequences to ``n+1`` count coordinates. Their class sizes for four flips are `1, 4, 6, 4, 1`, the corresponding binomial coefficients.
 
-If a task is invariant on every class, it **factors through** the quotient:
+If a task is invariant on every class, it *factors through* the quotient:
 
 ```math
 T = D\circ q.
@@ -386,7 +392,7 @@ is not constant within a permutation orbit.
 
 The next cells explore what remains uncertain when we know only the count.
 `UniformDraw(orbit)` chooses an ordering uniformly from the seed's orbit.
-Under our conditionally i.i.d. coin model, this is the conditional distribution
+Under our conditionally i.i.d. coin model, this uniform draw is the conditional distribution
 of the sequence given its count: all orderings in the orbit have equal
 probability under either coin. The first plot samples these orderings; the
 second applies `longest_head_run` to each sampled ordering.
@@ -412,8 +418,8 @@ runs of length two and three, because two orbit members give each answer.
 More samples make those proportions more stable; they cannot reveal which
 ordering produced the original observation.
 
-The count and the model thus determine a **distribution over possible run
-lengths**, but the count does not determine the observed sequence's run length.
+The count and the model thus determine a distribution over possible run
+lengths, but the count does not determine the observed sequence's run length.
 Choosing one orbit member, or reporting the mean run length of 2.5, cannot
 recover that missing answer. If we need both the coin posterior and the exact
 longest run, we could retain the sequence or compute and store its longest run
@@ -433,6 +439,18 @@ model. For the longest-run task, reversal still preserves the answer: it
 reverses each run without changing its length. Arbitrary adjacent swaps can
 split or join runs. Grouping a sequence with its reversal therefore preserves
 the run task, while grouping all permutations loses too much.
+"""
+
+# ╔═╡ 136a8ae0-34ed-49b8-a3cd-35737fe260ab
+md"""
+---
+## References
+
+This notebook is part of a tutorial series introducing the ideas in Yu (2026).
+
+- Yu, A. J. (2026). *The Art of Making Problems Simple: A Theory of Intelligence*. PsyArXiv. [doi:10.31234/osf.io/pghzn_v3](https://doi.org/10.31234/osf.io/pghzn_v3)
+- Goodman, N. D., Tenenbaum, J. B., & The ProbMods Contributors (2016). *Probabilistic Models of Cognition* (2nd ed.). [probmods.org](https://probmods.org/)
+- Tavares, Z., Koppel, J., Zhang, X., Das, R., & Solar-Lezama, A. (2021). A language for counterfactual generative models. *Proceedings of the 38th International Conference on Machine Learning*, PMLR 139, 10173–10182. [pdf](http://www.zenna.org/publications/causal.pdf)
 """
 
 # ╔═╡ Cell order:
@@ -484,3 +502,4 @@ the run task, while grouping all permutations loses too much.
 # ╠═155d65f4-9d27-4c3d-95c9-0b722fefe11f
 # ╠═110f2caf-213f-4b44-864e-71fdb2f90afd
 # ╟─27c2eaee-bf98-4fba-af39-9dd467e47639
+# ╟─136a8ae0-34ed-49b8-a3cd-35737fe260ab

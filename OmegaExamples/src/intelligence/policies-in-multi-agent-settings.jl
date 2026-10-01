@@ -7,20 +7,27 @@ using InteractiveUtils
 # ╔═╡ 1ac95343-9d93-40cf-a495-1751114f10a7
 begin
     import Pkg
-	Pkg.activate(mktempdir())
-    repo = "https://github.com/zenna/Omega.jl"
-    rev = "complete-probmods"
-	Pkg.add([
-        Pkg.PackageSpec(url=repo, rev=rev),
-        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaCore"),
-        Pkg.PackageSpec(url=repo, rev=rev, subdir="InferenceBase"),
-        Pkg.PackageSpec(url=repo, rev=rev, subdir="SoftPredicates"),
-        Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaDistributions"),
-        Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaSoftPredicates"),
-        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaMH"),
-        Pkg.PackageSpec(url=repo, rev=rev, subdir="ReplicaExchange"),
-        Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaExamples"),
-    ])
+    # Set to `true` to run against your local Omega.jl checkout instead of
+    # installing the published `complete-probmods` branch.
+    use_local_omega = true
+    if use_local_omega
+        Pkg.activate(Base.current_project())
+    else
+        Pkg.activate(mktempdir())
+        repo = "https://github.com/zenna/Omega.jl"
+        rev = "complete-probmods"
+        Pkg.add([
+            Pkg.PackageSpec(url=repo, rev=rev),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaCore"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="InferenceBase"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="SoftPredicates"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaDistributions"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="connectors/OmegaSoftPredicates"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaMH"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="ReplicaExchange"),
+            Pkg.PackageSpec(url=repo, rev=rev, subdir="OmegaExamples"),
+        ])
+    end
     using Omega, Distributions, OmegaExamples, UnicodePlots
 end
 
@@ -34,8 +41,7 @@ agent compresses an interaction history by interpreting the opponent through
 its own strategy language. The available strategies determine which behavioural
 distinctions the focal agent can express.
 
-The example uses an indefinitely repeated Stag Hunt. The finite histories below provide diagnostic inputs, not
-complete episodes; no agent observes an ending round or remaining horizon.
+The example uses an indefinitely repeated Stag Hunt. The finite histories below provide diagnostic inputs; no agent observes an ending round or remaining horizon.
 """
 
 # ╔═╡ b8f8a187-e266-4c15-8ab6-7cc7f2db4aaa
@@ -46,7 +52,7 @@ Each player chooses `hunt_stag` or `forage_safe` simultaneously. Hunting pays
 4 when the opponent also hunts and 0 otherwise. Foraging always pays 1. If the
 focal agent predicts that the opponent hunts with probability ``p``, hunting
 has expected immediate reward ``4p`` and foraging has reward 1. A greedy agent
-therefore hunts exactly when ``p>1/4``; at equality it takes the safe action.
+therefore hunts exactly when ``p>1/4``; and otherwise takes the safe action.
 """
 
 # ╔═╡ 150ef3a1-522e-4a09-b771-44fc72819efb
@@ -94,11 +100,17 @@ md"""
 
 The simple focal agent can execute only stationary mixed strategies
 ``\pi_q``: hunt with probability ``q``, independently of history. It reuses
-that same one-parameter class to model the opponent. Omega places a uniform
+that same one-parameter class to model the opponent. We place a uniform
 ``\operatorname{Beta}(1,1)`` prior on ``q``, generates the opponent's actions,
 and conditions ``q`` on the observed trace. This posterior depends only on the
 opponent's action counts. It cannot express whether the opponent responded to
 the focal player's actions or whether earlier actions damaged or restored trust.
+
+This compression is the permutation quotient from Chapter 2, applied to a history instead of
+a coin sequence. The stationary model treats every reordering of the opponent's
+actions as the same and ignores the focal actions altogether. As in Chapter 4,
+no amount of data can recover distinctions this representation has already
+merged; only a richer strategy language can.
 """
 
 # ╔═╡ 6d22f491-c1ea-4f5e-ae6c-34e66aa722c6
@@ -143,7 +155,8 @@ md"""
 `stationary_posterior` builds a conditional model. It generates one Boolean
 per round with a shared hunt probability and conditions that probability on the
 opponent's observed actions. `randsample` in the next cells draws possible values
-of that probability; increasing 400 gives a steadier estimate but takes longer.
+of that probability; raising the sample count of 400 gives a steadier estimate
+but takes longer.
 """
 
 # ╔═╡ 456c6cdb-2cab-454c-91f7-bac047a5341f
@@ -205,18 +218,34 @@ permuted_opponent_history = JointHistory(
 # ╔═╡ 2900a473-1edd-4131-83e8-16fb56d07d01
 permuted_stationary_samples = randsample(stationary_posterior(permuted_opponent_history), 400; alg=RejectionSample)
 
+# ╔═╡ 5e0c2a61-7d4b-4f2e-9c1a-3b8d6f0e2a47
+md"""
+`permuted_opponent_history` reorders the opponent's actions to safe, hunt, safe.
+The stationary model sees the same counts, so its posterior should again look
+like `Beta(2,3)`, with mean about 0.4.
+"""
+
+# ╔═╡ 8b4f1d93-2c6e-4a07-b5d8-e19a7c3f6b20
+(
+    original_order = mean(stationary_samples_without_repair),
+    permuted_order = mean(permuted_stationary_samples),
+)
+
+# ╔═╡ c3a97e15-6f28-4d0b-a4e1-72b5d9f8c036
+viz(permuted_stationary_samples)
+
 # ╔═╡ 36ebdb45-7dd5-45be-b602-c9201718864a
 md"""
 ## A stateful focal agent
 
-The focal agent has four strategy programs. `always_hunt` and `always_safe`
+The focal agent now has four strategy programs: `always_hunt` and `always_safe`
 ignore history. `grim_trust` treats one safe action as a permanent loss of
 trust, while `repair_after_two` lets two consecutive hunts restore it.
 
 To model the opponent, the focal agent runs its own programs with the player
 roles swapped. It samples a program from a uniform categorical prior. The
-program generates each opponent action with error probability 0.1, and then it
-conditions the latent program on the observed actions. The resulting labels
+program generates each opponent action with error probability 0.1, and the focal
+agent then conditions the latent program on the observed actions. The resulting labels
 name the focal agent's programs; they do not name the opponent's true type.
 """
 
@@ -405,7 +434,7 @@ md"""
 ## Discussion
 
 Try changing only the focal actions in the two histories. The stationary model
-keeps the same prediction because it only counts opponent hunts. The stateful
+keeps the same prediction because it counts only opponent hunts. The stateful
 model can change its prediction because its programs respond to the focal actions.
 
 Remove `repair_after_two` from `stateful_library`, then rerun the inference.
@@ -417,6 +446,24 @@ can also explain behaviour that ignores the focal actions.
 Both focal agents choose greedily from their predictions of the next round.
 What additional predictions would they need to consider the effect of today's
 action on later cooperation?
+"""
+
+# ╔═╡ fc6e8750-762e-473f-819d-3165c44f4ea8
+md"""
+---
+## References
+
+This notebook is part of a tutorial series introducing the ideas in Yu (2026).
+
+The Stag Hunt follows Skyrms (2004); `grim_trust` is a grim-trigger strategy (Friedman, 1971). Inferring another player's strategy from a library of one's own is related to the Bayesian models of Kleiman-Weiner et al. (2016) and to the program-based opponent models of Jha et al. (2025). See also the ProbMods chapter *Social Cognition*.
+
+- Yu, A. J. (2026). *The Art of Making Problems Simple: A Theory of Intelligence*. PsyArXiv. [doi:10.31234/osf.io/pghzn_v3](https://doi.org/10.31234/osf.io/pghzn_v3)
+- Goodman, N. D., Tenenbaum, J. B., & The ProbMods Contributors (2016). *Probabilistic Models of Cognition* (2nd ed.). [probmods.org](https://probmods.org/)
+- Tavares, Z., Koppel, J., Zhang, X., Das, R., & Solar-Lezama, A. (2021). A language for counterfactual generative models. *Proceedings of the 38th International Conference on Machine Learning*, PMLR 139, 10173–10182. [pdf](http://www.zenna.org/publications/causal.pdf)
+- Skyrms, B. (2004). *The Stag Hunt and the Evolution of Social Structure*. Cambridge University Press.
+- Friedman, J. W. (1971). A non-cooperative equilibrium for supergames. *The Review of Economic Studies*, 38(1), 1–12.
+- Kleiman-Weiner, M., Ho, M. K., Austerweil, J. L., Littman, M. L., & Tenenbaum, J. B. (2016). Coordinate to cooperate or compete: Abstract goals and joint intentions in social interaction. *Proceedings of the 38th Annual Conference of the Cognitive Science Society*.
+- Jha, K., Huang, A. Y., Ye, E., Jaques, N., & Kleiman-Weiner, M. (2025). Modeling others' minds as code. [arXiv:2510.01272](https://arxiv.org/abs/2510.01272)
 """
 
 # ╔═╡ Cell order:
@@ -448,6 +495,9 @@ action on later cooperation?
 # ╠═733c4148-1cf9-45a6-ac75-a37cc020ecd0
 # ╠═3cdcd170-d003-4332-9e04-901e3ffd2a2d
 # ╠═2900a473-1edd-4131-83e8-16fb56d07d01
+# ╟─5e0c2a61-7d4b-4f2e-9c1a-3b8d6f0e2a47
+# ╠═8b4f1d93-2c6e-4a07-b5d8-e19a7c3f6b20
+# ╠═c3a97e15-6f28-4d0b-a4e1-72b5d9f8c036
 # ╟─36ebdb45-7dd5-45be-b602-c9201718864a
 # ╠═04b81687-d694-4e06-bafa-00d2a7111068
 # ╠═e523ad30-163a-418b-a7a0-f7883fba3864
@@ -472,3 +522,4 @@ action on later cooperation?
 # ╠═7f60c12d-d4c4-422a-9225-37117904c3d8
 # ╟─8f903022-d73f-451e-8f6b-7e157f0ec6ac
 # ╟─9cf79af0-8a07-4dd0-9d9d-2bf02738d42f
+# ╟─fc6e8750-762e-473f-819d-3165c44f4ea8
